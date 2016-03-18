@@ -1,3 +1,10 @@
+---
+layout: post
+title:  "Install ficitx"
+date:   2016-03-09 15:14:54
+categories: Linux
+---
+
 * Archlinux+i3wm 安装 fcitx
 ** 安装 fcitx
 #+begin_src bash
