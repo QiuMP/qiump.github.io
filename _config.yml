@@ -11,7 +11,7 @@ description: 邱沐坡的博客
 # url: "http://yourdomain.com" # the base hostname & protocol for your site
 # twitter_username: jekyllrb
 github_username:  QiuMP
-permalink: /:year/:month/:day/:title/
+permalink: /:categories/:year-:month-:day/:title/
 
 # Build settings
 markdown: kramdown
