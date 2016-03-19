@@ -16,6 +16,8 @@ permalink: /blog/:year-:month-:day-:title.html
 # Build settings
 markdown: kramdown
 
+exclude: [setupfile.org]
+
 # highlight
 # 本地用rouge, github上用pygments
 # highlighter: pygments

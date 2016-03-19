@@ -131,12 +131,12 @@ function backToTop() {
 function generateContent() {
 
     // console.log($('#markdown-toc').html());
-    if (typeof $('#markdown-toc').html() === 'undefined') {
+    if (typeof $('#text-table-of-contents').html() === 'undefined') {
         // $('#content .content-text').html('<ul><li>文本较短，暂无目录</li></ul>');
         $('#content').hide();
         $('#myArticle').removeClass('col-sm-9').addClass('col-sm-12');
     } else {
-        $('#content .content-text').html('<ul>' + $('#markdown-toc').html() + '</ul>');
+        $('#content .content-text').html($('#text-table-of-contents').html());
         /*   //数据加载完成后，加固定边栏
         $('#myAffix').attr({
             'data-spy': 'affix',
