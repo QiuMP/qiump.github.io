@@ -470,11 +470,11 @@ blockquote:last-child {
 }
 
 .src {
-    color: #f8f8f2;
-    display: block;
-    overflow-x: auto;
-    padding: 0.5em;
-    background: #23241f;
+	color: #ccc;
+	display: block;
+	overflow-x: auto;
+	padding: 0.5em;
+	background: #34383d;
 }
 
 code {
