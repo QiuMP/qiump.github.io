@@ -1,0 +1,120 @@
+#+TITLE: Linux 服务器安全运维
+#+DATE: 2016-03-21
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 高性能 Linux 服务器构建实战
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 账号和登录安全
+** 删除特殊的用户和用户组
+Linux 系统中可以删除的默认用户和用户组大致如下：
+- 可删除的用户，如 adm、lp、sync、shutdown、halt、news、uucp、operator、games、gopher 等。
+- 可删除的用户组，如 adm、lp、news、uucp、games、dip、pppusers、popusers、slipusers 等。
+
+
+有些时候，某些用户仅仅用作进程调用或者用户组调用，并不需要登录功能，此时可以禁止这些用户登录系统的功能
+
+** 关闭系统不需要的服务
+对于服务器来说，运行的服务越多，系统就越不安全，运行的服务越少，系统安全性就越高，因此关闭一些不需要的服务，对系统安全有很大的帮助。
+
+- 下面这些服务一般情况下是不需要的，可以选择关闭：\\
+anacron、auditd、autofs、avahi-daemon、avahi-dnsconfd、bluetooth、cpuspeed、firstboot、gpm、haldaemon、hidd、ip6tables、ipsec、isdn、lpd、mcstrans、messagebus、netfs、nfs、nfslock、nscd、pcscd portmap、readahead_early、restorecond、rpcgssd、rpcidmapd、rstatd、sendmail、setroubleshoot、yppasswdd ypserv
+- 下面是系统
+
+** 密码安全策略
+- 密钥认证是一种新型的认证方式，公用密钥存储在远程服务器上，专用密钥保存在本地，当需要登录系统时，通过本地专用密钥和远程服务器的公用密钥进行配对认证，如果认证成功，就可以成功登录系统。
+- 为了服务器的安全，可以修改 SSH2 的配置文件 =/etc/ssh/sshd_config= ，让其只能接收 PublicKey 认证方式来验证用户。
+  #+BEGIN_SRC shell
+  Protocol 2  #仅允许使用
+  SSH2PubkeyAuthentication yes        #启用 PublicKey 认证 AuthorizedKeysFile 
+  .ssh/authorized_keys2  # PublicKey 文件路径
+  PasswordAuthentication no        #不使用口令认证 
+  #+END_SRC
+
+** 合理使用 su、sudo 命令
+sudo 命令允许系统管理员分配给普通用户一些合理的“权力”，并且不需要普通用户知道超级用户密码，就能让他们执行一些只有超级用户或其他特许用户才能完成的任务，比如系统服务重启、编辑系统配置文件等，通过这种方式不但能减少超级用户登录次数和管理时间，而且提高了系统安全性。
+
+** 删减系统登录欢迎信息
+- /etc/issue、/etc/issue.net \\
+  记录了操作系统的名称和版本号，当用户通过本地终端或本地虚拟控制台等登录系统时，就会显示/etc/issue 的文件内容，当用户通过 ssh 或 telnet 等远程登录系统时，在登录后就会显示/etc/issue.net 的文件内容。
+- /etc/redhat-release \\
+  记录了操作系统的名称和版本号，为了安全起见，可以将此文件中的内容删除。
+- /etc/motd \\
+  系统的公告信息。每次用户登录后，/etc/motd 文件的内容就会显示在用户的终端。此文件的最大作用就是可以发布一些警告信息，在黑客登录系统后，会对其发出这些警告信息，进而产生一些震慑作用。
+
+** TODO 禁止 C-A-Delete 键盘关闭命令
+在 Linux 的默认设置下，同时按下 Control-Alt-Delete 组合键，系统将自动重启，这个策略是很不安全的
+
+* 远程访问和认证安全
+** 合理使用 shell 历史命令记录功能
+- 可以为 history 记录添加时间
+- 可以实现详细记录登录过系统的用户、IP 地址、shell 命令以及详细操作时间等，并将这些信息以文件的形式保存在一个安全的地方，以供系统审计和故障排查。
+** 启用 tcp_wrappers 防火墙
+合理设定 /etc/hosts.allow 和 /etc/hosts.deny 两个文件，格式如下
+  #+BEGIN_SRC shell
+  service:host(s) [:action]
+  #可以使用 ALL 或者 ALL EXCEPT
+  #+END_SRC
+
+* 文件系统安全
+** 锁定系统重要文件
+通过 chattr 命令修改文件或者目录的文件属性能够提高系统的安全性
+- 对一些重要的目录和文件可以加上“i”属性
+- 对一些重要的日志文件可以加上“a”属性
+** 文件权限的检查和修改
+- 注意系统中所有含“s”位的程序，可记录其 md5 以便以后进行检查
+#+BEGIN_SRC shell
+find / -user root -perm -2000 -print -exec md5sum {} \;
+find / -user root -perm -4000 -print -exec md5sum {} \;
+#+END_SRC
+- 注意电脑中没有属主的文件
+#+BEGIN_SRC shell
+find / -nouser -o -nogroup
+#+END_SRC
+** /tmp、/var/tmp、/dev/shm 安全设定
+- /tmp 临时文件的目录或分区有个共同点，就是所有用户可读写、可执行，这就为系统留下了安全隐患。\\
+  使用分区或文件挂载，挂载属性设定为 rw,nosuid,noexec,nodev
+- /var/tmp \\
+  将其设定为 /tmp 的软连接即可
+- /dev/shm \\
+  挂载属性设定为 defaults,nosuid,noexec,rw
+
+* 系统软件安全管理 
+- 及时更新软件
+- 三大 yum 源：官方yum源，EPEL，RPMForge
+
+* Linux后门入侵
+- rootkit是Linux平台下最常见的一种木马后门工具，它主要通过替换系统文件来达到入侵和隐蔽的目的，这种木马比普通木马后门更加危险和隐蔽，普通的检测工具和检查手段很难发现这种木马。
+
+** 使用chkrootkit来检测rootkit
+如果服务器被黑客入侵，那么依赖的系统命令可能也已经被入侵者替换，此时chkrootkit的检测结果将变得完全不可信。为了避免chkrootkit的这个问题，可以在服务器对外开放前，事先将chkrootkit使用的系统命令进行备份，在需要的时候使用备份的原始系统命令让chkrootkit对rootkit进行检测。
+
+** 使用rkhunter -c来检测系统
+- 可以设置每天定时运行
+
+* 服务器遭受攻击后的处理过程
+** 处理服务器遭受攻击的一般思路
+1. 切断网络
+2. 查找攻击源
+3. 分析入侵原因和途径
+4. 备份用户数据
+5. 重新安装系统
+6. 修复程序或系统漏洞
+7. 恢复数据和连接网络
+** 检查并锁定可疑用户
+1. 使用“w”命令来检查用户
+2. 使用 =passwd -l= 来锁定用户，并关闭用户登录进行的pid
+3. 通过“last”命令查看用户登录事件
+** 查看系统日志
+看系统日志是查找攻击源最好的方法，可查看的系统日志有/var/log/messages、/var/log/secure等，这两个日志文件可以记录软件的运行状态以及远程用户的登录状态，还可以查看每个用户目录下的.bash_history文件，特别是/root目录下的.bash_history文件，这个文件中记录着用户执行的所有历史命令。
+** 检查并关闭系统可疑进程
+1. 通过“pidof”命令查找正在运行的进程PID\\
+   或者利用“fuser”命令来查找特定端口对应的进程PID
+2. 进入内存目录，查看对应PID目录下的exe文件信息
+
+
+- 有时候需要通过chkrootkit/RKHunter来查看
+** 检查文件系统的完好性
+利用 =rpm -Va= 来验证文件的完好，如果输出中出现了“M”标记，说明文件可能已经被篡改或替换
+

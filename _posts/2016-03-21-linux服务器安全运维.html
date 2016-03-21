@@ -1,0 +1,328 @@
+---
+title: "Linux 服务器安全运维"
+date: 2016-03-21
+layout: post
+categories: 
+- 高性能 
+- Linux 
+- 服务器构建实战
+tags: 
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline7">账号和登录安全</a>
+<ul>
+<li><a href="#orgheadline1">删除特殊的用户和用户组</a></li>
+<li><a href="#orgheadline2">关闭系统不需要的服务</a></li>
+<li><a href="#orgheadline3">密码安全策略</a></li>
+<li><a href="#orgheadline4">合理使用 su、sudo 命令</a></li>
+<li><a href="#orgheadline5">删减系统登录欢迎信息</a></li>
+<li><a href="#orgheadline6"><span class="todo TODO">TODO</span> 禁止 C-A-Delete 键盘关闭命令</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline10">远程访问和认证安全</a>
+<ul>
+<li><a href="#orgheadline8">合理使用 shell 历史命令记录功能</a></li>
+<li><a href="#orgheadline9">启用 tcp<sub>wrappers</sub> 防火墙</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">文件系统安全</a>
+<ul>
+<li><a href="#orgheadline11">锁定系统重要文件</a></li>
+<li><a href="#orgheadline12">文件权限的检查和修改</a></li>
+<li><a href="#orgheadline13">/tmp、/var/tmp、/dev/shm 安全设定</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">系统软件安全管理</a></li>
+<li><a href="#orgheadline16">Linux后门入侵</a>
+<ul>
+<li><a href="#orgheadline17">使用chkrootkit来检测rootkit</a></li>
+<li><a href="#orgheadline18">使用rkhunter -c来检测系统</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline24">服务器遭受攻击后的处理过程</a>
+<ul>
+<li><a href="#orgheadline19">处理服务器遭受攻击的一般思路</a></li>
+<li><a href="#orgheadline20">检查并锁定可疑用户</a></li>
+<li><a href="#orgheadline21">查看系统日志</a></li>
+<li><a href="#orgheadline22">检查并关闭系统可疑进程</a></li>
+<li><a href="#orgheadline23">检查文件系统的完好性</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">账号和登录安全</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">删除特殊的用户和用户组</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+Linux 系统中可以删除的默认用户和用户组大致如下：
+</p>
+<ul class="org-ul">
+<li>可删除的用户，如 adm、lp、sync、shutdown、halt、news、uucp、operator、games、gopher 等。</li>
+<li>可删除的用户组，如 adm、lp、news、uucp、games、dip、pppusers、popusers、slipusers 等。</li>
+</ul>
+
+
+<p>
+有些时候，某些用户仅仅用作进程调用或者用户组调用，并不需要登录功能，此时可以禁止这些用户登录系统的功能
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">关闭系统不需要的服务</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+对于服务器来说，运行的服务越多，系统就越不安全，运行的服务越少，系统安全性就越高，因此关闭一些不需要的服务，对系统安全有很大的帮助。
+</p>
+
+<ul class="org-ul">
+<li>下面这些服务一般情况下是不需要的，可以选择关闭：<br  /></li>
+</ul>
+<p>
+anacron、auditd、autofs、avahi-daemon、avahi-dnsconfd、bluetooth、cpuspeed、firstboot、gpm、haldaemon、hidd、ip6tables、ipsec、isdn、lpd、mcstrans、messagebus、netfs、nfs、nfslock、nscd、pcscd portmap、readahead<sub>early</sub>、restorecond、rpcgssd、rpcidmapd、rstatd、sendmail、setroubleshoot、yppasswdd ypserv
+</p>
+<ul class="org-ul">
+<li>下面是系统</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">密码安全策略</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<ul class="org-ul">
+<li>密钥认证是一种新型的认证方式，公用密钥存储在远程服务器上，专用密钥保存在本地，当需要登录系统时，通过本地专用密钥和远程服务器的公用密钥进行配对认证，如果认证成功，就可以成功登录系统。</li>
+<li><p>
+为了服务器的安全，可以修改 SSH2 的配置文件 <code>/etc/ssh/sshd_config</code> ，让其只能接收 PublicKey 认证方式来验证用户。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">Protocol <span style="color: #AE81FF;">2</span>  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#20165;&#20801;&#35768;&#20351;&#29992;</span>
+SSH2PubkeyAuthentication yes        <span style="color: #75715E;">#</span><span style="color: #75715E;">&#21551;&#29992; PublicKey &#35748;&#35777; AuthorizedKeysFile </span>
+.ssh/authorized_keys2  <span style="color: #75715E;"># </span><span style="color: #75715E;">PublicKey &#25991;&#20214;&#36335;&#24452;</span>
+PasswordAuthentication no        <span style="color: #75715E;">#</span><span style="color: #75715E;">&#19981;&#20351;&#29992;&#21475;&#20196;&#35748;&#35777;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">合理使用 su、sudo 命令</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+sudo 命令允许系统管理员分配给普通用户一些合理的“权力”，并且不需要普通用户知道超级用户密码，就能让他们执行一些只有超级用户或其他特许用户才能完成的任务，比如系统服务重启、编辑系统配置文件等，通过这种方式不但能减少超级用户登录次数和管理时间，而且提高了系统安全性。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">删减系统登录欢迎信息</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<ul class="org-ul">
+<li>/etc/issue、/etc/issue.net <br  />
+记录了操作系统的名称和版本号，当用户通过本地终端或本地虚拟控制台等登录系统时，就会显示/etc/issue 的文件内容，当用户通过 ssh 或 telnet 等远程登录系统时，在登录后就会显示/etc/issue.net 的文件内容。</li>
+<li>/etc/redhat-release <br  />
+记录了操作系统的名称和版本号，为了安全起见，可以将此文件中的内容删除。</li>
+<li>/etc/motd <br  />
+系统的公告信息。每次用户登录后，/etc/motd 文件的内容就会显示在用户的终端。此文件的最大作用就是可以发布一些警告信息，在黑客登录系统后，会对其发出这些警告信息，进而产生一些震慑作用。</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6"><span class="todo TODO">TODO</span> 禁止 C-A-Delete 键盘关闭命令</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+在 Linux 的默认设置下，同时按下 Control-Alt-Delete 组合键，系统将自动重启，这个策略是很不安全的
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">远程访问和认证安全</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">合理使用 shell 历史命令记录功能</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<ul class="org-ul">
+<li>可以为 history 记录添加时间</li>
+<li>可以实现详细记录登录过系统的用户、IP 地址、shell 命令以及详细操作时间等，并将这些信息以文件的形式保存在一个安全的地方，以供系统审计和故障排查。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">启用 tcp<sub>wrappers</sub> 防火墙</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+合理设定 /etc/hosts.allow 和 /etc/hosts.deny 两个文件，格式如下
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">service:host<span style="color: #AE81FF;">(</span>s<span style="color: #AE81FF;">)</span> <span style="color: #AE81FF;">[</span>:action<span style="color: #AE81FF;">]</span>
+<span style="color: #75715E;">#</span><span style="color: #75715E;">&#21487;&#20197;&#20351;&#29992; ALL &#25110;&#32773; ALL EXCEPT</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14">文件系统安全</h2>
+<div class="outline-text-2" id="text-orgheadline14">
+</div><div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">锁定系统重要文件</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<p>
+通过 chattr 命令修改文件或者目录的文件属性能够提高系统的安全性
+</p>
+<ul class="org-ul">
+<li>对一些重要的目录和文件可以加上“i”属性</li>
+<li>对一些重要的日志文件可以加上“a”属性</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">文件权限的检查和修改</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<ul class="org-ul">
+<li>注意系统中所有含“s”位的程序，可记录其 md5 以便以后进行检查</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-shell">find / -user root -perm -2000 -print -exec md5sum <span style="color: #AE81FF;">{}</span> <span style="color: #E6DB74;">\;</span>
+find / -user root -perm -4000 -print -exec md5sum <span style="color: #AE81FF;">{}</span> <span style="color: #E6DB74;">\;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>注意电脑中没有属主的文件</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-shell">find / -nouser -o -nogroup
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">/tmp、/var/tmp、/dev/shm 安全设定</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<ul class="org-ul">
+<li>/tmp 临时文件的目录或分区有个共同点，就是所有用户可读写、可执行，这就为系统留下了安全隐患。<br  />
+使用分区或文件挂载，挂载属性设定为 rw,nosuid,noexec,nodev</li>
+<li>/var/tmp <br  />
+将其设定为 /tmp 的软连接即可</li>
+<li>/dev/shm <br  />
+挂载属性设定为 defaults,nosuid,noexec,rw</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15">系统软件安全管理</h2>
+<div class="outline-text-2" id="text-orgheadline15">
+<ul class="org-ul">
+<li>及时更新软件</li>
+<li>三大 yum 源：官方yum源，EPEL，RPMForge</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-2">
+<h2 id="orgheadline16">Linux后门入侵</h2>
+<div class="outline-text-2" id="text-orgheadline16">
+<ul class="org-ul">
+<li>rootkit是Linux平台下最常见的一种木马后门工具，它主要通过替换系统文件来达到入侵和隐蔽的目的，这种木马比普通木马后门更加危险和隐蔽，普通的检测工具和检查手段很难发现这种木马。</li>
+</ul>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">使用chkrootkit来检测rootkit</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+如果服务器被黑客入侵，那么依赖的系统命令可能也已经被入侵者替换，此时chkrootkit的检测结果将变得完全不可信。为了避免chkrootkit的这个问题，可以在服务器对外开放前，事先将chkrootkit使用的系统命令进行备份，在需要的时候使用备份的原始系统命令让chkrootkit对rootkit进行检测。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">使用rkhunter -c来检测系统</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<ul class="org-ul">
+<li>可以设置每天定时运行</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24">服务器遭受攻击后的处理过程</h2>
+<div class="outline-text-2" id="text-orgheadline24">
+</div><div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">处理服务器遭受攻击的一般思路</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<ol class="org-ol">
+<li>切断网络</li>
+<li>查找攻击源</li>
+<li>分析入侵原因和途径</li>
+<li>备份用户数据</li>
+<li>重新安装系统</li>
+<li>修复程序或系统漏洞</li>
+<li>恢复数据和连接网络</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">检查并锁定可疑用户</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<ol class="org-ol">
+<li>使用“w”命令来检查用户</li>
+<li>使用 <code>passwd -l</code> 来锁定用户，并关闭用户登录进行的pid</li>
+<li>通过“last”命令查看用户登录事件</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">查看系统日志</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<p>
+看系统日志是查找攻击源最好的方法，可查看的系统日志有/var/log/messages、/var/log/secure等，这两个日志文件可以记录软件的运行状态以及远程用户的登录状态，还可以查看每个用户目录下的.bash<sub>history文件</sub>，特别是/root目录下的.bash<sub>history文件</sub>，这个文件中记录着用户执行的所有历史命令。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">检查并关闭系统可疑进程</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<ol class="org-ol">
+<li>通过“pidof”命令查找正在运行的进程PID<br  />
+或者利用“fuser”命令来查找特定端口对应的进程PID</li>
+<li>进入内存目录，查看对应PID目录下的exe文件信息</li>
+</ol>
+
+
+<ul class="org-ul">
+<li>有时候需要通过chkrootkit/RKHunter来查看</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">检查文件系统的完好性</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<p>
+利用 <code>rpm -Va</code> 来验证文件的完好，如果输出中出现了“M”标记，说明文件可能已经被篡改或替换
+</p>
+</div>
+</div>
+</div>

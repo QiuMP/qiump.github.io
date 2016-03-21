@@ -1,0 +1,11 @@
+#+TITLE: 如何用 jekyll 搭建自己的博客
+#+DATE: 2016-03-15
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: jekyll
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+#+OPTIONS: num:2
+* 安装与配置
+
