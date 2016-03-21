@@ -476,3 +476,8 @@ blockquote:last-child {
     padding: 0.5em;
     background: #23241f;
 }
+
+code {
+	color: #565a5f;
+	background: #f5f8f9;
+}
