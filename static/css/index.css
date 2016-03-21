@@ -468,3 +468,11 @@ blockquote:last-child {
 		padding-left: 25px;
 	}
 }
+
+.src {
+    color: #f8f8f2;
+    display: block;
+    overflow-x: auto;
+    padding: 0.5em;
+    background: #23241f;
+}

@@ -1,10 +1,12 @@
-#+TITLE: Linux 服务器安全运维
+#+TITLE: Linux服务器安全运维
 #+DATE: 2016-03-21
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 高性能 Linux 服务器构建实战
+#+JEKYLL_CATEGORIES: 高性能Linux服务器构建实战
 #+JEKYLL_TAGS: 
 #+JEKYLL_PUBLISHED: true
+
+#+OPTIONS: num:2
 
 * 账号和登录安全
 ** 删除特殊的用户和用户组
@@ -20,7 +22,6 @@ Linux 系统中可以删除的默认用户和用户组大致如下：
 
 - 下面这些服务一般情况下是不需要的，可以选择关闭：\\
 anacron、auditd、autofs、avahi-daemon、avahi-dnsconfd、bluetooth、cpuspeed、firstboot、gpm、haldaemon、hidd、ip6tables、ipsec、isdn、lpd、mcstrans、messagebus、netfs、nfs、nfslock、nscd、pcscd portmap、readahead_early、restorecond、rpcgssd、rpcidmapd、rstatd、sendmail、setroubleshoot、yppasswdd ypserv
-- 下面是系统
 
 ** 密码安全策略
 - 密钥认证是一种新型的认证方式，公用密钥存储在远程服务器上，专用密钥保存在本地，当需要登录系统时，通过本地专用密钥和远程服务器的公用密钥进行配对认证，如果认证成功，就可以成功登录系统。
@@ -82,15 +83,15 @@ find / -nouser -o -nogroup
 
 * 系统软件安全管理 
 - 及时更新软件
-- 三大 yum 源：官方yum源，EPEL，RPMForge
+- 三大 yum 源：官方 yum 源，EPEL，RPMForge
 
-* Linux后门入侵
-- rootkit是Linux平台下最常见的一种木马后门工具，它主要通过替换系统文件来达到入侵和隐蔽的目的，这种木马比普通木马后门更加危险和隐蔽，普通的检测工具和检查手段很难发现这种木马。
+* Linux 后门入侵
+- rootkit 是 Linux 平台下最常见的一种木马后门工具，它主要通过替换系统文件来达到入侵和隐蔽的目的，这种木马比普通木马后门更加危险和隐蔽，普通的检测工具和检查手段很难发现这种木马。
 
-** 使用chkrootkit来检测rootkit
-如果服务器被黑客入侵，那么依赖的系统命令可能也已经被入侵者替换，此时chkrootkit的检测结果将变得完全不可信。为了避免chkrootkit的这个问题，可以在服务器对外开放前，事先将chkrootkit使用的系统命令进行备份，在需要的时候使用备份的原始系统命令让chkrootkit对rootkit进行检测。
+** 使用 chkrootkit 来检测 rootkit
+如果服务器被黑客入侵，那么依赖的系统命令可能也已经被入侵者替换，此时 chkrootkit 的检测结果将变得完全不可信。为了避免 chkrootkit 的这个问题，可以在服务器对外开放前，事先将 chkrootkit 使用的系统命令进行备份，在需要的时候使用备份的原始系统命令让 chkrootkit 对 rootkit 进行检测。
 
-** 使用rkhunter -c来检测系统
+** 使用 rkhunter -c 来检测系统
 - 可以设置每天定时运行
 
 * 服务器遭受攻击后的处理过程
@@ -104,17 +105,17 @@ find / -nouser -o -nogroup
 7. 恢复数据和连接网络
 ** 检查并锁定可疑用户
 1. 使用“w”命令来检查用户
-2. 使用 =passwd -l= 来锁定用户，并关闭用户登录进行的pid
+2. 使用 =passwd -l= 来锁定用户，并关闭用户登录进行的 pid
 3. 通过“last”命令查看用户登录事件
 ** 查看系统日志
-看系统日志是查找攻击源最好的方法，可查看的系统日志有/var/log/messages、/var/log/secure等，这两个日志文件可以记录软件的运行状态以及远程用户的登录状态，还可以查看每个用户目录下的.bash_history文件，特别是/root目录下的.bash_history文件，这个文件中记录着用户执行的所有历史命令。
+看系统日志是查找攻击源最好的方法，可查看的系统日志有/var/log/messages、/var/log/secure 等，这两个日志文件可以记录软件的运行状态以及远程用户的登录状态，还可以查看每个用户目录下的.bash_history 文件，特别是/root 目录下的.bash_history 文件，这个文件中记录着用户执行的所有历史命令。
 ** 检查并关闭系统可疑进程
-1. 通过“pidof”命令查找正在运行的进程PID\\
-   或者利用“fuser”命令来查找特定端口对应的进程PID
-2. 进入内存目录，查看对应PID目录下的exe文件信息
+1. 通过“pidof”命令查找正在运行的进程 PID\\
+   或者利用“fuser”命令来查找特定端口对应的进程 PID
+2. 进入内存目录，查看对应 PID 目录下的 exe 文件信息
 
 
-- 有时候需要通过chkrootkit/RKHunter来查看
+- 有时候需要通过 chkrootkit/RKHunter 来查看
 ** 检查文件系统的完好性
 利用 =rpm -Va= 来验证文件的完好，如果输出中出现了“M”标记，说明文件可能已经被篡改或替换
 
