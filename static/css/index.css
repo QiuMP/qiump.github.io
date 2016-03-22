@@ -490,3 +490,12 @@ code {
 	display: block;
 	list-style-type: decimal;
 }
+
+.example {
+	padding: 10px 15px;
+	border-left-style: solid;
+	border-left-width: 10px;
+	margin: 0 0 20px;
+	border-color: #D6DBDF;
+	background: none repeat scroll 0 0 rgba(102,128,153,.05);
+}
