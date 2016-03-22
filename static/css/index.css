@@ -482,14 +482,6 @@ code {
 	background: #f5f8f9;
 }
 
-.org-src-container {
-	margin: 0 0 10px 35px;
-	margin-top: 0;
-	margin-bottom: 0;
-	color: rgba(102, 128, 153, 0.4);
-	display: block;
-	list-style-type: decimal;
-}
 
 .example {
 	padding: 10px 15px;
