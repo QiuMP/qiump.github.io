@@ -1,0 +1,48 @@
+---
+title: "VMware克隆CentOS 6.5后网卡设置方法"
+date: 2016-05-10
+layout: post
+categories: 
+- 虚拟机
+tags: 
+published: true
+comments: 
+---
+<p>
+由于MAC冲突的问题，克隆后的CentOS的网卡MAC地址和原系统MAC地址中的一样，在局域网内有冲突，需要更改克隆后的MAC地址问题
+</p>
+
+<ul class="org-ul">
+<li>查看 <code>/etc/udev/rules.d/70-persistent-net.rules</code> 会看到有2块网卡eth0和eth1，eth0为克隆之前系统的，eth1为重新生成的</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-shell"><span style="color: #75715E;"># </span><span style="color: #75715E;">PCI device0x1022:0x2000 (pcnet32) </span>
+<span style="color: #FD971F;">SUBSYSTEM</span>==<span style="color: #E6DB74;">"net"</span>, <span style="color: #FD971F;">ACTION</span>==<span style="color: #E6DB74;">"add"</span>,<span style="color: #FD971F;">DRIVERS</span>==<span style="color: #E6DB74;">"?*"</span>, ATTR<span style="color: #AE81FF;">{</span>address<span style="color: #AE81FF;">}</span>==<span style="color: #E6DB74;">"00:0c:29:16:f4:f0"</span>,ATTR<span style="color: #AE81FF;">{</span><span style="color: #F92672;">type</span><span style="color: #AE81FF;">}</span>==<span style="color: #E6DB74;">"1"</span>, <span style="color: #FD971F;">KERNEL</span>==<span style="color: #E6DB74;">"eth*"</span>, <span style="color: #FD971F;">NAME</span>=<span style="color: #E6DB74;">"eth0"</span>
+
+<span style="color: #75715E;"># </span><span style="color: #75715E;">PCI device0x1022:0x2000 (pcnet32) </span>
+<span style="color: #FD971F;">SUBSYSTEM</span>==<span style="color: #E6DB74;">"net"</span>, <span style="color: #FD971F;">ACTION</span>==<span style="color: #E6DB74;">"add"</span>,<span style="color: #FD971F;">DRIVERS</span>==<span style="color: #E6DB74;">"?*"</span>, ATTR<span style="color: #AE81FF;">{</span>address<span style="color: #AE81FF;">}</span>==<span style="color: #E6DB74;">"00:0c:29:52:45:97"</span>,ATTR<span style="color: #AE81FF;">{</span><span style="color: #F92672;">type</span><span style="color: #AE81FF;">}</span>==<span style="color: #E6DB74;">"1"</span>, <span style="color: #FD971F;">KERNEL</span>==<span style="color: #E6DB74;">"eth*"</span>, <span style="color: #FD971F;">NAME</span>=<span style="color: #E6DB74;">"eth1"</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后重启</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li>删除 <code>/etc/sysconfig/network-scripts/ifcfg-eth0</code> 中的HWADDR该行，或将该行的MAC地址修改为上边文件所对应的MAC地址后</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-shell"><span style="color: #FD971F;">DEVICE</span>=eth0 
+<span style="color: #FD971F;">HWADDR</span>=<span style="color: #AE81FF;">00:0C:29:16:F4:F0</span>  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#21024;&#38500;&#25110;&#20462;&#25913;&#35813;&#34892;</span>
+<span style="color: #FD971F;">TYPE</span>=Ethernet 
+<span style="color: #FD971F;">UUID</span>=<span style="color: #AE81FF;">0b1f4512-cefa-4a9e-ae85-adb2ac2a9903</span> 
+<span style="color: #FD971F;">ONBOOT</span>=no 
+<span style="color: #FD971F;">NM_CONTROLLED</span>=yes
+</pre>
+</div>
+<ul class="org-ul">
+<li>执行 <code>/etc/init.d/network restart</code> 即可</li>
+</ul>

@@ -1,4 +1,4 @@
-#+OPTIONS: H:3 num:nil toc:t ^:nil
+#+OPTIONS: H:3 num:1 toc:t ^:nil
 #+OPTIONS: author:Maple Qiu
 #+OPTIONS: email:qiumupo@live.com
 #+OPTIONS: creator:nil

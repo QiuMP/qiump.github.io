@@ -1,0 +1,604 @@
+---
+title: "Spacemacs中的Org-Mode学习总结"
+date: 2016-05-09
+layout: post
+categories: 
+- Spacemacs
+tags: 
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline8">1. 文档结构</a>
+<ul>
+<li><a href="#orgheadline1">标题行</a></li>
+<li><a href="#orgheadline2">视图转换</a></li>
+<li><a href="#orgheadline3">移动</a></li>
+<li><a href="#orgheadline4">结构编辑</a></li>
+<li><a href="#orgheadline5">稀疏树</a></li>
+<li><a href="#orgheadline6">本文列表</a></li>
+<li><a href="#orgheadline7">脚注</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">2. 表格</a>
+<ul>
+<li><a href="#orgheadline9">创建和编辑</a></li>
+<li><a href="#orgheadline10">调整和移动</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">3. 超链接</a></li>
+<li><a href="#orgheadline13">4. 特殊的技巧</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">1</span> 文档结构</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">标题行</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>不同的标题行等级由行头的 <b>*</b> 数量决定的</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">视图转换</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">TAB</td>
+<td class="org-left">子树循环：FOLDED -&gt; CHIDREN -&gt; SUBTREE</td>
+</tr>
+
+<tr>
+<td class="org-left">S-TAB</td>
+<td class="org-left">全局循环：OVERVIEW -&gt; CONTENTS -&gt; SHOWALL</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">移动</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">gl</td>
+<td class="org-left">下个标题</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-p</td>
+<td class="org-left">上个标题</td>
+</tr>
+
+<tr>
+<td class="org-left">gj</td>
+<td class="org-left">下个同级的标题</td>
+</tr>
+
+<tr>
+<td class="org-left">gk</td>
+<td class="org-left">上个同级的标题</td>
+</tr>
+
+<tr>
+<td class="org-left">gh</td>
+<td class="org-left">回到上层标题</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-j</td>
+<td class="org-left">跳转到大纲</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">结构编辑</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">M-RET</td>
+<td class="org-left">插入一个同级标题，会进行截断</td>
+</tr>
+
+<tr>
+<td class="org-left">C-RET</td>
+<td class="org-left">在该文本块下边插入一个同级标题</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-RET</td>
+<td class="org-left">插入一个和当前标题同级的 TODO 项，会进行截断</td>
+</tr>
+
+<tr>
+<td class="org-left">C-S-RET</td>
+<td class="org-left">在该文本块插入一个和当前标题同级的 TODO 项</td>
+</tr>
+
+<tr>
+<td class="org-left">M-o</td>
+<td class="org-left">插入一个和当前标题下一级的标题</td>
+</tr>
+
+<tr>
+<td class="org-left">M-t</td>
+<td class="org-left">插入一个和当前标题下一级的 TODO 项</td>
+</tr>
+
+<tr>
+<td class="org-left">TAB</td>
+<td class="org-left">如果条目中还没有文字，TAB 会调整级别</td>
+</tr>
+
+<tr>
+<td class="org-left">M-h/l</td>
+<td class="org-left">将当前的标题提升/降低一个等级</td>
+</tr>
+
+<tr>
+<td class="org-left">M-k/j</td>
+<td class="org-left">将子树上/下移（和前/后个子树交换）</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-h/l</td>
+<td class="org-left">将当前标题包括其子标题提升/降低一个等级</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-k/j</td>
+<td class="org-left">将该行在块中上/下移</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-w</td>
+<td class="org-left">将条目或区域传送到其他块下</td>
+</tr>
+
+<tr>
+<td class="org-left">C-x n s/w</td>
+<td class="org-left">将缓冲区视图局限到当前子树中/再次放宽视图</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">稀疏树</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<ul class="org-ul">
+<li>根据提供的关键字抽取出稀疏的树</li>
+</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c /</td>
+<td class="org-left">进入稀疏树的创建命令</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c / /</td>
+<td class="org-left">输入稀疏树的匹配串</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">取消稀疏树的高亮</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">本文列表</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+列表当缩进改变或者后面有两个空行时，列表就结束了
+</p>
+
+<ul class="org-ul">
+<li>有序列表以 <b>1.、1)</b> 开头</li>
+<li>无序列表以 <b>-、+、*</b> 开头</li>
+<li>描述列表是无序列表中使用 <b>::</b> 将项和描述分开</li>
+</ul>
+
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">TAB</td>
+<td class="org-left">折叠内容有多行的项，改变空白项的级别</td>
+</tr>
+
+<tr>
+<td class="org-left">M-RET/o</td>
+<td class="org-left">在当前级别插入一个项，有前缀时是强制新建一个标题</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-RET</td>
+<td class="org-left">插入一个带有复选框的项</td>
+</tr>
+
+<tr>
+<td class="org-left">M-UP/DOWN</td>
+<td class="org-left">将当前项和它的子项向上/下移动。如果列表是有序的，数字会自动改变</td>
+</tr>
+
+<tr>
+<td class="org-left">M-LEFT/M-RIGHT</td>
+<td class="org-left">提升/降低项的缩进，不包含子项</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-LEFT/RIGHT</td>
+<td class="org-left">提升/降低项的缩进，包含子项</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">如果项中有复选框，就触发改变其状态。</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c -</td>
+<td class="org-left">循环改变将当前列表的项标志符号</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">脚注</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c C-x f</td>
+<td class="org-left">这是一个移动命令。当光标处理引用处时，跳转到它的定义。其他情况下，新建一个脚注。</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">在定义和引用之间跳转</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c '</td>
+<td class="org-left">在新窗口中编辑脚注内容</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">2</span> 表格</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>任何以 <b>|</b> 为首个非空字符的行都会被认为是表格的一部分</li>
+<li>若想在表格中使用 <b>|</b> ，则使用 <b><code>\vert{}</code></b> 代替</li>
+<li>若想在表格中添加竖表格线，则起一行 <b><code>| / | &lt; |   | &lt; |</code></b> 进行添加，其中 <b>&lt;</b> 表示左边添加表格竖线</li>
+</ul>
+</div>
+
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">创建和编辑</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c &vert;</td>
+<td class="org-left">创建一个表格或者将选中区域转换成表格（按优先级使用 <b>TAB、,、空白字符</b> 进行分割）</td>
+</tr>
+
+<tr>
+<td class="org-left">M-LEFT/RIGHT</td>
+<td class="org-left">左/右移当前列</td>
+</tr>
+
+<tr>
+<td class="org-left">M-UP/DOWN</td>
+<td class="org-left">上/下移当前行</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-LEFT</td>
+<td class="org-left">删除当前行</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-RIGHT</td>
+<td class="org-left">在光标位置左边添加一列</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-UP</td>
+<td class="org-left">删除当前行</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-DOWN</td>
+<td class="org-left">在当前行上面添加一行。如果有前缀，则在下面添加一行</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c -</td>
+<td class="org-left">在当前行下面添加一个水平线。如果带前缀，则在上面添加一行水平线</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c RET</td>
+<td class="org-left">在当前行下面添加一个水平线。并将光标移动到下一行</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c ^</td>
+<td class="org-left">将表排序。当前位置所在的列作为排序的依据。排序在距当前位置最近的两个水平线之间的行（或者整个表）中进行</td>
+</tr>
+
+<tr>
+<td class="org-left">M-RET</td>
+<td class="org-left">将当前表格截短到下一行</td>
+</tr>
+
+<tr>
+<td class="org-left">S-RET</td>
+<td class="org-left">将当前表格复制到下一行</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">调整和移动</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">调整表格，不移动光标</td>
+</tr>
+
+<tr>
+<td class="org-left">TAB</td>
+<td class="org-left">调整表格，将光标移到下一个区域，必要时新建一行</td>
+</tr>
+
+<tr>
+<td class="org-left">S-TAB</td>
+<td class="org-left">调整表格，将光标移到上一个区域</td>
+</tr>
+
+<tr>
+<td class="org-left">RET</td>
+<td class="org-left">调整表格，将光标移到下一行，必要时会新建一行</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">3</span> 超链接</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>链接的格式： <b><code>[[link][description]]</code></b></li>
+<li>如果链接的地址不是 URL 形式，则会作为当前文件内部的链接 <b><code>&lt;&lt;Target&gt;&gt;</code></b> 来处理。</li>
+<li>内部链接中文件名与位置用 <b><code>::</code></b> 隔开</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c l</td>
+<td class="org-left">在当前位置保存一个链接。这是一个全局命令，可以在任何类型的缓冲区中使用。链接保存下来以便以后插入 Org 文件中（见下面）</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-l</td>
+<td class="org-left">插入或修改一个链接。</td>
+</tr>
+
+<tr>
+<td class="org-left">RET/C-c C-o</td>
+<td class="org-left">打开链接</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c &amp;</td>
+<td class="org-left">跳回到一个已记录的地址。用 C-c % 可以将地址记录下来，内部链接后面的命令也会自动将地址记录下来。使用这个命令多次可以一直往前定位。</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">4</span> 特殊的技巧</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>使用 <b><code>=...=</code></b> 来使用特殊字符</li>
+<li><p>
+使用 &lt;s 再按 TAB 键，快速输入 #+BEGIN&#x2026; #+END&#x2026;
+快捷输入列表如下：
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">快捷输入</th>
+<th scope="col" class="org-left">补全</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">&lt;s</td>
+<td class="org-left">#+BEGIN_SRC ?\n\n#+END_SRC"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;e</td>
+<td class="org-left">#+BEGIN_EXAMPLE\n?\n#+END_EXAMPLE"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;q</td>
+<td class="org-left">#+BEGIN_QUOTE\n?\n#+END_QUOTE"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;v</td>
+<td class="org-left">#+BEGIN_VERSE\n?\n#+END_VERSE"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;V</td>
+<td class="org-left">#+BEGIN_VERBATIM\n?\n#+END_VERBATIM"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;c</td>
+<td class="org-left">#+BEGIN_CENTER\n?\n#+END_CENTER"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;l</td>
+<td class="org-left">#+BEGIN_LaTeX\n?\n#+END_LaTeX"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;L</td>
+<td class="org-left">#+LaTeX: "</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;h</td>
+<td class="org-left">#+BEGIN_HTML\n?\n#+END_HTML"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;H</td>
+<td class="org-left">#+HTML: "</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;a</td>
+<td class="org-left">#+BEGIN_ASCII\n?\n#+END_ASCII"</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;A</td>
+<td class="org-left">#+ASCII: "</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;i</td>
+<td class="org-left">#+INDEX: ?"</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,33 @@
+#+TITLE: VMware克隆CentOS 6.5后网卡设置方法
+#+DATE: 2016-05-10
+#+SETUPFILE: ~/mydrive/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 虚拟机
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+由于MAC冲突的问题，克隆后的CentOS的网卡MAC地址和原系统MAC地址中的一样，在局域网内有冲突，需要更改克隆后的MAC地址问题
+
+- 查看 =/etc/udev/rules.d/70-persistent-net.rules= 会看到有2块网卡eth0和eth1，eth0为克隆之前系统的，eth1为重新生成的
+#+BEGIN_SRC shell
+# PCI device0x1022:0x2000 (pcnet32) 
+SUBSYSTEM=="net", ACTION=="add",DRIVERS=="?*", ATTR{address}=="00:0c:29:16:f4:f0",ATTR{type}=="1", KERNEL=="eth*", NAME="eth0"
+
+# PCI device0x1022:0x2000 (pcnet32) 
+SUBSYSTEM=="net", ACTION=="add",DRIVERS=="?*", ATTR{address}=="00:0c:29:52:45:97",ATTR{type}=="1", KERNEL=="eth*", NAME="eth1"
+#+END_SRC
+- 此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后重启
+
+
+
+- 删除 =/etc/sysconfig/network-scripts/ifcfg-eth0= 中的HWADDR该行，或将该行的MAC地址修改为上边文件所对应的MAC地址后
+#+BEGIN_SRC shell
+DEVICE=eth0 
+HWADDR=00:0C:29:16:F4:F0  #删除或修改该行
+TYPE=Ethernet 
+UUID=0b1f4512-cefa-4a9e-ae85-adb2ac2a9903 
+ONBOOT=no 
+NM_CONTROLLED=yes 
+#+END_SRC
+- 执行 =/etc/init.d/network restart= 即可
+
