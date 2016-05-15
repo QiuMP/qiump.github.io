@@ -1,0 +1,45 @@
+#+TITLE: Mac各种神器
+#+DATE: 2016-05-14
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Mac
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+- Alfred ::
+  - 搜索神器，取代Mac自带的Spotlight，配置好能很大的提升效率
+
+- Karabiner ::
+  - 用来修改Mac键盘的布局
+  - 特别是可以用来修改Vimer所喜欢的Fn+h/j/k/l为方向键
+
+- Caffeine ::
+  - 如果你想要快捷的改变苹果的省电（即保持亮屏）用这个软件就对了
+
+- Amethyst ::
+  - 如果你讨厌去调整各个窗口，喜欢用窗口管理的桌面的话
+  - 这个软件可以自动调整窗口的大小，可能对于某些程序会有调整不准确的情况，不过还是很好用
+
+- iterm ::
+  - 替代Mac自带的终端，对于经常使用终端的人绝对是个神器
+
+- flox ::
+  - 用来代替迅雷下载的一个不错的软件，简单易用
+
+- Homebrew ::
+  - 相当与Linux下的各种包管理器，安装软件十分方便
+
+- Cheatsheet ::
+  - 在程序下按 ⌘ 可以显示该程序的快捷键，提升效率的神器
+    
+- Blue Planet ::
+  - 可以在你的桌面显示当前地球上的日照情况，十分酷炫
+
+- The Unarchiver ::
+  - 和系统的解压行为相同的解压软件，支持更多的压缩包类型
+
+- Better touch tool ::
+  - 可以增加更多的自定义手势，增加触摸版的功能
+
+- Dash ::
+  - 开发人员的神器，可以快速的查看API

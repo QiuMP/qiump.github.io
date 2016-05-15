@@ -52,11 +52,11 @@ layout: default
       </div>
       
       <a href="javascript:;" class="categories-list-item" cate="All">
-        All<span class="my-badge"> {{site.categories | size}}</span>
+        All<span class="my-badge numberResult"> {{site.posts|size}} </span>
       </a>
       {% for category in site.categories %}
         <a href="javascript:;" class="categories-list-item" cate="{{ category | first }}">
-          {{ category | first }} <span class="my-badge">{{ category | last | size }}</span>
+          {{ category | first }} <span class="my-badge number">{{ category | last | size }}</span>
         </a>
       {% endfor %}
     </div>

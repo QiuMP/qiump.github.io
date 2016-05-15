@@ -1,0 +1,123 @@
+---
+title: "TCP网络的各个状态总结"
+date: 2016-05-15
+layout: post
+categories: 
+- 计算机网络
+tags: 
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. TCP/IP的连接协议（三次握手）</a></li>
+<li><a href="#orgheadline2">2. TCP/IP的终止协议（四次挥手）</a></li>
+<li><a href="#orgheadline3">3. TCP/IP的连接状态</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> TCP/IP的连接协议（三次握手）</h2>
+<div class="outline-text-2" id="text-1">
+<ol class="org-ol">
+<li>客户端发送一个带SYN标志的TCP报文到服务器</li>
+<li>服务器回应客户端一个同时带ACK和SYN标志的报文</li>
+<li>客户端最后回服务器端一个ACK报文</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> TCP/IP的终止协议（四次挥手）</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。收到一个FIN只意味着这一方向上没有数据流动了，一个TCP连接在收到一个FIN后仍能发送数据。
+</p>
+<ol class="org-ol">
+<li>客户端发送一个FIN报文，关闭客户端到服务器端的数据传输</li>
+<li>服务器端收到这个FIN报文后回应一个确认序号加1的ACK报文</li>
+<li>服务器端准备关闭客户端的连接，发送一个FIN报文给客户端</li>
+<li>客户端收到后回应一个ACK报文</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> TCP/IP的连接状态</h2>
+<div class="outline-text-2" id="text-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">状态</th>
+<th scope="col" class="org-left">状态说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">CLOSED</td>
+<td class="org-left">初始关闭状态</td>
+</tr>
+
+<tr>
+<td class="org-left">LISTEN</td>
+<td class="org-left">服务器端处于监听状态，等待接受连接</td>
+</tr>
+
+<tr>
+<td class="org-left">SYN_RCVD</td>
+<td class="org-left">服务器端收到客户端的SYN报文</td>
+</tr>
+
+<tr>
+<td class="org-left">SYN_SEND</td>
+<td class="org-left">客户端发送SYN报文后的等待状态</td>
+</tr>
+
+<tr>
+<td class="org-left">ESTABLISHED</td>
+<td class="org-left">三次握手后建立连接的状态</td>
+</tr>
+
+<tr>
+<td class="org-left">FIN_WAIT_1</td>
+<td class="org-left">主动终止的一方（客户端）发送FIN报文后的状态（未收到ACK报文）</td>
+</tr>
+
+<tr>
+<td class="org-left">FIN_WAIT_2</td>
+<td class="org-left">主动终止的一方发送FIN报文后的状态（已收到ACK报文）</td>
+</tr>
+
+<tr>
+<td class="org-left">TIME_WAIT</td>
+<td class="org-left">主动终止的一方收到了对方的FIN报文，并发送的ACK报文，2MSL后回到CLOSED状态</td>
+</tr>
+
+<tr>
+<td class="org-left">CLOSING</td>
+<td class="org-left">在FIN_WAIT_1的状态时先收到对方的FIN报文时进入的状态</td>
+</tr>
+
+<tr>
+<td class="org-left">CLOSE_WAIT</td>
+<td class="org-left">被动终止的一方收到对方的FIN报文回应ACK报文后的状态</td>
+</tr>
+
+<tr>
+<td class="org-left">LAST_ACK</td>
+<td class="org-left">被动终止的一方发送FIN报文后等待对方的ACK报文的状态</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
