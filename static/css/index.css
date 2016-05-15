@@ -10,7 +10,6 @@ article p{
 	/*text-indent: 2em;*/
 }
 pre{
-    white-space: normal;
 	padding: 0;
 	background: none;
 }
@@ -485,6 +484,7 @@ code {
 
 
 .example {
+  white-space: normal;
 	padding: 10px 15px;
 	border: 0px;
 	border-left-style: solid;
