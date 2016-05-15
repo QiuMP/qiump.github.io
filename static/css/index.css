@@ -484,7 +484,7 @@ code {
 
 
 .example {
-  white-space: normal;
+  white-space: pre-wrap;
 	padding: 10px 15px;
 	border: 0px;
 	border-left-style: solid;
