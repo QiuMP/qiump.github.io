@@ -1,0 +1,64 @@
+---
+title: "Bash脚本学习之内置命令"
+date: 2016-05-17
+layout: post
+categories: 
+- Shell脚本
+tags: 
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 内置命令</a></li>
+<li><a href="#orgheadline3">2. I/O</a>
+<ul>
+<li><a href="#orgheadline2">echo</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 内置命令</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>Bash脚本中执行内置命令时通常不会 <code>fork</code> 一个子程序来运行，其他命令一般会</li>
+<li>有些Bash内置命令与系统命令同名，但两者并不相同（虽然可能执行效果相同）</li>
+<li>Bash关键字和Bash内置命令不一样，它只是命令结构的组成部分</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">2</span> I/O</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">echo</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+用于打印出表达式或变量（打印到 <code>stdout</code> ）
+</p>
+<dl class="org-dl">
+<dt>常用选项</dt><dd>-e: 打印 <code>escaped characters</code> <br  />
+-n: 不在打印的最后添加换行（默认会换行）</dd>
+<dt>用法</dt><dd><ul class="org-ul">
+<li>可用于 <code>pipe</code> 与变量的赋值</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-shell"><span style="color: #FD971F;">a</span>=<span style="color: #AE81FF; font-weight: bold;">`echo "HELLO" | tr A-Z a-z`</span>
+</pre>
+</div></dd>
+<dt>注意</dt><dd><ul class="org-ul">
+<li><code>echo `command`</code> 会删除命令输出中的换行</li>
+</ul>
+<pre class="example">
+因为 =$IFS= 中通常
+</pre></dd>
+</dl>
+</div>
+</div>
+</div>
