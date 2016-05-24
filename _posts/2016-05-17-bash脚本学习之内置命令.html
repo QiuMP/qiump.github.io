@@ -44,7 +44,7 @@ comments:
 <dl class="org-dl">
 <dt>常用选项</dt><dd>-e: 打印 <code>escaped characters</code> <br  />
 -n: 不在打印的最后添加换行（默认会换行）</dd>
-<dt>用法</dt><dd><ul class="org-ul">
+<dt>特殊用法</dt><dd><ul class="org-ul">
 <li>可用于 <code>pipe</code> 与变量的赋值</li>
 </ul>
 <div class="org-src-container">
@@ -56,7 +56,7 @@ comments:
 <li><code>echo `command`</code> 会删除命令输出中的换行</li>
 </ul>
 <pre class="example">
-因为 =$IFS= 中通常
+因为 $IFS 默认包含 \n 和空格
 </pre></dd>
 </dl>
 </div>

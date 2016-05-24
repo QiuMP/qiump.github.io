@@ -1,0 +1,551 @@
+#+TITLE: Python2.7学习笔记
+#+DATE: 2016-05-19 
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Python
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 输入和输出 
+
+** 输出
+用 =print= 可以输出字符串、结果
+#+BEGIN_SRC python
+print '100 + 200 =', 100, 100 + 200
+# 使用逗号','可以连接多个字符串，print遇到逗号会输出一个空格
+#+END_SRC
+
+** 输入
+使用 =raw_input()= 来让用户输入字符串（注意：该函数读取的内容永远以字符串的形式返回）
+#+BEGIN_SRC python
+name = raw_input()
+name = raw_input('提示字符:')
+#+END_SRC
+
+* 数据类型和变量
+- =#注释= #后边的字符为注释
+
+** 整数
+- 普通整数: 1, -80
+- 十六进制使用 =0x= 开头: 0xff00
+
+** 浮点数
+- 普通浮点数: 1.2, -1.02
+- 科学计数法: 1.23e8, 1.5e-5
+
+** 字符串
+- 字符串是以 '' 或 "" 括起来的任意文本，字符串里可以使用转义字符（\n、\t、\\等等）
+- r'' 表示字符串默认不转义
+- 如果字符串中含有很多换行， \n 用起来不好阅读，可以使用 ''' ''' 或 r''' '''
+  #+BEGIN_SRC python
+  print '''line1
+  line2
+  line3'''
+  #+END_SRC
+- 字符串之间可以直接相加+ 结果是两个字符串连接起来
+
+*** 字符编码
+- ASCII编码占用1个字节，不支持中文
+- Unicode编码占用2个字节，支持中文
+- UTF-8编码把Unicode编码成1-6个字节，用于节省空间，常常需要转换成Unicode后才用于打印字符
+
+*** Python字符串
+| 字符串                 | 编码    |
+|------------------------+---------|
+| 'abc'                  | ASCII   |
+| u'abc'                 | Unicode |
+| u'abc'.encode('utf-8') | UTF-8   |
+
+- 同时，由于Python源代码也是个文本文件，文件包含中文的时候，需要在文件头加上
+#+BEGIN_SRC python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#+END_SRC
+- 字符串是不变对象，即调用自身的任意方法也不会改变自身的内容，这些方法会创建新的对象并返回
+#+BEGIN_SRC python
+a = 'abc'
+b = a.replace('a', 'A')
+c = a.title() # 字符串开头第一个字母大写，其他小写
+# a仍为'abc'
+#+END_SRC
+
+*** 格式化字符串
+- =%= 运算符用于格式化字符串，python采用的格式化方式和C语言一样
+#+BEGIN_SRC python
+print u'Hello, %s' % u'world'
+print 'Hello, %s%d' % ('world', 2)
+#+END_SRC
+- 常见占位符 ::
+| %d | 整数                                 |
+| %x | 十六进制整数                         |
+| %f | 浮点数                               |
+| %s | 字符串（自动把任何数据转换为字符串） |
+
+
+** 布尔值
+- 一个布尔值只用 =True= 、 =False= 两种值
+- 布尔值可以用 =and= 、 =or= 、 =not= 运算
+- 比如 2>1 的值为 True
+
+** 空值
+- 空值用 =None= 表示
+- =None= 并不能理解为0, 0是有意义的
+
+** 变量
+- 变量名是大小写英文、数字和 _ 的组合，并且不能用数字开头
+- 对于 a='abc' ，Python解释器做了两件事情：
+  1. 在内存中创建了 =abc= 的字符串
+  2. 在内存中创建了名为 =a= 的变量，并把它指向 =abc=
+
+** 常量
+- python中，通常用全部大写的变量表示常量，但并不保证该变量不会被改变
+
+** 特殊类型
+*** list
+- list是一种有序的集合，可以随时添加和删除其中的元素，是一种可变对象
+#+BEGIN_SRC python
+alist = ['first', 123, ['lis',123]]
+blist = [] #空list
+print alist[0] #当索引超出范围时会报一个IndexError错误
+print alint[-1] #获取倒数第1个元素
+#+END_SRC
+- 使用 =len()= 可以获得list元素的个数
+- list常用方法 ::
+#+BEGIN_SRC python
+alist.append('yes')    # 将元素添加到list末尾 
+alist.insert(1, 'yes') # 将元素添加到指定位置 
+alist.pop()            # 删除末尾的元素       
+alist.pop(1)           # 删除指定元素         
+alist[1]= 'yes'        # 替换指定元素         
+#+END_SRC
+- list的查找和插入速度随着元素的增加而增加
+*** tuple
+- tuple和list类似，但一旦初始化就不能修改了（即没有append()、insert()这样的方法）
+#+BEGIN_SRC python
+atuple = ('first', 123)
+btuple = (2,) # 一个元素需要在元素后加逗号
+ctuple = ('first', ['x', 'y']) # list内可以变，因此该tuple变成了可变对象
+#+END_SRC
+*** dict
+- dict使用key-value存储（作为key的对象必须不可变），具有极快的查找速度，但存储顺序不能保证
+#+BEGIN_SRC python
+dic = {'first': 1, 'second': 2, 'three': 3} # 初始化dict
+print dic['first']  # 查找dict，当key不存在时报错
+print dic.get('first')  # 查找dict，当key不存在时返回None
+print dic.get('first', -1)  # 查找dict，当key不存在时返回-1
+dic['first'] = 2  # 修改或添加dict
+dic.pop('three')  # 删除dict中的一个key
+#+END_SRC
+- 判断dict中key是否存在
+#+BEGIN_SRC python
+if 'first' in dic:
+    print 'yes'
+#+END_SRC
+- dict与list相比，查找和插入速度极快，但需要占用大量的内存
+*** set
+- set是一组key的集合，即在set中，没有重复的key（同样不可变，即不能为list）
+#+BEGIN_SRC python
+s = set([1,2,2,3])  # 创建一个set，需要提供一个list作为输入集合
+s.add(5)  # 添加元素
+s.remove(3)  #删除元素
+#+END_SRC
+- set之间可以取交集|、并集&
+#+BEGIN_SRC python
+s1 = set([1,2,3])
+s2 = set([2,3,4])
+print s1 | s2  #交集 set([2,3])
+print s1 & s2  #并集 set([1,2,3,4])
+#+END_SRC
+
+* 条件判断和循环
+
+** 条件判断
+- if ::
+#+BEGIN_SRC python
+if 3 > 2:
+    print 'true'
+elif x:  # 只要x是非零数值、非空字符串、非空list等，就判断为True
+    print 'another'
+else:
+    print 'false'
+#+END_SRC
+
+** 循环
+for ::
+#+BEGIN_SRC python
+for x in range(101): #range(101)生成0-100的整数list
+                     #range(3, 50)生成3-49的整数list
+    print x
+#+END_SRC
+- while ::
+#+BEGIN_SRC python
+while True:
+    print 'yes'
+    break
+#+END_SRC
+
+* 函数
+** 定义函数
+#+BEGIN_SRC python
+def my_abs(x):  # 使用def定义函数，最后要加冒号
+    if not isinstance(x, (int, float)):  # isinstance用于检查变量类型
+        raise TypeError('Wrong')  #raise用于抛出异常
+    if x >= 0:
+        return x  
+    else:
+        return -x  # return用于结束函数执行，返回结果
+my_abs(12)  # 调用函数
+my_abs(12,12)  # 当参数个数不对时，会抛出TypeError错误
+#+END_SRC
+- 空函数 ::
+#+BEGIN_SRC python
+def kong():
+    pass  # pass是一个占位符，什么也不做，可以用来定义空函数
+#+END_SRC
+- 返回多个值 ::
+#+BEGIN_SRC python
+def exchange(x, y):
+    return y, x  #返回值其实是一个tuple
+x, y = exchange(x, y)  # 多个变量可以同时接收一个tuple
+#+END_SRC
+
+** 函数的参数
+- 函数参数传进去是进行复制，在函数内对参数的改动不会影响传进去的参数
+*** 默认参数
+- 默认参数不能放在普通参数之前
+#+BEGIN_SRC python
+def get(x, y=2):  # 若y没有传入参数则为2
+    pass
+get(1)  # y=2
+#+END_SRC
+- 默认参数必须指向不变对象
+#+BEGIN_SRC python
+def add_end(L=[])
+    L.append('yes')
+    return L
+# 当多次调用 add_end() 的时候，由于L指向的是可变对象list，因此每次调用都会在该对象后添加元素，造成错误
+# 解决方法：
+def add_end(L=None):
+    if L is None:
+        L = []
+    L.append('yes')
+    return L
+#+END_SRC
+
+*** 可变参数
+可变参数将多余的参数组装成一个tuple（即函数内不可变），可能为空
+#+BEGIN_SRC python
+def mysum(*numbers):
+    s = 0
+    for n in numbers:
+        s += n
+    return s
+mysum(1, 2)
+mysum(*[1, 2])
+mysum(*(1, 2))  # 可在list或tuple前边加*来将可变参数传进去
+#+END_SRC
+
+*** 关键字参数
+关键字参数可以将传入的含参数名的参数组装为一个dict，可能为空
+#+BEGIN_SRC python
+def func(a, b, c=0, *args, **kw):  # args,kw是习惯性用法
+    print a, b, c, args, kw  
+
+func(1, 2, c=3)  # a=1, b=2, c=3, args=(), kw={}
+func(1, 2, 3, 'a', x=5)  # a=1, b=2, c=3, args=('a',), kw={'x': 5}
+func(*(1, 2, 3, 4), **{'x': 5}) # a=1, b=2, c=3, args=(4,), kw={'x': 5}
+#+END_SRC
+
+** 递归函数
+- 使用递归函数要注意防止栈溢出，解决栈溢出的方式是通过尾递归优化，但Python的解释器并没有针对尾递归做优化，需要自行处理
+: 尾递归是指函数返回的时候，调用自身本身，并且return不能包含表达式
+
+** 函数名
+- 函数名其实就是指向函数对象的变量，可以把函数名赋给一个变量，相当于给这个函数起了“别名”
+#+BEGIN_SRC python
+a = abs #取绝对值的内置函数
+print a(-1)
+# abs函数实际上是定义在 __builtin__ 模块中
+#+END_SRC
+- 同样一个函数就可以接受另一个函数名作为参数，这种函数被称为高阶函数
+- 函数对象有一个 ~__name__~ 属性，可以获得函数的名字
+
+** 内建函数：
+*** map
+~map()~ 接受两个参数，一个接受一个参数的函数和一个任意序列（包括字符串），map将传入的函数依次作用到序列的每个元素，并把结果作为新的list返回
+#+BEGIN_SRC python
+def f(x):
+    return x * x
+
+print map(f, [1, 2, 3, 4])  # [1, 4, 9, 16]
+print map(str, [1, 2, 3])  # ['1', '2', '3']
+#+END_SRC
+
+*** reduce
+~reduce()~ 接受两个参数，一个接受两个参数的函数和一个任意序列，reduce会把结果继续和序列的下个一元素累计计算
+#+BEGIN_SRC python
+def add(x, y):
+    return x + y
+
+print reduce(add, [1, 3, 5, 7])  # 16, 不过求和有内置的 sum()
+# 相当于
+print add(add(add(1, 3), 5), 7)  
+#+END_SRC
+
+*** filter
+~filter()~ 接受两个参数，一个接受一个参数的函数和一个任意序列（包括字符串），filter将传入的函数依次作用到序列的每个元素，根据返回值是True还是False来决定是否保留该元素
+#+BEGIN_SRC python
+def not_empty(x):
+    return s and s.strip()   # 判断是否为空字符串
+
+print filter(not_empty, ['A', '', None, ' ', 'B'])
+#+END_SRC
+
+*** sorted
+~sorted()~ 对一个任意序列进行排序
+#+BEGIN_SRC python
+def cmp_ignore_case(s1, s2):
+    u1 = s1.upper()
+    u2 = s2.upper()
+    if u1 < u2:
+        return -1  # -1 表示前者小于后者
+    if u1 > u2:
+        return 1  # 1 表示前者大于后者
+    return 0   # 0 表示前者等于后者
+
+sort(['Abc', 'bbc', 'Ccc'])  # 默认按照ASCII的大小比较，'Z' < 'a'
+sort(['Abc', 'bbc', 'Ccc'], cmp_ignore_case)  # 自定义比较方法
+#+END_SRC
+
+** 返回函数
+- 返回函数时，相关参数和变量都保存在返回的函数中，被称为“闭包”，是高阶函数
+- 注意：返回函数不要引用任何循环变量或后续会发生变化的变量
+#+BEGIN_SRC python
+def su():
+    fs = []
+    for i in range(1, 4):
+        def f():
+            return i * i  
+        fs.append(f)
+    return fs
+f1, f2, f3 = su()
+print f1(), f2(), f3()  # 9 9 9
+# 解决方法：
+def su():
+    fs = []
+    for i in range(1, 4):
+        def f(j):   # 再创建一个函数来绑定循环变量当前的值
+            def g():
+                return j * j  
+            return g
+        fs.append(f(i))
+    return fs
+f1, f2, f3 = su()
+print f1(), f2(), f3()  # 1 4 9
+#+END_SRC
+
+** 匿名函数
+- 匿名函数只能有一个表达式
+#+BEGIN_SRC python
+f = lambda x: x * x
+# 相当于：
+def f(x):
+    return x * x
+#+END_SRC
+- 返回匿名函数：
+#+BEGIN_SRC python
+def build(x, y):
+    return lambda: x * x + y * y
+#+END_SRC
+
+** 装饰器
+装饰器Decorator可以在代码运行期间动态增加功能，本质是一个返回函数的高阶函数
+#+BEGIN_SRC python
+def log(func):
+    def wrapper(*args, **kw):  # 接收func的参数后边再传递给func
+        print 'call %s():' % func.__name__
+        return func(*args, **kw)  # 调用func
+    return wrapper
+
+@log   # 相当于执行了语句 a = log(a)
+def a():
+    print 'yes'
+
+print a.__name__  # wrapper，因为 a = log(a)
+#+END_SRC
+- 如果decorator本身需要传入参数的话，那就需要编写一个返回decorator的高阶函数
+#+BEGIN_SRC python
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):  # 接收func的参数后边再传递给func
+            print '%s %s():' % (text, func.__name__)
+            return func(*args, **kw)  # 调用func
+        return wrapper
+    return decorator
+
+@log('call')   # 相当于执行了语句 a = log('call')(a)
+def a():
+    print 'yes'
+    
+print a.__name__  # 依旧为wrapper
+#+END_SRC
+- 如果要使 ~__name__~ 正常显示的话，需要使用 ~functools.wraps~
+#+BEGIN_SRC python
+import functools
+
+def log(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kw):  # 接收func的参数后边再传递给func
+        print 'call %s():' % func.__name__
+        return func(*args, **kw)  # 调用func
+    return wrapper
+#+END_SRC
+
+** 偏函数
+~functools.partial~ 的作用是把一个函数的某些参数值固定，并返回这个新函数
+#+BEGIN_SRC python
+def test(a, b, c):
+    print a, b, c
+
+test2 = functools.partial(test, b=2)
+test2(1, c=3)  # b不能再次赋值
+test2 = functools.partial(test, 2)  # 相当于设置 a=2
+test2(3, 4)  # a=2, b=3, c=4
+#+END_SRC
+
+* 高级特性
+
+** 切片
+- 切片可以取一个list、tuple或字符串的部分元素（结果的类型与原来相同）
+#+BEGIN_SRC python
+L = [0,1,2,3,4,5,6,7,8,9]
+L[1:3]  # [1,2]
+L[:3]  # [0,1,2]
+L[7:]  # [7,8,9]
+L[-2:]  # [8,9]
+L[-2:-1]  # [8]
+L[1:5:2]  # [1,3] 在这4个数中，每2个取1个
+L[::3]  # [0,3,6,9]
+L[:]  # [0,1,2,3,4,5,6,7,8,9]
+#+END_SRC
+
+** 迭代
+- 可以使用collections模块的Iterable类型来判断一个对象是否是可迭代对象
+#+BEGIN_SRC python
+from collections import Iterable
+if isinstance('abc', Iterable):
+    for ch in 'abc':
+        print ch
+#+END_SRC
+*** 多变量的迭代
+#+BEGIN_SRC python
+for x, y in [(1,1), (2,2), (3,3)]:
+    print x, y
+#+END_SRC
+*** dict的迭代
+#+BEGIN_SRC python
+d = {'first': 1, 'second': 2}  # 保存顺序不能保证
+for key in d:  # 默认迭代的是key
+    print key
+for value in d.itervalues():  # 迭代value
+    print value
+for k, v in d.iteritems():   # 同时迭代key和value
+    print k, v
+#+END_SRC
+*** 字符串的迭代
+#+BEGIN_SRC python
+for ch in 'ABC':   # 字符串也是可迭代对象
+    print ch
+#+END_SRC
+*** list的下标循环
+#+BEGIN_SRC python
+for i, value in enumerate(['a', 'b', 'c']): # 能够把一个list变成索引-元素对
+    print i, value
+#+END_SRC
+
+** 列表生成式
+- 列表生成式直接生成一个list，但会占用比较大的内存
+- 生成平方list ::
+#+BEGIN_SRC python
+[x * x for x in range(1, 5)]  # [1, 4, 9, 16]
+# 相当于
+L = []
+for x in range(1, 5):
+    L.append(x * x)
+#+END_SRC
+- 特殊用法 ::
+#+BEGIN_SRC python
+#使用判断
+[x * x for x in range(1, 5) if x % 2 == 0]  # [4, 16]
+#多层循环
+[m + n for m in 'AB' for n in 'ab']  # ['Aa', 'Ab', 'Ba', 'Bb']
+#多变量
+[k + v for k, v in [(1,1), (2,2)]]  # [2, 4]
+#+END_SRC
+
+** 生成器generator
+- 相对与列表生成式直接生成一个list，是generator保存的是生成值的方法，每次调用会生成一个元素
+#+BEGIN_SRC python
+g = (x * x for x in range(10))  # geneator的内容可以和列表生成式一样
+print g.next()  # 0
+print g.next()  # 1
+print g.next()  # next()函数比较少用，一般都是使用for循环
+
+for n in g:
+    print n
+#+END_SRC
+- 将函数转变为生成器 ::
+#+BEGIN_SRC python
+def ran(max):
+    n = 0
+    while n < max:
+        yield n   # 每当函数运行到这里会暂停并返回n的值
+        n += 1
+o = ran(5)  # ran(5)会返回一个生成器
+print o.next() # 0
+print o.next() # 1
+
+for n in ran(6):
+    print n 
+#+END_SRC
+
+* 模块
+** 模块与包
+- 在Python中，一个.py文件就称之为一个模块（Module）
+- 相同名字的函数和变量完全可以分别存在不同的模块中
+- 为了避免模块名冲突，Python中还有按照目录来组织模块的方法，称为包（Package）
+- 每个包目录下都会有一个 =__init__.py= 文件，可以是空文件，这个文件的模块名就是包名
+- 可以有多级目录来组成多级层次的包结构，包名之间用 . 来连接
+- 安装第三方模块可以用 =pip= 来安装
+** 使用模块
+#+BEGIN_SRC python
+'a test module'  # 任何模块代码的第一个字符串都被视为模块的文档注释
+
+__author__ = 'Qiump'  # 模块的作者
+
+import sys
+print sys.argv  # 该变量用list存储了命令行的所有参数，第一个参数是文件名
+
+if __name__ == '__main__':  # 当直接运行该模块时，__name__会是__main__，可用于运行测试
+    test()
+#+END_SRC
+- 当加载一个模块时，Python默认会搜索当前目录、所有已安装的内置模块和第三方模块，搜索路径存放在 =sys= 模块中的 =path= 变量中
+- 如果要添加自己的搜索目录
+#+BEGIN_SRC python
+import sys
+sys.path.append('...')   # 直接修改path
+#+END_SRC
+** 模块的别名
+#+BEGIN_SRC python
+try: 
+    import cStringIO as StringIO    # cStringIO和StringIO的功能一样，但cStringIO的速度更快
+except ImportError:    # 当导入失败会捕获到ImportError
+    import StringIO
+#+END_SRC
+** 作用域
+- 在Python模块中，以 =_= 开头的函数或变量是private，不应该被直接引用（但无法禁止）
+- 外部不需要引用的函数全部定义成private，只有外部需要引用的函数才定义为public
+
+* 
+
+
