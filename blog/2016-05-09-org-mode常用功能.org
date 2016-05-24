@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: 
 #+JEKYLL_PUBLISHED: true
 
-#+OPTIONS: num:1
+#+OPTIONS: num:1 ^:nil
 
 * 文档结构
 ** 标题行
