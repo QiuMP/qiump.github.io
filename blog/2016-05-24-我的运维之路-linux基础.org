@@ -1,0 +1,229 @@
+#+TITLE: 我的运维之路-Linux基础
+#+DATE: 2016-05-24
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux运维
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 终端
+用户与主机交互，必然用到的设备
+** 终端的类型
+#+BEGIN_SRC shell
+tty  # 查询当前的终端的设备文件
+#+END_SRC
+*** 物理终端
+直接接入本机的显示器和键盘设备，在刚开机程序还未启动完全的时候会用到
+- 设备文件：/dev/console
+
+*** 虚拟终端
+附加在物理终端之上的以软件方式虚拟实现的终端
+: CentOS 6默认启动6个虚拟终端，使用Ctrl+Alt+F[1,6]切换
+- 图形终端（也是虚拟终端一种） :: 
+  附加在物理终端之上的以软件方式虚拟实现的终端，但额外会提供桌面环境
+
+
+- 设备文件：/dev/tty#
+
+*** 模拟终端
+图形界面下打开的命令行接口，或者基于ssh协议或telnet协议等远程打开的界面
+- 设备文件：/dev/pts/#
+
+** 交互式接口
+启动终端后，在终端设备附加的一个交互式应用程序
+*** GUI
+X protocol, window manager, desktop
+*** CLI
+shell程序：sh, csh, tcsh, ksh, bash(GPL), zsh  
+#+BEGIN_SRC shell
+echo ${SHELL}  # 显示当前使用的shell
+cat /etc/shells  # 显示当前系统使用的所有shell
+#+END_SRC
+- 命令提示符 ::
+  - 管理员：#
+  - 普通用户：$
+
+* 命令
+提请shell程序找到键入命令所对应的可执行程序或代码，并由其分析后提交给内核分配资源将其运行起来
+- 取消命令的执行使用：Ctrl+C
+** 命令的种类
+#+BEGIN_SRC shell
+type COMMAND  # 查询命令的种类
+#+END_SRC
+*** 内建命令
+由shell自带的，而且通过某命令形式提供
+*** 外部命令
+在当前系统的某文件系统路径下有对应的可执行程序文件
+#+BEGIN_SRC shell
+# 查询命令的位置
+which COMMAND  # 显示第一个结果
+  --skip-alias: 跳过别名
+whereis COMMAND  # 显示所有结果
+#+END_SRC
+- shell程序搜寻可执行文件的路径定义在 =PATH= 环境变量中（自左向右）
+  - shell搜寻到的外部命令的路径结果会缓存至内存中的kv(key-value)存储中
+  - 但是当外部命令的路径改变时缓存会发生错误，需要修复缓存
+  #+BEGIN_SRC shell
+  hash  # 查询内存中的kv储存的内容和命中次数
+  hash -r  # 清空缓存内容
+  #+END_SRC
+
+
+** 命令的格式
+COMMAND [OPTIONS...] [ARGUMENTS...]
+- 选项：用于启用或关闭命令的某个或某些功能
+  - 短选项：-la（多个短选项可合并使用）
+  - 长选项：--word
+- 参数：命令的作用对象（向命令提供数据）
+** 命令帮助
+- 内建命令 ::
+  #+BEGIN_SRC shell
+  help COMMAND
+  #+END_SRC
+- 外部命令 ::
+  1. =COMMAND --help=
+  2. 使用手册(manual)： =man COMMAND=
+  3. 信息页： =info COMMAND=
+  4. 程序自身的帮助文档(=/usr/share/doc/=)：README、INSTALL、ChangeLog
+  5. 程序官方网站文档：Documentation
+
+*** man
+手册位置: /usr/share/man
+- man章节
+  | man1 | 用户命令           |
+  | man2 | 系统调用           |
+  | man3 | C库调用            |
+  | man4 | 设备文件及特殊文件 |
+  | man5 | 配置文件格式       |
+  | man6 | 游戏               |
+  | man7 | 杂项               |
+  | man8 | 管理类的命令       |
+- 有些命令可能存在多个章节中
+#+BEGIN_SRC shell
+whatis COMMAND  # 查询命令存在于哪些章节
+mandb # 更新whatis数据库
+man 3 COMMAND  # 查询COMMAND(3)的手册
+#+END_SRC
+- man命令的配置文件: /etc/man.config
+  - 其中，MANPATH /PATH/TO/SOMEWHERE: 指明新的手册文件搜索位置
+- 手册中SYNOPSIS的符号说明
+  - []: 可选内容
+  - <>: 必选内容
+  - a|b: 二选一
+  - ...: 同一内容可出现多次
+- man命令其实是使用 less 命令来读取文件
+
+** 命令历史
+- 登录shell时，会读取历史文件中记录下的命令： =~/.bash_history=
+- 登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中
+#+BEGIN_SRC shell
+history
+  -a: 追加新执行的命令至历史文件中
+  -d num: 删除历史中指定的命令
+  -c: 清空历史命令
+#+END_SRC
+- 快捷操作 ::
+  - !#: 调用历史中第#条命令
+  - !string: 调用历史中最近一个以string开头的命令
+  - !!: 上条命令
+
+* 基础命令
+
+** 时钟
+*** 系统时钟
+#+BEGIN_SRC shell
+date [OPTION]... [+FORMAT]  # 显示时间
+  FORMAT: +%F\ %T 日期 时间
+date [MMDDhhmm[[CC]YY][.ss]]  # 设置时间
+  CCYY是四位年份
+#+END_SRC
+#+BEGIN_SRC shell
+cal # 查询日历
+#+END_SRC
+*** 硬件时钟
+#+BEGIN_SRC shell
+hwclock [-sw]  # 显示硬件时钟
+  -s == --hctosys 
+  -w == --systohc
+#+END_SRC
+
+** 目录相关
+
+*** 文件系统
+- 文件有两类数据 ::
+  - 元数据：metadata（如索引）
+    #+BEGIN_SRC shell
+    stat FILE  # 获取指定文件的元数据
+    #+END_SRC
+  - 数据：data
+
+**** 文件名
+1. 文件名严格区分字符大小写
+2. 文件名可使用除 =/= 以外的任意字符，不建议使用特殊字符
+	 - /: 根目录，路径分隔符
+3. 文件名长度最长不能超过255个字符
+4. 所有.开头的文件，均为隐藏文件
+
+**** 文件路径
+- 绝对路径：从根目录 =/= 起始的路径
+- 相对路径：从当前位置(working directory)起始的路径
+  - .: 当前目录
+  - ..: 当前目录的上一级目录
+#+BEGIN_SRC shell
+pwd  # printing working directory
+#+END_SRC
+
+*** cd
+#+BEGIN_SRC shell
+cd  # 回到当前用户的主目录
+cd ~USERNAME  # 切换至指定用户的主目录
+cd -  # 在上一个目录和当前目录之间来回切换
+#+END_SRC
+
+- 相关的环境变量 ::
+  - PWD: 保存了当前的目录路径
+  - OLDPWD: 上一次所在目录路径
+
+*** ls
+显示指定路径下的文件列表
+#+BEGIN_SRC shell
+ls [OPTION]... [DIR]...
+  -a, --all: 显示所有文件，包括隐藏文件
+  -l: 长格式
+  -h, --human-readable：单位换算
+  -d: 显示目录自身的相关属性；通常要与-l一起使用；
+  -r, --reverse: 逆序显示
+  -R, --recursive: 递归
+#+END_SRC
+- 长格式 ::
+  [[file:ls.gif]]
+  - -rw-r--r-- 最左侧的一位表示文件类型  
+    - -:普通文件(纯文本文件\二进制文件\数据文件)
+    - d:目录
+    - l:连接文件, 类似windows下快捷方式
+    - b:块设备文件(可存储数据, 随机访问)
+    - c:字符设备文件(鼠标\键盘<-串行端口设备)
+    - s:sockets(用于网络的数据连接)
+    - p:管道(FIFO)
+
+*** cat, tac
+#+BEGIN_SRC shell
+cat [OPTION]... [FILE]...  # 连接文件，然后显示到屏幕上
+  -A: 显示所有特殊字符
+  -n: 对显示的每一行进行编号
+tac [OPTION]... [FILE]...  # 连接文件，然后倒过来显示到屏幕上
+#+END_SRC
+
+*** file
+#+BEGIN_SRC shell
+file FILE  # 查看文件内容的类型 
+#+END_SRC
+
+*** echo
+#+BEGIN_SRC shell
+echo "$VAR_NAME"  # 回显命令
+  -n: 禁止自动添加换行符号
+  -e: 允许使用转义符
+#+END_SRC
+
+
