@@ -1,0 +1,9 @@
+#+TITLE: 计算机知识
+#+DATE: 2016-05-23
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 操作系统
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+- 现代计算机设备的组成部分：运算器、控制器、存储器、输入设备、输出设备
