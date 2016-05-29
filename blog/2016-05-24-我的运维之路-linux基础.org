@@ -14,7 +14,7 @@ tty  # 查询当前的终端的设备文件
 #+END_SRC
 *** 物理终端
 直接接入本机的显示器和键盘设备，在刚开机程序还未启动完全的时候会用到
-- 设备文件：/dev/console
+- 设备文件: /dev/console
 
 *** 虚拟终端
 附加在物理终端之上的以软件方式虚拟实现的终端
@@ -23,29 +23,29 @@ tty  # 查询当前的终端的设备文件
   附加在物理终端之上的以软件方式虚拟实现的终端，但额外会提供桌面环境
 
 
-- 设备文件：/dev/tty#
+- 设备文件: /dev/tty#
 
 *** 模拟终端
 图形界面下打开的命令行接口，或者基于ssh协议或telnet协议等远程打开的界面
-- 设备文件：/dev/pts/#
+- 设备文件: /dev/pts/#
 
 ** 交互式接口
 启动终端后，在终端设备附加的一个交互式应用程序
 *** GUI
 X protocol, window manager, desktop
 *** CLI
-shell程序：sh, csh, tcsh, ksh, bash(GPL), zsh  
+shell程序: sh, csh, tcsh, ksh, bash(GPL), zsh  
 #+BEGIN_SRC shell
 echo ${SHELL}  # 显示当前使用的shell
 cat /etc/shells  # 显示当前系统使用的所有shell
 #+END_SRC
 - 命令提示符 ::
-  - 管理员：#
-  - 普通用户：$
+  - 管理员: #
+  - 普通用户: $
 
 * 命令
 提请shell程序找到键入命令所对应的可执行程序或代码，并由其分析后提交给内核分配资源将其运行起来
-- 取消命令的执行使用：Ctrl+C
+- 取消命令的执行使用: Ctrl+C
 ** 命令的种类
 #+BEGIN_SRC shell
 type COMMAND  # 查询命令的种类
@@ -71,10 +71,10 @@ whereis COMMAND  # 显示所有结果
 
 ** 命令的格式
 COMMAND [OPTIONS...] [ARGUMENTS...]
-- 选项：用于启用或关闭命令的某个或某些功能
-  - 短选项：-la（多个短选项可合并使用）
-  - 长选项：--word
-- 参数：命令的作用对象（向命令提供数据）
+- 选项: 用于启用或关闭命令的某个或某些功能
+  - 短选项: -la（多个短选项可合并使用）
+  - 长选项: --word
+- 参数: 命令的作用对象（向命令提供数据）
 ** 命令帮助
 - 内建命令 ::
   #+BEGIN_SRC shell
@@ -82,10 +82,10 @@ COMMAND [OPTIONS...] [ARGUMENTS...]
   #+END_SRC
 - 外部命令 ::
   1. =COMMAND --help=
-  2. 使用手册(manual)： =man COMMAND=
-  3. 信息页： =info COMMAND=
-  4. 程序自身的帮助文档(=/usr/share/doc/=)：README、INSTALL、ChangeLog
-  5. 程序官方网站文档：Documentation
+  2. 使用手册(manual): =man COMMAND=
+  3. 信息页: =info COMMAND=
+  4. 程序自身的帮助文档(=/usr/share/doc/=): README、INSTALL、ChangeLog
+  5. 程序官方网站文档: Documentation
 
 *** man
 手册位置: /usr/share/man
@@ -113,21 +113,14 @@ man 3 COMMAND  # 查询COMMAND(3)的手册
   - ...: 同一内容可出现多次
 - man命令其实是使用 less 命令来读取文件
 
-** 命令历史
-- 登录shell时，会读取历史文件中记录下的命令： =~/.bash_history=
-- 登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中
-#+BEGIN_SRC shell
-history
-  -a: 追加新执行的命令至历史文件中
-  -d num: 删除历史中指定的命令
-  -c: 清空历史命令
-#+END_SRC
-- 快捷操作 ::
-  - !#: 调用历史中第#条命令
-  - !string: 调用历史中最近一个以string开头的命令
-  - !!: 上条命令
-
 * 基础命令
+
+- echo ::
+  #+BEGIN_SRC shell
+  echo "$VAR_NAME"  # 回显命令
+    -n: 禁止自动添加换行符号
+    -e: 允许使用转义符
+  #+END_SRC
 
 ** 时钟
 *** 系统时钟
@@ -147,15 +140,15 @@ hwclock [-sw]  # 显示硬件时钟
   -w == --systohc
 #+END_SRC
 
-** 目录相关
+** 目录与文件相关
 
 *** 文件系统
 - 文件有两类数据 ::
-  - 元数据：metadata（如索引）
+  - 元数据: metadata（如索引）
     #+BEGIN_SRC shell
     stat FILE  # 获取指定文件的元数据
     #+END_SRC
-  - 数据：data
+  - 数据: data
 
 **** 文件名
 1. 文件名严格区分字符大小写
@@ -165,12 +158,24 @@ hwclock [-sw]  # 显示硬件时钟
 4. 所有.开头的文件，均为隐藏文件
 
 **** 文件路径
-- 绝对路径：从根目录 =/= 起始的路径
-- 相对路径：从当前位置(working directory)起始的路径
+- 绝对路径: 从根目录 =/= 起始的路径
+- 相对路径: 从当前位置(working directory)起始的路径
   - .: 当前目录
   - ..: 当前目录的上一级目录
 #+BEGIN_SRC shell
 pwd  # printing working directory
+#+END_SRC
+
+**** 文件时间戳
+- access time：访问时间，简写为atime，读取文件内容
+- modify time: 修改时间, mtime，改变文件内容（数据）
+- change time: 改变时间, ctime，元数据发生改变（包含时间戳的改变）
+#+BEGIN_SRC shell
+touch [OPTION]... FILE...  # 改变文件时间戳或创建文件
+  -a: only atime  # touch默认把3个时间都改为当前时间
+  -m: only mtime
+  -t [[CC]YY]MMDDhhmm[.ss]: 指定时间
+  -c: 不自动创建空文件
 #+END_SRC
 
 *** cd
@@ -190,22 +195,91 @@ cd -  # 在上一个目录和当前目录之间来回切换
 ls [OPTION]... [DIR]...
   -a, --all: 显示所有文件，包括隐藏文件
   -l: 长格式
-  -h, --human-readable：单位换算
+  -h, --human-readable: 单位换算
   -d: 显示目录自身的相关属性；通常要与-l一起使用；
   -r, --reverse: 逆序显示
   -R, --recursive: 递归
 #+END_SRC
 - 长格式 ::
   [[file:ls.gif]]
-  - -rw-r--r-- 最左侧的一位表示文件类型  
-    - -:普通文件(纯文本文件\二进制文件\数据文件)
-    - d:目录
-    - l:连接文件, 类似windows下快捷方式
-    - b:块设备文件(可存储数据, 随机访问)
-    - c:字符设备文件(鼠标\键盘<-串行端口设备)
-    - s:sockets(用于网络的数据连接)
-    - p:管道(FIFO)
+  - -rw-r--r-- 最左侧的一位表示文件类型
 
+*** mkdir, rmdir
+#+BEGIN_SRC shell
+mkdir [OPTION]... /path/to...  # 创建目录
+  -p: 当目录存在时不报错，且可自动创建所需的各目录；
+  -v: 显示详细信息
+  -m MODE: 创建目录时直接指定权限；
+#+END_SRC
+#+BEGIN_SRC shell
+rmdir [OPTION]... /path/to...  # 只能删除空目录
+  -p: 层级删除空目录 
+  -v: 显示详细信息
+#+END_SRC
+
+*** tree
+列出目录的层级结构
+#+BEGIN_SRC shell
+tree /path/to 
+  -d: 只显示目录
+  -L level：指定显示的层级数目
+  -P pattern: 只显示由指定pattern匹配到的路径；
+#+END_SRC
+
+*** file
+查看文件内容的类型 
+#+BEGIN_SRC shell
+file FILE 
+#+END_SRC
+
+** 文件管理
+
+*** cp
+复制命令
+#+BEGIN_SRC shell
+cp [OPTION]... SOURCE... DIRECTORY
+cp [OPTION]... -t DIRECTORY SOURCE...
+  -i: 交互式
+  -r, -R: 递归复制目录及内部的所有内容；
+  -a: 归档，相当于-dr --preserv=all
+    -d: 不跟踪符号文件链接（默认会跟踪复制原文件）
+    --preserv[=ATTR_LIST]: 保留属性
+      ATTR_LIST: mode,ownership,timestamp,links,xattr,context,all
+  -p: --preserv=mode,ownership,timestamp
+  -v: 显示详细信息verbose
+  -f: --force
+
+#+END_SRC
+- cp SRC DEST
+  - 如果目标不存在：新建DEST，并将SRC中内容填充到DEST中
+  - 如果目标存在：
+    - 如果DEST是文件：将SRC中的内容覆盖到DEST中（使用-i以确认）
+    - 如果DEST是目录：将SRC复制到该目录下
+- cp SRC... DEST
+  - DEST必须存在，且为目录
+- cp -r 目录SRC DEST
+  - 如果目标不存在：新建DEST目录，复制SRC中所有文件至DEST中
+  - 如果DEST存在且为目录：在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中
+
+*** mv
+移动文件或目录，也可以用于重命名
+#+BEGIN_SRC shell
+mv [OPTION]... SOURCE... DIRECTORY
+mv [OPTION]... -t DIRECTORY SOURCE...
+  -i: 交互式
+  -f: 强制
+#+END_SRC
+
+*** rm
+删除文件或目录
+#+BEGIN_SRC shell
+rm [OPTION]... FILE...
+  -i: 交互式
+  -f: 强制删除
+  -r: 递归删除目录
+#+END_SRC
+
+** 查看文本文件
 *** cat, tac
 #+BEGIN_SRC shell
 cat [OPTION]... [FILE]...  # 连接文件，然后显示到屏幕上
@@ -214,16 +288,210 @@ cat [OPTION]... [FILE]...  # 连接文件，然后显示到屏幕上
 tac [OPTION]... [FILE]...  # 连接文件，然后倒过来显示到屏幕上
 #+END_SRC
 
-*** file
+*** more, less
+more和less可以对长文章进行翻页，less更常用
+
+*** head, tail
 #+BEGIN_SRC shell
-file FILE  # 查看文件内容的类型 
+head [OPTION]... [FILE]...  # 读取文件头
+  -c num: 指定获取前num字节
+  -n num / -num: 指定获取前num行
+#+END_SRC
+#+BEGIN_SRC shell
+tail [OPTION]... [FILE]...  # 读取文件尾
+  -c num: 指定获取后num字节
+  -n num / -num: 指定获取后num行
+  -f: 跟踪显示文件新追加的内容；
 #+END_SRC
 
-*** echo
-#+BEGIN_SRC shell
-echo "$VAR_NAME"  # 回显命令
-  -n: 禁止自动添加换行符号
-  -e: 允许使用转义符
+** 文本处理工具
+
+*** tr
+转换或删除字符
+#+BEGIN_SRC sh
+tr [OPTION]... SET1 [SET2]
+  -d: 删除SET1中的字符（默认为转换为SET2对应的字符）
 #+END_SRC
 
+** 系统管理
+*** 关机和重启
+- reboot, halt, poweroff 都会通过调用shutdown来使用
+  #+BEGIN_SRC shell
+  shutdown [OPTION]... TIME [MESSAGE]
+    -r: reboot
+    -h: halt
+    -c: cancel
+    TIME: now: 立刻
+          +m: 相对时间
+          hh:mm: 绝对时间
+  #+END_SRC
+*** 用户登录信息
+- whoami: 显示当前登录有效用户
+- who: 系统当前所有的登录会话
+- w: 系统当前所有的登录会话及所做的操作
 
+
+
+* Linux的文件系统
+
+- 根文件系统(rootfs) ::
+  root filesystem
+
+** LSB, FHS: (FileSystem Heirache Standard)
+- /boot: 引导文件存放目录，内核文件(vmlinuz)、引导加载器(bootloader, grub)都存放于此目录
+- /bin: 供所有用户使用的基本命令；不能关联至独立分区，OS启动即会用到的程序
+- /sbin: 管理类的基本命令；不能关联至独立分区，OS启动即会用到的程序
+- /lib: 基本共享库文件，以及内核模块文件(/lib/modules)
+- /lib64: 专用于x86_64系统上的辅助共享库文件存放位置
+- /etc: 配置文件目录(纯文本文件)
+  - /etc/opt: 安装在/opt下的软件配置文件
+  - /etc/X11: X Window System的配置文件
+  - /etc/xml
+  - /etc/sgml
+- /home/USERNAME: 普通用户家目录
+- /root: 管理员的家目录
+- /media: 便携式移动设备(cdrom, usb)挂载点
+- /mnt: 临时文件系统挂载点
+- /dev: 设备文件及特殊文件存储位置
+	- b: block device，随机访问
+	- c: character device，线性访问
+- /opt: 第三方应用程序的安装位置
+- /srv: 系统上运行的服务用到的数据
+- /tmp: 临时文件存储位置
+- /usr: universal shared, read-only data
+	- /usr/bin: 保证系统拥有完整功能而提供的应用程序
+	- /usr/sbin: 管理类命令
+	- /usr/lib: 
+	- /usr/lib64: 
+	- /usr/include: C程序的头文件(header files)，描述库文件的调用接口
+	- /usr/share: 结构化独立的数据，例如doc, man等
+  - /usr/src: 源代码放置位置
+	- /usr/local: 第三方应用程序的安装位置
+		- bin, sbin, lib, lib64, etc, share
+- /var: variable data files
+	- /var/cache: 应用程序缓存数据目录
+	- /var/lib: 应用程序状态信息数据
+	- /var/local: 专用于为/usr/local下的应用程序存储可变数据
+	- /var/lock: 锁文件
+	- /var/log: 日志目录及文件
+  - /var/mail: 存放邮件
+	- /var/opt: 专用于为/opt下的应用程序存储可变数据
+	- /var/run: 运行中的进程相关的数据；通常用于存储进程的pid文件
+	- /var/spool: 应用程序数据池
+	- /var/tmp: 保存系统两次重启之间产生的临时数据
+- /proc: 用于输出内核与进程信息相关的虚拟文件系统
+- /sys: 用于输出当前系统上硬件设备相关信息的虚拟文件系统
+- /selinux: security enhanced Linux，selinux相关的安全策略等信息的存储位置；
+
+** 应用程序的组成部分
+- 二进制程序: /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin, /usr/local/sbin
+- 库文件: /lib, /lib64, /usr/lib, /usr/lib64, /usr/local/lib, /usr/local/lib64
+- 配置文件: /etc, /etc/DIRECTORY, /usr/local/etc
+- 帮助文件: /usr/share/man, /usr/share/doc, /usr/local/share/man, /usr/local/share/doc
+
+** 文件类型
+- -(f): 普通文件(纯文本文件\二进制文件\数据文件)
+- d: 目录
+- l: 连接文件, 类似windows下快捷方式
+- b: 块设备文件(可存储数据, 随机访问)
+- c: 字符设备文件(鼠标\键盘<-串行端口设备)
+- s: sockets
+- p: 管道(FIFO)
+
+* Bash基础
+** 命令历史
+- 登录shell时，会读取历史文件中记录下的命令: =~/.bash_history=
+- 登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中
+#+BEGIN_SRC shell
+history [NUM]  # 显示历史中最近NUM条命令
+  -a: 追加新执行的命令至历史文件中
+  -d OFFSET: 删除历史中指定的命令
+  -c: 清空历史命令
+#+END_SRC
+- 环境变量 ::
+  - HISTSIZE: 命令历史记录的条数
+  - HISTFILE: ~/.bash_history
+  - HISTFILESIZE: 命令历史文件记录历史的条数
+  - HISTCONTROL: 控制命令历史的记录方式
+    - ignoredups(默认值): 忽略连续重复的指令
+    - ignorespace: 忽略所有以空白开头的命令
+    - ignoreboth: ignoredups, ignorespace
+
+- 修改环境变量: export 变量名="值"
+
+- 快捷操作 ::
+  - !#: 调用历史中第#条命令
+  - !string: 调用历史中最近一个以string开头的命令
+  - !!: 上条命令
+  - !$: 调用上一条命令的最后一个参数（用于同个文件的操作）
+** 命令或路径补全和展开
+- 直接补全: 用户给定的字符串只有一条惟一对应的命令或路径，则按TAB直接补全
+- 补全列表：对应的命令或路径不唯一，按两次TAB会给出列表
+- {}: 可承载一个以逗号分隔的列表，并将其展开为多个路径，可嵌套使用
+	- /tmp/{a,b}_{x,y}
+	- /tmp/{bin,sbin,usr/{bin,sbin}}
+** 命令的执行结果
+bash使用特殊变量 =$?= 来保存最近一条命令的执行结果
+- 0: 成功
+- 1-255: 失败
+** 命令别名(alias)
+#+BEGIN_SRC shell
+alias  # 显示当前shell进程所有可用的命令别名
+alias NAME='VALUE'  # 定义命令别名NAME
+# 如果要永久生效需要写入bash配置文件中
+#+END_SRC
+#+BEGIN_SRC shell
+unalias [-a] name...
+  -a: 撤销所有别名
+#+END_SRC
+- 如果要忽略别名执行原命令的话，可使用 =\COMMAND=
+** glob
+bash中用于实现文件名“通配”
+- 通配符 ::
+  - *: 任意长度的任意字符，包含空
+  - ?: 任意单个字符
+  - []: 匹配指定范围内的任意单个字符
+    - [a-z]: 由于按照aAbB（根据locale和LC_COLLATE变量决定的）的排列，所以除Z外的字母都匹配
+  - [^]: 匹配制定范围外的任意单个字符
+- 专用字符集合 ::
+  - [:digit:]: 任意数字
+  - [:lower:]: 任意小写字母
+  - [:upper:]: 任意大写字母
+  - [:alpha:]: 任意大小写字母
+  - [:alnum:]: 任意数字或字母
+  - [:space:]: 
+  - [:punct:]: 标点符号
+** bash的快捷键
+- Ctrl+l: 清屏，相当于clear命令
+- Ctrl+a：跳转至命令开始处
+- Ctrl+e：跳转至命令结尾处
+- Ctrl+c：取消命令的执行
+- Ctrl+u: 删除光标所在处至行首的所有内容
+- Ctrl+k: 删除光标所在处至行尾的所有内容
+** I/O重定向及管道
+- 每个打开的文件都会有一个fd: file descripter（文件描述符）
+  - 标准输入: keyborad, 0
+  - 标准输出: monitor, 1
+  - 标准错误输出: monitor, 2
+*** I/O重定向
+改变标准位置
+- 输出重定向 ::
+  - >: 覆盖重定向标准输出
+    : 禁止将内容覆盖输出至已有文件中: set -C （恢复是 set +C ）
+    : >|: 强制覆盖重定向
+  - >>: 追加重定向标准输出
+  - 2>: 覆盖重定向错误输出
+  - 2>>: 追加重定向错误输出
+  - &>: 覆盖重定向合并标准输出和错误输出
+  - &>>: 追加重定向合并标准输出和错误输出
+- 输入重定向 ::
+  - <file: 标准输入使用file
+  - <<EOF: 读取你的输入至EOF行
+    #+BEGIN_SRC shell
+    cat >> file << EOF
+    #+END_SRC
+*** 管道
+使用 =|= 来连接命令，前一个命令的标准输出当作后一个命令的输入
+#+BEGIN_SRC sh
+tee [OPTION]... [FILE]... # 将标准输入输出到标准输出和文件
+#+END_SRC
