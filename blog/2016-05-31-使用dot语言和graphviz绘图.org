@@ -1,0 +1,118 @@
+#+TITLE: 使用DOT语言和Graphviz绘图
+#+DATE: 2016-05-31
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Dot
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* Dot语言
+- Dot语言由3个主要对象组成：图graph，点node，边edge
+- graph分为三种
+  - graph: 无向图，连接边的符号为 --
+  - digraph: 有向图，连接边的符号为 ->
+  - subgraph: 子图，使用于上述两中图中
+- Dot语言的行尾可以加 =;= 也可以不加
+
+* Dot基础
+#+begin_src dot :file dot_1.png :cmdline -Tpng :results silent :exports code
+  digraph G {
+      main -> parse -> execute  //一行可以进行多个连接
+      main -> init
+      main -> cleanup
+      execute -> make_string
+      execute -> printf
+      init -> make_string
+      main -> printf
+      execute -> compare
+  }
+#+end_src
+
+[[file:dot_1.png]]
+
+#+begin_src dot :file dot_2.png :cmdline -Tpng :exports code :results silent
+  digraph G {
+      size = "4,4"  // 设置图片尺寸（英寸）
+      main [shape=box]  // 设置形状
+      main -> parse [weight=4]  // 设置权值，让main优先对齐这个
+      parse -> execute
+      main -> init [style=dotted]  // 线条类型
+      main -> cleanup
+      execute -> { make_string; printf } -> done  // 指定连接多个点
+      init -> make_string
+      edge [color=red]  // 设置接下来的默认边属性
+      main -> printf [style=bold, label="100 times"]  // label设置边的显示内容
+      make_string [label="make a\nstring"]  // 设置节点的显示内容
+      node [shape=box, style=filled, color=".7 .3 1.0"]  // 设置接下来的默认结点属性
+      execute -> compare
+  }
+#+end_src
+
+[[file:dot_2.png]]
+
+* 绘画属性
+** 结点形状
+- 默认的结点属性 ::
+#+BEGIN_SRC dot
+node [shape=ellipse, width=.75, height=.5]
+#+END_SRC
+  - 一个结点的形状大小会自动随着需求的增大而增大，除非设置了 =fixedsize=true=
+- 结点常用图形 ::
+  [[file:./dot_shape.png]]
+*** 多边形
+- 除record和Mrecord外都是多边形，
+- =regular=true= : 强制转换为等边形
+- =peripheries=2= : 设定边界的层数，例如doublecircle的peripheries就是2
+- =orientation= : 设定图形旋转的角度
+
+
+- polygon ::
+  - polygon可以用于生成多种没有定义的图形
+  - =sides= : 定义边数
+  - =skew= : 定义倾斜度 (-1.0, 1.0)
+  - =distortion= : 正数时拉伸上部分，负数时拉伸下部分
+  #+begin_src dot :file dot_3.png :cmdline -Tpng :exports none :results silent
+    digraph G {
+        a -> b -> c
+        b -> d
+        a [shape=polygon,sides=5,peripheries=3,color=lightblue,style=filled]
+        c [shape=polygon,sides=4,skew=.4,label="hello world"]
+        d [shape=invtriangle]
+        e [shape=polygon,sides=4,distortion=.7]
+    }
+  #+end_src
+
+[[file:dot_3.png]]
+**** 表格
+- Mrecord与record唯一的区别的是Mrecord是圆角
+#+begin_src dot :file dot_4.png :cmdline -Tpng :exports code :results silent
+  digraph structs {
+      node [shape=record]
+      struct1 [shape=record, label="left|   mid\ dle| right"]
+      // 输出空格<>{}|需要用斜线
+      struct2 [shape=record, label="<f0>one|two"]
+      // <f0>是对这一格进行命名
+      struct3 [shape=record, label="hello\nworld |{ b |{ c|<here> d|e }| f}| g| h"]
+      // {...} 表示进行嵌套且进行转向
+      struct4 [shape=Mrecord, label="a|{b|c|{d|{e|f}}}|g"]
+      struct1 -> struct2:f0  # 指向struct2中命名为f0的格
+      struct1 -> struct3:here
+  }
+#+end_src
+
+[[file:dot_4.png]]
+*** 标签label
+- 结点默认标签是结点名，边的默认没有标签
+  
+
+- 多行标签 ::
+  - \n: 设置当前行的位置为中间后换行
+  - \l: 设置当前行的位置为左边后换行
+  - \r: 设置当前行的位置为右边后换行
+  #+begin_src dot :file dot_5.png :cmdline -Tpng :exports code :results silent
+    digraph multi {
+        main [shape=box, width=1.0, label="line\lline\nline\r"]
+    }
+  #+end_src
+
+[[file:dot_5.png]]

@@ -2,7 +2,7 @@
 #+DATE: 2016-05-24
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux运维
+#+JEKYLL_CATEGORIES: Linux
 #+JEKYLL_TAGS: 
 #+JEKYLL_PUBLISHED: true
 
@@ -141,7 +141,6 @@ hwclock [-sw]  # 显示硬件时钟
 #+END_SRC
 
 ** 目录与文件相关
-
 *** 文件系统
 - 文件有两类数据 ::
   - 元数据: metadata（如索引）
@@ -151,12 +150,13 @@ hwclock [-sw]  # 显示硬件时钟
   - 数据: data
 
 **** 文件名
+
 1. 文件名严格区分字符大小写
 2. 文件名可使用除 =/= 以外的任意字符，不建议使用特殊字符
-	 - /: 根目录，路径分隔符
+   - /: 根目录，路径分隔符
 3. 文件名长度最长不能超过255个字符
 4. 所有.开头的文件，均为隐藏文件
-
+   
 **** 文件路径
 - 绝对路径: 从根目录 =/= 起始的路径
 - 相对路径: 从当前位置(working directory)起始的路径
@@ -164,10 +164,12 @@ hwclock [-sw]  # 显示硬件时钟
   - ..: 当前目录的上一级目录
 #+BEGIN_SRC shell
 pwd  # printing working directory
+basename PATH  # 显示PATH的基名
+dirname PATH  # 显示PATH除基名以外的部分
 #+END_SRC
 
 **** 文件时间戳
-- access time：访问时间，简写为atime，读取文件内容
+- access time: 访问时间，简写为atime，读取文件内容
 - modify time: 修改时间, mtime，改变文件内容（数据）
 - change time: 改变时间, ctime，元数据发生改变（包含时间戳的改变）
 #+BEGIN_SRC shell
@@ -189,6 +191,19 @@ cd -  # 在上一个目录和当前目录之间来回切换
   - PWD: 保存了当前的目录路径
   - OLDPWD: 上一次所在目录路径
 
+*** mkdir, rmdir
+#+BEGIN_SRC shell
+mkdir [OPTION]... /path/to...  # 创建目录
+  -p: 当目录存在时不报错，且可自动创建所需的各目录；
+  -v: 显示详细信息
+  -m MODE: 创建目录时直接指定权限；
+#+END_SRC
+#+BEGIN_SRC shell
+rmdir [OPTION]... /path/to...  # 只能删除空目录
+  -p: 层级删除空目录 
+  -v: 显示详细信息
+#+END_SRC
+
 *** ls
 显示指定路径下的文件列表
 #+BEGIN_SRC shell
@@ -204,36 +219,16 @@ ls [OPTION]... [DIR]...
   [[file:ls.gif]]
   - -rw-r--r-- 最左侧的一位表示文件类型
 
-*** mkdir, rmdir
-#+BEGIN_SRC shell
-mkdir [OPTION]... /path/to...  # 创建目录
-  -p: 当目录存在时不报错，且可自动创建所需的各目录；
-  -v: 显示详细信息
-  -m MODE: 创建目录时直接指定权限；
-#+END_SRC
-#+BEGIN_SRC shell
-rmdir [OPTION]... /path/to...  # 只能删除空目录
-  -p: 层级删除空目录 
-  -v: 显示详细信息
-#+END_SRC
-
 *** tree
 列出目录的层级结构
 #+BEGIN_SRC shell
 tree /path/to 
   -d: 只显示目录
-  -L level：指定显示的层级数目
+  -L level: 指定显示的层级数目
   -P pattern: 只显示由指定pattern匹配到的路径；
 #+END_SRC
 
-*** file
-查看文件内容的类型 
-#+BEGIN_SRC shell
-file FILE 
-#+END_SRC
-
 ** 文件管理
-
 *** cp
 复制命令
 #+BEGIN_SRC shell
@@ -251,15 +246,15 @@ cp [OPTION]... -t DIRECTORY SOURCE...
 
 #+END_SRC
 - cp SRC DEST
-  - 如果目标不存在：新建DEST，并将SRC中内容填充到DEST中
-  - 如果目标存在：
-    - 如果DEST是文件：将SRC中的内容覆盖到DEST中（使用-i以确认）
-    - 如果DEST是目录：将SRC复制到该目录下
+  - 如果目标不存在: 新建DEST，并将SRC中内容填充到DEST中
+  - 如果目标存在: 
+    - 如果DEST是文件: 将SRC中的内容覆盖到DEST中（使用-i以确认）
+    - 如果DEST是目录: 将SRC复制到该目录下
 - cp SRC... DEST
   - DEST必须存在，且为目录
 - cp -r 目录SRC DEST
-  - 如果目标不存在：新建DEST目录，复制SRC中所有文件至DEST中
-  - 如果DEST存在且为目录：在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中
+  - 如果目标不存在: 新建DEST目录，复制SRC中所有文件至DEST中
+  - 如果DEST存在且为目录: 在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中
 
 *** mv
 移动文件或目录，也可以用于重命名
@@ -279,6 +274,94 @@ rm [OPTION]... FILE...
   -r: 递归删除目录
 #+END_SRC
 
+** 文件查找
+在文件系统上查找符合条件的文件
+- 文件查找的类型 ::
+  - 非实时的查找（数据库查找）: locate
+  - 实时查找: find
+
+*** locate
+- 依赖于事先构建的索引进行搜索
+  - 索引的构建是在系统较为空闲时自动进行(周期性任务)
+  - 手动更新数据库(=updatedb=)
+  - 索引构建过程需要遍历整个根文件系统，极消耗资源，小心使用
+- 工作特点
+  - 查找速度快
+  - 模糊查找
+  - 非实时查找
+#+BEGIN_SRC sh
+locate KEYWORD
+updatedb
+#+END_SRC
+
+*** find
+实时查找工具，通过遍历指定路径下的文件系统完成文件查找
+- 工作特点
+  - 查找速度略慢
+  - 精确查找
+  - 实时查找
+#+BEGIN_SRC sh
+find [OPTION]... [查找路径] [查找条件] [处理动作]
+  查找路径: 指定具体目标路径（默认为当前目录）
+  查找条件: 指定的查找标准，可以文件名、大小、类型、权限等标准进行（默认为找出指定路径下的所有文件）
+  处理动作: 对符合条件的文件做什么操作（默认输出至屏幕）
+
+  -Olevel: 
+#+END_SRC
+
+
+- 查找条件 ::
+  - 根据文件名查找
+    - -name "文件名称": 支持使用glob
+    - -iname "文件名称": 不区分字母大小写
+    - -regex "PATTERN": 以PATTERN匹配整个文件路径字符串，而不仅仅是文件名称
+  - 根据属主/组查找
+    - -user USERNAME: 查找属主为指定用户的文件
+    - -group GROUPNAME: 查找属组为指定组的文件
+    - -uid UID: 查找属主为指定的UID号的文件
+    - -gid GID: 查找属组为指定的GID号的文件
+    - -nouser: 查找没有属主的文件
+    - -nogroup: 查找没有属组的文件
+  - 根据文件类型查找
+    - -type TYPE: TYPE可以是f/d/l/s/b/c/p
+  - 根据文件大小查找
+    - -size [+|-]NUM[k|M|G]
+      - NUM: (NUM-1, NUM]
+      - -NUM: [0, NUM-1]
+      - +NUM: (NUM, oo)
+  - 根据时间戳，即多少时间之前
+    - 以天为单位
+      - -atime [+|-]NUM
+      - -mtime [+|-]NUM
+      - -ctime [+|-]NUM
+    - 以分钟为单位
+      - -amin [+|-]NUM
+      - -mmin [+|-]NUM
+      - -cmin [+|-]NUM
+    - NUM的含义
+      - NUM: [NUM, NUM+1)
+      - -NUM: [0, NUM)
+      - +NUM: [#+1,oo]
+  - 根据权限查找:
+    - -perm [/|-]MODE
+      - MODE: 精确权限匹配
+      - /MODE: 任何一类(u,g,o)对象的权限中只要能一位匹配即可（或关系）
+      - -MODE: 每一类对象都必须同时拥有为其指定的权限标准（与关系）
+  - 组合条件
+    - 与: -a（可省略）
+    - 或: -o
+    - 非: -not, !
+    - 组合条件同时也会将处理动作分开，即处理动作只作用与后半部分的结果。所以最好用括号 =\( \)= 将查找条件与处理动作分开
+- 处理动作 ::
+  - -print: 默认的处理动作，显示至屏幕
+  - -ls: 类似于对查找到的文件执行“ls -l”命令
+  - -delete: 删除查找到的文件，小心操作
+  - -fls /path/to/somefile: 查找到的所有文件的长格式信息保存至指定文件中
+  - -exec COMMAND {} \; : 对查找到的每个文件执行由COMMAND指定的命令
+  - -ok COMMAND {} \; : 对查找到的每个文件执行由COMMAND指定的命令，执行前会交互式要求用户确认
+	  - {}: 用于引用查找到的文件名称自身
+    - 注意: find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性传递给后面的命令，有些命令不能接受过多参数，可以使用 =find | xargs COMMAND= 来解决
+
 ** 查看文本文件
 *** cat, tac
 #+BEGIN_SRC shell
@@ -295,17 +378,18 @@ more和less可以对长文章进行翻页，less更常用
 #+BEGIN_SRC shell
 head [OPTION]... [FILE]...  # 读取文件头
   -c num: 指定获取前num字节
-  -n num / -num: 指定获取前num行
+  -n num/-num: 指定获取前num行
+  -n -num: 排除后num行
 #+END_SRC
 #+BEGIN_SRC shell
 tail [OPTION]... [FILE]...  # 读取文件尾
   -c num: 指定获取后num字节
-  -n num / -num: 指定获取后num行
+  -n num/-num: 指定获取后num行
+  -n +num: 排除第num行之前的行数
   -f: 跟踪显示文件新追加的内容；
 #+END_SRC
 
 ** 文本处理工具
-
 *** tr
 转换或删除字符
 #+BEGIN_SRC sh
@@ -313,6 +397,73 @@ tr [OPTION]... SET1 [SET2]
   -d: 删除SET1中的字符（默认为转换为SET2对应的字符）
 #+END_SRC
 
+*** wc
+行数 单词 字节
+#+BEGIN_SRC shell
+wc [OPTION]... [FILE]...
+  -l: lines
+  -w: words
+  -c: characters
+#+END_SRC
+
+*** cut
+通过分隔符切割后显示指定字段
+#+BEGIN_SRC sh
+cut [OPTION]... [FILE]...
+  -d DELIMITER: 指定分隔符（默认为制表符）
+  -f FILEDS: 指定字段，如 1-3,7
+  --output-delimiter=STRING: 指定输出分隔符
+#+END_SRC
+
+*** sort
+排序
+#+BEGIN_SRC sh
+sort [OPTION]... [FILE]...
+  -f: 忽略字符大小写
+  -r: 逆序
+  -t DELIMITER: 字段分隔符
+  -k num: 以指定字段为标准排序
+  -n: 以数值大小进行排序
+  -u: uniq，排序后去重
+#+END_SRC
+
+*** uniq
+去除连续且完全相同的行
+#+BEGIN_SRC sh
+uniq [OPTION]... [FILE]...
+  -c: 显示每行重复出现的次数；
+  -d: 仅显示重复过的行；
+  -u: 仅显示不曾重复的行；
+#+END_SRC
+
+*** grep
+- grep是一个文本搜索工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行
+- grep工具有三种: 
+  - grep支持基础正则表达式
+  - egrep相当于 =grep -E= ，用于扩展正则表达式
+  - fgrep不支持正则表达时，但匹配速度快
+#+BEGIN_SRC sh
+grep [OPTIONS] PATTERN [FILE...]
+  -E: 使用扩展正则表达式ERE
+
+  -v: 显示不能够被pattern匹配到的行
+  -i: ignore 忽略字符大小写
+  -o: only 仅显示匹配到的字符串
+  -q: quite 静默模式，不输出任何信息（后边可以检查$?来检查是否匹配到）
+  
+  -r: 同时搜索目录的子目录
+
+  -A num: after, 匹配的行同时显示其后num行
+  -B num: before, 匹配的行同时显示其前num行
+  -C num: context, 匹配的行同时显示其前后num行
+
+  --color=auto: 对匹配到的文本着色显示
+#+END_SRC
+*** TODO sed
+- 文本编辑工具
+*** TODO awk
+- 文本报告生成器
+*** TODO xargs
 ** 系统管理
 *** 关机和重启
 - reboot, halt, poweroff 都会通过调用shutdown来使用
@@ -329,8 +480,6 @@ tr [OPTION]... SET1 [SET2]
 - whoami: 显示当前登录有效用户
 - who: 系统当前所有的登录会话
 - w: 系统当前所有的登录会话及所做的操作
-
-
 
 * Linux的文件系统
 
@@ -353,32 +502,32 @@ tr [OPTION]... SET1 [SET2]
 - /media: 便携式移动设备(cdrom, usb)挂载点
 - /mnt: 临时文件系统挂载点
 - /dev: 设备文件及特殊文件存储位置
-	- b: block device，随机访问
-	- c: character device，线性访问
+  - b: block device，随机访问
+  - c: character device，线性访问
 - /opt: 第三方应用程序的安装位置
 - /srv: 系统上运行的服务用到的数据
 - /tmp: 临时文件存储位置
 - /usr: universal shared, read-only data
-	- /usr/bin: 保证系统拥有完整功能而提供的应用程序
-	- /usr/sbin: 管理类命令
-	- /usr/lib: 
-	- /usr/lib64: 
-	- /usr/include: C程序的头文件(header files)，描述库文件的调用接口
-	- /usr/share: 结构化独立的数据，例如doc, man等
+  - /usr/bin: 保证系统拥有完整功能而提供的应用程序
+  - /usr/sbin: 管理类命令
+  - /usr/lib: 
+  - /usr/lib64: 
+  - /usr/include: C程序的头文件(header files)，描述库文件的调用接口
+  - /usr/share: 结构化独立的数据，例如doc, man等
   - /usr/src: 源代码放置位置
-	- /usr/local: 第三方应用程序的安装位置
-		- bin, sbin, lib, lib64, etc, share
+  - /usr/local: 第三方应用程序的安装位置
+    - bin, sbin, lib, lib64, etc, share
 - /var: variable data files
-	- /var/cache: 应用程序缓存数据目录
-	- /var/lib: 应用程序状态信息数据
-	- /var/local: 专用于为/usr/local下的应用程序存储可变数据
-	- /var/lock: 锁文件
-	- /var/log: 日志目录及文件
+  - /var/cache: 应用程序缓存数据目录
+  - /var/lib: 应用程序状态信息数据
+  - /var/local: 专用于为/usr/local下的应用程序存储可变数据
+  - /var/lock: 锁文件
+  - /var/log: 日志目录及文件
   - /var/mail: 存放邮件
-	- /var/opt: 专用于为/opt下的应用程序存储可变数据
-	- /var/run: 运行中的进程相关的数据；通常用于存储进程的pid文件
-	- /var/spool: 应用程序数据池
-	- /var/tmp: 保存系统两次重启之间产生的临时数据
+  - /var/opt: 专用于为/opt下的应用程序存储可变数据
+  - /var/run: 运行中的进程相关的数据；通常用于存储进程的pid文件
+  - /var/spool: 应用程序数据池
+  - /var/tmp: 保存系统两次重启之间产生的临时数据
 - /proc: 用于输出内核与进程信息相关的虚拟文件系统
 - /sys: 用于输出当前系统上硬件设备相关信息的虚拟文件系统
 - /selinux: security enhanced Linux，selinux相关的安全策略等信息的存储位置；
@@ -397,8 +546,13 @@ tr [OPTION]... SET1 [SET2]
 - c: 字符设备文件(鼠标\键盘<-串行端口设备)
 - s: sockets
 - p: 管道(FIFO)
+*** file
+查看文件内容的类型 
+#+BEGIN_SRC shell
+file FILE 
+#+END_SRC
 
-* Bash基础
+* Bash
 ** 命令历史
 - 登录shell时，会读取历史文件中记录下的命令: =~/.bash_history=
 - 登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中
@@ -424,12 +578,13 @@ history [NUM]  # 显示历史中最近NUM条命令
   - !string: 调用历史中最近一个以string开头的命令
   - !!: 上条命令
   - !$: 调用上一条命令的最后一个参数（用于同个文件的操作）
+    - 也可以用 =ESC .= 来代替
 ** 命令或路径补全和展开
 - 直接补全: 用户给定的字符串只有一条惟一对应的命令或路径，则按TAB直接补全
-- 补全列表：对应的命令或路径不唯一，按两次TAB会给出列表
+- 补全列表: 对应的命令或路径不唯一，按两次TAB会给出列表
 - {}: 可承载一个以逗号分隔的列表，并将其展开为多个路径，可嵌套使用
-	- /tmp/{a,b}_{x,y}
-	- /tmp/{bin,sbin,usr/{bin,sbin}}
+  - /tmp/{a,b}_{x,y}
+  - /tmp/{bin,sbin,usr/{bin,sbin}}
 ** 命令的执行结果
 bash使用特殊变量 =$?= 来保存最近一条命令的执行结果
 - 0: 成功
@@ -463,9 +618,9 @@ bash中用于实现文件名“通配”
   - [:punct:]: 标点符号
 ** bash的快捷键
 - Ctrl+l: 清屏，相当于clear命令
-- Ctrl+a：跳转至命令开始处
-- Ctrl+e：跳转至命令结尾处
-- Ctrl+c：取消命令的执行
+- Ctrl+a: 跳转至命令开始处
+- Ctrl+e: 跳转至命令结尾处
+- Ctrl+c: 取消命令的执行
 - Ctrl+u: 删除光标所在处至行首的所有内容
 - Ctrl+k: 删除光标所在处至行尾的所有内容
 ** I/O重定向及管道
@@ -483,10 +638,12 @@ bash中用于实现文件名“通配”
   - 2>: 覆盖重定向错误输出
   - 2>>: 追加重定向错误输出
   - &>: 覆盖重定向合并标准输出和错误输出
+    - 也可以使用 =2>&1=
   - &>>: 追加重定向合并标准输出和错误输出
 - 输入重定向 ::
   - <file: 标准输入使用file
   - <<EOF: 读取你的输入至EOF行
+
     #+BEGIN_SRC shell
     cat >> file << EOF
     #+END_SRC
@@ -495,3 +652,763 @@ bash中用于实现文件名“通配”
 #+BEGIN_SRC sh
 tee [OPTION]... [FILE]... # 将标准输入输出到标准输出和文件
 #+END_SRC
+- /dev/null: 丢弃数据的设备
+- /dev/zero: 产生0的设备
+** Shell脚本
+- Shell编程: 过程式、解释执行
+- 脚本文件要直接运行需要添加 =x= 权限，或直接运行解释器进行执行
+*** 弱类型与强类型
+- 强类型: 定义变量时必须指定类型、参与运算必须符合类型要求；调用未声明变量会产生错误
+- 弱类型: 无须指定类型，默认均为字符型；参与运算会自动进行隐式类型转换；变量无须事先定义可直接调用
+- bash是一种弱类型语言，把所有要存储的数据都当作字符进行，同时不支持浮点数
+*** shebang
+- 脚本文件第一行，即 #!/bin/bash
+- 内核通过文件前几个字节的魔数(magic number)来识别文件类型然后打开
+*** 脚本退出码
+#+BEGIN_SRC sh
+exit [n]  # 终止脚本，退出码为n（默认为0）
+#+END_SRC
+- 如果未给脚本指定退出状态码，整个脚本的退出状态码取决于脚本中执行的最后一条命令的状态码
+*** 用户交互
+#+BEGIN_SRC sh
+read [option]... [name ...] 
+	-p 'PROMPT': 显示交互信息
+	-t TIMEOUT: 等待时间
+#+END_SRC
+- read会对字符串以空格进行分隔来对位赋值，剩余部分会赋给最后一个参数
+*** 选择执行
+- if ::
+#+BEGIN_SRC sh
+if COMMAND1
+then
+    # COMMAND1成功后执行的代码
+elif COMMAND2; then  # 可以写在一行
+    # COMMAND1失败且COMMAND2成功后执行的代码
+else
+    # COMMAND1和COMMAND2都失败后执行的代码
+fi  # if结束标志
+#+END_SRC
+*** 检查和调试脚本
+#+BEGIN_SRC sh
+bash -n SCRIPT  # 检测脚本中的语法错误
+bash -x SCRIPT  # 调试执行脚本
+#+END_SRC
+
+** bash变量
+*** 变量的生效范围
+- 本地变量: 生效范围为当前shell进程；对当前shell之外的其它shell进程，包括当前shell的子shell进程均无效
+- 环境变量: 生效范围为当前shell进程及其子进程数
+- 相关命令 ::
+  #+BEGIN_SRC sh
+  shift [n]  # 参数删除前面n个，会影响所有位置变量
+  #+END_SRC
+** bash中的算术计算
+*** 计算命令
+#+BEGIN_SRC sh
+let var=EXPRESSION
+var=$[EXPRESSION]
+var=$((EXPRESSION))
+var=$(expr arg1 arg2 arg3)  # 某些符号需要进行转义
+#+END_SRC
+- bash有内建的随机数生成器: $RANDOM
+*** 运算符号
+- 基本运算符号 :: +, -, *, /, %, **
+- 增强型赋值 :: +=, -=, *=, /=, %=
+
+- 自增与自减 :: var++, var--
+** bash的条件测试
+*** 测试命令
+#+BEGIN_SRC sh
+test EXPRESSION
+[ EXPRESSION ]  # EXPRESSION前后必须有空白字符
+[[ EXPRESSION ]]
+#+END_SRC
+*** 测试符号
+- 数值测试 ::
+  - -gt: greater than
+  - -ge: greater equal
+  - -eq: equal
+  - -ne: not equal
+  - -lt: less than
+  - -le: less equal
+- 字符串测试 :: 
+  - ==: 等于
+  - >: 大于
+  - <: 小于
+  - !=: 不等于
+  - =~: 左侧字符串是否能够被右侧的PATTERN（不需要用引号）部分匹配
+
+    - 此表达式用于 =[[  ]]= 中
+  - -z "STRING": 测试字符串是否为空，空则为真，不空则为假
+  - -n "STRING": 测试字符串是否不空，不空则为真，空则为假
+  - 注意: 用于字符串比较时的用到的操作数都应该使用引号
+- 文件测试 ::
+  - 存在性测试
+    - -e FILE: 文件存在性测试，存在为真，否则为假
+  - 类型测试
+    - -b FILE: 是否存在且为块设备文件
+    - -c FILE: 是否存在且为字符设备文件
+    - -d FILE: 是否存在且为目录文件
+    - -f FILE: 是否存在且为普通文件
+    - -p FILE: 是否存在且为命名管道文件
+    - -L FILE: 是否存在且为符号链接文件
+    - -S FILE: 是否存在且为套接字文件
+  - 文件权限测试
+    - -r FILE: 是否存在且可读
+    - -w FILE: 是否存在且可写
+    - -x FILE: 是否存在且可执行
+    - -O FILE: 当前有效用户是否为文件属主
+    - -G FILE: 当前有效用户是否为文件属组
+    - 权限测试对root用户来说表现奇怪
+  - 文件特殊权限测试
+    - -g FILE: 是否存在且拥有sgid权限
+    - -u FILE: 是否存在且拥有suid权限
+    - -k FILE: 是否存在且拥有sticky权限
+  - 文件其他测试
+    - -s FILE: 是否存且非空
+    - -t fd: 文件描述符fd是否已经打开且与某终端相关
+    - -N FILE: 文件自动上一次被读取之后是否被修改过
+  - 双目测试
+    - FILE1 -ef FILE2: FILE1与FILE2是否指向同一个设备上的相同inode
+    - FILE1 -nt FILE2: FILE1是否新于FILE2
+    - FILE1 -ot FILE2: FILE1是否旧于FILE2
+*** 组合条件
+- 命令组合 ::
+  - =COMMAND && COMMAND=: 第一个命令结果为false的话，则不会运行下一个
+  - =COMMAND || COMMAND=: 第一个命令结果为true的话，则不会运行下一个
+  - =! COMMAND=: 将后边所接的命令结果取反
+- 条件组合 ::
+  - =EXPRESSION -a EXPRESSION=: 与
+  - =EXPRESSION -o EXPRESSION=: 或
+  - =! \(EXPRESSION\)=: 非
+
+** bash的配置文件
+*** 配置文件的类型
+- 按生效范围划分 ::
+  - 全局配置: /etc/profile, /etc/profile.d/*.sh, /etc/bashrc
+  
+  - 个人配置: ~/.bash_profile, ~/.bashrc
+- 按功能划分 ::
+  - profile类: 为交互式登录的shell提供配置，用于定义环境变量和执行脚本
+  - bashrc类: 为非交互式登录的shell提供配置，用于定义本地变量和命令别名
+*** shell登录过程
+- 交互式登录 ::
+  - 直接通过终端输入账号密码登录
+  - 使用 =su - NAME= 切换用户
+  - 读取配置文件: =/etc/profile -> /etc/profile.d/*.sh -> ~/.bash_profile -> ~/.bashrc -> /etc/bash=
+- 非交互式登录 ::
+  - 使用 =su NAME= 切换用户
+  - 图形界面下打开的终端
+  - 执行脚本的时候
+  - 读取配置文件: ~/.bashrc -> /etc/bashrc -> /etc/profile.d/*.sh
+*** 载入配置文件的方式
+1. 重新启动shell进程
+2. 使用source或.命令载入配置
+
+* 用户和组
+** 资源分派
+1. Authentication: 认证，表明你能进入系统
+   - token: 口令
+   - identity: 用户名和密码
+2. Authorization: 授权，表明你有权限执行某些操作
+   - 进程所能够访问的所有资源的权限取决于进程的发起者的身份
+3. Accouting: 审计，验证你操作的合理性
+** 用户: UID
+- 管理员: root, 0
+- 普通用户: 1-65535(2^16)
+  - 系统用户: 1-499/999
+    - 用于对守护进程获取资源进行权限分配
+  - 非系统用户: 500/1000+
+** 组: GID
+- 管理员组: root, 0
+- 普通组
+  - 系统组: 1-499/999
+  - 普通组: 500/1000+
+- 用户的组的类别
+  - 用户的基本组: 组名同用户名，且仅包含一个用户，即私有组
+  - 用户的附加组（额外组）
+** 配置文件
+- /etc/passwd ::
+  - 用户及其属性信息
+  - name:password:UID:GID:GECOS:directory:shell
+  - 用户名:x:UID:GID:完整信息:主目录:默认shell
+- /etc/group ::
+  - 组及其属性信息
+  - group_name:password:GID:user_list
+  - 组名:x:GID:以当前组为附加组的用户列表(分隔符为逗号)
+- /etc/shadow ::
+  - 用户名:加密密码:最近一次更改密码的日期:密码最小使用期限:密码最大使用期限:密码警告时间段:密码禁用期:账户过期日期:保留字段
+  - 加密密码: 添加随机字符串后，进行sha512单向加密，初始的条件的微小改变，将会引起结果的巨大改变
+    - 若密码为 =!!= 则为空密码
+  - 用户名密码期限: 用户未修改密码时间到达密码警告时间段则会收到通知，到达密码最大使用期限会进入密码禁用期，若在这段时期没有登录的话，账号会被禁用（过期）
+- /etc/gshadow ::
+  - 组密码及其相关属性
+** 用户与组相关命令
+*** 查看用户信息: id
+#+BEGIN_SRC sh
+id [OPTION]... [USER]
+  -u: UID
+  -g: GID
+  -G: 显示所有组
+  -n: 配合其他选项，显示名称而不是数字
+#+END_SRC
+*** su
+切换用户或以其他用户身份执行命令
+#+BEGIN_SRC sh
+su user     # 非登录式切换，即不会读取目标用户的配置文件
+su - user   # 登录式切换，会读取目标用户的配置文件，完全切换
+su [-] UserName -c 'COMMAND'  # 以其他用户的身份执行命令，不切换用户
+#+END_SRC
+- root切换至其他用户无须密码，而非root用户切换时需要密码
+*** newgrp
+临时切换基本组
+#+BEGIN_SRC sh
+newgrp GROUP
+# 如果用户本不属于GROUP，则需要密码
+#+END_SRC
+*** 用户相关
+**** useradd
+创建用户
+#+BEGIN_SRC sh
+useradd [OPTION]... NAME
+  -u UID: 范围是[UID_MIN, UID_MAX], 定义在/etc/login.defs
+  -g GID: 指明用户所属基本组，可为组名
+  -c "COMMENT": 用户的注释信息(GECOS)
+  -m: 创建HOME目录，并复制/etc/skel内文件到这（默认）
+  -p PASSWORD: 为用户指定密码
+  -d /PATH/TO/HOME_DIR: 以指定的路径为家目录
+  -s SHELL: 指明用户的默认shell程序，可用列表在/etc/shells文件中
+  -G GROUP1[,GROUP2,...[,GROUPN]]: 为用户指明附加组；组必须事先存在
+  -r: 创建系统用户
+#+END_SRC
+- 默认值设定在 =/etc/default/useradd= 文件中
+  #+BEGIN_SRC sh
+  useradd -D  # 查询useradd默认值
+  useradd -D [OPTION]...  # 修改useradd默认值
+  #+END_SRC
+**** usermod
+修改用户属性和过期日期
+#+BEGIN_SRC sh
+usermod [OPTION] NAME
+  -u UID: 新UID
+  -g GID: 新基本组
+  -G GROUP1[,GROUP2,...[,GROUPN]]: 新附加组，原来的附加组将会被覆盖
+    -a: 保留原有的附加组
+  -s SHELL: 新的默认SHELL
+  -c 'COMMENT': 新的注释信息
+  -d HOME: 新的家目录，原有家目录中的文件不会同时移动至新的家目录
+    -m: 移动原有家目录中的文件
+  -l login_name: 新的名字
+  
+  -L: lock指定用户（在加密密码前加 !）
+  -U: unlock指定用户
+  -e YYYY-MM-DD: 指明用户账号过期日期
+#+END_SRC
+**** passwd
+添加或修改密码及密码期限相关内容
+#+BEGIN_SRC sh
+passwd  # 修改自己的密码
+passwd [OPTIONS] UserName  # 修改指定用户的密码，仅root用户可用
+  -l: 锁定指定用户
+  -u: 解锁指定用户
+
+  -n mindays: 指定最短使用期限
+  -x maxdays: 最大使用期限
+  -w warndays: 提前多少天开始警告
+  -i inactivedays: 密码禁用期
+  
+  --stdin: 从标准输入接收用户密码
+#+END_SRC
+**** chage
+修改用户日期相关内容
+#+BEGIN_SRC sh
+chage [OPTION]... NAME
+  -d LAST_DAY
+  -E, --expiredate EXPIRE_DATE
+  -I, --inactive INACTIVE
+  -m, --mindays MIN_DAYS
+  -M, --maxdays MAX_DAYS
+  -W, --warndays WARN_DAYS
+#+END_SRC
+**** userdel
+
+删除用户
+#+BEGIN_SRC sh
+userdel [OPTION]... NAME
+  -r: 删除用户家目录
+#+END_SRC
+*** 组相关
+**** groupadd
+创建组
+#+BEGIN_SRC sh
+groupadd [OPTION]... group_name
+  -g GID: 范围是[GID_MIN, GID_MAX]
+  -r: 创建系统组
+#+END_SRC
+**** groupmod
+修改组属性
+#+BEGIN_SRC sh
+groupmod [OPTION]... group
+  -n group_name: 新名字
+  -g GID: 新的GID
+#+END_SRC
+**** gpasswd
+修改组密码和添加删除组员
+#+BEGIN_SRC sh
+gpasswd [OPTION] GROUP
+  -a user: 将user添加至指定组中
+  -d user: 删除用户user的以当前组为组名的附加组
+  -A user1,user2,...: 设置群组管理员，群组管理员可以管理哪些帐号可以加入/移出该群组
+#+END_SRC
+**** groupdel
+删除组
+#+BEGIN_SRC sh
+groupdel GROUP
+#+END_SRC
+*** 其他
+- pwck :: 
+  检查密码文件的完整性
+- chfn ::
+  设置用户详细信息
+- finger ::
+  查看用户详细信息
+- chsh :: 
+  改变用户默认shell
+** 文件权限管理
+*** 三类对象
+- owner: 属主 u
+- group: 属组 g
+- other: 其他 o
+*** 基本权限
+- r(4): Readable  
+- w(2): Writable  
+- x(1): eXcutable 
+
+
+- 文件 ::
+  - r: 可使用文件查看类工具获取其内容
+  - w: 可修改其内容
+  - x: 可以把此文件提请内核启动为一个进程
+- 目录 ::
+  - r: 可以使用ls查看此目录中文件列表
+  - w: 可在此目录中创建文件，也可删除此目录中的文件
+  - x: 无法执行该目录下的任何命令，包括创建和删除文件
+*** 特殊权限
+**** SUID(4)
+默认情况下，启动为进程之后，其进程的属主为发起者，进程的属组为发起者所属的组；而启动带SUID的程序文件时，其进程的属主为原程序文件的属主
+#+BEGIN_SRC sh
+chmod u+s FILE
+chmod u-s FILE
+#+END_SRC
+**** SGID(2)
+默认情况下，用户创建文件时，其属组为此用户所属的基本组；一旦某目录被设定了SGID，则对此目录有写权限的用户在此目录中创建的文件所属的组为此目录的属组
+#+BEGIN_SRC sh
+chmod g+s FILE
+chmod g-s FILE
+#+END_SRC
+- 经常用于团队协作，因为创建的文件后其他人不会被当作other
+**** Sticky(1)
+对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件
+#+BEGIN_SRC sh
+chmod o+t FILE
+chmod o-t FILE
+#+END_SRC
+- =/tmp= 就有Sticky权限
+**** 权限位映射: 
+- SUID: user, 占据属主的执行权限位
+  - s: 属主拥有x权限
+  - S: 属主没有x权限
+- SGID: group,  占据group的执行权限位
+  - s: group拥有x权限
+  - S: group没有x权限	
+- Sticky: other, 占据ohter的执行权限位
+  - t: other拥有x权限
+  - T: other没有x权限
+
+*** 修改文件权限: chmod
+#+BEGIN_SRC sh
+chmod [OPTION]... MODE FILE...
+  -R: 递归修改权限
+  MODE: 
+    - 可使用数字权限，如4755（最左边一位是特殊权限，可以不写）
+    - 可修改一类用户的权限，如 u=rwx,g+w,o-rwx,a-x
+
+chmod [OPTION]... --reference=RFILE FILE...
+	参考RFILE文件的权限，将FILE的修改为同RFILE一样的权限
+#+END_SRC
+*** 修改文件的属主和属组
+- 仅root可修改
+
+
+- 修改属主: chown ::
+  #+BEGIN_SRC sh
+  chown [OPTION]... [OWNER][:[GROUP]] FILE...
+  chown [OPTION]... --reference=RFILE FILE...
+    -R: 目录递归修改
+  #+END_SRC
+  - chown也可只改属组，即不写OWNER
+- 修改属组: chgrp :: 
+  #+BEGIN_SRC sh
+  chgrp [OPTION]... GROUP FILE...
+  chgrp [OPTION]... --reference=RFILE FILE...
+    -R: 目录递归修改
+  #+END_SRC
+*** 文件遮罩码: umask
+- 创建文件时，文件的权限是 666-umask
+- 创建目录时，目录的权限是 777-umask
+
+#+BEGIN_SRC sh
+umask  # 查看umask
+umask num  # 设置umask，仅对当前shell有效
+#+END_SRC
+* 正则表达式
+REGEXP由一类特殊字符及文本字符所编写的模式，其中有些字符不表示字符字面意义，而表示控制或通配的功能
+** 正则表达式的类型
+  - 基本正则表达式: BRE
+  - 扩展正则表达式: ERE (正则表达式引擎: pcre)
+** 基本正则表达式
+- 字符匹配 ::
+  - =.=: 匹配任意单个字符
+  - =[]=: 匹配指定范围内的任意单个字符
+  - =[^]=: 匹配指定范围外的任意单个字符
+    - 专用字符集合: [:digit:]、[:lower:]、[:upper:]、[:alpha:]、[:alnum:]、[:punct:]、[:space:]
+- 匹配次数 ::
+  - =*=: 匹配前面的字符任意次（默认是贪婪模式）
+  - =.*=: 任意长度的任意字符
+  - =\?=: 匹配其前面的字符0或1次
+  - =\+=: 匹配其前面的字符至少1次
+  - =\{m\}=: 匹配前面的字符m次
+  - =\{m,n\}=: 匹配前面的字符至少m次，至多n次
+	- =\{0,n\}=: 匹配前面的字符至多n次
+	- =\{m,\}=: 匹配前面的字符至少m次
+- 位置锚定 ::
+  - =^=: 行首锚定；用于模式的最左侧
+  - =$=: 行尾锚定；用于模式的最右侧
+  - =^[[:space:]]$=: 用于模式匹配整个空白行
+  - =\<= 或 =\b=: 词首锚定；用于单词模式的左侧
+  - =\>= 或 =\b=: 词尾锚定；用于单词模式的右侧
+  - =\<PATTERN\>=: 匹配整个单词
+- 分组 ::
+  - =\(\)=: 将括号内的字符当作一个整体进行处理
+  - 分组括号中的模式匹配到的内容会被正则表达式引擎记录于内部变量，可以用于后向引用
+  - =\1=: 从左侧起，第一个左括号以及与之匹配右括号之间的模式所匹配到的字符
+- 或者 ::
+  - =\|=: 匹配左右两种模式中的一个
+  - =\(word\|word\)=: 两个单词之一
+** 扩展正则表达式
+- 扩展正则表达式与正则表达式的区别，只是在除 =\<、\>、\b= 外其他特殊字符不需要添加反斜线\
+* Linux磁盘管理
+** 设备文件
+- 设备文件是关联至一个设备驱动程序，进而能够跟与之对应硬件设备进行通信
+  - 块设备: block，存取单位“块”，磁盘
+  - 字符设备: char，存取单位“字符”，键盘
+
+
+- 设备号码 ::
+  - 主设备号: major number, 标识设备类型
+  - 次设备号: minor number, 标识同一类型下的不同设备
+  - UUID: 设备分区号
+- 硬盘接口类型 ::
+  - 并行: IDE, SCSI
+  - 串口: SATA, SAS, USB
+- 磁盘设备的设备文件 ::
+  - IDE: /dev/hd
+  - SCSI, SATA, SAS, USB: /dev/sd
+    - 不同设备: sda, sdb, ...
+    - 同一设备不同分区: sda1, sda2, ...
+      - 逻辑分区要从5开始编号
+** 分区管理
+*** fdisk
+- fdisk对一块硬盘最多只能管理15个分区
+#+BEGIN_SRC sh
+fdisk -l [-u] [device...]  # 查看磁盘分区信息，默认显示所有分区信息
+fdisk device  # 管理磁盘分区 
+  p: print, 显示已有分区
+  n: new, 创建
+  d: delete, 删除
+  w: write, 写入磁盘并退出
+  q: quit, 放弃更新并退出
+  m: 获取帮助
+  l: 显示分区id列表
+  t: 调整分区id
+#+END_SRC
+- 查看内核是否已经识别新的分区
+#+BEGIN_SRC sh
+cat /proc/partations
+#+END_SRC
+- 通知内核重新读取分区表
+#+BEGIN_SRC sh
+partx -a /dev/DEVICE [-n M:N]  # 扫描DEVICE的分区编号从M到N的分区
+kpartx -a /dev/DEVICE
+partprobe [/dev/DEVICE] # CentOS 5
+#+END_SRC
+*** TODO parted
+*** TODO sfdisk
+** 文件系统管理
+Linux的虚拟文件系统VFS为不同的文件系统统一了接口
+*** 文件系统
+- Linux文件系统: ext2, ext3, ext4, xfs, btrfs, reiserfs, jfs
+- 交换分区: swap
+- 光盘: iso9660
+- Windows: fat32, ntfs
+- Unix: FFS, UFS, JFS2
+- 网络文件系统: NFS, CIFS
+- 集群文件系统: GFS2, OCFS2
+- 分布式文件系统: ceph, moosefs, mogilefs, GlusterFS, Lustre
+
+
+- 分类 ::
+  - 根据其是否支持"journal"功能（用于提升存储出错后修复的速度）
+	  - 日志型文件系统: ext3, ext4, xfs, ...
+	  - 非日志型文件系统: ext2, vfat
+#+BEGIN_SRC sh
+cat /proc/filesystem  # 列出目前系统所支持的文件系统
+#+END_SRC
+*** 创建文件系统
+**** mkfs
+通用格式化分区工具
+#+BEGIN_SRC sh
+mkfs.FS_TYPE /dev/DEVICE
+mkfs -t FS_TYPE /dev/DEVICE
+  FS_TYPE: ext4, xfs, btrfs, vfat
+  -L 'LABEL': 设定卷标
+  -f: 强制创建文件系统
+#+END_SRC
+**** mke2fs
+ext系列文件系统专用管理工具
+#+BEGIN_SRC sh
+mke2fs [OPTIONS...] /dev/DEVICE
+  -t {ext2|ext3|ext4}
+  -L 'LABEL'
+  -j: 添加日志，相当于 -t ext3
+  -b {1024|2048|4096}: 块大小（如果小文件过多可以使用较小的块）
+  -i NUM: 为数据空间中每多少字节创建一个inode；此大小不应该小于block的大小；
+  -N NUM: 为数据空间创建多少个inode；
+  -m NUM: 为管理人员预留的空间占据的百分比；
+  -O [^]FEATURE[,...]: 启用或关闭指定特性
+#+END_SRC
+**** mkswap
+创建交换分区（分区id为82）
+#+BEGIN_SRC sh
+mkswap [OPTIONS] device
+  -L 'LABEL'
+#+END_SRC
+
+*** 其他常用工具
+**** blkid
+块设备属性信息查看
+#+BEGIN_SRC sh
+blkid [OPTION...] [DEVICE]
+  -U UUID: 根据指定的UUID来查找对应的设备
+  -L LABEL: 根据指定的LABEL来查找对应的设备
+#+END_SRC
+**** e2label
+查看或设定ext系列文件系统的LABEL
+#+BEGIN_SRC sh
+e2label DEVICE [LABEL]
+#+END_SRC
+**** tune2fs
+重新设定ext系列文件系统的可调整参数的值
+#+BEGIN_SRC sh 
+tune2fs [OPTIONS...] /dev/DEVICE
+  -l: 查看指定文件系统超级块信息(super block)
+  -L 'LABEL': 修改卷标
+  -U UUID: 修改UUID号
+  -m NUM: 修预留给管理员的空间百分比
+  -j: 将ext2升级为ext3
+  -O [^]FEATURE: 文件系统属性启用或禁用
+  -o [^]FLAG: 调整文件系统的默认挂载选项
+#+END_SRC
+**** dumpe2fs
+查询ext分区的布局信息和超级块信息
+*** 文件系统检测
+**** fsck
+File System Check
+#+BEGIN_SRC sh
+fsck.FS_TYPE [OPTIONS...] DEVICE
+fsck -t FS_TYPE [OPTIONS...] DEVICE
+  -a: 自动修复错误
+  -r: 交互式修复错误
+#+END_SRC
+**** e2fsck
+ext文件系统专用的检测修复工具
+#+BEGIN_SRC sh
+e2fsck [OPTIONS...] DEVICE
+  -y：自动修复错误
+  -f：强制修复
+#+END_SRC
+** 文件系统管理
+*** 挂载
+- 挂载: 额外文件系统与根文件系统某现存的目录（挂载点）建立起关联关系，进而使得此目录做为其它文件访问入口的行为
+- 挂载点下的原有文件在挂载完成后会被临时隐藏
+- 查看内核追踪到的已挂载的所有设备：cat /proc/mounts
+#+BEGIN_SRC sh
+mount  # 通过查看/etc/mtab文件查看系统已挂载的所有设备
+mount [-fnrsvw] [-t vfstype] [-o options] DEVICE MOUNT_POINT
+  DEVICE: 设备文件/卷标/UUID/伪文件系统名字(proc, sysfs, devtmpfs, configfs)
+  -t vsftype：指定要挂载的设备上的文件系统类型，默认会使用blkid自动判断
+  -r: readonly，只读挂载
+  -w: read and write, 读写挂载
+  -n: 不更新/etc/mtab，但还是会更新到/proc/mounts
+  -a：自动挂载/etc/fstab中支持自动挂载的设备
+  -L 'LABEL': 以卷标指定挂载设备
+  -U 'UUID': 以UUID指定要挂载的设备
+  -B, --bind: 绑定目录到另一个目录上
+  
+  -o options: 挂载文件系统选项
+    remount：重新挂载
+    async：异步模式
+    sync：同步模式（修改立即写人磁盘）
+    atime/noatime：开关目录和文件的atime的更新
+    diratime/nodiratime：开关目录的atime的更新
+    auto/noauto：是否自动挂载
+    exec/noexec：是否支持将文件系统上应用程序运行为进程
+    dev/nodev：是否支持在此文件系统上使用设备文件
+    suid/nosuid：开关suid的支持
+    ro/rw: 只读/读写
+    user/nouser：是否允许普通用户挂载此设备（默认只能由root挂载）
+    acl：启用此文件系统上的acl功能
+	  defaults: 相当于rw, suid, dev, exec, auto, nouser, async
+#+END_SRC
+
+*** 卸载
+- 卸载: 解除挂载关联关系的过程
+- 进程正在使用中的设备无法被卸载
+#+BEGIN_SRC sh
+umount DEVICE/MOUNT_POINT
+#+END_SRC
+- 检查访问文件系统的进程
+#+BEGIN_SRC sh
+fuser -v MOUNT_POINT  # 查看正访问指定文件系统的进程
+fuser -km MOUNT_POINT  # 终止所有正访问指定文件系统的进程
+#+END_SRC
+
+*** 交换分区
+- 启用 :: 
+  #+BEGIN_SRC sh
+  swapon [OPTION] [DEVICE]
+    -a: 激活所有交换分区，不用指定DEVICE
+    -p PRIORITY: 指定交换分区的优先级
+  #+END_SRC
+- 禁用 :: 
+  #+BEGIN_SRC sh
+  swapoff [OPTION] [DEVICE] 
+  #+END_SRC
+- 内存空间使用状态 ::
+  #+BEGIN_SRC sh
+  free [OPTION]
+    -m: 以MB为单位
+  #+END_SRC
+  - 真正的内存使用=used-buffers-cached
+
+*** 空间占用查询
+- 文件系统空间占用信息 ::
+  #+BEGIN_SRC sh
+  df [OPTIONS]
+    -h: human-readable
+    -i: 显示inodes的使用情况
+    -P: 以Posix兼容的格式输出，方便于文字处理工具
+  #+END_SRC
+  - df是通过元数据来统计，会计算一些正使用但已经被删除的文件
+- 查看某目录空间占用信息 :: 
+  #+BEGIN_SRC sh
+  du [OPTIONS] DIR
+    -h: human-readabel
+    -s: 只显示指定目录
+  #+END_SRC
+  - du不会记录一些正使用但已经被删除的文件
+
+*** /etc/fstab
+- /etc/fstab 是文件挂载的配置文件
+- 每行定义一个要挂载的文件系统
+#+BEGIN_SRC sh
+要挂载的设备或伪文件系统  挂载点  文件系统类型  挂载选项  备份频率  自检次序
+  要挂载的设备或伪文件系统：
+    设备文件、LABEL(LABEL="")、UUID(UUID="")、伪文件系统名称(proc, sysfs)
+  挂载选项：
+    defaults ...
+  备份频率：
+    0: 不做备份
+    1: 每天备份
+    2: 每隔一天备份
+  自检次序：
+    0: 不自检
+    NUM：自检的优先级，一般只有rootfs才用1
+#+END_SRC
+** Block group
+Ext2区分为多个block group, 每个块组都有独立的inode/block/superblock系统
+*** data block
+用于放置文件内容地方
+- Ext2文件系统支持block大小有1KB,2KB,4KB
+- 每个block最多只能放置一个文件的数据
+- block太大会造成空间浪费, 太小造成性能下降
+*** inodetable
+- inode记录的文件数据: 该文件的访问模式,所有者与组,大小,ctime/atime/mtime,flag,内容指向
+- inode大小:Ext3是128bytes, Ext4是256bytes
+- 能够创建的文件数量与inode的数量有关
+- 读取文件会先验证inode记录的权限与用户
+- inode记录一个block需要4byte
+- Ext3由12直接\1间接\1双间接\1三间接组成
+	- 间接是使用一个block来记录block号码
+	- Ext4使用extent存储连续的数据块
+*** Superblock
+superblock一般为1024bytes(dumpe2fs可查询)
+- 记录的信息: block/inode的总量,未使用的inode/block数量,block与inode的大小,文件系统挂载时间,最近写数据时间,最近fsck时间等相关信息
+- validbit:被挂载时这个位为0,未挂载时为1
+- superblock一般只位于第一个block group中, 后续若存在则为第一个的备份
+- 当block为1KB, superblock位于block1, boot sector位于block0(第一个扇区)
+- 当block为2/4KB, superblock和boot sector都位于block0
+*** File system Description
+记录每个block group的开始和结束的block号码, 以及说明每个区段的block号码(dumpe2fs可查询)
+*** block bitmap
+记录使用与未使用的block号码
+*** inode bitmap
+记录使用与未使用的inode号码
+** 文件系统的其他概念
+*** 目录
+目录占用一个inode和至少一个block
+- inode记录目录的相关权限属性和block号码
+- block记录目录下文件名和对应的inode号码数据
+- 目录树读取, 一层一层目录检验用户的权限
+*** 文件的写入过程
+1. 确定是否有权限
+2. 由inode bitmap找到一个没有使用的inode, 写入新文件的权限/属性
+3. 由block bitmap找到没有使用的block, 写入数据后更新inode的指向
+4. 同步更新至inode/block bitmap, superblock
+*** 链接文件
+- 硬链接 ::
+  - 不能够对目录进行（但 =.= 和 =..= 也算是目录的硬链接）
+  - 不能跨分区进行
+  - 指向同一个inode的多个不同路径；创建文件的硬链接即为为inode创建新的引用路径，因此会增加其引用计数
+
+- 符号 :: 
+  - 可以对目录进行
+  - 可以跨分区
+  - 指向的是另一个文件的路径；其大小为指向的路径字符串的长度；不增加或减少目标文件inode的引用计数
+
+- 创建链接文件 ::
+#+BEGIN_SRC sh
+ln [-sv] SRC DEST  # 默认创建硬链接
+  -s: 创建符号连接
+  -v: verbose
+#+END_SRC
+*** RAID
+RAID: Redundant Arrays of Independent Disks
+- 提高IO能力
+  - 磁盘并行读写
+  - 额外提供CPU、内存、电源
+- 提高耐用性
+  - 磁盘冗余实现
+**** RAID的实现方式
+- 外接式磁盘阵列：通过扩展卡提供适配能力
+- 内接式RAID：主板集成RAID控制器
+- Software RAID：
+**** RAID级别
+- RAID-0 ::
+  - 将数据分成若干chunk，分散到每个硬盘中
+
+- RAID-1 ::
+- RAID-2 ::
+- RAID-4 ::
+- RAID-5 ::
+- RAID-6 ::

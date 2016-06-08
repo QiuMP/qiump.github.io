@@ -3,7 +3,7 @@ title: "我的运维之路-Linux基础"
 date: 2016-05-24
 layout: post
 categories: 
-- Linux运维
+- Linux
 tags: 
 published: true
 comments: 
@@ -45,7 +45,7 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline42">3. 基础命令</a>
+<li><a href="#orgheadline52">3. 基础命令</a>
 <ul>
 <li><a href="#orgheadline18">时钟</a>
 <ul>
@@ -53,62 +53,176 @@ comments:
 <li><a href="#orgheadline17">硬件时钟</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline28">目录与文件相关</a>
+<li><a href="#orgheadline27">目录与文件相关</a>
 <ul>
 <li><a href="#orgheadline19">文件系统</a></li>
 <li><a href="#orgheadline23">cd</a></li>
-<li><a href="#orgheadline24">ls</a></li>
-<li><a href="#orgheadline25">mkdir, rmdir</a></li>
+<li><a href="#orgheadline24">mkdir, rmdir</a></li>
+<li><a href="#orgheadline25">ls</a></li>
 <li><a href="#orgheadline26">tree</a></li>
-<li><a href="#orgheadline27">file</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline32">文件管理</a>
+<li><a href="#orgheadline31">文件管理</a>
 <ul>
-<li><a href="#orgheadline29">cp</a></li>
-<li><a href="#orgheadline30">mv</a></li>
-<li><a href="#orgheadline31">rm</a></li>
+<li><a href="#orgheadline28">cp</a></li>
+<li><a href="#orgheadline29">mv</a></li>
+<li><a href="#orgheadline30">rm</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline36">查看文本文件</a>
+<li><a href="#orgheadline32">文件查找</a>
 <ul>
-<li><a href="#orgheadline33">cat, tac</a></li>
-<li><a href="#orgheadline34">more, less</a></li>
-<li><a href="#orgheadline35">head, tail</a></li>
+<li><a href="#orgheadline33">locate</a></li>
+<li><a href="#orgheadline34">find</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline38">文本处理工具</a>
+<li><a href="#orgheadline38">查看文本文件</a>
 <ul>
-<li><a href="#orgheadline37">tr</a></li>
+<li><a href="#orgheadline35">cat, tac</a></li>
+<li><a href="#orgheadline36">more, less</a></li>
+<li><a href="#orgheadline37">head, tail</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline41">系统管理</a>
+<li><a href="#orgheadline48">文本处理工具</a>
 <ul>
-<li><a href="#orgheadline39">关机和重启</a></li>
-<li><a href="#orgheadline40">用户登录信息</a></li>
+<li><a href="#orgheadline39">tr</a></li>
+<li><a href="#orgheadline40">wc</a></li>
+<li><a href="#orgheadline41">cut</a></li>
+<li><a href="#orgheadline42">sort</a></li>
+<li><a href="#orgheadline43">uniq</a></li>
+<li><a href="#orgheadline44">grep</a></li>
+<li><a href="#orgheadline45"><span class="todo TODO">TODO</span> sed</a></li>
+<li><a href="#orgheadline46"><span class="todo TODO">TODO</span> awk</a></li>
+<li><a href="#orgheadline47"><span class="todo TODO">TODO</span> xargs</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline51">系统管理</a>
+<ul>
+<li><a href="#orgheadline49">关机和重启</a></li>
+<li><a href="#orgheadline50">用户登录信息</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline46">4. Linux的文件系统</a>
+<li><a href="#orgheadline57">4. Linux的文件系统</a>
 <ul>
-<li><a href="#orgheadline43">LSB, FHS: (FileSystem Heirache Standard)</a></li>
-<li><a href="#orgheadline44">应用程序的组成部分</a></li>
-<li><a href="#orgheadline45">文件类型</a></li>
+<li><a href="#orgheadline53">LSB, FHS: (FileSystem Heirache Standard)</a></li>
+<li><a href="#orgheadline54">应用程序的组成部分</a></li>
+<li><a href="#orgheadline55">文件类型</a>
+<ul>
+<li><a href="#orgheadline56">file</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline56">5. Bash基础</a>
+</ul>
+</li>
+<li><a href="#orgheadline85">5. Bash</a>
 <ul>
-<li><a href="#orgheadline47">命令历史</a></li>
-<li><a href="#orgheadline48">命令或路径补全和展开</a></li>
-<li><a href="#orgheadline49">命令的执行结果</a></li>
-<li><a href="#orgheadline50">命令别名(alias)</a></li>
-<li><a href="#orgheadline51">glob</a></li>
-<li><a href="#orgheadline52">bash的快捷键</a></li>
-<li><a href="#orgheadline53">I/O重定向及管道</a>
+<li><a href="#orgheadline58">命令历史</a></li>
+<li><a href="#orgheadline59">命令或路径补全和展开</a></li>
+<li><a href="#orgheadline60">命令的执行结果</a></li>
+<li><a href="#orgheadline61">命令别名(alias)</a></li>
+<li><a href="#orgheadline62">glob</a></li>
+<li><a href="#orgheadline63">bash的快捷键</a></li>
+<li><a href="#orgheadline64">I/O重定向及管道</a>
 <ul>
-<li><a href="#orgheadline54">I/O重定向</a></li>
-<li><a href="#orgheadline55">管道</a></li>
+<li><a href="#orgheadline65">I/O重定向</a></li>
+<li><a href="#orgheadline66">管道</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline67">Shell脚本</a>
+<ul>
+<li><a href="#orgheadline68">弱类型与强类型</a></li>
+<li><a href="#orgheadline69">shebang</a></li>
+<li><a href="#orgheadline70">脚本退出码</a></li>
+<li><a href="#orgheadline71">选择执行</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline73">bash变量</a>
+<ul>
+<li><a href="#orgheadline72">变量的生效范围</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline76">bash中的算术计算</a>
+<ul>
+<li><a href="#orgheadline74">计算命令</a></li>
+<li><a href="#orgheadline75">运算符号</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline80">bash的条件测试</a>
+<ul>
+<li><a href="#orgheadline77">测试命令</a></li>
+<li><a href="#orgheadline78">测试符号</a></li>
+<li><a href="#orgheadline79">组合条件</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline84">bash的配置文件</a>
+<ul>
+<li><a href="#orgheadline81">配置文件的类型</a></li>
+<li><a href="#orgheadline82">shell登录过程</a></li>
+<li><a href="#orgheadline83">载入配置文件的方式</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline117">6. 用户和组</a>
+<ul>
+<li><a href="#orgheadline86">资源分派</a></li>
+<li><a href="#orgheadline87">用户: UID</a></li>
+<li><a href="#orgheadline88">组: GID</a></li>
+<li><a href="#orgheadline89">配置文件</a></li>
+<li><a href="#orgheadline105">用户与组相关命令</a>
+<ul>
+<li><a href="#orgheadline90">查看用户信息: id</a></li>
+<li><a href="#orgheadline91">su</a></li>
+<li><a href="#orgheadline92">newgrp</a></li>
+<li><a href="#orgheadline98">用户相关</a></li>
+<li><a href="#orgheadline103">组相关</a></li>
+<li><a href="#orgheadline104">其他</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline116">文件权限管理</a>
+<ul>
+<li><a href="#orgheadline106">三类对象</a></li>
+<li><a href="#orgheadline107">基本权限</a></li>
+<li><a href="#orgheadline112">特殊权限</a></li>
+<li><a href="#orgheadline113">修改文件权限: chmod</a></li>
+<li><a href="#orgheadline114">修改文件的属主和属组</a></li>
+<li><a href="#orgheadline115">文件遮罩码: umask</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline121">7. 正则表达式</a>
+<ul>
+<li><a href="#orgheadline118">正则表达式的类型</a></li>
+<li><a href="#orgheadline119">基本正则表达式</a></li>
+<li><a href="#orgheadline120">扩展正则表达式</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline147">8. Linux磁盘管理</a>
+<ul>
+<li><a href="#orgheadline122">设备文件</a></li>
+<li><a href="#orgheadline126">分区管理</a>
+<ul>
+<li><a href="#orgheadline123">fdisk</a></li>
+<li><a href="#orgheadline124"><span class="todo TODO">TODO</span> parted</a></li>
+<li><a href="#orgheadline125"><span class="todo TODO">TODO</span> sfdisk</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline127">文件系统管理</a>
+<ul>
+<li><a href="#orgheadline128">文件系统</a></li>
+<li><a href="#orgheadline132">创建文件系统</a></li>
+<li><a href="#orgheadline137">其他常用工具</a></li>
+<li><a href="#orgheadline140">文件系统检测</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline146">文件系统管理</a>
+<ul>
+<li><a href="#orgheadline141">挂载</a></li>
+<li><a href="#orgheadline142">卸载</a></li>
+<li><a href="#orgheadline143">交换分区</a></li>
+<li><a href="#orgheadline144">空间占用查询</a></li>
+<li><a href="#orgheadline145">/etc/fstab</a></li>
 </ul>
 </li>
 </ul>
@@ -400,8 +514,8 @@ man <span style="color: #AE81FF;">3</span> COMMAND  <span style="color: #75715E;
 </div>
 </div>
 
-<div id="outline-container-orgheadline42" class="outline-2">
-<h2 id="orgheadline42"><span class="section-number-2">3</span> 基础命令</h2>
+<div id="outline-container-orgheadline52" class="outline-2">
+<h2 id="orgheadline52"><span class="section-number-2">3</span> 基础命令</h2>
 <div class="outline-text-2" id="text-3">
 <dl class="org-dl">
 <dt>echo</dt><dd><div class="org-src-container">
@@ -449,9 +563,9 @@ date <span style="color: #AE81FF;">[</span>MMDDhhmm<span style="color: #66D9EF;"
 </div>
 </div>
 
-<div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">目录与文件相关</h3>
-<div class="outline-text-3" id="text-orgheadline28">
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">目录与文件相关</h3>
+<div class="outline-text-3" id="text-orgheadline27">
 </div><div id="outline-container-orgheadline19" class="outline-4">
 <h4 id="orgheadline19">文件系统</h4>
 <div class="outline-text-4" id="text-orgheadline19">
@@ -494,13 +608,15 @@ date <span style="color: #AE81FF;">[</span>MMDDhhmm<span style="color: #66D9EF;"
 <div class="org-src-container">
 
 <pre class="src src-shell"><span style="color: #F92672;">pwd</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">printing working directory</span>
+basename PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;PATH&#30340;&#22522;&#21517;</span>
+dirname PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;PATH&#38500;&#22522;&#21517;&#20197;&#22806;&#30340;&#37096;&#20998;</span>
 </pre>
 </div>
 </div></li>
 
 <li><a id="orgheadline22"></a>文件时间戳<br  /><div class="outline-text-5" id="text-orgheadline22">
 <ul class="org-ul">
-<li>access time：访问时间，简写为atime，读取文件内容</li>
+<li>access time: 访问时间，简写为atime，读取文件内容</li>
 <li>modify time: 修改时间, mtime，改变文件内容（数据）</li>
 <li>change time: 改变时间, ctime，元数据发生改变（包含时间戳的改变）</li>
 </ul>
@@ -537,8 +653,29 @@ date <span style="color: #AE81FF;">[</span>MMDDhhmm<span style="color: #66D9EF;"
 </div>
 
 <div id="outline-container-orgheadline24" class="outline-4">
-<h4 id="orgheadline24">ls</h4>
+<h4 id="orgheadline24">mkdir, rmdir</h4>
 <div class="outline-text-4" id="text-orgheadline24">
+<div class="org-src-container">
+
+<pre class="src src-shell">mkdir <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#30446;&#24405;</span>
+  -p: &#24403;&#30446;&#24405;&#23384;&#22312;&#26102;&#19981;&#25253;&#38169;&#65292;&#19988;&#21487;&#33258;&#21160;&#21019;&#24314;&#25152;&#38656;&#30340;&#21508;&#30446;&#24405;&#65307;
+  -v: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
+  -m MODE: &#21019;&#24314;&#30446;&#24405;&#26102;&#30452;&#25509;&#25351;&#23450;&#26435;&#38480;&#65307;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-shell">rmdir <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#33021;&#21024;&#38500;&#31354;&#30446;&#24405;</span>
+  -p: &#23618;&#32423;&#21024;&#38500;&#31354;&#30446;&#24405; 
+  -v: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">ls</h4>
+<div class="outline-text-4" id="text-orgheadline25">
 <p>
 显示指定路径下的文件列表
 </p>
@@ -562,27 +699,6 @@ date <span style="color: #AE81FF;">[</span>MMDDhhmm<span style="color: #66D9EF;"
 </div>
 </div>
 
-<div id="outline-container-orgheadline25" class="outline-4">
-<h4 id="orgheadline25">mkdir, rmdir</h4>
-<div class="outline-text-4" id="text-orgheadline25">
-<div class="org-src-container">
-
-<pre class="src src-shell">mkdir <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#30446;&#24405;</span>
-  -p: &#24403;&#30446;&#24405;&#23384;&#22312;&#26102;&#19981;&#25253;&#38169;&#65292;&#19988;&#21487;&#33258;&#21160;&#21019;&#24314;&#25152;&#38656;&#30340;&#21508;&#30446;&#24405;&#65307;
-  -v: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
-  -m MODE: &#21019;&#24314;&#30446;&#24405;&#26102;&#30452;&#25509;&#25351;&#23450;&#26435;&#38480;&#65307;
-</pre>
-</div>
-<div class="org-src-container">
-
-<pre class="src src-shell">rmdir <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#33021;&#21024;&#38500;&#31354;&#30446;&#24405;</span>
-  -p: &#23618;&#32423;&#21024;&#38500;&#31354;&#30446;&#24405; 
-  -v: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-orgheadline26" class="outline-4">
 <h4 id="orgheadline26">tree</h4>
 <div class="outline-text-4" id="text-orgheadline26">
@@ -593,34 +709,20 @@ date <span style="color: #AE81FF;">[</span>MMDDhhmm<span style="color: #66D9EF;"
 
 <pre class="src src-shell">tree /path/to 
   -d: &#21482;&#26174;&#31034;&#30446;&#24405;
-  -L level&#65306;&#25351;&#23450;&#26174;&#31034;&#30340;&#23618;&#32423;&#25968;&#30446;
+  -L level: &#25351;&#23450;&#26174;&#31034;&#30340;&#23618;&#32423;&#25968;&#30446;
   -P pattern: &#21482;&#26174;&#31034;&#30001;&#25351;&#23450;pattern&#21305;&#37197;&#21040;&#30340;&#36335;&#24452;&#65307;
 </pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgheadline27" class="outline-4">
-<h4 id="orgheadline27">file</h4>
-<div class="outline-text-4" id="text-orgheadline27">
-<p>
-查看文件内容的类型 
-</p>
-<div class="org-src-container">
-
-<pre class="src src-shell">file FILE
-</pre>
-</div>
-</div>
-</div>
 </div>
 
-<div id="outline-container-orgheadline32" class="outline-3">
-<h3 id="orgheadline32">文件管理</h3>
-<div class="outline-text-3" id="text-orgheadline32">
-</div><div id="outline-container-orgheadline29" class="outline-4">
-<h4 id="orgheadline29">cp</h4>
-<div class="outline-text-4" id="text-orgheadline29">
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">文件管理</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+</div><div id="outline-container-orgheadline28" class="outline-4">
+<h4 id="orgheadline28">cp</h4>
+<div class="outline-text-4" id="text-orgheadline28">
 <p>
 复制命令
 </p>
@@ -642,11 +744,11 @@ cp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</
 <ul class="org-ul">
 <li>cp SRC DEST
 <ul class="org-ul">
-<li>如果目标不存在：新建DEST，并将SRC中内容填充到DEST中</li>
-<li>如果目标存在：
+<li>如果目标不存在: 新建DEST，并将SRC中内容填充到DEST中</li>
+<li>如果目标存在: 
 <ul class="org-ul">
-<li>如果DEST是文件：将SRC中的内容覆盖到DEST中（使用-i以确认）</li>
-<li>如果DEST是目录：将SRC复制到该目录下</li>
+<li>如果DEST是文件: 将SRC中的内容覆盖到DEST中（使用-i以确认）</li>
+<li>如果DEST是目录: 将SRC复制到该目录下</li>
 </ul></li>
 </ul></li>
 <li>cp SRC&#x2026; DEST
@@ -655,16 +757,16 @@ cp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</
 </ul></li>
 <li>cp -r 目录SRC DEST
 <ul class="org-ul">
-<li>如果目标不存在：新建DEST目录，复制SRC中所有文件至DEST中</li>
-<li>如果DEST存在且为目录：在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中</li>
+<li>如果目标不存在: 新建DEST目录，复制SRC中所有文件至DEST中</li>
+<li>如果DEST存在且为目录: 在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中</li>
 </ul></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline30" class="outline-4">
-<h4 id="orgheadline30">mv</h4>
-<div class="outline-text-4" id="text-orgheadline30">
+<div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29">mv</h4>
+<div class="outline-text-4" id="text-orgheadline29">
 <p>
 移动文件或目录，也可以用于重命名
 </p>
@@ -679,9 +781,9 @@ mv <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</
 </div>
 </div>
 
-<div id="outline-container-orgheadline31" class="outline-4">
-<h4 id="orgheadline31">rm</h4>
-<div class="outline-text-4" id="text-orgheadline31">
+<div id="outline-container-orgheadline30" class="outline-4">
+<h4 id="orgheadline30">rm</h4>
+<div class="outline-text-4" id="text-orgheadline30">
 <p>
 删除文件或目录
 </p>
@@ -697,12 +799,167 @@ mv <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</
 </div>
 </div>
 
-<div id="outline-container-orgheadline36" class="outline-3">
-<h3 id="orgheadline36">查看文本文件</h3>
-<div class="outline-text-3" id="text-orgheadline36">
-</div><div id="outline-container-orgheadline33" class="outline-4">
-<h4 id="orgheadline33">cat, tac</h4>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">文件查找</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<p>
+在文件系统上查找符合条件的文件
+</p>
+<dl class="org-dl">
+<dt>文件查找的类型</dt><dd><ul class="org-ul">
+<li>非实时的查找（数据库查找）: locate</li>
+<li>实时查找: find</li>
+</ul></dd>
+</dl>
+</div>
+
+<div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">locate</h4>
 <div class="outline-text-4" id="text-orgheadline33">
+<ul class="org-ul">
+<li>依赖于事先构建的索引进行搜索
+<ul class="org-ul">
+<li>索引的构建是在系统较为空闲时自动进行(周期性任务)</li>
+<li>手动更新数据库(<code>updatedb</code>)</li>
+<li>索引构建过程需要遍历整个根文件系统，极消耗资源，小心使用</li>
+</ul></li>
+<li>工作特点
+<ul class="org-ul">
+<li>查找速度快</li>
+<li>模糊查找</li>
+<li>非实时查找</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">locate KEYWORD
+updatedb
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline34" class="outline-4">
+<h4 id="orgheadline34">find</h4>
+<div class="outline-text-4" id="text-orgheadline34">
+<p>
+实时查找工具，通过遍历指定路径下的文件系统完成文件查找
+</p>
+<ul class="org-ul">
+<li>工作特点
+<ul class="org-ul">
+<li>查找速度略慢</li>
+<li>精确查找</li>
+<li>实时查找</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">find <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>&#26597;&#25214;&#36335;&#24452;<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>&#26597;&#25214;&#26465;&#20214;<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>&#22788;&#29702;&#21160;&#20316;<span style="color: #AE81FF;">]</span>
+  &#26597;&#25214;&#36335;&#24452;: &#25351;&#23450;&#20855;&#20307;&#30446;&#26631;&#36335;&#24452;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;&#20026;&#24403;&#21069;&#30446;&#24405;<span style="color: #AE81FF;">&#65289;</span>
+  &#26597;&#25214;&#26465;&#20214;: &#25351;&#23450;&#30340;&#26597;&#25214;&#26631;&#20934;&#65292;&#21487;&#20197;&#25991;&#20214;&#21517;&#12289;&#22823;&#23567;&#12289;&#31867;&#22411;&#12289;&#26435;&#38480;&#31561;&#26631;&#20934;&#36827;&#34892;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;&#20026;&#25214;&#20986;&#25351;&#23450;&#36335;&#24452;&#19979;&#30340;&#25152;&#26377;&#25991;&#20214;<span style="color: #AE81FF;">&#65289;</span>
+  &#22788;&#29702;&#21160;&#20316;: &#23545;&#31526;&#21512;&#26465;&#20214;&#30340;&#25991;&#20214;&#20570;&#20160;&#20040;&#25805;&#20316;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;&#36755;&#20986;&#33267;&#23631;&#24149;<span style="color: #AE81FF;">&#65289;</span>
+
+  -Olevel:
+</pre>
+</div>
+
+
+<dl class="org-dl">
+<dt>查找条件</dt><dd><ul class="org-ul">
+<li>根据文件名查找
+<ul class="org-ul">
+<li>-name "文件名称": 支持使用glob</li>
+<li>-iname "文件名称": 不区分字母大小写</li>
+<li>-regex "PATTERN": 以PATTERN匹配整个文件路径字符串，而不仅仅是文件名称</li>
+</ul></li>
+<li>根据属主/组查找
+<ul class="org-ul">
+<li>-user USERNAME: 查找属主为指定用户的文件</li>
+<li>-group GROUPNAME: 查找属组为指定组的文件</li>
+<li>-uid UID: 查找属主为指定的UID号的文件</li>
+<li>-gid GID: 查找属组为指定的GID号的文件</li>
+<li>-nouser: 查找没有属主的文件</li>
+<li>-nogroup: 查找没有属组的文件</li>
+</ul></li>
+<li>根据文件类型查找
+<ul class="org-ul">
+<li>-type TYPE: TYPE可以是f/d/l/s/b/c/p</li>
+</ul></li>
+<li>根据文件大小查找
+<ul class="org-ul">
+<li>-size [+|-]NUM[k|M|G]
+<ul class="org-ul">
+<li>NUM: (NUM-1, NUM]</li>
+<li>-NUM: [0, NUM-1]</li>
+<li>+NUM: (NUM, oo)</li>
+</ul></li>
+</ul></li>
+<li>根据时间戳，即多少时间之前
+<ul class="org-ul">
+<li>以天为单位
+<ul class="org-ul">
+<li>-atime [+|-]NUM</li>
+<li>-mtime [+|-]NUM</li>
+<li>-ctime [+|-]NUM</li>
+</ul></li>
+<li>以分钟为单位
+<ul class="org-ul">
+<li>-amin [+|-]NUM</li>
+<li>-mmin [+|-]NUM</li>
+<li>-cmin [+|-]NUM</li>
+</ul></li>
+<li>NUM的含义
+<ul class="org-ul">
+<li>NUM: [NUM, NUM+1)</li>
+<li>-NUM: [0, NUM)</li>
+<li>+NUM: [#+1,oo]</li>
+</ul></li>
+</ul></li>
+<li>根据权限查找:
+<ul class="org-ul">
+<li>-perm [/|-]MODE
+<ul class="org-ul">
+<li>MODE: 精确权限匹配</li>
+<li>/MODE: 任何一类(u,g,o)对象的权限中只要能一位匹配即可（或关系）</li>
+<li>-MODE: 每一类对象都必须同时拥有为其指定的权限标准（与关系）</li>
+</ul></li>
+</ul></li>
+<li>组合条件
+<ul class="org-ul">
+<li>与: -a（可省略）</li>
+<li>或: -o</li>
+<li>非: -not, !</li>
+<li>组合条件同时也会将处理动作分开，即处理动作只作用与后半部分的结果。所以最好用括号 <code>\( \)</code> 将查找条件与处理动作分开</li>
+</ul></li>
+</ul></dd>
+<dt>处理动作</dt><dd><ul class="org-ul">
+<li>-print: 默认的处理动作，显示至屏幕</li>
+<li>-ls: 类似于对查找到的文件执行“ls -l”命令</li>
+<li>-delete: 删除查找到的文件，小心操作</li>
+<li>-fls /path/to/somefile: 查找到的所有文件的长格式信息保存至指定文件中</li>
+<li>-exec COMMAND {} \; : 对查找到的每个文件执行由COMMAND指定的命令</li>
+<li><p>
+-ok COMMAND {} \; : 对查找到的每个文件执行由COMMAND指定的命令，执行前会交互式要求用户确认
+</p>
+<ul class="org-ul">
+<li>{}: 用于引用查找到的文件名称自身</li>
+</ul>
+<ul class="org-ul">
+<li>注意: find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性传递给后面的命令，有些命令不能接受过多参数，可以使用 <code>find | xargs COMMAND</code> 来解决</li>
+</ul></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">查看文本文件</h3>
+<div class="outline-text-3" id="text-orgheadline38">
+</div><div id="outline-container-orgheadline35" class="outline-4">
+<h4 id="orgheadline35">cat, tac</h4>
+<div class="outline-text-4" id="text-orgheadline35">
 <div class="org-src-container">
 
 <pre class="src src-shell">cat <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36830;&#25509;&#25991;&#20214;&#65292;&#28982;&#21518;&#26174;&#31034;&#21040;&#23631;&#24149;&#19978;</span>
@@ -714,30 +971,32 @@ tac <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]<
 </div>
 </div>
 
-<div id="outline-container-orgheadline34" class="outline-4">
-<h4 id="orgheadline34">more, less</h4>
-<div class="outline-text-4" id="text-orgheadline34">
+<div id="outline-container-orgheadline36" class="outline-4">
+<h4 id="orgheadline36">more, less</h4>
+<div class="outline-text-4" id="text-orgheadline36">
 <p>
 more和less可以对长文章进行翻页，less更常用
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgheadline35" class="outline-4">
-<h4 id="orgheadline35">head, tail</h4>
-<div class="outline-text-4" id="text-orgheadline35">
+<div id="outline-container-orgheadline37" class="outline-4">
+<h4 id="orgheadline37">head, tail</h4>
+<div class="outline-text-4" id="text-orgheadline37">
 <div class="org-src-container">
 
 <pre class="src src-shell">head <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#22836;</span>
   -c num: &#25351;&#23450;&#33719;&#21462;&#21069;num&#23383;&#33410;
-  -n num / -num: &#25351;&#23450;&#33719;&#21462;&#21069;num&#34892;
+  -n num/-num: &#25351;&#23450;&#33719;&#21462;&#21069;num&#34892;
+  -n -num: &#25490;&#38500;&#21518;num&#34892;
 </pre>
 </div>
 <div class="org-src-container">
 
 <pre class="src src-shell">tail <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#23614;</span>
   -c num: &#25351;&#23450;&#33719;&#21462;&#21518;num&#23383;&#33410;
-  -n num / -num: &#25351;&#23450;&#33719;&#21462;&#21518;num&#34892;
+  -n num/-num: &#25351;&#23450;&#33719;&#21462;&#21518;num&#34892;
+  -n +num: &#25490;&#38500;&#31532;num&#34892;&#20043;&#21069;&#30340;&#34892;&#25968;
   -f: &#36319;&#36394;&#26174;&#31034;&#25991;&#20214;&#26032;&#36861;&#21152;&#30340;&#20869;&#23481;&#65307;
 </pre>
 </div>
@@ -745,12 +1004,12 @@ more和less可以对长文章进行翻页，less更常用
 </div>
 </div>
 
-<div id="outline-container-orgheadline38" class="outline-3">
-<h3 id="orgheadline38">文本处理工具</h3>
-<div class="outline-text-3" id="text-orgheadline38">
-</div><div id="outline-container-orgheadline37" class="outline-4">
-<h4 id="orgheadline37">tr</h4>
-<div class="outline-text-4" id="text-orgheadline37">
+<div id="outline-container-orgheadline48" class="outline-3">
+<h3 id="orgheadline48">文本处理工具</h3>
+<div class="outline-text-3" id="text-orgheadline48">
+</div><div id="outline-container-orgheadline39" class="outline-4">
+<h4 id="orgheadline39">tr</h4>
+<div class="outline-text-4" id="text-orgheadline39">
 <p>
 转换或删除字符
 </p>
@@ -762,14 +1021,137 @@ more和less可以对长文章进行翻页，less更常用
 </div>
 </div>
 </div>
+
+<div id="outline-container-orgheadline40" class="outline-4">
+<h4 id="orgheadline40">wc</h4>
+<div class="outline-text-4" id="text-orgheadline40">
+<p>
+行数 单词 字节
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">wc <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...
+  -l: lines
+  -w: words
+  -c: characters
+</pre>
+</div>
+</div>
 </div>
 
-<div id="outline-container-orgheadline41" class="outline-3">
-<h3 id="orgheadline41">系统管理</h3>
-<div class="outline-text-3" id="text-orgheadline41">
-</div><div id="outline-container-orgheadline39" class="outline-4">
-<h4 id="orgheadline39">关机和重启</h4>
-<div class="outline-text-4" id="text-orgheadline39">
+<div id="outline-container-orgheadline41" class="outline-4">
+<h4 id="orgheadline41">cut</h4>
+<div class="outline-text-4" id="text-orgheadline41">
+<p>
+通过分隔符切割后显示指定字段
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">cut <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...
+  -d DELIMITER: &#25351;&#23450;&#20998;&#38548;&#31526;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;&#20026;&#21046;&#34920;&#31526;<span style="color: #AE81FF;">&#65289;</span>
+  -f FILEDS: &#25351;&#23450;&#23383;&#27573;&#65292;&#22914; <span style="color: #AE81FF;">1-3,7</span>
+  --output-delimiter=STRING: &#25351;&#23450;&#36755;&#20986;&#20998;&#38548;&#31526;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline42" class="outline-4">
+<h4 id="orgheadline42">sort</h4>
+<div class="outline-text-4" id="text-orgheadline42">
+<p>
+排序
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sort <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...
+  -f: &#24573;&#30053;&#23383;&#31526;&#22823;&#23567;&#20889;
+  -r: &#36870;&#24207;
+  -t DELIMITER: &#23383;&#27573;&#20998;&#38548;&#31526;
+  -k num: &#20197;&#25351;&#23450;&#23383;&#27573;&#20026;&#26631;&#20934;&#25490;&#24207;
+  -n: &#20197;&#25968;&#20540;&#22823;&#23567;&#36827;&#34892;&#25490;&#24207;
+  -u: uniq&#65292;&#25490;&#24207;&#21518;&#21435;&#37325;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline43" class="outline-4">
+<h4 id="orgheadline43">uniq</h4>
+<div class="outline-text-4" id="text-orgheadline43">
+<p>
+去除连续且完全相同的行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">uniq <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...
+  -c: &#26174;&#31034;&#27599;&#34892;&#37325;&#22797;&#20986;&#29616;&#30340;&#27425;&#25968;&#65307;
+  -d: &#20165;&#26174;&#31034;&#37325;&#22797;&#36807;&#30340;&#34892;&#65307;
+  -u: &#20165;&#26174;&#31034;&#19981;&#26366;&#37325;&#22797;&#30340;&#34892;&#65307;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline44" class="outline-4">
+<h4 id="orgheadline44">grep</h4>
+<div class="outline-text-4" id="text-orgheadline44">
+<ul class="org-ul">
+<li>grep是一个文本搜索工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行</li>
+<li>grep工具有三种: 
+<ul class="org-ul">
+<li>grep支持基础正则表达式</li>
+<li>egrep相当于 <code>grep -E</code> ，用于扩展正则表达式</li>
+<li>fgrep不支持正则表达时，但匹配速度快</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">grep <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span> PATTERN <span style="color: #AE81FF;">[</span>FILE...<span style="color: #AE81FF;">]</span>
+  -E: &#20351;&#29992;&#25193;&#23637;&#27491;&#21017;&#34920;&#36798;&#24335;ERE
+
+  -v: &#26174;&#31034;&#19981;&#33021;&#22815;&#34987;pattern&#21305;&#37197;&#21040;&#30340;&#34892;
+  -i: ignore &#24573;&#30053;&#23383;&#31526;&#22823;&#23567;&#20889;
+  -o: only &#20165;&#26174;&#31034;&#21305;&#37197;&#21040;&#30340;&#23383;&#31526;&#20018;
+  -q: quite &#38745;&#40664;&#27169;&#24335;&#65292;&#19981;&#36755;&#20986;&#20219;&#20309;&#20449;&#24687;<span style="color: #AE81FF;">&#65288;</span>&#21518;&#36793;&#21487;&#20197;&#26816;&#26597;$<span style="color: #FD971F;">?</span>&#26469;&#26816;&#26597;&#26159;&#21542;&#21305;&#37197;&#21040;<span style="color: #AE81FF;">&#65289;</span>
+
+  -r: &#21516;&#26102;&#25628;&#32034;&#30446;&#24405;&#30340;&#23376;&#30446;&#24405;
+
+  -A num: after, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21518;num&#34892;
+  -B num: before, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21069;num&#34892;
+  -C num: context, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21069;&#21518;num&#34892;
+
+  --color=auto: &#23545;&#21305;&#37197;&#21040;&#30340;&#25991;&#26412;&#30528;&#33394;&#26174;&#31034;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline45" class="outline-4">
+<h4 id="orgheadline45"><span class="todo TODO">TODO</span> sed</h4>
+<div class="outline-text-4" id="text-orgheadline45">
+<ul class="org-ul">
+<li>文本编辑工具</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline46" class="outline-4">
+<h4 id="orgheadline46"><span class="todo TODO">TODO</span> awk</h4>
+<div class="outline-text-4" id="text-orgheadline46">
+<ul class="org-ul">
+<li>文本报告生成器</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline47" class="outline-4">
+<h4 id="orgheadline47"><span class="todo TODO">TODO</span> xargs</h4>
+</div>
+</div>
+<div id="outline-container-orgheadline51" class="outline-3">
+<h3 id="orgheadline51">系统管理</h3>
+<div class="outline-text-3" id="text-orgheadline51">
+</div><div id="outline-container-orgheadline49" class="outline-4">
+<h4 id="orgheadline49">关机和重启</h4>
+<div class="outline-text-4" id="text-orgheadline49">
 <ul class="org-ul">
 <li><p>
 reboot, halt, poweroff 都会通过调用shutdown来使用
@@ -788,9 +1170,9 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline40" class="outline-4">
-<h4 id="orgheadline40">用户登录信息</h4>
-<div class="outline-text-4" id="text-orgheadline40">
+<div id="outline-container-orgheadline50" class="outline-4">
+<h4 id="orgheadline50">用户登录信息</h4>
+<div class="outline-text-4" id="text-orgheadline50">
 <ul class="org-ul">
 <li>whoami: 显示当前登录有效用户</li>
 <li>who: 系统当前所有的登录会话</li>
@@ -801,19 +1183,17 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 </div>
 </div>
 
-
-
-<div id="outline-container-orgheadline46" class="outline-2">
-<h2 id="orgheadline46"><span class="section-number-2">4</span> Linux的文件系统</h2>
+<div id="outline-container-orgheadline57" class="outline-2">
+<h2 id="orgheadline57"><span class="section-number-2">4</span> Linux的文件系统</h2>
 <div class="outline-text-2" id="text-4">
 <dl class="org-dl">
 <dt>根文件系统(rootfs)</dt><dd>root filesystem</dd>
 </dl>
 </div>
 
-<div id="outline-container-orgheadline43" class="outline-3">
-<h3 id="orgheadline43">LSB, FHS: (FileSystem Heirache Standard)</h3>
-<div class="outline-text-3" id="text-orgheadline43">
+<div id="outline-container-orgheadline53" class="outline-3">
+<h3 id="orgheadline53">LSB, FHS: (FileSystem Heirache Standard)</h3>
+<div class="outline-text-3" id="text-orgheadline53">
 <ul class="org-ul">
 <li>/boot: 引导文件存放目录，内核文件(vmlinuz)、引导加载器(bootloader, grub)都存放于此目录</li>
 <li>/bin: 供所有用户使用的基本命令；不能关联至独立分区，OS启动即会用到的程序</li>
@@ -873,9 +1253,9 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 </div>
 </div>
 
-<div id="outline-container-orgheadline44" class="outline-3">
-<h3 id="orgheadline44">应用程序的组成部分</h3>
-<div class="outline-text-3" id="text-orgheadline44">
+<div id="outline-container-orgheadline54" class="outline-3">
+<h3 id="orgheadline54">应用程序的组成部分</h3>
+<div class="outline-text-3" id="text-orgheadline54">
 <ul class="org-ul">
 <li>二进制程序: /bin, /sbin, /usr/bin, /usr/sbin, /usr/local/bin, /usr/local/sbin</li>
 <li>库文件: /lib, /lib64, /usr/lib, /usr/lib64, /usr/local/lib, /usr/local/lib64</li>
@@ -885,9 +1265,9 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 </div>
 </div>
 
-<div id="outline-container-orgheadline45" class="outline-3">
-<h3 id="orgheadline45">文件类型</h3>
-<div class="outline-text-3" id="text-orgheadline45">
+<div id="outline-container-orgheadline55" class="outline-3">
+<h3 id="orgheadline55">文件类型</h3>
+<div class="outline-text-3" id="text-orgheadline55">
 <ul class="org-ul">
 <li>-(f): 普通文件(纯文本文件\二进制文件\数据文件)</li>
 <li>d: 目录</li>
@@ -898,15 +1278,28 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 <li>p: 管道(FIFO)</li>
 </ul>
 </div>
+<div id="outline-container-orgheadline56" class="outline-4">
+<h4 id="orgheadline56">file</h4>
+<div class="outline-text-4" id="text-orgheadline56">
+<p>
+查看文件内容的类型 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-shell">file FILE
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline56" class="outline-2">
-<h2 id="orgheadline56"><span class="section-number-2">5</span> Bash基础</h2>
+<div id="outline-container-orgheadline85" class="outline-2">
+<h2 id="orgheadline85"><span class="section-number-2">5</span> Bash</h2>
 <div class="outline-text-2" id="text-5">
-</div><div id="outline-container-orgheadline47" class="outline-3">
-<h3 id="orgheadline47">命令历史</h3>
-<div class="outline-text-3" id="text-orgheadline47">
+</div><div id="outline-container-orgheadline58" class="outline-3">
+<h3 id="orgheadline58">命令历史</h3>
+<div class="outline-text-3" id="text-orgheadline58">
 <ul class="org-ul">
 <li>登录shell时，会读取历史文件中记录下的命令: <code>~/.bash_history</code></li>
 <li>登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中</li>
@@ -938,17 +1331,20 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 <li>!#: 调用历史中第#条命令</li>
 <li>!string: 调用历史中最近一个以string开头的命令</li>
 <li>!!: 上条命令</li>
-<li>!$: 调用上一条命令的最后一个参数（用于同个文件的操作）</li>
+<li>!$: 调用上一条命令的最后一个参数（用于同个文件的操作）
+<ul class="org-ul">
+<li>也可以用 <code>ESC .</code> 来代替</li>
+</ul></li>
 </ul></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline48" class="outline-3">
-<h3 id="orgheadline48">命令或路径补全和展开</h3>
-<div class="outline-text-3" id="text-orgheadline48">
+<div id="outline-container-orgheadline59" class="outline-3">
+<h3 id="orgheadline59">命令或路径补全和展开</h3>
+<div class="outline-text-3" id="text-orgheadline59">
 <ul class="org-ul">
 <li>直接补全: 用户给定的字符串只有一条惟一对应的命令或路径，则按TAB直接补全</li>
-<li>补全列表：对应的命令或路径不唯一，按两次TAB会给出列表</li>
+<li>补全列表: 对应的命令或路径不唯一，按两次TAB会给出列表</li>
 <li>{}: 可承载一个以逗号分隔的列表，并将其展开为多个路径，可嵌套使用
 <ul class="org-ul">
 <li>/tmp/{a,b}_{x,y}</li>
@@ -957,9 +1353,9 @@ reboot, halt, poweroff 都会通过调用shutdown来使用
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline49" class="outline-3">
-<h3 id="orgheadline49">命令的执行结果</h3>
-<div class="outline-text-3" id="text-orgheadline49">
+<div id="outline-container-orgheadline60" class="outline-3">
+<h3 id="orgheadline60">命令的执行结果</h3>
+<div class="outline-text-3" id="text-orgheadline60">
 <p>
 bash使用特殊变量 <code>$?</code> 来保存最近一条命令的执行结果
 </p>
@@ -969,9 +1365,9 @@ bash使用特殊变量 <code>$?</code> 来保存最近一条命令的执行结�
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline50" class="outline-3">
-<h3 id="orgheadline50">命令别名(alias)</h3>
-<div class="outline-text-3" id="text-orgheadline50">
+<div id="outline-container-orgheadline61" class="outline-3">
+<h3 id="orgheadline61">命令别名(alias)</h3>
+<div class="outline-text-3" id="text-orgheadline61">
 <div class="org-src-container">
 
 <pre class="src src-shell"><span style="color: #F92672;">alias</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;shell&#36827;&#31243;&#25152;&#26377;&#21487;&#29992;&#30340;&#21629;&#20196;&#21035;&#21517;</span>
@@ -990,9 +1386,9 @@ bash使用特殊变量 <code>$?</code> 来保存最近一条命令的执行结�
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline51" class="outline-3">
-<h3 id="orgheadline51">glob</h3>
-<div class="outline-text-3" id="text-orgheadline51">
+<div id="outline-container-orgheadline62" class="outline-3">
+<h3 id="orgheadline62">glob</h3>
+<div class="outline-text-3" id="text-orgheadline62">
 <p>
 bash中用于实现文件名“通配”
 </p>
@@ -1018,22 +1414,22 @@ bash中用于实现文件名“通配”
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline52" class="outline-3">
-<h3 id="orgheadline52">bash的快捷键</h3>
-<div class="outline-text-3" id="text-orgheadline52">
+<div id="outline-container-orgheadline63" class="outline-3">
+<h3 id="orgheadline63">bash的快捷键</h3>
+<div class="outline-text-3" id="text-orgheadline63">
 <ul class="org-ul">
 <li>Ctrl+l: 清屏，相当于clear命令</li>
-<li>Ctrl+a：跳转至命令开始处</li>
-<li>Ctrl+e：跳转至命令结尾处</li>
-<li>Ctrl+c：取消命令的执行</li>
+<li>Ctrl+a: 跳转至命令开始处</li>
+<li>Ctrl+e: 跳转至命令结尾处</li>
+<li>Ctrl+c: 取消命令的执行</li>
 <li>Ctrl+u: 删除光标所在处至行首的所有内容</li>
 <li>Ctrl+k: 删除光标所在处至行尾的所有内容</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline53" class="outline-3">
-<h3 id="orgheadline53">I/O重定向及管道</h3>
-<div class="outline-text-3" id="text-orgheadline53">
+<div id="outline-container-orgheadline64" class="outline-3">
+<h3 id="orgheadline64">I/O重定向及管道</h3>
+<div class="outline-text-3" id="text-orgheadline64">
 <ul class="org-ul">
 <li>每个打开的文件都会有一个fd: file descripter（文件描述符）
 <ul class="org-ul">
@@ -1043,9 +1439,9 @@ bash中用于实现文件名“通配”
 </ul></li>
 </ul>
 </div>
-<div id="outline-container-orgheadline54" class="outline-4">
-<h4 id="orgheadline54">I/O重定向</h4>
-<div class="outline-text-4" id="text-orgheadline54">
+<div id="outline-container-orgheadline65" class="outline-4">
+<h4 id="orgheadline65">I/O重定向</h4>
+<div class="outline-text-4" id="text-orgheadline65">
 <p>
 改变标准位置
 </p>
@@ -1061,7 +1457,10 @@ bash中用于实现文件名“通配”
 <li>&gt;&gt;: 追加重定向标准输出</li>
 <li>2&gt;: 覆盖重定向错误输出</li>
 <li>2&gt;&gt;: 追加重定向错误输出</li>
-<li>&amp;&gt;: 覆盖重定向合并标准输出和错误输出</li>
+<li>&amp;&gt;: 覆盖重定向合并标准输出和错误输出
+<ul class="org-ul">
+<li>也可以使用 <code>2&gt;&amp;1</code></li>
+</ul></li>
 <li>&amp;&gt;&gt;: 追加重定向合并标准输出和错误输出</li>
 </ul></dd>
 <dt>输入重定向</dt><dd><ul class="org-ul">
@@ -1069,6 +1468,7 @@ bash中用于实现文件名“通配”
 <li><p>
 &lt;&lt;EOF: 读取你的输入至EOF行
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-shell">cat &gt;&gt; file &lt;&lt; EOF
@@ -1078,15 +1478,1221 @@ bash中用于实现文件名“通配”
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline55" class="outline-4">
-<h4 id="orgheadline55">管道</h4>
-<div class="outline-text-4" id="text-orgheadline55">
+<div id="outline-container-orgheadline66" class="outline-4">
+<h4 id="orgheadline66">管道</h4>
+<div class="outline-text-4" id="text-orgheadline66">
 <p>
 使用 <code>|</code> 来连接命令，前一个命令的标准输出当作后一个命令的输入
 </p>
 <div class="org-src-container">
 
 <pre class="src src-sh">tee <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>... <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#26631;&#20934;&#36755;&#20837;&#36755;&#20986;&#21040;&#26631;&#20934;&#36755;&#20986;&#21644;&#25991;&#20214;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>/dev/null: 丢弃数据的设备</li>
+<li>/dev/zero: 产生0的设备</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline67" class="outline-3">
+<h3 id="orgheadline67">Shell脚本</h3>
+<div class="outline-text-3" id="text-orgheadline67">
+<ul class="org-ul">
+<li>Shell编程: 过程式、解释执行</li>
+<li>脚本文件要直接运行需要添加 <code>x</code> 权限，或直接运行解释器进行执行</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline68" class="outline-4">
+<h4 id="orgheadline68">弱类型与强类型</h4>
+<div class="outline-text-4" id="text-orgheadline68">
+<ul class="org-ul">
+<li>强类型: 定义变量时必须指定类型、参与运算必须符合类型要求；调用未声明变量会产生错误</li>
+<li>弱类型: 无须指定类型，默认均为字符型；参与运算会自动进行隐式类型转换；变量无须事先定义可直接调用</li>
+<li>bash是一种弱类型语言，把所有要存储的数据都当作字符进行，同时不支持浮点数</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline69" class="outline-4">
+<h4 id="orgheadline69">shebang</h4>
+<div class="outline-text-4" id="text-orgheadline69">
+<ul class="org-ul">
+<li>脚本文件第一行，即 #!/bin/bash</li>
+<li>内核通过文件前几个字节的魔数(magic number)来识别文件类型然后打开</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline70" class="outline-4">
+<h4 id="orgheadline70">脚本退出码</h4>
+<div class="outline-text-4" id="text-orgheadline70">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">[</span>n<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#33050;&#26412;&#65292;&#36864;&#20986;&#30721;&#20026;n&#65288;&#40664;&#35748;&#20026;0&#65289;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>如果未给脚本指定退出状态码，整个脚本的退出状态码取决于脚本中执行的最后一条命令的状态码</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline71" class="outline-4">
+<h4 id="orgheadline71">选择执行</h4>
+<div class="outline-text-4" id="text-orgheadline71">
+<dl class="org-dl">
+<dt>if</dt><dd></dd>
+</dl>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">if</span> COMMAND1
+<span style="color: #F92672;">then</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#25104;&#21151;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">elif</span> COMMAND2; <span style="color: #F92672;">then</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20889;&#22312;&#19968;&#34892;</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#22833;&#36133;&#19988;COMMAND2&#25104;&#21151;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">else</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#21644;COMMAND2&#37117;&#22833;&#36133;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">fi</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">if&#32467;&#26463;&#26631;&#24535;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline73" class="outline-3">
+<h3 id="orgheadline73">bash变量</h3>
+<div class="outline-text-3" id="text-orgheadline73">
+</div><div id="outline-container-orgheadline72" class="outline-4">
+<h4 id="orgheadline72">变量的生效范围</h4>
+<div class="outline-text-4" id="text-orgheadline72">
+<ul class="org-ul">
+<li>本地变量: 生效范围为当前shell进程；对当前shell之外的其它shell进程，包括当前shell的子shell进程均无效</li>
+<li>环境变量: 生效范围为当前shell进程及其子进程数</li>
+<li id="相关命令"><div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">shift</span> <span style="color: #AE81FF;">[</span>n<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21442;&#25968;&#21024;&#38500;&#21069;&#38754;n&#20010;&#65292;&#20250;&#24433;&#21709;&#25152;&#26377;&#20301;&#32622;&#21464;&#37327;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline76" class="outline-3">
+<h3 id="orgheadline76">bash中的算术计算</h3>
+<div class="outline-text-3" id="text-orgheadline76">
+</div><div id="outline-container-orgheadline74" class="outline-4">
+<h4 id="orgheadline74">计算命令</h4>
+<div class="outline-text-4" id="text-orgheadline74">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">let</span> <span style="color: #FD971F;">var</span>=EXPRESSION
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">[</span>EXPRESSION<span style="color: #AE81FF;">]</span>
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">(</span>EXPRESSION<span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">(</span>expr arg1 arg2 arg3<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26576;&#20123;&#31526;&#21495;&#38656;&#35201;&#36827;&#34892;&#36716;&#20041;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>bash有内建的随机数生成器: $RANDOM</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline75" class="outline-4">
+<h4 id="orgheadline75">运算符号</h4>
+<div class="outline-text-4" id="text-orgheadline75">
+<dl class="org-dl">
+<dt>基本运算符号</dt><dd>+, -, *, /, %, **</dd>
+<dt>增强型赋值</dt><dd>+=, -=, *=, /=, %=</dd>
+
+<dt>自增与自减</dt><dd>var++, var&#x2013;</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline80" class="outline-3">
+<h3 id="orgheadline80">bash的条件测试</h3>
+<div class="outline-text-3" id="text-orgheadline80">
+</div><div id="outline-container-orgheadline77" class="outline-4">
+<h4 id="orgheadline77">测试命令</h4>
+<div class="outline-text-4" id="text-orgheadline77">
+<div class="org-src-container">
+
+<pre class="src src-sh">test EXPRESSION
+<span style="color: #AE81FF;">[</span> EXPRESSION <span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">EXPRESSION&#21069;&#21518;&#24517;&#39035;&#26377;&#31354;&#30333;&#23383;&#31526;</span>
+<span style="color: #AE81FF;">[</span><span style="color: #66D9EF;">[</span> EXPRESSION <span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline78" class="outline-4">
+<h4 id="orgheadline78">测试符号</h4>
+<div class="outline-text-4" id="text-orgheadline78">
+<dl class="org-dl">
+<dt>数值测试</dt><dd><ul class="org-ul">
+<li>-gt: greater than</li>
+<li>-ge: greater equal</li>
+<li>-eq: equal</li>
+<li>-ne: not equal</li>
+<li>-lt: less than</li>
+<li>-le: less equal</li>
+</ul></dd>
+<dt>字符串测试</dt><dd><ul class="org-ul">
+<li>==: 等于</li>
+<li>&gt;: 大于</li>
+<li>&lt;: 小于</li>
+<li>!=: 不等于</li>
+<li>=~: 左侧字符串是否能够被右侧的PATTERN（不需要用引号）部分匹配
+
+<ul class="org-ul">
+<li>此表达式用于 <code>[[  ]]</code> 中</li>
+</ul></li>
+<li>-z "STRING": 测试字符串是否为空，空则为真，不空则为假</li>
+<li>-n "STRING": 测试字符串是否不空，不空则为真，空则为假</li>
+<li>注意: 用于字符串比较时的用到的操作数都应该使用引号</li>
+</ul></dd>
+<dt>文件测试</dt><dd><ul class="org-ul">
+<li>存在性测试
+<ul class="org-ul">
+<li>-e FILE: 文件存在性测试，存在为真，否则为假</li>
+</ul></li>
+<li>类型测试
+<ul class="org-ul">
+<li>-b FILE: 是否存在且为块设备文件</li>
+<li>-c FILE: 是否存在且为字符设备文件</li>
+<li>-d FILE: 是否存在且为目录文件</li>
+<li>-f FILE: 是否存在且为普通文件</li>
+<li>-p FILE: 是否存在且为命名管道文件</li>
+<li>-L FILE: 是否存在且为符号链接文件</li>
+<li>-S FILE: 是否存在且为套接字文件</li>
+</ul></li>
+<li>文件权限测试
+<ul class="org-ul">
+<li>-r FILE: 是否存在且可读</li>
+<li>-w FILE: 是否存在且可写</li>
+<li>-x FILE: 是否存在且可执行</li>
+<li>-O FILE: 当前有效用户是否为文件属主</li>
+<li>-G FILE: 当前有效用户是否为文件属组</li>
+<li>权限测试对root用户来说表现奇怪</li>
+</ul></li>
+<li>文件特殊权限测试
+<ul class="org-ul">
+<li>-g FILE: 是否存在且拥有sgid权限</li>
+<li>-u FILE: 是否存在且拥有suid权限</li>
+<li>-k FILE: 是否存在且拥有sticky权限</li>
+</ul></li>
+<li>文件其他测试
+<ul class="org-ul">
+<li>-s FILE: 是否存且非空</li>
+<li>-t fd: 文件描述符fd是否已经打开且与某终端相关</li>
+<li>-N FILE: 文件自动上一次被读取之后是否被修改过</li>
+</ul></li>
+<li>双目测试
+<ul class="org-ul">
+<li>FILE1 -ef FILE2: FILE1与FILE2是否指向同一个设备上的相同inode</li>
+<li>FILE1 -nt FILE2: FILE1是否新于FILE2</li>
+<li>FILE1 -ot FILE2: FILE1是否旧于FILE2</li>
+</ul></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline79" class="outline-4">
+<h4 id="orgheadline79">组合条件</h4>
+<div class="outline-text-4" id="text-orgheadline79">
+<dl class="org-dl">
+<dt>命令组合</dt><dd><ul class="org-ul">
+<li><code>COMMAND &amp;&amp; COMMAND</code>: 第一个命令结果为false的话，则不会运行下一个</li>
+<li><code>COMMAND || COMMAND</code>: 第一个命令结果为true的话，则不会运行下一个</li>
+<li><code>! COMMAND</code>: 将后边所接的命令结果取反</li>
+</ul></dd>
+<dt>条件组合</dt><dd><ul class="org-ul">
+<li><code>EXPRESSION -a EXPRESSION</code>: 与</li>
+<li><code>EXPRESSION -o EXPRESSION</code>: 或</li>
+<li><code>! \(EXPRESSION\)</code>: 非</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline84" class="outline-3">
+<h3 id="orgheadline84">bash的配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline84">
+</div><div id="outline-container-orgheadline81" class="outline-4">
+<h4 id="orgheadline81">配置文件的类型</h4>
+<div class="outline-text-4" id="text-orgheadline81">
+<dl class="org-dl">
+<dt>按生效范围划分</dt><dd><ul class="org-ul">
+<li>全局配置: /etc/profile, /etc/profile.d/*.sh, /etc/bashrc</li>
+
+<li>个人配置: ~/.bash_profile, ~/.bashrc</li>
+</ul></dd>
+<dt>按功能划分</dt><dd><ul class="org-ul">
+<li>profile类: 为交互式登录的shell提供配置，用于定义环境变量和执行脚本</li>
+<li>bashrc类: 为非交互式登录的shell提供配置，用于定义本地变量和命令别名</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline82" class="outline-4">
+<h4 id="orgheadline82">shell登录过程</h4>
+<div class="outline-text-4" id="text-orgheadline82">
+<dl class="org-dl">
+<dt>交互式登录</dt><dd><ul class="org-ul">
+<li>直接通过终端输入账号密码登录</li>
+<li>使用 <code>su - NAME</code> 切换用户</li>
+<li>读取配置文件: <code>/etc/profile -&gt; /etc/profile.d/*.sh -&gt; ~/.bash_profile -&gt; ~/.bashrc -&gt; /etc/bash</code></li>
+</ul></dd>
+<dt>非交互式登录</dt><dd><ul class="org-ul">
+<li>使用 <code>su NAME</code> 切换用户</li>
+<li>图形界面下打开的终端</li>
+<li>执行脚本的时候</li>
+<li>读取配置文件: ~/.bashrc -&gt; /etc/bashrc -&gt; /etc/profile.d/*.sh</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline83" class="outline-4">
+<h4 id="orgheadline83">载入配置文件的方式</h4>
+<div class="outline-text-4" id="text-orgheadline83">
+<ol class="org-ol">
+<li>重新启动shell进程</li>
+<li>使用source或.命令载入配置</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline117" class="outline-2">
+<h2 id="orgheadline117"><span class="section-number-2">6</span> 用户和组</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline86" class="outline-3">
+<h3 id="orgheadline86">资源分派</h3>
+<div class="outline-text-3" id="text-orgheadline86">
+<ol class="org-ol">
+<li>Authentication: 认证，表明你能进入系统
+<ul class="org-ul">
+<li>token: 口令</li>
+<li>identity: 用户名和密码</li>
+</ul></li>
+<li>Authorization: 授权，表明你有权限执行某些操作
+<ul class="org-ul">
+<li>进程所能够访问的所有资源的权限取决于进程的发起者的身份</li>
+</ul></li>
+<li>Accouting: 审计，验证你操作的合理性</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline87" class="outline-3">
+<h3 id="orgheadline87">用户: UID</h3>
+<div class="outline-text-3" id="text-orgheadline87">
+<ul class="org-ul">
+<li>管理员: root, 0</li>
+<li>普通用户: 1-65535(2^16)
+<ul class="org-ul">
+<li>系统用户: 1-499/999
+<ul class="org-ul">
+<li>用于对守护进程获取资源进行权限分配</li>
+</ul></li>
+<li>非系统用户: 500/1000+</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline88" class="outline-3">
+<h3 id="orgheadline88">组: GID</h3>
+<div class="outline-text-3" id="text-orgheadline88">
+<ul class="org-ul">
+<li>管理员组: root, 0</li>
+<li>普通组
+<ul class="org-ul">
+<li>系统组: 1-499/999</li>
+<li>普通组: 500/1000+</li>
+</ul></li>
+<li>用户的组的类别
+<ul class="org-ul">
+<li>用户的基本组: 组名同用户名，且仅包含一个用户，即私有组</li>
+<li>用户的附加组（额外组）</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline89" class="outline-3">
+<h3 id="orgheadline89">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline89">
+<dl class="org-dl">
+<dt>/etc/passwd</dt><dd><ul class="org-ul">
+<li>用户及其属性信息</li>
+<li>name:password:UID:GID:GECOS:directory:shell</li>
+<li>用户名:x:UID:GID:完整信息:主目录:默认shell</li>
+</ul></dd>
+<dt>/etc/group</dt><dd><ul class="org-ul">
+<li>组及其属性信息</li>
+<li>group_name:password:GID:user_list</li>
+<li>组名:x:GID:以当前组为附加组的用户列表(分隔符为逗号)</li>
+</ul></dd>
+<dt>/etc/shadow</dt><dd><ul class="org-ul">
+<li>用户名:加密密码:最近一次更改密码的日期:密码最小使用期限:密码最大使用期限:密码警告时间段:密码禁用期:账户过期日期:保留字段</li>
+<li>加密密码: 添加随机字符串后，进行sha512单向加密，初始的条件的微小改变，将会引起结果的巨大改变
+<ul class="org-ul">
+<li>若密码为 <code>!!</code> 则为空密码</li>
+</ul></li>
+<li>用户名密码期限: 用户未修改密码时间到达密码警告时间段则会收到通知，到达密码最大使用期限会进入密码禁用期，若在这段时期没有登录的话，账号会被禁用（过期）</li>
+</ul></dd>
+<dt>/etc/gshadow</dt><dd><ul class="org-ul">
+<li>组密码及其相关属性</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline105" class="outline-3">
+<h3 id="orgheadline105">用户与组相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline105">
+</div><div id="outline-container-orgheadline90" class="outline-4">
+<h4 id="orgheadline90">查看用户信息: id</h4>
+<div class="outline-text-4" id="text-orgheadline90">
+<div class="org-src-container">
+
+<pre class="src src-sh">id <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>USER<span style="color: #AE81FF;">]</span>
+  -u: UID
+  -g: GID
+  -G: &#26174;&#31034;&#25152;&#26377;&#32452;
+  -n: &#37197;&#21512;&#20854;&#20182;&#36873;&#39033;&#65292;&#26174;&#31034;&#21517;&#31216;&#32780;&#19981;&#26159;&#25968;&#23383;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline91" class="outline-4">
+<h4 id="orgheadline91">su</h4>
+<div class="outline-text-4" id="text-orgheadline91">
+<p>
+切换用户或以其他用户身份执行命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">su user     <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38750;&#30331;&#24405;&#24335;&#20999;&#25442;&#65292;&#21363;&#19981;&#20250;&#35835;&#21462;&#30446;&#26631;&#29992;&#25143;&#30340;&#37197;&#32622;&#25991;&#20214;</span>
+su - user   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30331;&#24405;&#24335;&#20999;&#25442;&#65292;&#20250;&#35835;&#21462;&#30446;&#26631;&#29992;&#25143;&#30340;&#37197;&#32622;&#25991;&#20214;&#65292;&#23436;&#20840;&#20999;&#25442;</span>
+su <span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">]</span> UserName -c <span style="color: #E6DB74;">'COMMAND'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20197;&#20854;&#20182;&#29992;&#25143;&#30340;&#36523;&#20221;&#25191;&#34892;&#21629;&#20196;&#65292;&#19981;&#20999;&#25442;&#29992;&#25143;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>root切换至其他用户无须密码，而非root用户切换时需要密码</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline92" class="outline-4">
+<h4 id="orgheadline92">newgrp</h4>
+<div class="outline-text-4" id="text-orgheadline92">
+<p>
+临时切换基本组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">newgrp</span> GROUP
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#22914;&#26524;&#29992;&#25143;&#26412;&#19981;&#23646;&#20110;GROUP&#65292;&#21017;&#38656;&#35201;&#23494;&#30721;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline98" class="outline-4">
+<h4 id="orgheadline98">用户相关</h4>
+<div class="outline-text-4" id="text-orgheadline98">
+</div><ul class="org-ul"><li><a id="orgheadline93"></a>useradd<br  /><div class="outline-text-5" id="text-orgheadline93">
+<p>
+创建用户
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">useradd <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... NAME
+  -u UID: &#33539;&#22260;&#26159;<span style="color: #AE81FF;">[</span>UID_MIN, UID_MAX<span style="color: #AE81FF;">]</span>, &#23450;&#20041;&#22312;/etc/login.defs
+  -g GID: &#25351;&#26126;&#29992;&#25143;&#25152;&#23646;&#22522;&#26412;&#32452;&#65292;&#21487;&#20026;&#32452;&#21517;
+  -c <span style="color: #E6DB74;">"COMMENT"</span>: &#29992;&#25143;&#30340;&#27880;&#37322;&#20449;&#24687;<span style="color: #AE81FF;">(</span>GECOS<span style="color: #AE81FF;">)</span>
+  -m: &#21019;&#24314;HOME&#30446;&#24405;&#65292;&#24182;&#22797;&#21046;/etc/skel&#20869;&#25991;&#20214;&#21040;&#36825;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;<span style="color: #AE81FF;">&#65289;</span>
+  -p PASSWORD: &#20026;&#29992;&#25143;&#25351;&#23450;&#23494;&#30721;
+  -d /PATH/TO/HOME_DIR: &#20197;&#25351;&#23450;&#30340;&#36335;&#24452;&#20026;&#23478;&#30446;&#24405;
+  -s SHELL: &#25351;&#26126;&#29992;&#25143;&#30340;&#40664;&#35748;shell&#31243;&#24207;&#65292;&#21487;&#29992;&#21015;&#34920;&#22312;/etc/shells&#25991;&#20214;&#20013;
+  -G GROUP1<span style="color: #AE81FF;">[</span>,GROUP2,...<span style="color: #66D9EF;">[</span>,GROUPN<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>: &#20026;&#29992;&#25143;&#25351;&#26126;&#38468;&#21152;&#32452;&#65307;&#32452;&#24517;&#39035;&#20107;&#20808;&#23384;&#22312;
+  -r: &#21019;&#24314;&#31995;&#32479;&#29992;&#25143;
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+默认值设定在 <code>/etc/default/useradd</code> 文件中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">useradd -D  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;useradd&#40664;&#35748;&#20540;</span>
+useradd -D <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;useradd&#40664;&#35748;&#20540;</span>
+</pre>
+</div></li>
+</ul>
+</div></li>
+<li><a id="orgheadline94"></a>usermod<br  /><div class="outline-text-5" id="text-orgheadline94">
+<p>
+修改用户属性和过期日期
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">usermod <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span> NAME
+  -u UID: &#26032;UID
+  -g GID: &#26032;&#22522;&#26412;&#32452;
+  -G GROUP1<span style="color: #AE81FF;">[</span>,GROUP2,...<span style="color: #66D9EF;">[</span>,GROUPN<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>: &#26032;&#38468;&#21152;&#32452;&#65292;&#21407;&#26469;&#30340;&#38468;&#21152;&#32452;&#23558;&#20250;&#34987;&#35206;&#30422;
+    -a: &#20445;&#30041;&#21407;&#26377;&#30340;&#38468;&#21152;&#32452;
+  -s SHELL: &#26032;&#30340;&#40664;&#35748;SHELL
+  -c <span style="color: #E6DB74;">'COMMENT'</span>: &#26032;&#30340;&#27880;&#37322;&#20449;&#24687;
+  -d HOME: &#26032;&#30340;&#23478;&#30446;&#24405;&#65292;&#21407;&#26377;&#23478;&#30446;&#24405;&#20013;&#30340;&#25991;&#20214;&#19981;&#20250;&#21516;&#26102;&#31227;&#21160;&#33267;&#26032;&#30340;&#23478;&#30446;&#24405;
+    -m: &#31227;&#21160;&#21407;&#26377;&#23478;&#30446;&#24405;&#20013;&#30340;&#25991;&#20214;
+  -l login_name: &#26032;&#30340;&#21517;&#23383;
+
+  -L: lock&#25351;&#23450;&#29992;&#25143;<span style="color: #AE81FF;">&#65288;</span>&#22312;&#21152;&#23494;&#23494;&#30721;&#21069;&#21152; !<span style="color: #AE81FF;">&#65289;</span>
+  -U: unlock&#25351;&#23450;&#29992;&#25143;
+  -e YYYY-MM-DD: &#25351;&#26126;&#29992;&#25143;&#36134;&#21495;&#36807;&#26399;&#26085;&#26399;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline95"></a>passwd<br  /><div class="outline-text-5" id="text-orgheadline95">
+<p>
+添加或修改密码及密码期限相关内容
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">passwd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#33258;&#24049;&#30340;&#23494;&#30721;</span>
+passwd <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span> UserName  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#25351;&#23450;&#29992;&#25143;&#30340;&#23494;&#30721;&#65292;&#20165;root&#29992;&#25143;&#21487;&#29992;</span>
+  -l: &#38145;&#23450;&#25351;&#23450;&#29992;&#25143;
+  -u: &#35299;&#38145;&#25351;&#23450;&#29992;&#25143;
+
+  -n mindays: &#25351;&#23450;&#26368;&#30701;&#20351;&#29992;&#26399;&#38480;
+  -x maxdays: &#26368;&#22823;&#20351;&#29992;&#26399;&#38480;
+  -w warndays: &#25552;&#21069;&#22810;&#23569;&#22825;&#24320;&#22987;&#35686;&#21578;
+  -i inactivedays: &#23494;&#30721;&#31105;&#29992;&#26399;
+
+  --stdin: &#20174;&#26631;&#20934;&#36755;&#20837;&#25509;&#25910;&#29992;&#25143;&#23494;&#30721;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline96"></a>chage<br  /><div class="outline-text-5" id="text-orgheadline96">
+<p>
+修改用户日期相关内容
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">chage <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... NAME
+  -d LAST_DAY
+  -E, --expiredate EXPIRE_DATE
+  -I, --inactive INACTIVE
+  -m, --mindays MIN_DAYS
+  -M, --maxdays MAX_DAYS
+  -W, --warndays WARN_DAYS
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline97"></a>userdel<br  /><div class="outline-text-5" id="text-orgheadline97">
+<p>
+删除用户
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">userdel <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... NAME
+  -r: &#21024;&#38500;&#29992;&#25143;&#23478;&#30446;&#24405;
+</pre>
+</div>
+</div></li></ul>
+</div>
+<div id="outline-container-orgheadline103" class="outline-4">
+<h4 id="orgheadline103">组相关</h4>
+<div class="outline-text-4" id="text-orgheadline103">
+</div><ul class="org-ul"><li><a id="orgheadline99"></a>groupadd<br  /><div class="outline-text-5" id="text-orgheadline99">
+<p>
+创建组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">groupadd <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... group_name
+  -g GID: &#33539;&#22260;&#26159;<span style="color: #AE81FF;">[</span>GID_MIN, GID_MAX<span style="color: #AE81FF;">]</span>
+  -r: &#21019;&#24314;&#31995;&#32479;&#32452;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline100"></a>groupmod<br  /><div class="outline-text-5" id="text-orgheadline100">
+<p>
+修改组属性
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">groupmod <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... group
+  -n group_name: &#26032;&#21517;&#23383;
+  -g GID: &#26032;&#30340;GID
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline101"></a>gpasswd<br  /><div class="outline-text-5" id="text-orgheadline101">
+<p>
+修改组密码和添加删除组员
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpasswd <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span> GROUP
+  -a user: &#23558;user&#28155;&#21152;&#33267;&#25351;&#23450;&#32452;&#20013;
+  -d user: &#21024;&#38500;&#29992;&#25143;user&#30340;&#20197;&#24403;&#21069;&#32452;&#20026;&#32452;&#21517;&#30340;&#38468;&#21152;&#32452;
+  -A user1,user2,...: &#35774;&#32622;&#32676;&#32452;&#31649;&#29702;&#21592;&#65292;&#32676;&#32452;&#31649;&#29702;&#21592;&#21487;&#20197;&#31649;&#29702;&#21738;&#20123;&#24080;&#21495;&#21487;&#20197;&#21152;&#20837;/&#31227;&#20986;&#35813;&#32676;&#32452;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline102"></a>groupdel<br  /><div class="outline-text-5" id="text-orgheadline102">
+<p>
+删除组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">groupdel GROUP
+</pre>
+</div>
+</div></li></ul>
+</div>
+<div id="outline-container-orgheadline104" class="outline-4">
+<h4 id="orgheadline104">其他</h4>
+<div class="outline-text-4" id="text-orgheadline104">
+<dl class="org-dl">
+<dt>pwck</dt><dd>检查密码文件的完整性</dd>
+<dt>chfn</dt><dd>设置用户详细信息</dd>
+<dt>finger</dt><dd>查看用户详细信息</dd>
+<dt>chsh</dt><dd>改变用户默认shell</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline116" class="outline-3">
+<h3 id="orgheadline116">文件权限管理</h3>
+<div class="outline-text-3" id="text-orgheadline116">
+</div><div id="outline-container-orgheadline106" class="outline-4">
+<h4 id="orgheadline106">三类对象</h4>
+<div class="outline-text-4" id="text-orgheadline106">
+<ul class="org-ul">
+<li>owner: 属主 u</li>
+<li>group: 属组 g</li>
+<li>other: 其他 o</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline107" class="outline-4">
+<h4 id="orgheadline107">基本权限</h4>
+<div class="outline-text-4" id="text-orgheadline107">
+<ul class="org-ul">
+<li>r(4): Readable</li>
+<li>w(2): Writable</li>
+<li>x(1): eXcutable</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>文件</dt><dd><ul class="org-ul">
+<li>r: 可使用文件查看类工具获取其内容</li>
+<li>w: 可修改其内容</li>
+<li>x: 可以把此文件提请内核启动为一个进程</li>
+</ul></dd>
+<dt>目录</dt><dd><ul class="org-ul">
+<li>r: 可以使用ls查看此目录中文件列表</li>
+<li>w: 可在此目录中创建文件，也可删除此目录中的文件</li>
+<li>x: 无法执行该目录下的任何命令，包括创建和删除文件</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline112" class="outline-4">
+<h4 id="orgheadline112">特殊权限</h4>
+<div class="outline-text-4" id="text-orgheadline112">
+</div><ul class="org-ul"><li><a id="orgheadline108"></a>SUID(4)<br  /><div class="outline-text-5" id="text-orgheadline108">
+<p>
+默认情况下，启动为进程之后，其进程的属主为发起者，进程的属组为发起者所属的组；而启动带SUID的程序文件时，其进程的属主为原程序文件的属主
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">chmod u+s FILE
+chmod u-s FILE
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline109"></a>SGID(2)<br  /><div class="outline-text-5" id="text-orgheadline109">
+<p>
+默认情况下，用户创建文件时，其属组为此用户所属的基本组；一旦某目录被设定了SGID，则对此目录有写权限的用户在此目录中创建的文件所属的组为此目录的属组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">chmod g+s FILE
+chmod g-s FILE
+</pre>
+</div>
+<ul class="org-ul">
+<li>经常用于团队协作，因为创建的文件后其他人不会被当作other</li>
+</ul>
+</div></li>
+<li><a id="orgheadline110"></a>Sticky(1)<br  /><div class="outline-text-5" id="text-orgheadline110">
+<p>
+对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">chmod o+t FILE
+chmod o-t FILE
+</pre>
+</div>
+<ul class="org-ul">
+<li><code>/tmp</code> 就有Sticky权限</li>
+</ul>
+</div></li>
+<li><a id="orgheadline111"></a>权限位映射:<br  /><div class="outline-text-5" id="text-orgheadline111">
+<ul class="org-ul">
+<li>SUID: user, 占据属主的执行权限位
+<ul class="org-ul">
+<li>s: 属主拥有x权限</li>
+<li>S: 属主没有x权限</li>
+</ul></li>
+<li>SGID: group,  占据group的执行权限位
+<ul class="org-ul">
+<li>s: group拥有x权限</li>
+<li>S: group没有x权限</li>
+</ul></li>
+<li>Sticky: other, 占据ohter的执行权限位
+<ul class="org-ul">
+<li>t: other拥有x权限</li>
+<li>T: other没有x权限</li>
+</ul></li>
+</ul>
+</div></li></ul>
+</div>
+
+<div id="outline-container-orgheadline113" class="outline-4">
+<h4 id="orgheadline113">修改文件权限: chmod</h4>
+<div class="outline-text-4" id="text-orgheadline113">
+<div class="org-src-container">
+
+<pre class="src src-sh">chmod <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... MODE FILE...
+  -R: &#36882;&#24402;&#20462;&#25913;&#26435;&#38480;
+  MODE: 
+    - &#21487;&#20351;&#29992;&#25968;&#23383;&#26435;&#38480;&#65292;&#22914;4755<span style="color: #AE81FF;">&#65288;</span>&#26368;&#24038;&#36793;&#19968;&#20301;&#26159;&#29305;&#27530;&#26435;&#38480;&#65292;&#21487;&#20197;&#19981;&#20889;<span style="color: #AE81FF;">&#65289;</span>
+    - &#21487;&#20462;&#25913;&#19968;&#31867;&#29992;&#25143;&#30340;&#26435;&#38480;&#65292;&#22914; <span style="color: #FD971F;">u</span>=rwx,g+w,o-rwx,a-x
+
+chmod <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... --reference=RFILE FILE...
+    &#21442;&#32771;RFILE&#25991;&#20214;&#30340;&#26435;&#38480;&#65292;&#23558;FILE&#30340;&#20462;&#25913;&#20026;&#21516;RFILE&#19968;&#26679;&#30340;&#26435;&#38480;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline114" class="outline-4">
+<h4 id="orgheadline114">修改文件的属主和属组</h4>
+<div class="outline-text-4" id="text-orgheadline114">
+<ul class="org-ul">
+<li>仅root可修改</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>修改属主: chown</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">chown <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>OWNER<span style="color: #AE81FF;">][</span>:<span style="color: #66D9EF;">[</span>GROUP<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span> FILE...
+chown <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... --reference=RFILE FILE...
+  -R: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
+</pre>
+</div>
+<ul class="org-ul">
+<li>chown也可只改属组，即不写OWNER</li>
+</ul></dd>
+<dt>修改属组: chgrp</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">chgrp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... GROUP FILE...
+chgrp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... --reference=RFILE FILE...
+  -R: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline115" class="outline-4">
+<h4 id="orgheadline115">文件遮罩码: umask</h4>
+<div class="outline-text-4" id="text-orgheadline115">
+<ul class="org-ul">
+<li>创建文件时，文件的权限是 666-umask</li>
+<li>创建目录时，目录的权限是 777-umask</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">umask</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;umask</span>
+<span style="color: #F92672;">umask</span> num  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;umask&#65292;&#20165;&#23545;&#24403;&#21069;shell&#26377;&#25928;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline121" class="outline-2">
+<h2 id="orgheadline121"><span class="section-number-2">7</span> 正则表达式</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+REGEXP由一类特殊字符及文本字符所编写的模式，其中有些字符不表示字符字面意义，而表示控制或通配的功能
+</p>
+</div>
+<div id="outline-container-orgheadline118" class="outline-3">
+<h3 id="orgheadline118">正则表达式的类型</h3>
+<div class="outline-text-3" id="text-orgheadline118">
+<ul class="org-ul">
+<li>基本正则表达式: BRE</li>
+<li>扩展正则表达式: ERE (正则表达式引擎: pcre)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline119" class="outline-3">
+<h3 id="orgheadline119">基本正则表达式</h3>
+<div class="outline-text-3" id="text-orgheadline119">
+<dl class="org-dl">
+<dt>字符匹配</dt><dd><ul class="org-ul">
+<li><code>.</code>: 匹配任意单个字符</li>
+<li><code>[]</code>: 匹配指定范围内的任意单个字符</li>
+<li><code>[^]</code>: 匹配指定范围外的任意单个字符
+<ul class="org-ul">
+<li>专用字符集合: [:digit:]、[:lower:]、[:upper:]、[:alpha:]、[:alnum:]、[:punct:]、[:space:]</li>
+</ul></li>
+</ul></dd>
+<dt>匹配次数</dt><dd><ul class="org-ul">
+<li><code>*</code>: 匹配前面的字符任意次（默认是贪婪模式）</li>
+<li><code>.*</code>: 任意长度的任意字符</li>
+<li><code>\?</code>: 匹配其前面的字符0或1次</li>
+<li><code>\+</code>: 匹配其前面的字符至少1次</li>
+<li><code>\{m\}</code>: 匹配前面的字符m次</li>
+<li><code>\{m,n\}</code>: 匹配前面的字符至少m次，至多n次
+<ul class="org-ul">
+<li><code>\{0,n\}</code>: 匹配前面的字符至多n次</li>
+<li><code>\{m,\}</code>: 匹配前面的字符至少m次</li>
+</ul></li>
+</ul></dd>
+<dt>位置锚定</dt><dd><ul class="org-ul">
+<li><code>^</code>: 行首锚定；用于模式的最左侧</li>
+<li><code>$</code>: 行尾锚定；用于模式的最右侧</li>
+<li><code>^[[:space:]]$</code>: 用于模式匹配整个空白行</li>
+<li><code>\&lt;</code> 或 <code>\b</code>: 词首锚定；用于单词模式的左侧</li>
+<li><code>\&gt;</code> 或 <code>\b</code>: 词尾锚定；用于单词模式的右侧</li>
+<li><code>\&lt;PATTERN\&gt;</code>: 匹配整个单词</li>
+</ul></dd>
+<dt>分组</dt><dd><ul class="org-ul">
+<li><code>\(\)</code>: 将括号内的字符当作一个整体进行处理</li>
+<li>分组括号中的模式匹配到的内容会被正则表达式引擎记录于内部变量，可以用于后向引用</li>
+<li><code>\1</code>: 从左侧起，第一个左括号以及与之匹配右括号之间的模式所匹配到的字符</li>
+</ul></dd>
+<dt>或者</dt><dd><ul class="org-ul">
+<li><code>\|</code>: 匹配左右两种模式中的一个</li>
+<li><code>\(word\|word\)</code>: 两个单词之一</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline120" class="outline-3">
+<h3 id="orgheadline120">扩展正则表达式</h3>
+<div class="outline-text-3" id="text-orgheadline120">
+<ul class="org-ul">
+<li>扩展正则表达式与正则表达式的区别，只是在除 <code>\&lt;、\&gt;、\b</code> 外其他特殊字符不需要添加反斜线\</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline147" class="outline-2">
+<h2 id="orgheadline147"><span class="section-number-2">8</span> Linux磁盘管理</h2>
+<div class="outline-text-2" id="text-8">
+</div><div id="outline-container-orgheadline122" class="outline-3">
+<h3 id="orgheadline122">设备文件</h3>
+<div class="outline-text-3" id="text-orgheadline122">
+<ul class="org-ul">
+<li>设备文件是关联至一个设备驱动程序，进而能够跟与之对应硬件设备进行通信
+<ul class="org-ul">
+<li>块设备: block，存取单位“块”，磁盘</li>
+<li>字符设备: char，存取单位“字符”，键盘</li>
+</ul></li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>设备号码</dt><dd><ul class="org-ul">
+<li>主设备号: major number, 标识设备类型</li>
+<li>次设备号: minor number, 标识同一类型下的不同设备</li>
+<li>UUID: 设备分区号</li>
+</ul></dd>
+<dt>硬盘接口类型</dt><dd><ul class="org-ul">
+<li>并行: IDE, SCSI</li>
+<li>串口: SATA, SAS, USB</li>
+</ul></dd>
+<dt>磁盘设备的设备文件</dt><dd><ul class="org-ul">
+<li>IDE: /dev/hd</li>
+<li>SCSI, SATA, SAS, USB: /dev/sd
+<ul class="org-ul">
+<li>不同设备: sda, sdb, &#x2026;</li>
+<li>同一设备不同分区: sda1, sda2, &#x2026;
+<ul class="org-ul">
+<li>逻辑分区要从5开始编号</li>
+</ul></li>
+</ul></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline126" class="outline-3">
+<h3 id="orgheadline126">分区管理</h3>
+<div class="outline-text-3" id="text-orgheadline126">
+</div><div id="outline-container-orgheadline123" class="outline-4">
+<h4 id="orgheadline123">fdisk</h4>
+<div class="outline-text-4" id="text-orgheadline123">
+<ul class="org-ul">
+<li>fdisk对一块硬盘最多只能管理15个分区</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">fdisk -l <span style="color: #AE81FF;">[</span>-u<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>device...<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#30913;&#30424;&#20998;&#21306;&#20449;&#24687;&#65292;&#40664;&#35748;&#26174;&#31034;&#25152;&#26377;&#20998;&#21306;&#20449;&#24687;</span>
+fdisk device  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31649;&#29702;&#30913;&#30424;&#20998;&#21306; </span>
+  p: print, &#26174;&#31034;&#24050;&#26377;&#20998;&#21306;
+  n: new, &#21019;&#24314;
+  d: delete, &#21024;&#38500;
+  w: write, &#20889;&#20837;&#30913;&#30424;&#24182;&#36864;&#20986;
+  q: quit, &#25918;&#24323;&#26356;&#26032;&#24182;&#36864;&#20986;
+  m: &#33719;&#21462;&#24110;&#21161;
+  l: &#26174;&#31034;&#20998;&#21306;id&#21015;&#34920;
+  t: &#35843;&#25972;&#20998;&#21306;id
+</pre>
+</div>
+<ul class="org-ul">
+<li>查看内核是否已经识别新的分区</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">cat /proc/partations
+</pre>
+</div>
+<ul class="org-ul">
+<li>通知内核重新读取分区表</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">partx -a /dev/DEVICE <span style="color: #AE81FF;">[</span>-n M:N<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25195;&#25551;DEVICE&#30340;&#20998;&#21306;&#32534;&#21495;&#20174;M&#21040;N&#30340;&#20998;&#21306;</span>
+kpartx -a /dev/DEVICE
+partprobe <span style="color: #AE81FF;">[</span>/dev/DEVICE<span style="color: #AE81FF;">]</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">CentOS 5</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline124" class="outline-4">
+<h4 id="orgheadline124"><span class="todo TODO">TODO</span> parted</h4>
+</div>
+<div id="outline-container-orgheadline125" class="outline-4">
+<h4 id="orgheadline125"><span class="todo TODO">TODO</span> sfdisk</h4>
+</div>
+</div>
+<div id="outline-container-orgheadline127" class="outline-3">
+<h3 id="orgheadline127">文件系统管理</h3>
+<div class="outline-text-3" id="text-orgheadline127">
+<p>
+Linux的虚拟文件系统VFS为不同的文件系统统一了接口
+</p>
+</div>
+<div id="outline-container-orgheadline128" class="outline-4">
+<h4 id="orgheadline128">文件系统</h4>
+<div class="outline-text-4" id="text-orgheadline128">
+<ul class="org-ul">
+<li>Linux文件系统: ext2, ext3, ext4, xfs, btrfs, reiserfs, jfs</li>
+<li>交换分区: swap</li>
+<li>光盘: iso9660</li>
+<li>Windows: fat32, ntfs</li>
+<li>Unix: FFS, UFS, JFS2</li>
+<li>网络文件系统: NFS, CIFS</li>
+<li>集群文件系统: GFS2, OCFS2</li>
+<li>分布式文件系统: ceph, moosefs, mogilefs, GlusterFS, Lustre</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>分类</dt><dd><ul class="org-ul">
+<li>根据其是否支持"journal"功能（用于提升存储出错后修复的速度）
+<ul class="org-ul">
+<li>日志型文件系统: ext3, ext4, xfs, &#x2026;</li>
+<li>非日志型文件系统: ext2, vfat</li>
+</ul></li>
+</ul></dd>
+</dl>
+<div class="org-src-container">
+
+<pre class="src src-sh">cat /proc/filesystem  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21015;&#20986;&#30446;&#21069;&#31995;&#32479;&#25152;&#25903;&#25345;&#30340;&#25991;&#20214;&#31995;&#32479;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline132" class="outline-4">
+<h4 id="orgheadline132">创建文件系统</h4>
+<div class="outline-text-4" id="text-orgheadline132">
+</div><ul class="org-ul"><li><a id="orgheadline129"></a>mkfs<br  /><div class="outline-text-5" id="text-orgheadline129">
+<p>
+通用格式化分区工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">mkfs.FS_TYPE /dev/DEVICE
+mkfs -t FS_TYPE /dev/DEVICE
+  FS_TYPE: ext4, xfs, btrfs, vfat
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#35774;&#23450;&#21367;&#26631;
+  -f: &#24378;&#21046;&#21019;&#24314;&#25991;&#20214;&#31995;&#32479;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline130"></a>mke2fs<br  /><div class="outline-text-5" id="text-orgheadline130">
+<p>
+ext系列文件系统专用管理工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">mke2fs <span style="color: #AE81FF;">[</span>OPTIONS...<span style="color: #AE81FF;">]</span> /dev/DEVICE
+  -t <span style="color: #AE81FF;">{</span>ext2|ext3|ext4<span style="color: #AE81FF;">}</span>
+  -L <span style="color: #E6DB74;">'LABEL'</span>
+  -j: &#28155;&#21152;&#26085;&#24535;&#65292;&#30456;&#24403;&#20110; -t ext3
+  -b <span style="color: #AE81FF;">{</span><span style="color: #AE81FF;">1024</span>|<span style="color: #AE81FF;">2048</span>|<span style="color: #AE81FF;">4096</span><span style="color: #AE81FF;">}</span>: &#22359;&#22823;&#23567;<span style="color: #AE81FF;">&#65288;</span>&#22914;&#26524;&#23567;&#25991;&#20214;&#36807;&#22810;&#21487;&#20197;&#20351;&#29992;&#36739;&#23567;&#30340;&#22359;<span style="color: #AE81FF;">&#65289;</span>
+  -i NUM: &#20026;&#25968;&#25454;&#31354;&#38388;&#20013;&#27599;&#22810;&#23569;&#23383;&#33410;&#21019;&#24314;&#19968;&#20010;inode&#65307;&#27492;&#22823;&#23567;&#19981;&#24212;&#35813;&#23567;&#20110;block&#30340;&#22823;&#23567;&#65307;
+  -N NUM: &#20026;&#25968;&#25454;&#31354;&#38388;&#21019;&#24314;&#22810;&#23569;&#20010;inode&#65307;
+  -m NUM: &#20026;&#31649;&#29702;&#20154;&#21592;&#39044;&#30041;&#30340;&#31354;&#38388;&#21344;&#25454;&#30340;&#30334;&#20998;&#27604;&#65307;
+  -O <span style="color: #AE81FF;">[</span>^<span style="color: #AE81FF;">]</span>FEATURE<span style="color: #AE81FF;">[</span>,...<span style="color: #AE81FF;">]</span>: &#21551;&#29992;&#25110;&#20851;&#38381;&#25351;&#23450;&#29305;&#24615;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline131"></a>mkswap<br  /><div class="outline-text-5" id="text-orgheadline131">
+<p>
+创建交换分区（分区id为82）
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">mkswap <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span> device
+  -L <span style="color: #E6DB74;">'LABEL'</span>
+</pre>
+</div>
+</div></li></ul>
+</div>
+
+<div id="outline-container-orgheadline137" class="outline-4">
+<h4 id="orgheadline137">其他常用工具</h4>
+<div class="outline-text-4" id="text-orgheadline137">
+</div><ul class="org-ul"><li><a id="orgheadline133"></a>blkid<br  /><div class="outline-text-5" id="text-orgheadline133">
+<p>
+块设备属性信息查看
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">blkid <span style="color: #AE81FF;">[</span>OPTION...<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>
+  -U UUID: &#26681;&#25454;&#25351;&#23450;&#30340;UUID&#26469;&#26597;&#25214;&#23545;&#24212;&#30340;&#35774;&#22791;
+  -L LABEL: &#26681;&#25454;&#25351;&#23450;&#30340;LABEL&#26469;&#26597;&#25214;&#23545;&#24212;&#30340;&#35774;&#22791;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline134"></a>e2label<br  /><div class="outline-text-5" id="text-orgheadline134">
+<p>
+查看或设定ext系列文件系统的LABEL
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">e2label DEVICE <span style="color: #AE81FF;">[</span>LABEL<span style="color: #AE81FF;">]</span>
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline135"></a>tune2fs<br  /><div class="outline-text-5" id="text-orgheadline135">
+<p>
+重新设定ext系列文件系统的可调整参数的值
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">tune2fs <span style="color: #AE81FF;">[</span>OPTIONS...<span style="color: #AE81FF;">]</span> /dev/DEVICE
+  -l: &#26597;&#30475;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#36229;&#32423;&#22359;&#20449;&#24687;<span style="color: #AE81FF;">(</span>super block<span style="color: #AE81FF;">)</span>
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#20462;&#25913;&#21367;&#26631;
+  -U UUID: &#20462;&#25913;UUID&#21495;
+  -m NUM: &#20462;&#39044;&#30041;&#32473;&#31649;&#29702;&#21592;&#30340;&#31354;&#38388;&#30334;&#20998;&#27604;
+  -j: &#23558;ext2&#21319;&#32423;&#20026;ext3
+  -O <span style="color: #AE81FF;">[</span>^<span style="color: #AE81FF;">]</span>FEATURE: &#25991;&#20214;&#31995;&#32479;&#23646;&#24615;&#21551;&#29992;&#25110;&#31105;&#29992;
+  -o <span style="color: #AE81FF;">[</span>^<span style="color: #AE81FF;">]</span>FLAG: &#35843;&#25972;&#25991;&#20214;&#31995;&#32479;&#30340;&#40664;&#35748;&#25346;&#36733;&#36873;&#39033;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline136"></a>dumpe2fs<br  /><div class="outline-text-5" id="text-orgheadline136">
+<p>
+查询ext分区的布局信息和超级块信息
+</p>
+</div></li></ul>
+</div>
+<div id="outline-container-orgheadline140" class="outline-4">
+<h4 id="orgheadline140">文件系统检测</h4>
+<div class="outline-text-4" id="text-orgheadline140">
+</div><ul class="org-ul"><li><a id="orgheadline138"></a>fsck<br  /><div class="outline-text-5" id="text-orgheadline138">
+<p>
+File System Check
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">fsck.FS_TYPE <span style="color: #AE81FF;">[</span>OPTIONS...<span style="color: #AE81FF;">]</span> DEVICE
+fsck -t FS_TYPE <span style="color: #AE81FF;">[</span>OPTIONS...<span style="color: #AE81FF;">]</span> DEVICE
+  -a: &#33258;&#21160;&#20462;&#22797;&#38169;&#35823;
+  -r: &#20132;&#20114;&#24335;&#20462;&#22797;&#38169;&#35823;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline139"></a>e2fsck<br  /><div class="outline-text-5" id="text-orgheadline139">
+<p>
+ext文件系统专用的检测修复工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">e2fsck <span style="color: #AE81FF;">[</span>OPTIONS...<span style="color: #AE81FF;">]</span> DEVICE
+  -y&#65306;&#33258;&#21160;&#20462;&#22797;&#38169;&#35823;
+  -f&#65306;&#24378;&#21046;&#20462;&#22797;
+</pre>
+</div>
+</div></li></ul>
+</div>
+</div>
+<div id="outline-container-orgheadline146" class="outline-3">
+<h3 id="orgheadline146">文件系统管理</h3>
+<div class="outline-text-3" id="text-orgheadline146">
+</div><div id="outline-container-orgheadline141" class="outline-4">
+<h4 id="orgheadline141">挂载</h4>
+<div class="outline-text-4" id="text-orgheadline141">
+<ul class="org-ul">
+<li>挂载: 额外文件系统与根文件系统某现存的目录（挂载点）建立起关联关系，进而使得此目录做为其它文件访问入口的行为</li>
+<li>挂载点下的原有文件在挂载完成后会被临时隐藏</li>
+<li>查看内核追踪到的已挂载的所有设备：cat /proc/mounts</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">mount  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;&#26597;&#30475;/etc/mtab&#25991;&#20214;&#26597;&#30475;&#31995;&#32479;&#24050;&#25346;&#36733;&#30340;&#25152;&#26377;&#35774;&#22791;</span>
+mount <span style="color: #AE81FF;">[</span>-fnrsvw<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-t vfstype<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-o options<span style="color: #AE81FF;">]</span> DEVICE MOUNT_POINT
+  DEVICE: &#35774;&#22791;&#25991;&#20214;/&#21367;&#26631;/UUID/&#20266;&#25991;&#20214;&#31995;&#32479;&#21517;&#23383;<span style="color: #AE81FF;">(</span>proc, sysfs, devtmpfs, configfs<span style="color: #AE81FF;">)</span>
+  -t vsftype&#65306;&#25351;&#23450;&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#19978;&#30340;&#25991;&#20214;&#31995;&#32479;&#31867;&#22411;&#65292;&#40664;&#35748;&#20250;&#20351;&#29992;blkid&#33258;&#21160;&#21028;&#26029;
+  -r: readonly&#65292;&#21482;&#35835;&#25346;&#36733;
+  -w: read and write, &#35835;&#20889;&#25346;&#36733;
+  -n: &#19981;&#26356;&#26032;/etc/mtab&#65292;&#20294;&#36824;&#26159;&#20250;&#26356;&#26032;&#21040;/proc/mounts
+  -a&#65306;&#33258;&#21160;&#25346;&#36733;/etc/fstab&#20013;&#25903;&#25345;&#33258;&#21160;&#25346;&#36733;&#30340;&#35774;&#22791;
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#20197;&#21367;&#26631;&#25351;&#23450;&#25346;&#36733;&#35774;&#22791;
+  -U <span style="color: #E6DB74;">'UUID'</span>: &#20197;UUID&#25351;&#23450;&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;
+  -B, --bind: &#32465;&#23450;&#30446;&#24405;&#21040;&#21478;&#19968;&#20010;&#30446;&#24405;&#19978;
+
+  -o options: &#25346;&#36733;&#25991;&#20214;&#31995;&#32479;&#36873;&#39033;
+    remount&#65306;&#37325;&#26032;&#25346;&#36733;
+    async&#65306;&#24322;&#27493;&#27169;&#24335;
+    sync&#65306;&#21516;&#27493;&#27169;&#24335;<span style="color: #AE81FF;">&#65288;</span>&#20462;&#25913;&#31435;&#21363;&#20889;&#20154;&#30913;&#30424;<span style="color: #AE81FF;">&#65289;</span>
+    atime/noatime&#65306;&#24320;&#20851;&#30446;&#24405;&#21644;&#25991;&#20214;&#30340;atime&#30340;&#26356;&#26032;
+    diratime/nodiratime&#65306;&#24320;&#20851;&#30446;&#24405;&#30340;atime&#30340;&#26356;&#26032;
+    auto/noauto&#65306;&#26159;&#21542;&#33258;&#21160;&#25346;&#36733;
+    exec/noexec&#65306;&#26159;&#21542;&#25903;&#25345;&#23558;&#25991;&#20214;&#31995;&#32479;&#19978;&#24212;&#29992;&#31243;&#24207;&#36816;&#34892;&#20026;&#36827;&#31243;
+    dev/nodev&#65306;&#26159;&#21542;&#25903;&#25345;&#22312;&#27492;&#25991;&#20214;&#31995;&#32479;&#19978;&#20351;&#29992;&#35774;&#22791;&#25991;&#20214;
+    suid/nosuid&#65306;&#24320;&#20851;suid&#30340;&#25903;&#25345;
+    ro/rw: &#21482;&#35835;/&#35835;&#20889;
+    user/nouser&#65306;&#26159;&#21542;&#20801;&#35768;&#26222;&#36890;&#29992;&#25143;&#25346;&#36733;&#27492;&#35774;&#22791;<span style="color: #AE81FF;">&#65288;</span>&#40664;&#35748;&#21482;&#33021;&#30001;root&#25346;&#36733;<span style="color: #AE81FF;">&#65289;</span>
+    acl&#65306;&#21551;&#29992;&#27492;&#25991;&#20214;&#31995;&#32479;&#19978;&#30340;acl&#21151;&#33021;
+      defaults: &#30456;&#24403;&#20110;rw, suid, dev, exec, auto, nouser, async
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline142" class="outline-4">
+<h4 id="orgheadline142">卸载</h4>
+<div class="outline-text-4" id="text-orgheadline142">
+<ul class="org-ul">
+<li>卸载: 解除挂载关联关系的过程</li>
+<li>进程正在使用中的设备无法被卸载</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">umount DEVICE/MOUNT_POINT
+</pre>
+</div>
+<ul class="org-ul">
+<li>检查访问文件系统的进程</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">fuser -v MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#27491;&#35775;&#38382;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#30340;&#36827;&#31243;</span>
+fuser -km MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#25152;&#26377;&#27491;&#35775;&#38382;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#30340;&#36827;&#31243;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline143" class="outline-4">
+<h4 id="orgheadline143">交换分区</h4>
+<div class="outline-text-4" id="text-orgheadline143">
+<dl class="org-dl">
+<dt>启用</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">swapon <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>
+  -a: &#28608;&#27963;&#25152;&#26377;&#20132;&#25442;&#20998;&#21306;&#65292;&#19981;&#29992;&#25351;&#23450;DEVICE
+  -p PRIORITY: &#25351;&#23450;&#20132;&#25442;&#20998;&#21306;&#30340;&#20248;&#20808;&#32423;
+</pre>
+</div></dd>
+<dt>禁用</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">swapoff <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>
+</pre>
+</div></dd>
+<dt>内存空间使用状态</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">free <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>
+  -m: &#20197;MB&#20026;&#21333;&#20301;
+</pre>
+</div>
+<ul class="org-ul">
+<li>真正的内存使用=used-buffers-cached</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline144" class="outline-4">
+<h4 id="orgheadline144">空间占用查询</h4>
+<div class="outline-text-4" id="text-orgheadline144">
+<dl class="org-dl">
+<dt>文件系统空间占用信息</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">df <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span>
+  -h: human-readable
+  -i: &#26174;&#31034;inodes&#30340;&#20351;&#29992;&#24773;&#20917;
+  -P: &#20197;Posix&#20860;&#23481;&#30340;&#26684;&#24335;&#36755;&#20986;&#65292;&#26041;&#20415;&#20110;&#25991;&#23383;&#22788;&#29702;&#24037;&#20855;
+</pre>
+</div>
+<ul class="org-ul">
+<li>df是通过元数据来统计，会计算一些正使用但已经被删除的文件</li>
+</ul></dd>
+<dt>查看某目录空间占用信息</dt><dd><div class="org-src-container">
+
+<pre class="src src-sh">du <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span> DIR
+  -h: human-readabel
+  -s: &#21482;&#26174;&#31034;&#25351;&#23450;&#30446;&#24405;
+</pre>
+</div>
+<ul class="org-ul">
+<li>du不会记录一些正使用但已经被删除的文件</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline145" class="outline-4">
+<h4 id="orgheadline145">/etc/fstab</h4>
+<div class="outline-text-4" id="text-orgheadline145">
+<ul class="org-ul">
+<li>/etc/fstab 是文件挂载的配置文件</li>
+<li>每行定义一个要挂载的文件系统</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#25110;&#20266;&#25991;&#20214;&#31995;&#32479;  &#25346;&#36733;&#28857;  &#25991;&#20214;&#31995;&#32479;&#31867;&#22411;  &#25346;&#36733;&#36873;&#39033;  &#36716;&#20648;&#39057;&#29575;  &#33258;&#26816;&#27425;&#24207;
+    &#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#25110;&#20266;&#25991;&#20214;&#31995;&#32479;&#65306;
+        &#35774;&#22791;&#25991;&#20214;&#12289;LABEL<span style="color: #AE81FF;">(</span><span style="color: #FD971F;">LABEL</span>=<span style="color: #E6DB74;">""</span><span style="color: #AE81FF;">)</span>&#12289;UUID<span style="color: #AE81FF;">(</span><span style="color: #FD971F;">UUID</span>=<span style="color: #E6DB74;">""</span><span style="color: #AE81FF;">)</span>&#12289;&#20266;&#25991;&#20214;&#31995;&#32479;&#21517;&#31216;<span style="color: #AE81FF;">(</span>proc, sysfs<span style="color: #AE81FF;">)</span>
+    &#25346;&#36733;&#36873;&#39033;&#65306;
+        defaults
+    &#36716;&#20648;&#39057;&#29575;&#65306;
+        <span style="color: #AE81FF;">0&#65306;&#19981;&#20570;&#22791;&#20221;</span>
+        <span style="color: #AE81FF;">1&#65306;&#27599;&#22825;&#36716;&#20648;</span>
+        <span style="color: #AE81FF;">2&#65306;&#27599;&#38548;&#19968;&#22825;&#36716;&#20648;</span>
+    &#33258;&#26816;&#27425;&#24207;&#65306;
+        <span style="color: #AE81FF;">0&#65306;&#19981;&#33258;&#26816;</span>
+        <span style="color: #AE81FF;">1&#65306;&#39318;&#20808;&#33258;&#26816;&#65307;&#19968;&#33324;&#21482;&#26377;rootfs&#25165;&#29992;1&#65307;</span>
+        ...
 </pre>
 </div>
 </div>

@@ -1,0 +1,11 @@
+#+TITLE: Vim实用技巧整理
+#+DATE: 2016-06-05
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Vim
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 
+
+{{{more}}}
