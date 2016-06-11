@@ -97,7 +97,7 @@ comments:
 
 <tr>
 <td class="org-left">gj</td>
-<td class="org-left">下个同级的标题 E</td>
+<td class="org-left">下个同级的标题</td>
 </tr>
 
 <tr>
@@ -112,7 +112,7 @@ comments:
 
 <tr>
 <td class="org-left">C-c C-j</td>
-<td class="org-left">跳转到大纲</td>
+<td class="org-left">跳转到大纲操作模式</td>
 </tr>
 </tbody>
 </table>
@@ -153,17 +153,27 @@ comments:
 
 <tr>
 <td class="org-left">M-o</td>
-<td class="org-left">插入一个和当前标题下一级的标题</td>
+<td class="org-left">插入一个当前标题下一级的标题</td>
 </tr>
 
 <tr>
 <td class="org-left">M-t</td>
-<td class="org-left">插入一个和当前标题下一级的 TODO 项</td>
+<td class="org-left">插入一个当前标题下一级的 TODO 项</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
 <td class="org-left">TAB</td>
 <td class="org-left">如果条目中还没有文字，TAB 会调整级别</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
@@ -189,6 +199,11 @@ comments:
 <tr>
 <td class="org-left">C-c C-w</td>
 <td class="org-left">将条目或区域传送到其他块下</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
@@ -242,11 +257,10 @@ comments:
 </p>
 
 <ul class="org-ul">
-<li>有序列表以 <b>1.、1)</b> 开头</li>
-<li>无序列表以 <b>-、+、*</b> 开头</li>
-<li>描述列表是无序列表中使用 <b>::</b> 将项和描述分开</li>
+<li>有序列表以 <code>1.、1)</code> 开头</li>
+<li>无序列表以 <code>-、+、*</code> 开头</li>
+<li>描述列表是无序列表中使用 <code>::</code> 将</li>
 </ul>
-
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -263,6 +277,11 @@ comments:
 </tr>
 
 <tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
 <td class="org-left">M-RET/o</td>
 <td class="org-left">在当前级别插入一个项，有前缀时是强制新建一个标题</td>
 </tr>
@@ -270,6 +289,16 @@ comments:
 <tr>
 <td class="org-left">M-S-RET</td>
 <td class="org-left">插入一个带有复选框的项</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">如果项中有复选框，就触发改变其状态。</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
@@ -288,8 +317,8 @@ comments:
 </tr>
 
 <tr>
-<td class="org-left">C-c C-c</td>
-<td class="org-left">如果项中有复选框，就触发改变其状态。</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
@@ -304,6 +333,10 @@ comments:
 <div id="outline-container-orgheadline7" class="outline-3">
 <h3 id="orgheadline7">脚注</h3>
 <div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>脚注就是以脚注定义符号开头的一段话，脚注定义符号是将脚注名称放在一个方括号里形成的，要求放在第0列，不能有缩进。</li>
+<li>脚注引用就是在正文中将脚注名称用方括号括起来。</li>
+</ul>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -314,8 +347,18 @@ comments:
 </colgroup>
 <tbody>
 <tr>
+<td class="org-left">, i f</td>
+<td class="org-left">新建一个脚注</td>
+</tr>
+
+<tr>
 <td class="org-left">C-c C-x f</td>
-<td class="org-left">这是一个移动命令。当光标处理引用处时，跳转到它的定义。其他情况下，新建一个脚注。</td>
+<td class="org-left">当光标处理引用处时，跳转到它的定义。其他情况下，新建一个脚注。</td>
+</tr>
+
+<tr>
+<td class="org-left">RET</td>
+<td class="org-left">当光标在脚注处时会跳转</td>
 </tr>
 
 <tr>
@@ -344,7 +387,6 @@ comments:
 <li>若想在表格中添加竖表格线，则起一行 <b><code>| / | &lt; |   | &lt; |</code></b> 进行添加，其中 <b>&lt;</b> 表示左边添加表格竖线</li>
 </ul>
 </div>
-
 
 <div id="outline-container-orgheadline9" class="outline-3">
 <h3 id="orgheadline9">创建和编辑</h3>
@@ -465,9 +507,9 @@ comments:
 <h2 id="orgheadline12"><span class="section-number-2">3</span> 超链接</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li>链接的格式： <b><code>[[link][description]]</code></b></li>
+<li>链接的格式： <b><code>[[link][description]]</code></b> (描述可以省略)</li>
 <li>如果链接的地址不是 URL 形式，则会作为当前文件内部的链接 <b><code>&lt;&lt;Target&gt;&gt;</code></b> 来处理。</li>
-<li>内部链接中文件名与位置用 <b><code>::</code></b> 隔开</li>
+<li>当图片链接没有描述的时候, 会直接使用图片载入</li>
 </ul>
 
 
@@ -494,6 +536,11 @@ comments:
 </tr>
 
 <tr>
+<td class="org-left">C-c M-l</td>
+<td class="org-left">插入一个最后保存的链接。</td>
+</tr>
+
+<tr>
 <td class="org-left">RET/C-c C-o</td>
 <td class="org-left">打开链接</td>
 </tr>
@@ -505,6 +552,28 @@ comments:
 </tbody>
 </table>
 
+<dl class="org-dl">
+<dt>外部连接</dt><dd><pre class="example">
+http://www.astro.uva.nl/~dominik            on the web
+file:/home/dominik/images/jupiter.jpg       file, absolute path
+/home/dominik/images/jupiter.jpg            same as above
+file:papers/last.pdf                        file, relative path
+file:projects.org                           another Org file
+docview:papers/last.pdf::NNN                open file in doc-view mode at page NNN
+id:B7423F4D-2E8A-471B-8810-C40F074717E9     Link to heading by ID
+news:comp.emacs                             Usenet link
+mailto:adent@galaxy.net                     Mail link
+vm:folder                                   VM folder link
+vm:folder#id                                VM message link
+wl:folder#id                                WANDERLUST message link
+mhe:folder#id                               MH-E message link
+rmail:folder#id                             RMAIL message link
+gnus:group#id                               Gnus article link
+bbdb:R.*Stallman                            BBDB link (with regexp)
+irc:/irc.com/#emacs/bob                     IRC link
+info:org:External%20links                   Info node link (with encoded space)
+</pre></dd>
+</dl>
 
 <hr  />
 </div>
@@ -514,9 +583,10 @@ comments:
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>使用 <b><code>=...=</code></b> 来使用特殊字符</li>
+<li>使用 &lt;s 再按 TAB 键，快速输入 #+BEGIN&#x2026; #+END&#x2026;</li>
 <li><p>
-使用 &lt;s 再按 TAB 键，快速输入 #+BEGIN&#x2026; #+END&#x2026;
-快捷输入列表如下：
+在普通模式下, 逗号 =,= 相当与按下 <code>C-c</code>
+  快捷输入列表如下：
 </p>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 

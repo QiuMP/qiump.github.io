@@ -17,26 +17,29 @@
 | S-TAB | 全局循环：OVERVIEW -> CONTENTS -> SHOWALL |
 
 ** 移动
-| gl      | 下个标题       |
-| C-c C-p | 上个标题       |
-| gj      | 下个同级的标题 E
-| gk      | 上个同级的标题 |
-| gh      | 回到上层标题   |
-| C-c C-j | 跳转到大纲     |
+| gl      | 下个标题           |
+| C-c C-p | 上个标题           |
+| gj      | 下个同级的标题     |
+| gk      | 上个同级的标题     |
+| gh      | 回到上层标题       |
+| C-c C-j | 跳转到大纲操作模式 |
 
 ** 结构编辑
 | M-RET     | 插入一个同级标题，会进行截断                 |
 | C-RET     | 在该文本块下边插入一个同级标题               |
 | M-S-RET   | 插入一个和当前标题同级的 TODO 项，会进行截断 |
 | C-S-RET   | 在该文本块插入一个和当前标题同级的 TODO 项   |
-| M-o       | 插入一个和当前标题下一级的标题               |
-| M-t       | 插入一个和当前标题下一级的 TODO 项           |
+| M-o       | 插入一个当前标题下一级的标题                 |
+| M-t       | 插入一个当前标题下一级的 TODO 项             |
+|           |                                              |
 | TAB       | 如果条目中还没有文字，TAB 会调整级别         |
+|           |                                              |
 | M-h/l     | 将当前的标题提升/降低一个等级                |
 | M-k/j     | 将子树上/下移（和前/后个子树交换）           |
 | M-S-h/l   | 将当前标题包括其子标题提升/降低一个等级      |
 | M-S-k/j   | 将该行在块中上/下移                          |
 | C-c C-w   | 将条目或区域传送到其他块下                   |
+|           |                                              |
 | C-x n s/w | 将缓冲区视图局限到当前子树中/再次放宽视图    |
 
 ** 稀疏树
@@ -48,24 +51,30 @@
 ** 本文列表
 列表当缩进改变或者后面有两个空行时，列表就结束了
 
-- 有序列表以 *1.、1)* 开头
-- 无序列表以 *-、+、** 开头
-- 描述列表是无序列表中使用 *::* 将项和描述分开
-  
+- 有序列表以 =1.、1)= 开头
+- 无序列表以 =-、+、*= 开头
+- 描述列表是无序列表中使用 =::= 将
 
 | TAB            | 折叠内容有多行的项，改变空白项的级别                            |
+|                |                                                                 |
 | M-RET/o        | 在当前级别插入一个项，有前缀时是强制新建一个标题                |
 | M-S-RET        | 插入一个带有复选框的项                                          |
+| C-c C-c        | 如果项中有复选框，就触发改变其状态。                            |
+|                |                                                                 |
 | M-UP/DOWN      | 将当前项和它的子项向上/下移动。如果列表是有序的，数字会自动改变 |
 | M-LEFT/M-RIGHT | 提升/降低项的缩进，不包含子项                                   |
 | M-S-LEFT/RIGHT | 提升/降低项的缩进，包含子项                                     |
-| C-c C-c        | 如果项中有复选框，就触发改变其状态。                            |
+|                |                                                                 |
 | C-c -          | 循环改变将当前列表的项标志符号                                  |
 
 ** 脚注
-| C-c C-x f | 这是一个移动命令。当光标处理引用处时，跳转到它的定义。其他情况下，新建一个脚注。 |
-| C-c C-c   | 在定义和引用之间跳转                                                             |
-| C-c '     | 在新窗口中编辑脚注内容                                                           |
+- 脚注就是以脚注定义符号开头的一段话，脚注定义符号是将脚注名称放在一个方括号里形成的，要求放在第0列，不能有缩进。
+- 脚注引用就是在正文中将脚注名称用方括号括起来。
+| , i f     | 新建一个脚注                                                         |
+| C-c C-x f | 当光标处理引用处时，跳转到它的定义。其他情况下，新建一个脚注。 |
+| RET       | 当光标在脚注处时会跳转                                         |
+| C-c C-c   | 在定义和引用之间跳转                                           |
+| C-c '     | 在新窗口中编辑脚注内容                                         |
 
 
 -----
@@ -73,7 +82,6 @@
 - 任何以 *|* 为首个非空字符的行都会被认为是表格的一部分
 - 若想在表格中使用 *|* ，则使用 *=\vert{}=* 代替
 - 若想在表格中添加竖表格线，则起一行 *=| / | < |   | < |=* 进行添加，其中 *<* 表示左边添加表格竖线
-
 
 ** 创建和编辑
 | C-c \vert    | 创建一个表格或者将选中区域转换成表格（按优先级使用 *TAB、,、空白字符* 进行分割）                       |
@@ -98,22 +106,45 @@
 
 -----
 * 超链接
-- 链接的格式： *=[[link][description]]=*
+- 链接的格式： *=[[link][description]]=* (描述可以省略)
 - 如果链接的地址不是 URL 形式，则会作为当前文件内部的链接 *=<<Target>>=* 来处理。
-- 内部链接中文件名与位置用 *=::=* 隔开
+- 当图片链接没有描述的时候, 会直接使用图片载入
 
 
 - 快捷键 ::
 | C-c l       | 在当前位置保存一个链接。这是一个全局命令，可以在任何类型的缓冲区中使用。链接保存下来以便以后插入 Org 文件中（见下面）             |
 | C-c C-l     | 插入或修改一个链接。                                                                                                              |
+| C-c M-l     | 插入一个最后保存的链接。                                                                                                          |
 | RET/C-c C-o | 打开链接                                                                                                                          |
 | C-c &       | 跳回到一个已记录的地址。用 C-c % 可以将地址记录下来，内部链接后面的命令也会自动将地址记录下来。使用这个命令多次可以一直往前定位。 |
 
+- 外部连接 ::
+  #+BEGIN_EXAMPLE
+  http://www.astro.uva.nl/~dominik            on the web
+  file:/home/dominik/images/jupiter.jpg       file, absolute path
+  /home/dominik/images/jupiter.jpg            same as above
+  file:papers/last.pdf                        file, relative path
+  file:projects.org                           another Org file
+  docview:papers/last.pdf::NNN                open file in doc-view mode at page NNN
+  id:B7423F4D-2E8A-471B-8810-C40F074717E9     Link to heading by ID
+  news:comp.emacs                             Usenet link
+  mailto:adent@galaxy.net                     Mail link
+  vm:folder                                   VM folder link
+  vm:folder#id                                VM message link
+  wl:folder#id                                WANDERLUST message link
+  mhe:folder#id                               MH-E message link
+  rmail:folder#id                             RMAIL message link
+  gnus:group#id                               Gnus article link
+  bbdb:R.*Stallman                            BBDB link (with regexp)
+  irc:/irc.com/#emacs/bob                     IRC link
+  info:org:External%20links                   Info node link (with encoded space)
+  #+END_EXAMPLE
 
 -----
 * 特殊的技巧
 - 使用 *==...==* 来使用特殊字符
 - 使用 <s 再按 TAB 键，快速输入 #+BEGIN... #+END...
+- 在普通模式下, 逗号 =,= 相当与按下 =C-c=
   快捷输入列表如下：
   | 快捷输入 | 补全                                 |
   |----------+--------------------------------------|
@@ -130,3 +161,4 @@
   | <a       | #+BEGIN_ASCII\n?\n#+END_ASCII"       |
   | <A       | #+ASCII: "                           |
   | <i       | #+INDEX: ?"                          |
+

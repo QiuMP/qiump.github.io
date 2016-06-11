@@ -1,0 +1,268 @@
+#+TITLE: Centos程序包安装与管理
+#+DATE: 2016-06-11
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 程序相关
+- POSIX: Portable OS, API级别的兼容
+- 程序源代码 -> 预处理 -> 编译 -> 汇编 -> 链接(动态库: .so)
+  #+BEGIN_SRC conf
+  ldd 二进制程序  # 查看二进制程序所依赖的动态库文件 
+
+  ldconfig -p  # 查看当前系统所缓存的共享库
+    生成缓存的配置文件: /etc/ld.so.conf, /etc/ld.so.conf.d/*.conf
+    生成的缓存文件: /etc/ld.so.cache
+  #+END_SRC
+- 库级别(ABI)虚拟化
+  - Linux: WINE
+  - Windows: Cywin
+- 应用程序的组成部分: 二进制文件、库文件、配置文件、帮助文件
+* 程序包管理器
+将编译好的应用程序的各组成文件(包括安装或卸载时运行的脚本)打包一个或几个程序包文件，从而方便快捷地实现程序包的安装、卸载、查询、升级和校验等管理操作
+- 主要类型 ::
+  - debian: deb, dpt
+  - redhat: rpm, rpm
+- 包管理器的前端工具 ::
+  - 用于解决包之间的依赖关系
+  - yum: rpm包管理器的前端工具
+  - apt-get: deb包管理器前端工具
+  - dnf: Fedora 22+ rpm包管理器前端管理工具
+
+* 包命名方式
+- 源代码: name-VERSION.tar.gz
+  - VERSION: major.minor.release
+- rpm包: name-[type-]VERSION-release.[os.]arch.rpm
+  - type: 分包机制
+    - type为空: 主包
+    - devel: 子包(一般依赖于主包)
+    - testing: 测试包
+  - VERSION: major.minor.release(软件版本号)
+  - release.[os.]arch:
+    - release: rpm包的版本号
+    - os: 系统的版本
+    - arch: 系统构架
+      - x86: i386, i486, i586, i686
+      - x86_64: x64, x86_64, amd64
+      - powerpc: ppc
+      - 跟平台无关: noarch
+
+* rpm命令管理程序包
+** 安装
+#+BEGIN_SRC conf
+rpm {-i|--install} [install-options] PACKAGE...
+  -v: verbose
+  -vv: more information
+  -h: 使用"#"来显示执行进度, 一个符号表示2%
+  install-options:
+    --test: 测试安装，但不真正执行安装过程(dry run模式)
+    --nodeps: 忽略依赖关系
+    --replacepkgs: 重新安装
+
+    --nosignature: 不检查来源合法性
+    --nodigest: 不检查包完整性
+
+    --noscipts: 不执行程序包中的所有脚本片断
+      --nopre: 不执行安装前脚本 
+      --nopost: 不执行安装后脚本 
+      --nopreun: 不执行卸载前脚本 
+      --nopostun: 不执行卸载后脚本 
+#+END_SRC
+** 升级
+#+BEGIN_SRC conf
+rpm {-U|--upgrade} [install-options] PACKAGE...  # 若不存在旧版程序包则安装
+rpm {-F|--freshen} [install-options] PACKAGE...  # 若不存在旧版程序包则不进行操作
+  --oldpackage: 降级
+  --force: 强行升级
+#+END_SRC
+- 不要对内核做升级操作, Linux支持多内核版本并存，应该直接安装新版本内核
+- 如果原程序包的配置文件安装后曾被修改，升级时，新版本提供的同一个配置文件并不会直接覆盖老版本的配置文件，而把新版本的文件重命名(FILENAME.rpmnew)后保留
+** 查询
+#+BEGIN_SRC conf
+rpm {-q|--query} [select-options] [query-options] [-p][PACKAGE]
+  select-options: 对哪些包进行查询
+    -a: 所有已安装的包
+    -f FILE: 查看指定的文件由哪个程序包安装生成
+
+    --whatprovides CAPABILITY/FILE: 查询指定的CAPABILITY/FILE由哪个包所提供
+    --whatrequires CAPABILITY/FILE: 查询指定的CAPABILITY/FILE被哪个包所依赖
+
+    -p /PATH/TO/PACKAGE_FILE: 针对尚未安装的程序包文件做查询操作
+
+  query-options: 查询包的什么东西(默认显示包名)
+    -i: information
+    --changelog: 查询rpm包的changlog
+
+    -c: 查询程序的配置文件
+    -d: 查询程序的文档
+    -l: 查看指定的程序包安装后生成的所有文件
+    --scripts: 程序包自带的脚本片断
+
+    -R: 查询指定的程序包所依赖的CAPABILITY
+    --provides: 列出指定程序包所提供的CAPABILITY
+#+END_SRC
+** 卸载
+#+BEGIN_SRC conf
+rpm {-e|--erase} [--noscripts] [--notriggers] [--test] PACKAGE_NAME ...
+  --allmatches: 删除所有配对成功的包
+  --nodeps: 忽略依赖关系卸载
+#+END_SRC
+** 校验
+检查程序安装后的修改
+#+BEGIN_SRC conf
+rpm {-V|--verify} [select-options] [verify-options]  # 默认显示程序被修改过的所有文件
+  select-options: 对哪些包进行查询
+    -a: 所有已安装的包
+    -f FILE: 查看指定的文件由哪个程序包安装生成
+    --whatprovides CAPABILITY/FILE: 查询指定的CAPABILITY/FILE由哪个包所提供
+    --whatrequires CAPABILITY/FILE: 查询指定的CAPABILITY/FILE被哪个包所依赖
+    -p /PATH/TO/PACKAGE_FILE: 针对尚未安装的程序包文件做查询操作
+  verify-options: 可设定不检查的项目
+  文件修改的信息的含义: 
+    S: file Size differs
+    M: Mode differs (includes permissions and file type)
+    5: digest (formerly MD5 sum) differs
+    D: Device major/minor number mismatch
+    L: readLink(2) path mismatch
+    U: User ownership differs
+    G: Group ownership differs
+    T: mTime differs
+    P: caPabilities differ
+#+END_SRC
+** 包的验证
+- 完整性验证: SHA256
+- 来源合法性验证: RSA(非对称加密)
+  - 官方提供公钥文件, 例如RPM-GPG-KEY-CentOS-7
+  #+BEGIN_SRC conf
+  rpm --import /PATH/GPG-PUBKEY-FILE  # 导入公钥文件
+  rpm -K /PATH/PACKAGE  # 不安装检验程序包合法性
+  #+END_SRC
+** rpm数据库的重建
+#+BEGIN_SRC conf
+rpm {--initdb|--rebuilddb}
+	initdb: 如果事先不存在数据库，则新建之；否则，不执行任何操作
+	rebuilddb: 无论当前存在与否，直接重新创建数据库
+#+END_SRC
+* yum
+YUM: Yellowdog Update Modifier
+** 配置文件与仓库
+- yum repository ::
+  - 存储了众多rpm包，以及包的相关的元数据文件(放置于特定目录下: repodata)
+  - yum会从多个仓库中选择最新的程序进行安装
+
+- 配置文件 ::
+  - /etc/yum.conf: 为所有仓库提供公共配置
+  - /etc/yum.repos.d/*.repo: 为仓库的指向提供配置
+  - 配置文件中可用的变量(常用于网址)
+    - $releasever: 当前OS的发行版的主版本号
+    - $arch: 平台
+    - $basearch: 基础平台(通用平台)
+    - $YUM0-$YUM9: 用户自定义的变量
+
+- 仓库配置 ::
+  #+BEGIN_SRC conf
+  [repositoryID]
+  name=Some name for this repository
+  baseurl={ftp|http|nfs|file:///}://path/to/repository/  # repodata所在目录, 可指定多个
+  enabled={1|0}  # 是否启用此仓库, 默认为1
+  gpgcheck={1|0}  
+  gpgkey={ftp|http|nfs|file:///}://path/to/GPG-PUBKEY-FILE
+  enablegroups={1|0}  # 是否支持使用组来批量管理程序包, 默认为1 
+  failovermethod={roundrobin|priority}  # 故障转移方法{随机(默认)|顺序}
+  cost=NUM  # 设定该仓库的优先级, 默认是1000
+  #+END_SRC
+** yum的用法
+一次只能使用一个yum进行操作
+#+BEGIN_SRC conf
+yum [options] [command] [package ...]
+  options:
+    --nogpgcheck: 禁止进行gpg check
+    -y: 自动回答为"yes"
+    -q: 静默模式
+    --disablerepo=repoidglob: 临时禁用此处指定的repo
+    --enablerepo=repoidglob: 临时启用此处指定的repo
+    --noplugins: 禁用所有yum插件
+
+  command:
+    repolist [all|enabled|disabled]: 显示仓库列表(默认显示启用的仓库)
+    list [all|available|installed|updates] [glob_exp]...: 显示通配符匹配的程序包(默认显示所有程序包)
+    info package: 查看程序包信息(相当于rpm -qi)
+    version: 查看rpmdb的信息
+
+    provides feature...: 查看指定的特性(或文件)是由哪个程序包所提供(相当于rpm -q --whatprovides)
+    deplist package...: 查看包的依赖关系(相当于rpm -qR)
+    search string...: 以指定的关键字搜索程序包名及summary信息
+    
+    install package...: 安装程序包或本地程序包(可指明版本)
+    reinstall package...: 重新安装程序包
+    check-update: 检查是否有可用升级
+    update [package]...: 升级程序包或本地程序包
+    downgrade package...: 降级程序包
+    remove/erase package...: 卸载程序包(会同时卸载依赖与此包的程序)
+    
+    grouplist [glob]
+    groupinfo group1...
+    groupinstall group1...
+    groupupdate group1...
+    groupremove group1...
+    
+    makecache: 构建缓存
+    clean [packages|metadata|expire-cache|rpmdb|plugins|all]: 清理本地缓存
+    
+    history [info|list|packages-list|packages-info|summary|addon-info|redo|undo|rollback|new|sync|stats]: 查看历史和回滚
+#+END_SRC
+** 创建yum仓库
+#+BEGIN_SRC conf
+createrepo [options] DIRECTORY  # 用于创建repodata
+  --basedir PATH: 设定repodata的位置, 默认是当前文件夹
+#+END_SRC
+* 程序包编译安装
+** 源码的rpm包
+- 例如: testapp-VERSION-release.src.rpm
+- 安装后, 使用 =rpmbuild= 命令制作成二进制格式的rpm包, 然后再安装
+** 源代码的编译
+- 安装前查看INSTALL，README
+- Centos开发工具组件: "Development Tools", "Server Platform Development"
+
+
+- 项目管理器 ::
+  - C、C++: make
+  - java: maven
+
+- 开发工具 ::
+  - autoconf: 生成configure脚本
+  - automake: 生成Makefile.in
+
+- 编译C/C++源代码 ::
+  1. configure脚本
+     - 通过选项传递参数，指定启用特性、安装路径等
+     - 参考用户指定和Makefile.in文件来生成makefile
+     - 检查依赖环境
+     #+BEGIN_SRC conf
+     ./configure [OPTIONS]
+       --help: 获取其支持使用的选项
+
+       --prefix=PATH: 安装位置(默认为/usr/local)
+       --sysconfdir=PATH: 配置文件安装位置
+       
+       System type: 用于交叉编译
+       Optional Features: 可选特性
+       Optional Packages: 可选包
+     #+END_SRC
+  2. make
+     - 根据makefile文件来构建应用程序
+  3. make install
+     - 安装到相应的目录
+
+- 安装后的配置 ::
+  1. 导出二进制程序目录至PATH环境变量中
+     - 编辑文件/etc/profile.d/NAME.sh修改PATH
+  2. 导出库文件路径
+     - 添加新的库文件路径至/etc/ld.so.conf.d/NAME.conf
+     - 让系统重新生成缓存: =ldconfig [-v]=
+  3. 导出头文件
+     - 基于链接的方式连接include目录
+  4. 导出帮助手册
+     - 添加一个MANPATH至/etc/man.config文件

@@ -368,7 +368,7 @@ comments:
 </div>
 <ul class="org-ul">
 <li>使用 <code>len()</code> 可以获得list元素的个数</li>
-<li id="list常用方法"></li>
+<li>list常用方法:</li>
 </ul>
 <div class="org-src-container">
 
@@ -433,11 +433,12 @@ dic.pop<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'thre
 <h4 id="orgheadline17">set</h4>
 <div class="outline-text-4" id="text-orgheadline17">
 <ul class="org-ul">
-<li>set是一组key的集合，即在set中，没有重复的key（同样不可变，即不能为list）</li>
+<li>set是一组key的集合，即在set中，没有重复的key（同样不可变，即参数不能包含list这种可变元素）</li>
 </ul>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">s</span> = <span style="color: #F92672;">set</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">3</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19968;&#20010;set&#65292;&#38656;&#35201;&#25552;&#20379;&#19968;&#20010;list&#20316;&#20026;&#36755;&#20837;&#38598;&#21512;</span>
+<span style="color: #FD971F;">s</span> = <span style="color: #F92672;">set</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #A6E22E;">[</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span><span style="color: #A6E22E;">]</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25253;&#38169;&#65292;&#21442;&#25968;&#21253;&#21547;list</span>
 s.add<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">5</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#20803;&#32032;</span>
 s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#21024;&#38500;&#20803;&#32032;</span>
 </pre>
@@ -483,9 +484,9 @@ s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</s
 <div id="outline-container-orgheadline21" class="outline-3">
 <h3 id="orgheadline21">循环</h3>
 <div class="outline-text-3" id="text-orgheadline21">
-<p>
-for ::
-</p>
+<dl class="org-dl">
+<dt>for</dt><dd></dd>
+</dl>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">101</span><span style="color: #AE81FF;">)</span>: <span style="color: #75715E;">#</span><span style="color: #75715E;">range(101)&#29983;&#25104;0-100&#30340;&#25972;&#25968;list</span>
@@ -633,7 +634,7 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 <h3 id="orgheadline28">递归函数</h3>
 <div class="outline-text-3" id="text-orgheadline28">
 <ul class="org-ul">
-<li>使用递归函数要注意防止栈溢出，解决栈溢出的方式是通过尾递归优化，但Python的解释器并没有针对尾递归做优化，需要自行处理</li>
+<li>使用递归函数要注意防止栈溢出，解决栈溢出的方式是通过尾递归优化，但Python的解释器并没有针对尾递归做优化，需要自行处理，即将尾递归转换为循环</li>
 </ul>
 <pre class="example">
 尾递归是指函数返回的时候，调用自身本身，并且return不能包含表达式
@@ -901,6 +902,7 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">3</span><s
 L<span style="color: #AE81FF;">[</span><span style="color: #AE81FF;">7</span>:<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[7,8,9]</span>
 L<span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">2</span>:<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[8,9]</span>
 L<span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">2</span>:-<span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[8]</span>
+L<span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">1</span>:-<span style="color: #AE81FF;">2</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[]</span>
 L<span style="color: #AE81FF;">[</span><span style="color: #AE81FF;">1</span>:<span style="color: #AE81FF;">5</span>:<span style="color: #AE81FF;">2</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[1,3] &#22312;&#36825;4&#20010;&#25968;&#20013;&#65292;&#27599;2&#20010;&#21462;1&#20010;</span>
 L<span style="color: #AE81FF;">[</span>::<span style="color: #AE81FF;">3</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[0,3,6,9]</span>
 L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[0,1,2,3,4,5,6,7,8,9]</span>
@@ -980,8 +982,12 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <div class="outline-text-3" id="text-orgheadline46">
 <ul class="org-ul">
 <li>列表生成式直接生成一个list，但会占用比较大的内存</li>
-<li id="生成平方list"></li>
 </ul>
+
+
+<dl class="org-dl">
+<dt>生成平方list</dt><dd></dd>
+</dl>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #AE81FF;">[</span>x * x <span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">1</span>, <span style="color: #AE81FF;">5</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[1, 4, 9, 16]</span>
@@ -1002,6 +1008,17 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <span style="color: #AE81FF;">[</span>m + n <span style="color: #F92672;">for</span> m <span style="color: #F92672;">in</span> <span style="color: #E6DB74;">'AB'</span> <span style="color: #F92672;">for</span> n <span style="color: #F92672;">in</span> <span style="color: #E6DB74;">'ab'</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">['Aa', 'Ab', 'Ba', 'Bb']</span>
 <span style="color: #75715E;">#</span><span style="color: #75715E;">&#22810;&#21464;&#37327;</span>
 <span style="color: #AE81FF;">[</span>k + v <span style="color: #F92672;">for</span> k, v <span style="color: #F92672;">in</span> <span style="color: #66D9EF;">[</span><span style="color: #A6E22E;">(</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">1</span><span style="color: #A6E22E;">)</span>, <span style="color: #A6E22E;">(</span><span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span><span style="color: #A6E22E;">)</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[2, 4]</span>
+</pre>
+</div>
+<dl class="org-dl">
+<dt>三元运算符</dt><dd><ul class="org-ul">
+<li>若想让结果是一个元素则可以不加 <code>[]</code></li>
+</ul></dd>
+</dl>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #FD971F;">i</span> = <span style="color: #AE81FF;">3</span>
+<span style="color: #FD971F;">i</span> = i if i &gt; <span style="color: #AE81FF;">4</span> else <span style="color: #AE81FF;">5</span>
 </pre>
 </div>
 </div>
@@ -1057,7 +1074,7 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <li>相同名字的函数和变量完全可以分别存在不同的模块中</li>
 <li>为了避免模块名冲突，Python中还有按照目录来组织模块的方法，称为包（Package）</li>
 <li>每个包目录下都会有一个 <code>__init__.py</code> 文件，可以是空文件，这个文件的模块名就是包名</li>
-<li>可以有多级目录来组成多级层次的包结构，包名之间用 . 来连接</li>
+<li>可以有多级目录来组成多级层次的包结构，包名之间用 <code>.</code> 来连接</li>
 <li>安装第三方模块可以用 <code>pip</code> 来安装</li>
 </ul>
 </div>

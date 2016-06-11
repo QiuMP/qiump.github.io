@@ -12,16 +12,56 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. TCP/IP的连接协议（三次握手）</a></li>
-<li><a href="#orgheadline2">2. TCP/IP的终止协议（四次挥手）</a></li>
-<li><a href="#orgheadline3">3. TCP/IP的连接状态</a></li>
+<li><a href="#orgheadline1">1. 局域网</a></li>
+<li><a href="#orgheadline2">2. TCP/IP分层</a></li>
+<li><a href="#orgheadline3">3. TCP/IP的连接协议（三次握手）</a></li>
+<li><a href="#orgheadline4">4. TCP/IP的终止协议（四次挥手）</a></li>
+<li><a href="#orgheadline5">5. TCP/IP的连接状态</a></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> TCP/IP的连接协议（三次握手）</h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 局域网</h2>
 <div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>以太网，令牌环网</li>
+<li>CSMA/CD: 解决局域网内不同主机同时发送的冲突问题(冲突域)</li>
+<li>广播域: 交换机通过广播信号确定数据的目的地
+<ul class="org-ul">
+<li>MAC: Media Access Control
+<ul class="org-ul">
+<li>总共48bits地址, 前24bits由国际组织分配</li>
+</ul></li>
+</ul></li>
+<li>路由器: 切割广播域, 连接广播域
+<ul class="org-ul">
+<li>IP: Internet Protocol</li>
+<li>Routing protocol: 路由器判断包的转发端口, 以求最快到达</li>
+</ul></li>
+<li>ARP: 局域网内IP与MAC的转换</li>
+<li>网关: 若目的地与自己不在同一网络的时候所发送的地方</li>
+<li>套接字: 不同主机的进程的通讯接口, 包含ip和端口号</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> TCP/IP分层</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>application layer</li>
+<li>transport layer: tcp, udp, sctp</li>
+<li>internet layer: ip</li>
+<li>datalink layer: mac</li>
+<li>pysical layer</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> TCP/IP的连接协议（三次握手）</h2>
+<div class="outline-text-2" id="text-3">
 <ol class="org-ol">
 <li>客户端发送一个带SYN标志的TCP报文到服务器</li>
 <li>服务器回应客户端一个同时带ACK和SYN标志的报文</li>
@@ -30,9 +70,9 @@ comments:
 </div>
 </div>
 
-<div id="outline-container-orgheadline2" class="outline-2">
-<h2 id="orgheadline2"><span class="section-number-2">2</span> TCP/IP的终止协议（四次挥手）</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> TCP/IP的终止协议（四次挥手）</h2>
+<div class="outline-text-2" id="text-4">
 <p>
 由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。收到一个FIN只意味着这一方向上没有数据流动了，一个TCP连接在收到一个FIN后仍能发送数据。
 </p>
@@ -45,9 +85,9 @@ comments:
 </div>
 </div>
 
-<div id="outline-container-orgheadline3" class="outline-2">
-<h2 id="orgheadline3"><span class="section-number-2">3</span> TCP/IP的连接状态</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> TCP/IP的连接状态</h2>
+<div class="outline-text-2" id="text-5">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 

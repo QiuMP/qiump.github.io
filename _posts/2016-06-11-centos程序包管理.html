@@ -1,0 +1,468 @@
+---
+title: "Centos程序包安装与管理"
+date: 2016-06-11
+layout: post
+categories: 
+- Linux
+tags: 
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 程序相关</a></li>
+<li><a href="#orgheadline2">2. 程序包管理器</a></li>
+<li><a href="#orgheadline3">3. 包命名方式</a></li>
+<li><a href="#orgheadline11">4. rpm命令管理程序包</a>
+<ul>
+<li><a href="#orgheadline4">安装</a></li>
+<li><a href="#orgheadline5">升级</a></li>
+<li><a href="#orgheadline6">查询</a></li>
+<li><a href="#orgheadline7">卸载</a></li>
+<li><a href="#orgheadline8">校验</a></li>
+<li><a href="#orgheadline9">包的验证</a></li>
+<li><a href="#orgheadline10">rpm数据库的重建</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">5. yum</a>
+<ul>
+<li><a href="#orgheadline12">配置文件与仓库</a></li>
+<li><a href="#orgheadline13">yum的用法</a></li>
+<li><a href="#orgheadline14">创建yum仓库</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">6. 程序包编译安装</a>
+<ul>
+<li><a href="#orgheadline16">源码的rpm包</a></li>
+<li><a href="#orgheadline17">源代码的编译</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 程序相关</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>POSIX: Portable OS, API级别的兼容</li>
+<li><p>
+程序源代码 -&gt; 预处理 -&gt; 编译 -&gt; 汇编 -&gt; 链接(动态库: .so)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ldd &#20108;&#36827;&#21046;&#31243;&#24207;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#20108;&#36827;&#21046;&#31243;&#24207;&#25152;&#20381;&#36182;&#30340;&#21160;&#24577;&#24211;&#25991;&#20214; </span>
+
+ldconfig -p  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#31995;&#32479;&#25152;&#32531;&#23384;&#30340;&#20849;&#20139;&#24211;</span>
+  &#29983;&#25104;&#32531;&#23384;&#30340;&#37197;&#32622;&#25991;&#20214;: /etc/ld.so.conf, /etc/ld.so.conf.d/*.conf
+  &#29983;&#25104;&#30340;&#32531;&#23384;&#25991;&#20214;: /etc/ld.so.cache
+</pre>
+</div></li>
+<li>库级别(ABI)虚拟化
+<ul class="org-ul">
+<li>Linux: WINE</li>
+<li>Windows: Cywin</li>
+</ul></li>
+<li>应用程序的组成部分: 二进制文件、库文件、配置文件、帮助文件</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 程序包管理器</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+将编译好的应用程序的各组成文件(包括安装或卸载时运行的脚本)打包一个或几个程序包文件，从而方便快捷地实现程序包的安装、卸载、查询、升级和校验等管理操作
+</p>
+<dl class="org-dl">
+<dt>主要类型</dt><dd><ul class="org-ul">
+<li>debian: deb, dpt</li>
+<li>redhat: rpm, rpm</li>
+</ul></dd>
+<dt>包管理器的前端工具</dt><dd><ul class="org-ul">
+<li>用于解决包之间的依赖关系</li>
+<li>yum: rpm包管理器的前端工具</li>
+<li>apt-get: deb包管理器前端工具</li>
+<li>dnf: Fedora 22+ rpm包管理器前端管理工具</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 包命名方式</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>源代码: name-VERSION.tar.gz
+<ul class="org-ul">
+<li>VERSION: major.minor.release</li>
+</ul></li>
+<li>rpm包: name-[type-]VERSION-release.[os.]arch.rpm
+<ul class="org-ul">
+<li>type: 分包机制
+<ul class="org-ul">
+<li>type为空: 主包</li>
+<li>devel: 子包(一般依赖于主包)</li>
+<li>testing: 测试包</li>
+</ul></li>
+<li>VERSION: major.minor.release(软件版本号)</li>
+<li>release.[os.]arch:
+<ul class="org-ul">
+<li>release: rpm包的版本号</li>
+<li>os: 系统的版本</li>
+<li>arch: 系统构架
+<ul class="org-ul">
+<li>x86: i386, i486, i586, i686</li>
+<li>x86_64: x64, x86_64, amd64</li>
+<li>powerpc: ppc</li>
+<li>跟平台无关: noarch</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">4</span> rpm命令管理程序包</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">安装</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {-i|--install} [install-options] PACKAGE...
+  -v: verbose
+  -vv: more information
+  -h: &#20351;&#29992;<span style="color: #E6DB74;">"#"</span>&#26469;&#26174;&#31034;&#25191;&#34892;&#36827;&#24230;, &#19968;&#20010;&#31526;&#21495;&#34920;&#31034;2%
+  install-options:
+    --test: &#27979;&#35797;&#23433;&#35013;&#65292;&#20294;&#19981;&#30495;&#27491;&#25191;&#34892;&#23433;&#35013;&#36807;&#31243;(dry run&#27169;&#24335;)
+    --nodeps: &#24573;&#30053;&#20381;&#36182;&#20851;&#31995;
+    --replacepkgs: &#37325;&#26032;&#23433;&#35013;
+
+    --nosignature: &#19981;&#26816;&#26597;&#26469;&#28304;&#21512;&#27861;&#24615;
+    --nodigest: &#19981;&#26816;&#26597;&#21253;&#23436;&#25972;&#24615;
+
+    --noscipts: &#19981;&#25191;&#34892;&#31243;&#24207;&#21253;&#20013;&#30340;&#25152;&#26377;&#33050;&#26412;&#29255;&#26029;
+      --nopre: &#19981;&#25191;&#34892;&#23433;&#35013;&#21069;&#33050;&#26412; 
+      --nopost: &#19981;&#25191;&#34892;&#23433;&#35013;&#21518;&#33050;&#26412; 
+      --nopreun: &#19981;&#25191;&#34892;&#21368;&#36733;&#21069;&#33050;&#26412; 
+      --nopostun: &#19981;&#25191;&#34892;&#21368;&#36733;&#21518;&#33050;&#26412;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">升级</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {-U|--upgrade} [install-options] PACKAGE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#19981;&#23384;&#22312;&#26087;&#29256;&#31243;&#24207;&#21253;&#21017;&#23433;&#35013;</span>
+rpm {-F|--freshen} [install-options] PACKAGE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#19981;&#23384;&#22312;&#26087;&#29256;&#31243;&#24207;&#21253;&#21017;&#19981;&#36827;&#34892;&#25805;&#20316;</span>
+  --oldpackage: &#38477;&#32423;
+  --force: &#24378;&#34892;&#21319;&#32423;
+</pre>
+</div>
+<ul class="org-ul">
+<li>不要对内核做升级操作, Linux支持多内核版本并存，应该直接安装新版本内核</li>
+<li>如果原程序包的配置文件安装后曾被修改，升级时，新版本提供的同一个配置文件并不会直接覆盖老版本的配置文件，而把新版本的文件重命名(FILENAME.rpmnew)后保留</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">查询</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {-q|--query} [select-options] [query-options] [-p][PACKAGE]
+  select-options: &#23545;&#21738;&#20123;&#21253;&#36827;&#34892;&#26597;&#35810;
+    -a: &#25152;&#26377;&#24050;&#23433;&#35013;&#30340;&#21253;
+    -f FILE: &#26597;&#30475;&#25351;&#23450;&#30340;&#25991;&#20214;&#30001;&#21738;&#20010;&#31243;&#24207;&#21253;&#23433;&#35013;&#29983;&#25104;
+
+    --whatprovides CAPABILITY/FILE: &#26597;&#35810;&#25351;&#23450;&#30340;CAPABILITY/FILE&#30001;&#21738;&#20010;&#21253;&#25152;&#25552;&#20379;
+    --whatrequires CAPABILITY/FILE: &#26597;&#35810;&#25351;&#23450;&#30340;CAPABILITY/FILE&#34987;&#21738;&#20010;&#21253;&#25152;&#20381;&#36182;
+
+    -p /PATH/TO/PACKAGE_FILE: &#38024;&#23545;&#23578;&#26410;&#23433;&#35013;&#30340;&#31243;&#24207;&#21253;&#25991;&#20214;&#20570;&#26597;&#35810;&#25805;&#20316;
+
+  query-options: &#26597;&#35810;&#21253;&#30340;&#20160;&#20040;&#19996;&#35199;(&#40664;&#35748;&#26174;&#31034;&#21253;&#21517;)
+    -i: information
+    --changelog: &#26597;&#35810;rpm&#21253;&#30340;changlog
+
+    -c: &#26597;&#35810;&#31243;&#24207;&#30340;&#37197;&#32622;&#25991;&#20214;
+    -d: &#26597;&#35810;&#31243;&#24207;&#30340;&#25991;&#26723;
+    -l: &#26597;&#30475;&#25351;&#23450;&#30340;&#31243;&#24207;&#21253;&#23433;&#35013;&#21518;&#29983;&#25104;&#30340;&#25152;&#26377;&#25991;&#20214;
+    --scripts: &#31243;&#24207;&#21253;&#33258;&#24102;&#30340;&#33050;&#26412;&#29255;&#26029;
+
+    -R: &#26597;&#35810;&#25351;&#23450;&#30340;&#31243;&#24207;&#21253;&#25152;&#20381;&#36182;&#30340;CAPABILITY
+    --provides: &#21015;&#20986;&#25351;&#23450;&#31243;&#24207;&#21253;&#25152;&#25552;&#20379;&#30340;CAPABILITY
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">卸载</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {-e|--erase} [--noscripts] [--notriggers] [--test] PACKAGE_NAME ...
+  --allmatches: &#21024;&#38500;&#25152;&#26377;&#37197;&#23545;&#25104;&#21151;&#30340;&#21253;
+  --nodeps: &#24573;&#30053;&#20381;&#36182;&#20851;&#31995;&#21368;&#36733;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">校验</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+检查程序安装后的修改
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {-V|--verify} [select-options] [verify-options]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#26174;&#31034;&#31243;&#24207;&#34987;&#20462;&#25913;&#36807;&#30340;&#25152;&#26377;&#25991;&#20214;</span>
+  select-options: &#23545;&#21738;&#20123;&#21253;&#36827;&#34892;&#26597;&#35810;
+    -a: &#25152;&#26377;&#24050;&#23433;&#35013;&#30340;&#21253;
+    -f FILE: &#26597;&#30475;&#25351;&#23450;&#30340;&#25991;&#20214;&#30001;&#21738;&#20010;&#31243;&#24207;&#21253;&#23433;&#35013;&#29983;&#25104;
+    --whatprovides CAPABILITY/FILE: &#26597;&#35810;&#25351;&#23450;&#30340;CAPABILITY/FILE&#30001;&#21738;&#20010;&#21253;&#25152;&#25552;&#20379;
+    --whatrequires CAPABILITY/FILE: &#26597;&#35810;&#25351;&#23450;&#30340;CAPABILITY/FILE&#34987;&#21738;&#20010;&#21253;&#25152;&#20381;&#36182;
+    -p /PATH/TO/PACKAGE_FILE: &#38024;&#23545;&#23578;&#26410;&#23433;&#35013;&#30340;&#31243;&#24207;&#21253;&#25991;&#20214;&#20570;&#26597;&#35810;&#25805;&#20316;
+  verify-options: &#21487;&#35774;&#23450;&#19981;&#26816;&#26597;&#30340;&#39033;&#30446;
+  &#25991;&#20214;&#20462;&#25913;&#30340;&#20449;&#24687;&#30340;&#21547;&#20041;: 
+    S: file Size differs
+    M: Mode differs (includes permissions and file type)
+    5: digest (formerly MD5 sum) differs
+    D: Device major/minor number mismatch
+    L: readLink(2) path mismatch
+    U: User ownership differs
+    G: Group ownership differs
+    T: mTime differs
+    P: caPabilities differ
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">包的验证</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<ul class="org-ul">
+<li>完整性验证: SHA256</li>
+<li><p>
+来源合法性验证: RSA(非对称加密)
+</p>
+<ul class="org-ul">
+<li>官方提供公钥文件, 例如RPM-GPG-KEY-CentOS-7</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm --import /PATH/GPG-PUBKEY-FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23548;&#20837;&#20844;&#38053;&#25991;&#20214;</span>
+rpm -K /PATH/PACKAGE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#23433;&#35013;&#26816;&#39564;&#31243;&#24207;&#21253;&#21512;&#27861;&#24615;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">rpm数据库的重建</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-conf">rpm {--initdb|--rebuilddb}
+    initdb: &#22914;&#26524;&#20107;&#20808;&#19981;&#23384;&#22312;&#25968;&#25454;&#24211;&#65292;&#21017;&#26032;&#24314;&#20043;&#65307;&#21542;&#21017;&#65292;&#19981;&#25191;&#34892;&#20219;&#20309;&#25805;&#20316;
+    rebuilddb: &#26080;&#35770;&#24403;&#21069;&#23384;&#22312;&#19982;&#21542;&#65292;&#30452;&#25509;&#37325;&#26032;&#21019;&#24314;&#25968;&#25454;&#24211;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><span class="section-number-2">5</span> yum</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+YUM: Yellowdog Update Modifier
+</p>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">配置文件与仓库</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<dl class="org-dl">
+<dt>yum repository</dt><dd><ul class="org-ul">
+<li>存储了众多rpm包，以及包的相关的元数据文件(放置于特定目录下: repodata)</li>
+<li>yum会从多个仓库中选择最新的程序进行安装</li>
+</ul></dd>
+
+<dt>配置文件</dt><dd><ul class="org-ul">
+<li>/etc/yum.conf: 为所有仓库提供公共配置</li>
+<li>/etc/yum.repos.d/*.repo: 为仓库的指向提供配置</li>
+<li>配置文件中可用的变量(常用于网址)
+<ul class="org-ul">
+<li>$releasever: 当前OS的发行版的主版本号</li>
+<li>$arch: 平台</li>
+<li>$basearch: 基础平台(通用平台)</li>
+<li>$YUM0-$YUM9: 用户自定义的变量</li>
+</ul></li>
+</ul></dd>
+
+<dt>仓库配置</dt><dd><div class="org-src-container">
+
+<pre class="src src-conf">[<span style="color: #66D9EF;">repositoryID</span>]
+<span style="color: #FD971F;">name</span>=Some name for this repository
+<span style="color: #FD971F;">baseurl</span>={ftp|http|nfs|file:///}://path/to/repository/  <span style="color: #75715E;"># </span><span style="color: #75715E;">repodata&#25152;&#22312;&#30446;&#24405;, &#21487;&#25351;&#23450;&#22810;&#20010;</span>
+<span style="color: #FD971F;">enabled</span>={1|0}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26159;&#21542;&#21551;&#29992;&#27492;&#20179;&#24211;, &#40664;&#35748;&#20026;1</span>
+<span style="color: #FD971F;">gpgcheck</span>={1|0}  
+<span style="color: #FD971F;">gpgkey</span>={ftp|http|nfs|file:///}://path/to/GPG-PUBKEY-FILE
+<span style="color: #FD971F;">enablegroups</span>={1|0}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26159;&#21542;&#25903;&#25345;&#20351;&#29992;&#32452;&#26469;&#25209;&#37327;&#31649;&#29702;&#31243;&#24207;&#21253;, &#40664;&#35748;&#20026;1 </span>
+<span style="color: #FD971F;">failovermethod</span>={roundrobin|priority}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25925;&#38556;&#36716;&#31227;&#26041;&#27861;{&#38543;&#26426;(&#40664;&#35748;)|&#39034;&#24207;}</span>
+<span style="color: #FD971F;">cost</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#35813;&#20179;&#24211;&#30340;&#20248;&#20808;&#32423;, &#40664;&#35748;&#26159;1000</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">yum的用法</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<p>
+一次只能使用一个yum进行操作
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">yum [options] [command] [package ...]
+  options:
+    --nogpgcheck: &#31105;&#27490;&#36827;&#34892;gpg check
+    -y: &#33258;&#21160;&#22238;&#31572;&#20026;<span style="color: #E6DB74;">"yes"</span>
+    -q: &#38745;&#40664;&#27169;&#24335;
+    <span style="color: #FD971F;">--disablerepo</span>=repoidglob: &#20020;&#26102;&#31105;&#29992;&#27492;&#22788;&#25351;&#23450;&#30340;repo
+    <span style="color: #FD971F;">--enablerepo</span>=repoidglob: &#20020;&#26102;&#21551;&#29992;&#27492;&#22788;&#25351;&#23450;&#30340;repo
+    --noplugins: &#31105;&#29992;&#25152;&#26377;yum&#25554;&#20214;
+
+  command:
+    repolist [all|enabled|disabled]: &#26174;&#31034;&#20179;&#24211;&#21015;&#34920;(&#40664;&#35748;&#26174;&#31034;&#21551;&#29992;&#30340;&#20179;&#24211;)
+    list [all|available|installed|updates] [glob_exp]...: &#26174;&#31034;&#36890;&#37197;&#31526;&#21305;&#37197;&#30340;&#31243;&#24207;&#21253;(&#40664;&#35748;&#26174;&#31034;&#25152;&#26377;&#31243;&#24207;&#21253;)
+    info package: &#26597;&#30475;&#31243;&#24207;&#21253;&#20449;&#24687;(&#30456;&#24403;&#20110;rpm -qi)
+    version: &#26597;&#30475;rpmdb&#30340;&#20449;&#24687;
+
+    provides feature...: &#26597;&#30475;&#25351;&#23450;&#30340;&#29305;&#24615;(&#25110;&#25991;&#20214;)&#26159;&#30001;&#21738;&#20010;&#31243;&#24207;&#21253;&#25152;&#25552;&#20379;(&#30456;&#24403;&#20110;rpm -q --whatprovides)
+    deplist package...: &#26597;&#30475;&#21253;&#30340;&#20381;&#36182;&#20851;&#31995;(&#30456;&#24403;&#20110;rpm -qR)
+    search string...: &#20197;&#25351;&#23450;&#30340;&#20851;&#38190;&#23383;&#25628;&#32034;&#31243;&#24207;&#21253;&#21517;&#21450;summary&#20449;&#24687;
+
+    install package...: &#23433;&#35013;&#31243;&#24207;&#21253;&#25110;&#26412;&#22320;&#31243;&#24207;&#21253;(&#21487;&#25351;&#26126;&#29256;&#26412;)
+    reinstall package...: &#37325;&#26032;&#23433;&#35013;&#31243;&#24207;&#21253;
+    check-update: &#26816;&#26597;&#26159;&#21542;&#26377;&#21487;&#29992;&#21319;&#32423;
+    update [package]...: &#21319;&#32423;&#31243;&#24207;&#21253;&#25110;&#26412;&#22320;&#31243;&#24207;&#21253;
+    downgrade package...: &#38477;&#32423;&#31243;&#24207;&#21253;
+    remove/erase package...: &#21368;&#36733;&#31243;&#24207;&#21253;(&#20250;&#21516;&#26102;&#21368;&#36733;&#20381;&#36182;&#19982;&#27492;&#21253;&#30340;&#31243;&#24207;)
+
+    grouplist [glob]
+    groupinfo group1...
+    groupinstall group1...
+    groupupdate group1...
+    groupremove group1...
+
+    makecache: &#26500;&#24314;&#32531;&#23384;
+    clean [packages|metadata|expire-cache|rpmdb|plugins|all]: &#28165;&#29702;&#26412;&#22320;&#32531;&#23384;
+
+    history [info|list|packages-list|packages-info|summary|addon-info|redo|undo|rollback|new|sync|stats]: &#26597;&#30475;&#21382;&#21490;&#21644;&#22238;&#28378;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">创建yum仓库</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<div class="org-src-container">
+
+<pre class="src src-conf">createrepo [options] DIRECTORY  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#21019;&#24314;repodata</span>
+  --basedir PATH: &#35774;&#23450;repodata&#30340;&#20301;&#32622;, &#40664;&#35748;&#26159;&#24403;&#21069;&#25991;&#20214;&#22841;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">6</span> 程序包编译安装</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">源码的rpm包</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>例如: testapp-VERSION-release.src.rpm</li>
+<li>安装后, 使用 <code>rpmbuild</code> 命令制作成二进制格式的rpm包, 然后再安装</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">源代码的编译</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<ul class="org-ul">
+<li>安装前查看INSTALL，README</li>
+<li>Centos开发工具组件: "Development Tools", "Server Platform Development"</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>项目管理器</dt><dd><ul class="org-ul">
+<li>C、C++: make</li>
+<li>java: maven</li>
+</ul></dd>
+
+<dt>开发工具</dt><dd><ul class="org-ul">
+<li>autoconf: 生成configure脚本</li>
+<li>automake: 生成Makefile.in</li>
+</ul></dd>
+
+<dt>编译C/C++源代码</dt><dd><ol class="org-ol">
+<li><p>
+configure脚本
+</p>
+<ul class="org-ul">
+<li>通过选项传递参数，指定启用特性、安装路径等</li>
+<li>参考用户指定和Makefile.in文件来生成makefile</li>
+<li>检查依赖环境</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">./configure [OPTIONS]
+  --help: &#33719;&#21462;&#20854;&#25903;&#25345;&#20351;&#29992;&#30340;&#36873;&#39033;
+
+  <span style="color: #FD971F;">--prefix</span>=PATH: &#23433;&#35013;&#20301;&#32622;(&#40664;&#35748;&#20026;/usr/local)
+  <span style="color: #FD971F;">--sysconfdir</span>=PATH: &#37197;&#32622;&#25991;&#20214;&#23433;&#35013;&#20301;&#32622;
+
+  System type: &#29992;&#20110;&#20132;&#21449;&#32534;&#35793;
+  Optional Features: &#21487;&#36873;&#29305;&#24615;
+  Optional Packages: &#21487;&#36873;&#21253;
+</pre>
+</div></li>
+<li>make
+<ul class="org-ul">
+<li>根据makefile文件来构建应用程序</li>
+</ul></li>
+<li>make install
+<ul class="org-ul">
+<li>安装到相应的目录</li>
+</ul></li>
+</ol></dd>
+
+<dt>安装后的配置</dt><dd><ol class="org-ol">
+<li>导出二进制程序目录至PATH环境变量中
+<ul class="org-ul">
+<li>编辑文件/etc/profile.d/NAME.sh修改PATH</li>
+</ul></li>
+<li>导出库文件路径
+<ul class="org-ul">
+<li>添加新的库文件路径至/etc/ld.so.conf.d/NAME.conf</li>
+<li>让系统重新生成缓存: <code>ldconfig [-v]</code></li>
+</ul></li>
+<li>导出头文件
+<ul class="org-ul">
+<li>基于链接的方式连接include目录</li>
+</ul></li>
+<li>导出帮助手册
+<ul class="org-ul">
+<li>添加一个MANPATH至/etc/man.config文件</li>
+</ul></li>
+</ol></dd>
+</dl>
+</div>
+</div>
+</div>
