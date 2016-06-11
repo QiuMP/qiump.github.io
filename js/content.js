@@ -6,7 +6,12 @@ generateContent()
  * [generateContent description]
  */
 function generateContent() {
-    var contentToc = document.querySelector('#text-table-of-contents')
+
+    if (document.querySelector('#text-table-of-contents') !== null) {
+        var contentToc = document.querySelector('#text-table-of-contents')
+    } else {
+        var contentToc = document.querySelector('#markdown-toc')
+    }
 
     if (contentToc === null) {
         document.querySelector('#content').style.display = 'none'

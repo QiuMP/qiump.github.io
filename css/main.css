@@ -235,8 +235,6 @@ header {
               color: #fff;
               background-color: #000;
               box-shadow: none; } }
-#table-of-contents {
-  display: none; }
 
 .page[post] .label {
   margin-top: 16px;
@@ -945,7 +943,7 @@ div[class|=outline]:not(.outline-2) {
 }
 
 
-.org-ul {
+.org-ul{
     padding-left: 20px;
 }
 
@@ -953,6 +951,9 @@ div[class|=outline]:not(.outline-2) {
     -webkit-margin-before: 1em;
 }
 
+#table-of-contents,
+#markdown-toc{
+  display: none; }
 
 dd {
     margin-left: 15px;
