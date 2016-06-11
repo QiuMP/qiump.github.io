@@ -11,7 +11,7 @@ brief-intro: Operations Engineer
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://qiump.com" # the base hostname & protocol for your site
 
-permalink: /:year/:month/:day/:title/
+permalink: /blog/:year-:month-:day-:title.html
 
 # other links
 twitter_username: 
