@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Python
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Python Python2.7
 #+JEKYLL_PUBLISHED: true
 
+通过廖雪峰教程学习Python2.7所做的笔记
+
+
+
+
+-----
 * 输入和输出 
 
 ** 输出

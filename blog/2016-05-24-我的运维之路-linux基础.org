@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Linux 运维
 #+JEKYLL_PUBLISHED: true
 
+学习Linux使用的过程所做的笔记
+
+
+
+
+-----
 * 终端
 用户与主机交互，必然用到的设备
 ** 终端的类型

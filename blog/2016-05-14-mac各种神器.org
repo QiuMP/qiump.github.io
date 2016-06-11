@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Mac
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Mac 提升效率神器
 #+JEKYLL_PUBLISHED: true
 
+介绍了各种能提高Mac使用效率的神器
+
+
+
+
+-----
 - Alfred ::
   - 搜索神器，取代Mac自带的Spotlight，配置好能很大的提升效率
 
@@ -43,3 +49,12 @@
 
 - Dash ::
   - 开发人员的神器，可以快速的查看API
+
+- 欧路词典 ::
+  - 分分钟秒有道词典的词典，可以添加自定义词典，同时支持划词操作
+
+- Bartender ::
+  - 管理Mac状态栏的图标，可以折叠比较少用的图标以及调整图标的位置
+
+- iStat Menus ::
+  - 实时在状态栏显示系统的详细状态，十分好用，就是有点贵

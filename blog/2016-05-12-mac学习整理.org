@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Mac
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Mac 快捷键
 #+JEKYLL_PUBLISHED: true
 
+记录了Mac使用中常用的功能以及快捷键
+
+
+
+
+-----
 * Mac开机
 - 可以利用插耳机来避免开机提示音
 - 系统引导的时候长按 ⌥ 来选择启动磁盘

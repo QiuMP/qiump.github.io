@@ -1,0 +1,9 @@
+#+TITLE: Linux网络配置
+#+DATE: 2016-06-11
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: 
+#+JEKYLL_PUBLISHED: true
+
+* 

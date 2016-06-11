@@ -3,9 +3,16 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Linux 运维 Centos 程序安装
 #+JEKYLL_PUBLISHED: true
 
+总结了Centos中的程序包管理操作，包括rpm、yum命令的使用、yum仓库相关的知识，以及如何用源码来安装和配置程序，如何查询文件和程序的依赖性等
+
+
+
+
+
+-----
 * 程序相关
 - POSIX: Portable OS, API级别的兼容
 - 程序源代码 -> 预处理 -> 编译 -> 汇编 -> 链接(动态库: .so)

@@ -3,10 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Linux 开源协议
 #+JEKYLL_PUBLISHED: true
 
 一张图片说明市面上流行的开源协定（GPL、BSD、MIT、Mozilla、Apache和LGPL）之间的差异
+
+
+
+
+-----
 
 转载自：http://www.ruanyifeng.com/blog/2011/05/how_to_choose_free_software_licenses.html
 

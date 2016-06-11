@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Dot
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: Dot Graphviz 绘图
 #+JEKYLL_PUBLISHED: true
 
+TODO 简要介绍了如何使用DOT语言来绘制各种关系图
+
+
+
+
+-----
 * Dot语言
 - Dot语言由3个主要对象组成：图graph，点node，边edge
 - graph分为三种

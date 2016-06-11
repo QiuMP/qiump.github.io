@@ -3,9 +3,15 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: 计算机网络
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: 计算机网络 局域网 TCP
 #+JEKYLL_PUBLISHED: true
 
+简单介绍了局域网相关的概念，分析TCP/IP的连接协议、终止协议，总结了TCP/IP在连接过程中的各种状态
+
+
+
+
+-----
 * 局域网
 - 以太网，令牌环网
 - CSMA/CD: 解决局域网内不同主机同时发送的冲突问题(冲突域)

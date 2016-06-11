@@ -2,11 +2,16 @@
 #+DATE: 2016-03-21
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 高性能Linux服务器构建实战
-#+JEKYLL_TAGS: 
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 安全
 #+JEKYLL_PUBLISHED: true
 
-#+OPTIONS: num:2
+Linux服务器在使用过程中需要注意的几个安全问题
+
+
+
+
+-----
 
 * 账号和登录安全
 ** 删除特殊的用户和用户组

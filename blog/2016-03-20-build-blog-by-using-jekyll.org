@@ -3,10 +3,17 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: jekyll
-#+JEKYLL_TAGS: 
+#+JEKYLL_TAGS: jekyll 网站
 #+JEKYLL_PUBLISHED: true
 
 #+OPTIONS: num:2
+
+TODO
+
+
+
+
+-----
 * 安装与配置
 This is test
 : adfaadsfasdf
