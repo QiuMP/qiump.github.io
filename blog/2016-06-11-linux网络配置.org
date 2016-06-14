@@ -6,7 +6,7 @@
 #+jekyll_tags: linux 运维 网络
 #+jekyll_published: true
 
-linux网络配置的过程，以及配置的工具：ifconfig, route, netstat, ip等
+linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等
 
 
 
@@ -14,12 +14,44 @@ linux网络配置的过程，以及配置的工具：ifconfig, route, netstat, i
 -----
 * 网络接口
 ** 网络接口的命名方式
-- centos 6: 根据网卡的mac地址来顺序命名
-  - 以太网：eth[0,1,2...]
-  - ppp：ppp[0,1,2...]
-- centos 7: 根据硬件插槽来进行命名
+*** CentOS6
+CentOS6是根据网卡的mac地址来顺序命名
+- 以太网: eth[0,1,2...]
+- ppp: ppp[0,1,2...]
+*** CentOS7
+- system对网络设备的命名方式 ::
+  1. 如果Firmware或BIOS为主板上集成的设备提供的索引信息可用，且可预测则根据此索引进行命名，例如eno1
+  2. 如果Firmware或BIOS为PCI-E扩展槽所提供的索引信息可用，且可预测，则根据此索引进行命名，例如ens1
+  3. 如果硬件接口的物理位置信息可用，则根据此信息进行命名，例如enp2s0
+  4. 如果用户显式启动，也可根据MAC地址进行命名，enx2387a1dc5632
+  5. 上述均不可用时，则使用传统命名机制
+- 设备类型 ::
+  - en: ethernet
+  - wl: wlan
+  - ww: wwan
+- 名称类型 ::
+  - o<index>: 集成设备的设备索引号
+  - s<slot>: 扩展槽的索引号
+  - p<bus>s<slot>: 总线插槽
+  - x<MAC>: 基于MAC地址的命名
+- 命名过程 ::
+  1. udev: =/usr/lib/udev/rules.d/60-net.rules=
+  2. biosdevname: =/usr/lib/udev/rules.d/71-biosdevname.rules=
+  3. 通过检测网络接口设备: =/usr/lib/udev/rules.d/75-net-description.rules=
+- 回归传统命名方式 ::
+  1. 编辑/etc/default/grub配置文件
+     #+BEGIN_SRC conf
+     GRUB_CMDLINE_LINUX="net.ifnames=0 rhgb quiet"
+     #+END_SRC
+  2. 为grub2生成其配置文件
+     #+BEGIN_SRC conf
+     grub2-mkconfig -o /etc/grub2.cfg
+     #+END_SRC
+  3. 重启系统
+
 ** 网络接口识别与命名相关的配置文件 
 该配置文件在: =/etc/udev/rules.d/70-persistent-net.rules=
+- 若要立即生效需要重新载入网卡驱动
 - 通过该配置文件可以知道网卡设备的驱动名
 #+BEGIN_SRC conf
 modprobe -r 驱动   # 卸载驱动
@@ -30,6 +62,8 @@ modprobe 驱动   # 装载驱动
 ** 命令设置
 #+BEGIN_SRC conf
 hostname [HOSTNAME]
+hostnamectl set-hostname [HOSTNAME]
+hostnamectl status  # 可以显示当前主机的详细信息
 #+END_SRC
 ** 配置文件设置
 修改 =/etc/sysconfig/network=, 需要重启生效
@@ -158,7 +192,7 @@ ss [OPTIONS] [FILTER]
   -t: tcp协议相关
   -u: udp协议相关
   -w: raw套接字相关
-  -x：unix sock相关
+  -x: unix sock相关
   -a: 所有
 
   -l: listen状态的连接
@@ -167,16 +201,27 @@ ss [OPTIONS] [FILTER]
   -p: 相关的程序及PID
   -e: 扩展的信息
 
-  -m：内存用量
-  -o：计时器信息
+  -m: 内存用量
+  -o: 计时器信息
 
   state TCP-STATE: 显示指定状态的端口
   EXPRESSION: 可以指定更多的过滤条件
     '( dport = :ssh or sport = :ssh)': 指定源端口和目的端口
 #+END_SRC
-** system-config-network-tui
-一个交互式网络配置程序, 也可以使用 =setup= 找到
+** nmcli
+一个使用NetworkManager的网络配置工具
+#+BEGIN_SRC conf
+nmcli [OPTIONS] OBJECT {COMMAND|help}
+  device: 查询和管理网络接口
+  connection: 设置网络连接
 
+nmcli device show eth0  # 查询接口的setting.property列表
+nmcli connection modify IFACE [+|-]setting.property value  # 设置接口属性，设置后需要重启接口
+  setting.property: ipv4.{addresses|gateway|dns|method}
+nmcli connection {up|down} IFACE  # 禁用和启用接口
+#+END_SRC
+** nmtui
+一个使用NetworkManager的交互式网络配置工具
 * 网络配置文件
 - 修改配置文件可以永久有效
 - 配置要立即生效需要重启网卡: 
@@ -218,9 +263,12 @@ IP、MASK、GW、DNS相关配置文件: =/etc/sysconfig/network-scripts/ifcfg-IF
 |                   |                                                                           |
 | USERCTL           | 普通用户是否可控制此设备                                                  |
 | PEERDNS           | 是否允许dhcp服务器分配的dns服务器指向信息直接覆盖至/etc/resolv.conf文件中 |
+| PEERROUTES        | 是否允许使用dhcp服务器的路由表设置                                                       |
 ** 路由器配置
 修改 =/etc/sysconfig/network-scripts/route-IFACE= 来设置路由表
 - 该文件每行的格式是: =IPADDR/MASK via GW=
 ** 给网卡配置多地址
 添加配置文件 =/etc/sysconfig/network-scripts/ifcfg-IFACE:ALIAS=
 - 网卡别名不能使用dhcp
+** system-config-network-tui
+一个交互式修改网络配置文件的程序, 也可以使用 =setup= 找到

@@ -15,70 +15,131 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline3">1. 网络接口</a>
+<li><a href="#orgheadline5">1. 网络接口</a>
 <ul>
-<li><a href="#orgheadline1">网络接口的命名方式</a></li>
-<li><a href="#orgheadline2">网络接口识别与命名相关的配置文件</a></li>
+<li><a href="#orgheadline3">网络接口的命名方式</a>
+<ul>
+<li><a href="#orgheadline1">CentOS6</a></li>
+<li><a href="#orgheadline2">CentOS7</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline6">2. 当前主机的主机名</a>
-<ul>
-<li><a href="#orgheadline4">命令设置</a></li>
-<li><a href="#orgheadline5">配置文件设置</a></li>
+<li><a href="#orgheadline4">网络接口识别与命名相关的配置文件</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline13">3. 网络配置命令</a>
+<li><a href="#orgheadline8">2. 当前主机的主机名</a>
 <ul>
-<li><a href="#orgheadline7">ifconfig</a></li>
-<li><a href="#orgheadline8">route</a></li>
-<li><a href="#orgheadline9">netstat</a></li>
-<li><a href="#orgheadline10">ip</a></li>
-<li><a href="#orgheadline11">ss</a></li>
-<li><a href="#orgheadline12">system-config-network-tui</a></li>
+<li><a href="#orgheadline6">命令设置</a></li>
+<li><a href="#orgheadline7">配置文件设置</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline18">4. 网络配置文件</a>
+<li><a href="#orgheadline16">3. 网络配置命令</a>
 <ul>
-<li><a href="#orgheadline14">DNS服务器的指定</a></li>
-<li><a href="#orgheadline15">IP配置文件</a></li>
-<li><a href="#orgheadline16">路由器配置</a></li>
-<li><a href="#orgheadline17">给网卡配置多地址</a></li>
+<li><a href="#orgheadline9">ifconfig</a></li>
+<li><a href="#orgheadline10">route</a></li>
+<li><a href="#orgheadline11">netstat</a></li>
+<li><a href="#orgheadline12">ip</a></li>
+<li><a href="#orgheadline13">ss</a></li>
+<li><a href="#orgheadline14">nmcli</a></li>
+<li><a href="#orgheadline15">nmtui</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline22">4. 网络配置文件</a>
+<ul>
+<li><a href="#orgheadline17">DNS服务器的指定</a></li>
+<li><a href="#orgheadline18">IP配置文件</a></li>
+<li><a href="#orgheadline19">路由器配置</a></li>
+<li><a href="#orgheadline20">给网卡配置多地址</a></li>
+<li><a href="#orgheadline21">system-config-network-tui</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <p>
-linux网络配置的过程，以及配置的工具：ifconfig, route, netstat, ip等
+linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等
 </p>
 
 
 
 
 <hr  />
-<div id="outline-container-orgheadline3" class="outline-2">
-<h2 id="orgheadline3"><span class="section-number-2">1</span> 网络接口</h2>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">1</span> 网络接口</h2>
 <div class="outline-text-2" id="text-1">
-</div><div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">网络接口的命名方式</h3>
-<div class="outline-text-3" id="text-orgheadline1">
+</div><div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">网络接口的命名方式</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+</div><div id="outline-container-orgheadline1" class="outline-4">
+<h4 id="orgheadline1">CentOS6</h4>
+<div class="outline-text-4" id="text-orgheadline1">
+<p>
+CentOS6是根据网卡的mac地址来顺序命名
+</p>
 <ul class="org-ul">
-<li>centos 6: 根据网卡的mac地址来顺序命名
-<ul class="org-ul">
-<li>以太网：eth[0,1,2&#x2026;]</li>
-<li>ppp：ppp[0,1,2&#x2026;]</li>
-</ul></li>
-<li>centos 7: 根据硬件插槽来进行命名</li>
+<li>以太网: eth[0,1,2&#x2026;]</li>
+<li>ppp: ppp[0,1,2&#x2026;]</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">网络接口识别与命名相关的配置文件</h3>
-<div class="outline-text-3" id="text-orgheadline2">
+<div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2">CentOS7</h4>
+<div class="outline-text-4" id="text-orgheadline2">
+<dl class="org-dl">
+<dt>system对网络设备的命名方式</dt><dd><ol class="org-ol">
+<li>如果Firmware或BIOS为主板上集成的设备提供的索引信息可用，且可预测则根据此索引进行命名，例如eno1</li>
+<li>如果Firmware或BIOS为PCI-E扩展槽所提供的索引信息可用，且可预测，则根据此索引进行命名，例如ens1</li>
+<li>如果硬件接口的物理位置信息可用，则根据此信息进行命名，例如enp2s0</li>
+<li>如果用户显式启动，也可根据MAC地址进行命名，enx2387a1dc5632</li>
+<li>上述均不可用时，则使用传统命名机制</li>
+</ol></dd>
+<dt>设备类型</dt><dd><ul class="org-ul">
+<li>en: ethernet</li>
+<li>wl: wlan</li>
+<li>ww: wwan</li>
+</ul></dd>
+<dt>名称类型</dt><dd><ul class="org-ul">
+<li>o&lt;index&gt;: 集成设备的设备索引号</li>
+<li>s&lt;slot&gt;: 扩展槽的索引号</li>
+<li>p&lt;bus&gt;s&lt;slot&gt;: 总线插槽</li>
+<li>x&lt;MAC&gt;: 基于MAC地址的命名</li>
+</ul></dd>
+<dt>命名过程</dt><dd><ol class="org-ol">
+<li>udev: <code>/usr/lib/udev/rules.d/60-net.rules</code></li>
+<li>biosdevname: <code>/usr/lib/udev/rules.d/71-biosdevname.rules</code></li>
+<li>通过检测网络接口设备: <code>/usr/lib/udev/rules.d/75-net-description.rules</code></li>
+</ol></dd>
+<dt>回归传统命名方式</dt><dd><ol class="org-ol">
+<li><p>
+编辑/etc/default/grub配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">GRUB_CMDLINE_LINUX</span>=<span style="color: #E6DB74;">"net.ifnames=0 rhgb quiet"</span>
+</pre>
+</div></li>
+<li><p>
+为grub2生成其配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">grub2-mkconfig -o /etc/grub2.cfg
+</pre>
+</div></li>
+<li>重启系统</li>
+</ol></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">网络接口识别与命名相关的配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline4">
 <p>
 该配置文件在: <code>/etc/udev/rules.d/70-persistent-net.rules</code>
 </p>
 <ul class="org-ul">
+<li>若要立即生效需要重新载入网卡驱动</li>
 <li>通过该配置文件可以知道网卡设备的驱动名</li>
 </ul>
 <div class="org-src-container">
@@ -91,22 +152,24 @@ modprobe &#39537;&#21160;   <span style="color: #75715E;"># </span><span style="
 </div>
 </div>
 
-<div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6"><span class="section-number-2">2</span> 当前主机的主机名</h2>
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">2</span> 当前主机的主机名</h2>
 <div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline4" class="outline-3">
-<h3 id="orgheadline4">命令设置</h3>
-<div class="outline-text-3" id="text-orgheadline4">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">命令设置</h3>
+<div class="outline-text-3" id="text-orgheadline6">
 <div class="org-src-container">
 
 <pre class="src src-conf">hostname [HOSTNAME]
+hostnamectl set-hostname [HOSTNAME]
+hostnamectl status  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#26174;&#31034;&#24403;&#21069;&#20027;&#26426;&#30340;&#35814;&#32454;&#20449;&#24687;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline5" class="outline-3">
-<h3 id="orgheadline5">配置文件设置</h3>
-<div class="outline-text-3" id="text-orgheadline5">
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置文件设置</h3>
+<div class="outline-text-3" id="text-orgheadline7">
 <p>
 修改 <code>/etc/sysconfig/network</code>, 需要重启生效
 </p>
@@ -117,16 +180,16 @@ modprobe &#39537;&#21160;   <span style="color: #75715E;"># </span><span style="
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-2">
-<h2 id="orgheadline13"><span class="section-number-2">3</span> 网络配置命令</h2>
+<div id="outline-container-orgheadline16" class="outline-2">
+<h2 id="orgheadline16"><span class="section-number-2">3</span> 网络配置命令</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li>使用命令配置一般只对当前有效</li>
 </ul>
 </div>
-<div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">ifconfig</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">ifconfig</h3>
+<div class="outline-text-3" id="text-orgheadline9">
 <p>
 用于查询或配置网络设备
 </p>
@@ -147,9 +210,9 @@ ifconfig IFACE [-]promisc  <span style="color: #75715E;"># </span><span style="c
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">route</h3>
-<div class="outline-text-3" id="text-orgheadline8">
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">route</h3>
+<div class="outline-text-3" id="text-orgheadline10">
 <p>
 用于查询和管理路由信息
 </p>
@@ -189,9 +252,9 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 172.16.0.1  <span style="color: #75715
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">netstat</h3>
-<div class="outline-text-3" id="text-orgheadline9">
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">netstat</h3>
+<div class="outline-text-3" id="text-orgheadline11">
 <p>
 用于查询网络连接、路由表、接口信息、伪装连接、组播连接等功能
 </p>
@@ -229,9 +292,9 @@ netstat -I[IFACE]  <span style="color: #75715E;"># </span><span style="color: #7
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">ip</h3>
-<div class="outline-text-3" id="text-orgheadline10">
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">ip</h3>
+<div class="outline-text-3" id="text-orgheadline12">
 <p>
 用于配置网络的各种属性
 </p>
@@ -296,9 +359,9 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">ss</h3>
-<div class="outline-text-3" id="text-orgheadline11">
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">ss</h3>
+<div class="outline-text-3" id="text-orgheadline13">
 <p>
 管理套接字
 </p>
@@ -308,7 +371,7 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
   -t: tcp&#21327;&#35758;&#30456;&#20851;
   -u: udp&#21327;&#35758;&#30456;&#20851;
   -w: raw&#22871;&#25509;&#23383;&#30456;&#20851;
-  -x&#65306;unix sock&#30456;&#20851;
+  -x: unix sock&#30456;&#20851;
   -a: &#25152;&#26377;
 
   -l: listen&#29366;&#24577;&#30340;&#36830;&#25509;
@@ -317,8 +380,8 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
   -p: &#30456;&#20851;&#30340;&#31243;&#24207;&#21450;PID
   -e: &#25193;&#23637;&#30340;&#20449;&#24687;
 
-  -m&#65306;&#20869;&#23384;&#29992;&#37327;
-  -o&#65306;&#35745;&#26102;&#22120;&#20449;&#24687;
+  -m: &#20869;&#23384;&#29992;&#37327;
+  -o: &#35745;&#26102;&#22120;&#20449;&#24687;
 
   state TCP-STATE: &#26174;&#31034;&#25351;&#23450;&#29366;&#24577;&#30340;&#31471;&#21475;
   EXPRESSION: &#21487;&#20197;&#25351;&#23450;&#26356;&#22810;&#30340;&#36807;&#28388;&#26465;&#20214;
@@ -327,18 +390,37 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">system-config-network-tui</h3>
-<div class="outline-text-3" id="text-orgheadline12">
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">nmcli</h3>
+<div class="outline-text-3" id="text-orgheadline14">
 <p>
-一个交互式网络配置程序, 也可以使用 <code>setup</code> 找到
+一个使用NetworkManager的网络配置工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">nmcli [OPTIONS] OBJECT {COMMAND|help}
+  device: &#26597;&#35810;&#21644;&#31649;&#29702;&#32593;&#32476;&#25509;&#21475;
+  connection: &#35774;&#32622;&#32593;&#32476;&#36830;&#25509;
+
+nmcli device show eth0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25509;&#21475;&#30340;setting.property&#21015;&#34920;</span>
+nmcli connection modify IFACE [+|-]setting.property value  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#25509;&#21475;&#23646;&#24615;&#65292;&#35774;&#32622;&#21518;&#38656;&#35201;&#37325;&#21551;&#25509;&#21475;</span>
+  setting.property: ipv4.{addresses|gateway|dns|method}
+nmcli connection {up|down} IFACE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31105;&#29992;&#21644;&#21551;&#29992;&#25509;&#21475;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">nmtui</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<p>
+一个使用NetworkManager的交互式网络配置工具
 </p>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgheadline18" class="outline-2">
-<h2 id="orgheadline18"><span class="section-number-2">4</span> 网络配置文件</h2>
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22"><span class="section-number-2">4</span> 网络配置文件</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>修改配置文件可以永久有效</li>
@@ -350,9 +432,9 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
 </pre>
 </div>
 </div>
-<div id="outline-container-orgheadline14" class="outline-3">
-<h3 id="orgheadline14">DNS服务器的指定</h3>
-<div class="outline-text-3" id="text-orgheadline14">
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">DNS服务器的指定</h3>
+<div class="outline-text-3" id="text-orgheadline17">
 <p>
 修改 <code>/etc/resolv.conf</code> 即可
 </p>
@@ -385,9 +467,9 @@ host -t PTR IP
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15">IP配置文件</h3>
-<div class="outline-text-3" id="text-orgheadline15">
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">IP配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline18">
 <p>
 IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifcfg-IFACE</code>
 </p>
@@ -479,13 +561,18 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 <td class="org-left">PEERDNS</td>
 <td class="org-left">是否允许dhcp服务器分配的dns服务器指向信息直接覆盖至/etc/resolv.conf文件中</td>
 </tr>
+
+<tr>
+<td class="org-left">PEERROUTES</td>
+<td class="org-left">是否允许使用dhcp服务器的路由表设置</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16">路由器配置</h3>
-<div class="outline-text-3" id="text-orgheadline16">
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">路由器配置</h3>
+<div class="outline-text-3" id="text-orgheadline19">
 <p>
 修改 <code>/etc/sysconfig/network-scripts/route-IFACE</code> 来设置路由表
 </p>
@@ -494,15 +581,23 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-3">
-<h3 id="orgheadline17">给网卡配置多地址</h3>
-<div class="outline-text-3" id="text-orgheadline17">
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">给网卡配置多地址</h3>
+<div class="outline-text-3" id="text-orgheadline20">
 <p>
 添加配置文件 <code>/etc/sysconfig/network-scripts/ifcfg-IFACE:ALIAS</code>
 </p>
 <ul class="org-ul">
 <li>网卡别名不能使用dhcp</li>
 </ul>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">system-config-network-tui</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<p>
+一个交互式修改网络配置文件的程序, 也可以使用 <code>setup</code> 找到
+</p>
 </div>
 </div>
 </div>
