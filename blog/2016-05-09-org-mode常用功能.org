@@ -33,8 +33,7 @@
 ** 结构编辑
 | M-RET     | 插入一个同级标题，会进行截断                 |
 | C-RET     | 在该文本块下边插入一个同级标题               |
-| M-S-RET   | 插入一个和当前标题同级的 TODO 项，会进行截断 |
-| C-S-RET   | 在该文本块插入一个和当前标题同级的 TODO 项   |
+| M-S-RET/T | 插入一个和当前标题同级的 TODO 项，会进行截断 |
 | M-o       | 插入一个当前标题下一级的标题                 |
 | M-t       | 插入一个当前标题下一级的 TODO 项             |
 |           |                                              |
@@ -52,6 +51,7 @@
 - 根据提供的关键字抽取出稀疏的树
 | C-c /   | 进入稀疏树的创建命令 |
 | C-c / / | 输入稀疏树的匹配串   |
+| C-c / t | 在稀疏树中显示TODO项 |
 | C-c C-c | 取消稀疏树的高亮     |
 
 ** 本文列表
@@ -125,8 +125,7 @@
 | C-c &       | 跳回到一个已记录的地址。用 C-c % 可以将地址记录下来，内部链接后面的命令也会自动将地址记录下来。使用这个命令多次可以一直往前定位。 |
 
 - 外部连接 ::
-  #+BEGIN_EXAMPLE
-  http://www.astro.uva.nl/~dominik            on the web
+  #+BEGIN_EXAMPLE http://www.astro.uva.nl/~dominik            on the web
   file:/home/dominik/images/jupiter.jpg       file, absolute path
   /home/dominik/images/jupiter.jpg            same as above
   file:papers/last.pdf                        file, relative path
@@ -147,6 +146,93 @@
   #+END_EXAMPLE
 
 -----
+* TODO项目
+** 使用TODO
+当标题后接上TODO的时候就成为了一个TODO项
+- 快捷键 ::
+| t         | 将当前项的状态进行循环：(unmarked) -> TODO -> DONE |
+| M-S-RET/T | 插入一个和当前标题同级的 TODO 项，会进行截断       |
+| C-c / t   | 在稀疏树中显示TODO项                               |
+|           |                                                    |
+| C-c a t   | 显示全局TODO列表，从所有议程文件中收集             |
+** 使用多种TODO状态
+#+BEGIN_SRC elisp
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "|" "DONE(d)")
+        (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+        (sequence "|" "CANCELED(c)")))  ;; 永久有效
+
+#+TODO: REPORT(r) BUG(b) KNOWNCAUSE(k) | FIXED(f)  ;; 仅对当前文件有效
+#+END_SRC
+- 在关键字后面括号中给出快捷字母: 当用C-c C-t时，会让你输入一个字母。
+** 进度日志
+- 完成项目的操作 ::
+  - =(setq org-log-done 'time)=: 状态变成完成时会记录一个时间
+  - =(setq org-log-done 'note)=: 状态变成完成时会提示输入一个记录
+- 自定义TODO状态的操作 ::
+  - =#+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)=
+  - 括号内指定"!"表示记录时间戳，"@"表示作一个记录
+** 优先级
+- 优先级按高到低排序为：A, B, C
+- 默认的优先级是B
+
+
+- 快捷键 ::
+| C-c , | 设置当前标题的优先级 |
+** 任务进度
+可以在标题的任何地方插入 =[/]= 或 =[%]= ，当子TODO完成的时候这些状态会随之更新
+** 复选框
+当纯文本中的项以‘[]’开头时，就会变成一个复选框。复选框能将一个任务划分成几个简单的步骤
+- [-] call people [1/2]
+  - [ ] Peter
+  - [X] Sarah
+- [ ] order food
+
+
+- 快捷键 ::
+| C-c C-c   | 触发复选框的状态       |
+| M-S-RET/T | 增加一个带有复选框的项 |
+
+-----
+* 标签
+** 设定标签
+- 每个标题可以包含多个标签，位于标题后边，格式为":work:no:"
+- 每个标题的子标题会继承其标签，可以用 =#+FILETAGS: :Peter:Boss:Secret:= 来设置全局标签
+
+
+- 快捷键 ::
+| C-c C-q | 为当前标题输入标签，支持补全          |
+| C-c C-c | 当光标位于标题上时，功能和C-c C-q一样 |
+** 设置标签选择
+- 默认 Org 模式用一个迷你缓冲区补全设施来输入标签，可以自行添加补全列表
+#+BEGIN_SRC elisp
+#+TAGS: @work @home @tennisclub
+#+TAGS: laptop car pc sailboat
+#+END_SRC
+- 快速标签选择使得你只用按一次键就可以选择或者取消一个标签
+#+BEGIN_SRC elisp
+(setq org-tag-alist '(("@work" . ?w) ("@home" . ?h) ("laptop" . ?l)))
+#+TAGS: @work(w) @home(h) @tennisclub(t) laptop(l) pc(p)
+#+END_SRC
+** 标签查找
+| C-c \   | 用匹配标签搜索的所有标题构造一个稀疏树                                       |
+| C-c a m | 用所有议程文件匹配的标签构造一个全局列表                                     |
+| C-c a M | 用所有议程文件匹配的标签构造一个全局列表，但只搜索TODO项，并强制搜索所有子项 | 
+- 搜索的时候可以使用特殊符号
+  - =+a+b-c=: 表示搜索带标签a和b但不含c的项
+  - =a|b=: 表示搜索包含a或b的项
+* 属性
+属性是一些与条目关联的键值对。它们位于一个名为 PROPERTIES 的特殊抽屉中。第一个属性都单独一行，键在前（被冒号包围），值在后。
+- =:Xyz_ALL:=: 后缀为_ALL的属性具有继承性
+- =#+PROPERTY: NDisks_ALL 1 2 3 4=: 用于设置全局属性
+
+
+- 快捷键 ::
+| C-c C-x p | 设置一个属性 |
+| , P       | 设置一个属性 |
+| C-c C-c d | 删除一个属性 |
+* 捕获——转发——存档
+
 * 特殊的技巧
 - 使用 *==...==* 来使用特殊字符
 - 使用 <s 再按 TAB 键，快速输入 #+BEGIN... #+END...

@@ -101,7 +101,34 @@ comments:
 <li><a href="#orgheadline53">使用__future__</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline55">7. 面向对象编程</a></li>
+<li><a href="#orgheadline66">7. 面向对象编程</a>
+<ul>
+<li><a href="#orgheadline55">类与实例</a></li>
+<li><a href="#orgheadline58">继承和多态</a>
+<ul>
+<li><a href="#orgheadline56">继承</a></li>
+<li><a href="#orgheadline57">多态</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline62">获取对象信息</a>
+<ul>
+<li><a href="#orgheadline59">type()</a></li>
+<li><a href="#orgheadline60">isinstance()</a></li>
+<li><a href="#orgheadline61">dir()与hasattr()</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline63">为类绑定方法</a></li>
+<li><a href="#orgheadline64">使用@property</a></li>
+<li><a href="#orgheadline65">多重继承</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline70">8. 定制类</a>
+<ul>
+<li><a href="#orgheadline67">__slots__</a></li>
+<li><a href="#orgheadline68">__str__ 与 <span class="underline"><span class="underline">repr</span></span></a></li>
+<li><a href="#orgheadline69">__iter__</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1148,12 +1175,274 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 
-<div id="outline-container-orgheadline55" class="outline-2">
-<h2 id="orgheadline55"><span class="section-number-2">7</span> 面向对象编程</h2>
+<div id="outline-container-orgheadline66" class="outline-2">
+<h2 id="orgheadline66"><span class="section-number-2">7</span> 面向对象编程</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
-<li>面向对象的设计思想是抽象出Class，根据Class创建Instance</li>
-<li>面向对象的抽象程度又比函数要高，因为一个Class即包含数据，又包含操作数据的方法</li>
+<li>面向对象的抽象程度比函数要高，因为一个Class即包含数据，又包含操作数据的方法</li>
 </ul>
+</div>
+
+<div id="outline-container-orgheadline55" class="outline-3">
+<h3 id="orgheadline55">类与实例</h3>
+<div class="outline-text-3" id="text-orgheadline55">
+<ul class="org-ul">
+<li>面向对象的设计思想是抽象出Class，根据Class创建Instance</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Student</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#31867;</span>
+    <span style="color: #F92672;">pass</span>
+
+<span style="color: #FD971F;">bart</span> = Student<span style="color: #AE81FF;">()</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#23454;&#20363;</span>
+<span style="color: #FD971F;">bart.name</span> = <span style="color: #E6DB74;">'no'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#33258;&#30001;&#22320;&#32473;&#19968;&#20010;&#23454;&#20363;&#32465;&#23450;&#23646;&#24615;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>类的初始化</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Student</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">__init__</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span>, name, score<span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#23454;&#20363;&#30340;&#26102;&#20505;&#36816;&#34892;&#30340;&#26500;&#24314;&#20989;&#25968;</span>
+        <span style="color: #F92672;">self</span>.name = name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32465;&#23450;&#23646;&#24615;</span>
+        <span style="color: #F92672;">self</span>.score = score
+        <span style="color: #F92672;">self</span>.__name = yes  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31169;&#26377;&#21464;&#37327;</span>
+
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">get_grade</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#31867;&#30340;&#26041;&#27861;, &#31532;&#19968;&#20010;&#21442;&#25968;&#24517;&#39035;&#20026;self</span>
+        <span style="color: #F92672;">return</span> <span style="color: #F92672;">self</span>.score
+
+<span style="color: #FD971F;">qiump</span> = Student<span style="color: #AE81FF;">(</span>qiump, <span style="color: #AE81FF;">89</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21442;&#25968;&#23545;&#24212;&#20110;init&#20013;&#30340;&#21442;&#25968;</span>
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><p>
+私有变量
+</p>
+<ul class="org-ul">
+<li>私有变量是以 <code>__</code> 为开头的变量，只有内部可以访问</li>
+<li>而 <code>__xxx__</code> 是特殊变量，并不是私有变量</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">len</span><span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'ABC'</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#32622;&#30340;len&#26041;&#27861;&#20854;&#23454;&#26159;&#30452;&#25509;&#35843;&#29992;__len__&#20989;&#25968;</span>
+<span style="color: #E6DB74;">'ABC'</span>.__len__<span style="color: #AE81FF;">()</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#33258;&#23450;&#20041;__len__&#26041;&#27861;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline58" class="outline-3">
+<h3 id="orgheadline58">继承和多态</h3>
+<div class="outline-text-3" id="text-orgheadline58">
+</div><div id="outline-container-orgheadline56" class="outline-4">
+<h4 id="orgheadline56">继承</h4>
+<div class="outline-text-4" id="text-orgheadline56">
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Animal</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">run</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:
+        <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'Animal'</span>
+
+
+<span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Dog</span><span style="color: #AE81FF;">(</span>Animal<span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23376;&#31867;&#25317;&#26377;&#29238;&#31867;&#30340;run&#26041;&#27861;</span>
+    <span style="color: #F92672;">pass</span>
+
+
+<span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Cat</span><span style="color: #AE81FF;">(</span>Animal<span style="color: #AE81FF;">)</span>:
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">run</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23376;&#31867;&#30340;&#26041;&#27861;&#20250;&#35206;&#30422;&#29238;&#31867;&#30340;&#21516;&#21517;&#26041;&#27861;</span>
+        <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'cat'</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline57" class="outline-4">
+<h4 id="orgheadline57">多态</h4>
+<div class="outline-text-4" id="text-orgheadline57">
+<ul class="org-ul">
+<li>子类可以赋予给一个父类的对象</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #FD971F;">a</span> = Dog<span style="color: #AE81FF;">()</span>
+<span style="color: #F92672;">print</span> <span style="color: #F92672;">isinstance</span><span style="color: #AE81FF;">(</span>a, Animal<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">a&#21516;&#26102;&#26159;Dog&#31867;&#20063;&#26159;Animal&#31867;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline62" class="outline-3">
+<h3 id="orgheadline62">获取对象信息</h3>
+<div class="outline-text-3" id="text-orgheadline62">
+</div><div id="outline-container-orgheadline59" class="outline-4">
+<h4 id="orgheadline59">type()</h4>
+<div class="outline-text-4" id="text-orgheadline59">
+<ul class="org-ul">
+<li><code>type()</code> 函数可以用来判断对象类型</li>
+<li>type所返回的类型是type类型</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">import</span> types
+
+<span style="color: #F92672;">type</span><span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'abc'</span><span style="color: #AE81FF;">)</span> == types.StringType
+<span style="color: #F92672;">type</span><span style="color: #AE81FF;">(</span>u<span style="color: #E6DB74;">'abc'</span><span style="color: #AE81FF;">)</span> == types.UnicodeType
+<span style="color: #F92672;">type</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[]</span><span style="color: #AE81FF;">)</span> == types.ListType
+<span style="color: #F92672;">type</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">str</span><span style="color: #AE81FF;">)</span> == types.TypeType  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;&#31867;&#22411;&#30340;&#26412;&#36523;&#23601;&#26159;TypeType</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline60" class="outline-4">
+<h4 id="orgheadline60">isinstance()</h4>
+<div class="outline-text-4" id="text-orgheadline60">
+<ul class="org-ul">
+<li>方便判断class的类型，子类的类型是父类的类型</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">isinstance</span><span style="color: #AE81FF;">(</span>u<span style="color: #E6DB74;">'a'</span>, <span style="color: #F92672;">unicode</span><span style="color: #AE81FF;">)</span>
+<span style="color: #F92672;">isinstance</span><span style="color: #AE81FF;">(</span>u<span style="color: #E6DB74;">'a'</span>, <span style="color: #66D9EF;">(</span><span style="color: #F92672;">str</span>, <span style="color: #F92672;">unicode</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#21028;&#26029;&#19968;&#20010;&#21464;&#37327;&#26159;&#19981;&#26159;&#20854;&#20013;&#19968;&#31181;</span>
+<span style="color: #F92672;">isinstance</span><span style="color: #AE81FF;">(</span>u<span style="color: #E6DB74;">'a'</span>, <span style="color: #F92672;">basestring</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">str&#21644;unicode&#37117;&#26159;&#20174;basestring&#32487;&#25215;&#19979;&#26469;&#30340;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline61" class="outline-4">
+<h4 id="orgheadline61">dir()与hasattr()</h4>
+<div class="outline-text-4" id="text-orgheadline61">
+<ul class="org-ul">
+<li>dir()用于获得一个对象的所有属性和方法，返回一个包含字符串的list</li>
+<li>hasattr()用于判断一个对象是否含有指定属性</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">hasattr</span><span style="color: #AE81FF;">(</span>obj, <span style="color: #E6DB74;">'x'</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26816;&#27979;obj&#26159;&#21542;&#26377;&#23646;&#24615;&#25110;&#26041;&#27861;'x'</span>
+<span style="color: #F92672;">setattr</span><span style="color: #AE81FF;">(</span>obj, <span style="color: #E6DB74;">'y'</span>, <span style="color: #AE81FF;">19</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;obj.y=19</span>
+<span style="color: #F92672;">getattr</span><span style="color: #AE81FF;">(</span>obj, <span style="color: #E6DB74;">'z'</span>, <span style="color: #AE81FF;">404</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36820;&#22238;obj.z, &#33509;z&#19981;&#23384;&#22312;&#21017;&#36820;&#22238;404</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline63" class="outline-3">
+<h3 id="orgheadline63">为类绑定方法</h3>
+<div class="outline-text-3" id="text-orgheadline63">
+<ul class="org-ul">
+<li>给实例绑定方法，仅对该实例生效</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #FD971F;">s</span> = Student<span style="color: #AE81FF;">()</span>
+
+<span style="color: #F92672;">def</span> <span style="color: #A6E22E;">set_age</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span>, age<span style="color: #AE81FF;">)</span>:
+    <span style="color: #F92672;">self</span>.age = age
+
+<span style="color: #F92672;">from</span> types <span style="color: #F92672;">import</span> MethodType
+<span style="color: #FD971F;">s.set_age</span> = MethodType<span style="color: #AE81FF;">(</span>set_age, s, Student<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23454;&#20363;&#32465;&#23450;&#26041;&#27861;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>给class绑定方法，对实例均可用</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #FD971F;">Student.set_age</span> = MethodType<span style="color: #AE81FF;">(</span>set_age, <span style="color: #AE81FF;">None</span>, Student<span style="color: #AE81FF;">)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline64" class="outline-3">
+<h3 id="orgheadline64">使用@property</h3>
+<div class="outline-text-3" id="text-orgheadline64">
+<ul class="org-ul">
+<li>装饰器 <code>@property</code> 能把一个方法变成属性调用</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Student</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
+    <span style="color: #66D9EF;">@property</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#26041;&#27861;&#21464;&#20026;&#23646;&#24615;&#33719;&#21462;&#20989;&#25968; get_score(self)</span>
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">score</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:
+        <span style="color: #F92672;">return</span> <span style="color: #F92672;">self</span>._score
+
+    <span style="color: #66D9EF;">@score.setter</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19982;property&#23545;&#24212;&#30340;&#23646;&#24615;&#36171;&#20540;&#20989;&#25968; set_score(self, value)</span>
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">score</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span>, value<span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22914;&#26524;&#19981;&#35774;&#32622;setter&#21017;&#23646;&#24615;&#23601;&#26159;&#20010;&#21482;&#35835;&#23646;&#24615;</span>
+        <span style="color: #F92672;">if</span> <span style="color: #F92672;">not</span> <span style="color: #F92672;">isinstance</span><span style="color: #AE81FF;">(</span>value, <span style="color: #F92672;">int</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36171;&#20540;&#26816;&#26597;</span>
+            <span style="color: #F92672;">raise</span> <span style="color: #66D9EF;">ValueError</span><span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'score must be an integer'</span><span style="color: #AE81FF;">)</span>
+        <span style="color: #F92672;">self</span>._score = value
+
+
+<span style="color: #FD971F;">s</span> = Student<span style="color: #AE81FF;">()</span>
+<span style="color: #FD971F;">s.score</span> = <span style="color: #AE81FF;">60</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23454;&#38469;&#36716;&#25442;&#20026;s.set_score(60)</span>
+<span style="color: #F92672;">print</span> s.score  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23454;&#38469;&#36716;&#25442;&#20026;s.get_score()</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline65" class="outline-3">
+<h3 id="orgheadline65">多重继承</h3>
+<div class="outline-text-3" id="text-orgheadline65">
+<ul class="org-ul">
+<li>通过多重继承，一个子类可以同时获得多个父类的所有功能</li>
+</ul>
+
+
+
+<dl class="org-dl">
+<dt>Mixin</dt><dd><ul class="org-ul">
+<li>Mixin的目的是给一个类增加额外的功能，而不是 <b>is-a</b> 关系，有点类似于JAVA带实现的接口</li>
+<li>Mixin命名的时候通常在类名结尾添加 <code>Mixin</code></li>
+<li>例如多进程模型为 <code>ForkingMixin</code> 、多线程模型为 <code>ThreadingMixin</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline70" class="outline-2">
+<h2 id="orgheadline70"><span class="section-number-2">8</span> 定制类</h2>
+<div class="outline-text-2" id="text-8">
+</div><div id="outline-container-orgheadline67" class="outline-3">
+<h3 id="orgheadline67">__slots__</h3>
+<div class="outline-text-3" id="text-orgheadline67">
+<p>
+<code>__slots__</code> 用于限制class的属性
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Student</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
+    <span style="color: #FD971F;">__slots__</span> = <span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'name'</span>, <span style="color: #E6DB74;">'age'</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;tuple&#26469;&#23450;&#20041;&#20801;&#35768;&#32465;&#23450;&#30340;&#23646;&#24615;&#21517;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li><code>__slots__</code> 定义的属性仅对当前类其作用，不会被继承；但如果子类也定义了 <code>__slots__</code> 的话，子类允许定义的属性就是自身的加上父类的 <code>__slots__</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline68" class="outline-3">
+<h3 id="orgheadline68">__str__ 与 <span class="underline"><span class="underline">repr</span></span></h3>
+<div class="outline-text-3" id="text-orgheadline68">
+<p>
+<code>__str__</code> 用于直接打印
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Student</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">__str__</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31243;&#24207;&#20013;&#30452;&#25509;&#36755;&#20986;&#23454;&#20363;&#20250;&#35843;&#29992;&#30340;&#20989;&#25968;</span>
+        <span style="color: #F92672;">return</span> <span style="color: #E6DB74;">'This is output'</span>
+
+    <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">__repr__</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">self</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">Python&#20132;&#20114;&#30028;&#38754;&#30452;&#25509;&#36755;&#20986;&#35843;&#29992;&#30340;&#20989;&#25968;</span>
+        <span style="color: #F92672;">return</span> <span style="color: #E6DB74;">'This is __repr__'</span>
+
+
+<span style="color: #F92672;">print</span> Student<span style="color: #AE81FF;">()</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35843;&#29992;__str__</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline69" class="outline-3">
+<h3 id="orgheadline69">__iter__</h3>
 </div>
 </div>

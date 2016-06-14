@@ -565,7 +565,152 @@ except ImportError:    # 当导入失败会捕获到ImportError
 - 使用 =__future__= 模块可以暂时使用新版本的某个功能，以便于移植
 
 * 面向对象编程
-- 面向对象的设计思想是抽象出Class，根据Class创建Instance
-- 面向对象的抽象程度又比函数要高，因为一个Class即包含数据，又包含操作数据的方法
+- 面向对象的抽象程度比函数要高，因为一个Class即包含数据，又包含操作数据的方法
 
+** 类与实例
+- 面向对象的设计思想是抽象出Class，根据Class创建Instance
+#+BEGIN_SRC python
+  class Student(object):  # 定义类
+      pass
+
+  bart = Student()  # 创建实例
+  bart.name = 'no'  # 可以自由地给一个实例绑定属性
+#+END_SRC
+- 类的初始化
+#+BEGIN_SRC python
+  class Student(object):
+      def __init__(self, name, score):  # 创建实例的时候运行的构建函数
+          self.name = name  # 绑定属性
+          self.score = score
+          self.__name = yes  # 私有变量
+
+      def get_grade(self):  # 创建类的方法, 第一个参数必须为self
+          return self.score
+
+  qiump = Student(qiump, 89)  # 参数对应于init中的参数
+#+END_SRC
+
+- 私有变量
+  - 私有变量是以 =__= 为开头的变量，只有内部可以访问
+  - 而 =__xxx__= 是特殊变量，并不是私有变量
+  #+BEGIN_SRC python
+  len('ABC')  # 内置的len方法其实是直接调用__len__函数
+  'ABC'.__len__()  # 可以自定义__len__方法
+  #+END_SRC
+
+** 继承和多态
+*** 继承
+  #+BEGIN_SRC python
+    class Animal(object):
+        def run(self):
+            print 'Animal'
+
+
+    class Dog(Animal):  # 子类拥有父类的run方法
+        pass
+
+
+    class Cat(Animal):
+        def run(self):  # 子类的方法会覆盖父类的同名方法
+            print 'cat'
+  #+END_SRC
+*** 多态
+  - 子类可以赋予给一个父类的对象
+  #+BEGIN_SRC python
+  a = Dog()
+  print isinstance(a, Animal)  # a同时是Dog类也是Animal类
+  #+END_SRC
+
+** 获取对象信息
+*** type()
+- =type()= 函数可以用来判断对象类型
+- type所返回的类型是type类型
+#+BEGIN_SRC python
+  import types
+
+  type('abc') == types.StringType
+  type(u'abc') == types.UnicodeType
+  type([]) == types.ListType
+  type(str) == types.TypeType  # 所有类型的本身就是TypeType
+#+END_SRC
+*** isinstance()
+- 方便判断class的类型，子类的类型是父类的类型
+#+BEGIN_SRC python
+  isinstance(u'a', unicode)
+  isinstance(u'a', (str, unicode))  # 可以判断一个变量是不是其中一种
+  isinstance(u'a', basestring)  # str和unicode都是从basestring继承下来的
+#+END_SRC
+*** dir()与hasattr()
+- dir()用于获得一个对象的所有属性和方法，返回一个包含字符串的list
+- hasattr()用于判断一个对象是否含有指定属性
+#+BEGIN_SRC python
+  hasattr(obj, 'x')  # 检测obj是否有属性或方法'x'
+  setattr(obj, 'y', 19)  # 相当于obj.y=19
+  getattr(obj, 'z', 404)  # 返回obj.z, 若z不存在则返回404
+#+END_SRC
+** 为类绑定方法
+- 给实例绑定方法，仅对该实例生效
+#+BEGIN_SRC python
+s = Student()
+
+def set_age(self, age):
+    self.age = age
+
+from types import MethodType
+s.set_age = MethodType(set_age, s, Student)  # 实例绑定方法
+#+END_SRC
+- 给class绑定方法，对实例均可用
+#+BEGIN_SRC python
+Student.set_age = MethodType(set_age, None, Student)
+#+END_SRC
+** 使用@property
+- 装饰器 =@property= 能把一个方法变成属性调用
+#+BEGIN_SRC python
+  class Student(object):
+      @property  # 将方法变为属性获取函数 get_score(self)
+      def score(self):
+          return self._score
+
+      @score.setter  # 与property对应的属性赋值函数 set_score(self, value)
+      def score(self, value):  # 如果不设置setter则属性就是个只读属性
+          if not isinstance(value, int):  # 赋值检查
+              raise ValueError('score must be an integer')
+          self._score = value
+
+
+  s = Student()
+  s.score = 60  # 实际转换为s.set_score(60)
+  print s.score  # 实际转换为s.get_score()
+#+END_SRC
+** 多重继承
+- 通过多重继承，一个子类可以同时获得多个父类的所有功能
+
+
+
+- Mixin ::
+  - Mixin的目的是给一个类增加额外的功能，而不是 *is-a* 关系，有点类似于JAVA带实现的接口
+  - Mixin命名的时候通常在类名结尾添加 =Mixin=
+  - 例如多进程模型为 =ForkingMixin= 、多线程模型为 =ThreadingMixin=
+* 定制类
+** __slots__
+=__slots__= 用于限制class的属性
+#+BEGIN_SRC python
+class Student(object):
+    __slots__ = ('name', 'age')  # 用tuple来定义允许绑定的属性名
+#+END_SRC
+- =__slots__= 定义的属性仅对当前类其作用，不会被继承；但如果子类也定义了 =__slots__= 的话，子类允许定义的属性就是自身的加上父类的 =__slots__=
+** __str__ 与 __repr__
+=__str__= 用于直接打印
+#+BEGIN_SRC python
+  class Student(object):
+      def __str__(self):  # 程序中直接输出实例会调用的函数
+          return 'This is output'
+
+      def __repr__(self):  # Python交互界面直接输出调用的函数
+          return 'This is __repr__'
+
+
+  print Student()  # 调用__str__
+#+END_SRC
+** __iter__
 

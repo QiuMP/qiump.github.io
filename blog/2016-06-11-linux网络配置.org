@@ -1,9 +1,226 @@
-#+TITLE: Linux网络配置
-#+DATE: 2016-06-11
-#+SETUPFILE: ~/myblog/setupfile.org
-#+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: 
-#+JEKYLL_PUBLISHED: true
+#+title: linux网络配置
+#+date: 2016-06-11
+#+setupfile: ~/myblog/setupfile.org
+#+jekyll_layout: post
+#+jekyll_categories: linux
+#+jekyll_tags: linux 运维 网络
+#+jekyll_published: true
 
-* 
+linux网络配置的过程，以及配置的工具：ifconfig, route, netstat, ip等
+
+
+
+
+-----
+* 网络接口
+** 网络接口的命名方式
+- centos 6: 根据网卡的mac地址来顺序命名
+  - 以太网：eth[0,1,2...]
+  - ppp：ppp[0,1,2...]
+- centos 7: 根据硬件插槽来进行命名
+** 网络接口识别与命名相关的配置文件 
+该配置文件在: =/etc/udev/rules.d/70-persistent-net.rules=
+- 通过该配置文件可以知道网卡设备的驱动名
+#+BEGIN_SRC conf
+modprobe -r 驱动   # 卸载驱动
+modprobe 驱动   # 装载驱动
+#+END_SRC
+
+* 当前主机的主机名
+** 命令设置
+#+BEGIN_SRC conf
+hostname [HOSTNAME]
+#+END_SRC
+** 配置文件设置
+修改 =/etc/sysconfig/network=, 需要重启生效
+- NETWORKING=yes: 是否启用网络
+- HOSTNAME=QiuMP: 修改主机名
+* 网络配置命令
+- 使用命令配置一般只对当前有效
+** ifconfig
+用于查询或配置网络设备
+#+begin_src conf
+ifconfig [-a] [IFACE]  # 显示活动的网卡设备信息
+  -a: 同时显示非活动的设备
+
+ifconfig IFACE [up|down]  # 启动或关闭设备
+ifup IFACE  # 启动设备
+ifdown IFACE  # 关闭设备
+
+ifconfig IFACE IP/MASK [up]  
+ifconfig IFACE IP netmask MASK  # 修改设备的ip
+ifconfig IFACE:ALIAS IP/MASK up  # 给网卡配置多地址
+ifconfig IFACE [-]promisc  # 启用或禁用混杂模式(用于网络监控)
+#+end_src
+** route
+用于查询和管理路由信息
+- 查看 ::
+  #+BEGIN_SRC conf
+  route -n  # 使用IP代替别称显示
+  #+END_SRC
+  - Flags:
+    - U: up, 表示启用
+    - G: 表示有网关
+    - H: 表示主机路由
+- 添加 :: 
+  #+BEGIN_SRC conf
+  route add [-net|-host] IP/MASK [netmask Nm] [gw Gw] [[dev] If]
+    -net IP/MASK: 指定网络路由
+    -host IP/32: 指定主机路由(可以不用写子网掩码)
+    netmask Nm: 指定子网掩码
+    gw Gw: 指定网关
+    dev If: 指定设定的设备
+
+  route add default gw 172.16.0.1  # 指定默认网关
+  route add -net 0.0.0.0 netmask 0.0.0.0 gw 172.16.0.1  # 指定默认网关
+  #+END_SRC
+- 删除 :: 
+  #+BEGIN_SRC conf
+  route del [-net|-host] IP/MASK [gw Gw] [netmask Nm] [[dev] If]
+  # 只要指定的信息没有重复则其他信息可以省略
+  #+END_SRC
+** netstat
+用于查询网络连接、路由表、接口信息、伪装连接、组播连接等功能
+- 显示网络连接 ::
+  #+BEGIN_SRC conf
+  netstat [OPTIONS]
+    -t: tcp协议相关
+    -u: udp协议相关
+    -w: raw socket相关
+    -a: 所有状态
+
+    -l|--listening: 处于监听状态
+
+    -n: 以数字显示IP和端口；
+    -e|--extend: 扩展格式
+    -p: 显示相关进程及PID
+  #+END_SRC
+
+- 显示路由表 :: 
+  #+BEGIN_SRC conf
+  netstat -r [OPTIONS]
+	-r: 显示内核路由表
+	-n: 数字格式
+  #+END_SRC
+
+- 显示接口统计数据 :: 
+  #+BEGIN_SRC conf 
+  netstat -i  # 显示所有接口
+  netstat -I[IFACE]  # 显示指定接口
+  #+END_SRC
+** ip
+用于配置网络的各种属性
+- 一个网卡可以有多个地址
+#+BEGIN_SRC sh
+ip OBJECT help  # 获取子命令的帮助
+#+END_SRC
+
+
+- ip link :: 配置网络设备
+  #+BEGIN_SRC conf
+  ip link show [dev IFACE]  # 显示物理设备的各种信息，例如MTU、MAC等
+  ip link set dev IFACE [up|down]  # 启用和禁用设备
+  #+END_SRC
+- ip addr :: 管理协议地址
+  #+BEGIN_SRC conf
+  ip addr {add|del} IFADDR dev STRING [OTHER] # 如果原来已经有地址则添加辅助地址
+    label LABEL: 添加地址时指明网卡别名(即虚拟处另一个网卡设备)
+    scope {global|link|host}: 指明作用域
+      global: 全局可用(地址属于内核, 表示任何网卡间可以相互访问)
+      link: 仅链接可用(只能设备自己使用)
+      host: 本机可用
+    broadcast ADDRESS: 指明广播地址
+  
+  ip addr show  # 显示网卡地址信息
+    dev DEVICE: 默认显示所有网卡地址
+    label PATTERN: 指定别名
+    primary|secondary: 只显示主地址或辅助地址
+
+  ip addr flush [dev DEVICE] # 清空网卡地址
+  #+END_SRC
+- ip route :: 管理路由表
+  #+BEGIN_SRC conf
+  ip route add TARGET via GW dev IFACE [src SOURCE_IP]  # 添加路由
+    src SOURCE_IP: 制定源地址
+  ip route add default via GW dev IFACE  # 添加默认网关
+   
+  ip route del TARGET [dev IFACE]
+
+  ip route show|list  # 显示当前路由表
+  ip route flush  # 清空路由表
+    dev IFACE
+    via GW: 指定网关对象
+  #+END_SRC
+** ss
+管理套接字
+#+BEGIN_SRC conf
+ss [OPTIONS] [FILTER]
+  -t: tcp协议相关
+  -u: udp协议相关
+  -w: raw套接字相关
+  -x：unix sock相关
+  -a: 所有
+
+  -l: listen状态的连接
+
+  -n: 数字格式
+  -p: 相关的程序及PID
+  -e: 扩展的信息
+
+  -m：内存用量
+  -o：计时器信息
+
+  state TCP-STATE: 显示指定状态的端口
+  EXPRESSION: 可以指定更多的过滤条件
+    '( dport = :ssh or sport = :ssh)': 指定源端口和目的端口
+#+END_SRC
+** system-config-network-tui
+一个交互式网络配置程序, 也可以使用 =setup= 找到
+
+* 网络配置文件
+- 修改配置文件可以永久有效
+- 配置要立即生效需要重启网卡: 
+#+BEGIN_SRC conf
+service network restart
+#+END_SRC
+** DNS服务器的指定
+修改 =/etc/resolv.conf= 即可
+  #+BEGIN_SRC conf
+  nameserver DNS_SERVER_IP1
+  nameserver DNS_SERVER_IP2
+  nameserver DNS_SERVER_IP3
+  #+END_SRC
+- DNS正向解析: FQDN(完全限定域名) -> IP
+  #+BEGIN_SRC conf
+    dig -t A FQDN
+    host -t A FQDN
+  #+END_SRC
+- DNS反向解析: IP -> FQDN(完全限定域名)
+  #+BEGIN_SRC conf
+    dig -x IP
+    host -t PTR IP
+  #+END_SRC
+** IP配置文件
+IP、MASK、GW、DNS相关配置文件: =/etc/sysconfig/network-scripts/ifcfg-IFACE=
+| DEVICE            | 此配置文件应用到的设备，与文件名一致                                      |
+| HWADDR            | 对应的设备的MAC地址                                                       |
+| BOOTPROTO         | 使用的地址配置协议: dhcp, static, none, bootp                             |
+| NM_CONTROLLED     | 此网卡是否接受NM(NetworkManager)控制, CentOS6下建议为"no"                 |
+| ONBOOT            | 在系统引导时是否激活此设备                                                |
+| TYPE              | 接口类型: Ethernet, Bridge                                                |
+| UUID              | 设备的唯一标识                                                            |
+|                   |                                                                           |
+| IPADDR            | 指明IP地址                                                                |
+| NETMASK           | 子网掩码                                                                  |
+| GATEWAY: 默认网关 |                                                                           |
+| DNS1              | 第一个DNS服务器指向(优先级比resolv.conf高)                                |
+| DNS2              | 第二个DNS服务器指向                                                       |
+|                   |                                                                           |
+| USERCTL           | 普通用户是否可控制此设备                                                  |
+| PEERDNS           | 是否允许dhcp服务器分配的dns服务器指向信息直接覆盖至/etc/resolv.conf文件中 |
+** 路由器配置
+修改 =/etc/sysconfig/network-scripts/route-IFACE= 来设置路由表
+- 该文件每行的格式是: =IPADDR/MASK via GW=
+** 给网卡配置多地址
+添加配置文件 =/etc/sysconfig/network-scripts/ifcfg-IFACE:ALIAS=
+- 网卡别名不能使用dhcp

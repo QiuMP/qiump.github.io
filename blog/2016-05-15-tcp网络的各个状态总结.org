@@ -3,7 +3,7 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: 计算机网络
-#+JEKYLL_TAGS: 计算机网络 局域网 TCP
+#+JEKYLL_TAGS: 网络 局域网 TCP
 #+JEKYLL_PUBLISHED: true
 
 简单介绍了局域网相关的概念，分析TCP/IP的连接协议、终止协议，总结了TCP/IP在连接过程中的各种状态

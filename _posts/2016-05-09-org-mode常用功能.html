@@ -33,7 +33,26 @@ comments:
 </ul>
 </li>
 <li><a href="#orgheadline12">3. 超链接</a></li>
-<li><a href="#orgheadline13">4. 特殊的技巧</a></li>
+<li><a href="#orgheadline19">4. <span class="todo TODO">TODO</span> 项目</a>
+<ul>
+<li><a href="#orgheadline13">使用TODO</a></li>
+<li><a href="#orgheadline14">使用多种TODO状态</a></li>
+<li><a href="#orgheadline15">进度日志</a></li>
+<li><a href="#orgheadline16">优先级</a></li>
+<li><a href="#orgheadline17">任务进度</a></li>
+<li><a href="#orgheadline18">复选框</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline23">5. 标签</a>
+<ul>
+<li><a href="#orgheadline20">设定标签</a></li>
+<li><a href="#orgheadline21">设置标签选择</a></li>
+<li><a href="#orgheadline22">标签查找</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline24">6. 属性</a></li>
+<li><a href="#orgheadline25">7. 捕获——转发——存档</a></li>
+<li><a href="#orgheadline26">8. 特殊的技巧</a></li>
 </ul>
 </div>
 </div>
@@ -152,13 +171,8 @@ comments:
 </tr>
 
 <tr>
-<td class="org-left">M-S-RET</td>
+<td class="org-left">M-S-RET/T</td>
 <td class="org-left">插入一个和当前标题同级的 TODO 项，会进行截断</td>
-</tr>
-
-<tr>
-<td class="org-left">C-S-RET</td>
-<td class="org-left">在该文本块插入一个和当前标题同级的 TODO 项</td>
 </tr>
 
 <tr>
@@ -248,6 +262,11 @@ comments:
 <tr>
 <td class="org-left">C-c / /</td>
 <td class="org-left">输入稀疏树的匹配串</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c / t</td>
+<td class="org-left">在稀疏树中显示TODO项</td>
 </tr>
 
 <tr>
@@ -564,7 +583,6 @@ comments:
 
 <dl class="org-dl">
 <dt>外部连接</dt><dd><pre class="example">
-http://www.astro.uva.nl/~dominik            on the web
 file:/home/dominik/images/jupiter.jpg       file, absolute path
 /home/dominik/images/jupiter.jpg            same as above
 file:papers/last.pdf                        file, relative path
@@ -588,9 +606,316 @@ info:org:External%20links                   Info node link (with encoded space)
 <hr  />
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-2">
-<h2 id="orgheadline13"><span class="section-number-2">4</span> 特殊的技巧</h2>
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">4</span> <span class="todo TODO">TODO</span> 项目</h2>
 <div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">使用TODO</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<p>
+当标题后接上TODO的时候就成为了一个TODO项
+</p>
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">t</td>
+<td class="org-left">将当前项的状态进行循环：(unmarked) -&gt; TODO -&gt; DONE</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-RET/T</td>
+<td class="org-left">插入一个和当前标题同级的 TODO 项，会进行截断</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c / t</td>
+<td class="org-left">在稀疏树中显示TODO项</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c a t</td>
+<td class="org-left">显示全局TODO列表，从所有议程文件中收集</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">使用多种TODO状态</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #AE81FF;">(</span>setq org-todo-keywords
+      '<span style="color: #66D9EF;">(</span><span style="color: #A6E22E;">(</span>sequence <span style="color: #E6DB74;">"</span><span style="color: #cc9393;">TODO</span><span style="color: #E6DB74;">(t)"</span> <span style="color: #E6DB74;">"|"</span> <span style="color: #E6DB74;">"</span><span style="color: #afd8af;">DONE</span><span style="color: #E6DB74;">(d)"</span><span style="color: #A6E22E;">)</span>
+        <span style="color: #A6E22E;">(</span>sequence <span style="color: #E6DB74;">"REPORT(r)"</span> <span style="color: #E6DB74;">"BUG(b)"</span> <span style="color: #E6DB74;">"KNOWNCAUSE(k)"</span> <span style="color: #E6DB74;">"|"</span> <span style="color: #E6DB74;">"FIXED(f)"</span><span style="color: #A6E22E;">)</span>
+        <span style="color: #A6E22E;">(</span>sequence <span style="color: #E6DB74;">"|"</span> <span style="color: #E6DB74;">"CANCELED(c)"</span><span style="color: #A6E22E;">)</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;">;; </span><span style="color: #75715E;">&#27704;&#20037;&#26377;&#25928;</span>
+
+#+TODO: REPORT<span style="color: #AE81FF;">(</span>r<span style="color: #AE81FF;">)</span> BUG<span style="color: #AE81FF;">(</span>b<span style="color: #AE81FF;">)</span> KNOWNCAUSE<span style="color: #AE81FF;">(</span>k<span style="color: #AE81FF;">)</span> | FIXED<span style="color: #AE81FF;">(</span>f<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;">;; </span><span style="color: #75715E;">&#20165;&#23545;&#24403;&#21069;&#25991;&#20214;&#26377;&#25928;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>在关键字后面括号中给出快捷字母: 当用C-c C-t时，会让你输入一个字母。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">进度日志</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<dl class="org-dl">
+<dt>完成项目的操作</dt><dd><ul class="org-ul">
+<li><code>(setq org-log-done 'time)</code>: 状态变成完成时会记录一个时间</li>
+<li><code>(setq org-log-done 'note)</code>: 状态变成完成时会提示输入一个记录</li>
+</ul></dd>
+<dt>自定义TODO状态的操作</dt><dd><ul class="org-ul">
+<li><code>#+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)</code></li>
+<li>括号内指定"!"表示记录时间戳，"@"表示作一个记录</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">优先级</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>优先级按高到低排序为：A, B, C</li>
+<li>默认的优先级是B</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c ,</td>
+<td class="org-left">设置当前标题的优先级</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">任务进度</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+可以在标题的任何地方插入 <code>[/]</code> 或 <code>[%]</code> ，当子TODO完成的时候这些状态会随之更新
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">复选框</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<p>
+当纯文本中的项以‘[]’开头时，就会变成一个复选框。复选框能将一个任务划分成几个简单的步骤
+</p>
+<ul class="org-ul">
+<li class="trans"><code>[-]</code> call people <code>[1/2]</code>
+<ul class="org-ul">
+<li class="off"><code>[&#xa0;]</code> Peter</li>
+<li class="on"><code>[X]</code> Sarah</li>
+</ul></li>
+<li class="off"><code>[&#xa0;]</code> order food</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">触发复选框的状态</td>
+</tr>
+
+<tr>
+<td class="org-left">M-S-RET/T</td>
+<td class="org-left">增加一个带有复选框的项</td>
+</tr>
+</tbody>
+</table>
+
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">5</span> 标签</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">设定标签</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<ul class="org-ul">
+<li>每个标题可以包含多个标签，位于标题后边，格式为":work:no:"</li>
+<li>每个标题的子标题会继承其标签，可以用 <code>#+FILETAGS: :Peter:Boss:Secret:</code> 来设置全局标签</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c C-q</td>
+<td class="org-left">为当前标题输入标签，支持补全</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">当光标位于标题上时，功能和C-c C-q一样</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">设置标签选择</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<ul class="org-ul">
+<li>默认 Org 模式用一个迷你缓冲区补全设施来输入标签，可以自行添加补全列表</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-elisp">#+TAGS: @work @home @tennisclub
+#+TAGS: laptop car pc sailboat
+</pre>
+</div>
+<ul class="org-ul">
+<li>快速标签选择使得你只用按一次键就可以选择或者取消一个标签</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #AE81FF;">(</span>setq org-tag-alist '<span style="color: #66D9EF;">(</span><span style="color: #A6E22E;">(</span><span style="color: #E6DB74;">"@work"</span> . ?w<span style="color: #A6E22E;">)</span> <span style="color: #A6E22E;">(</span><span style="color: #E6DB74;">"@home"</span> . ?h<span style="color: #A6E22E;">)</span> <span style="color: #A6E22E;">(</span><span style="color: #E6DB74;">"laptop"</span> . ?l<span style="color: #A6E22E;">)</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>
+#+TAGS: @work<span style="color: #AE81FF;">(</span>w<span style="color: #AE81FF;">)</span> @home<span style="color: #AE81FF;">(</span>h<span style="color: #AE81FF;">)</span> @tennisclub<span style="color: #AE81FF;">(</span>t<span style="color: #AE81FF;">)</span> laptop<span style="color: #AE81FF;">(</span>l<span style="color: #AE81FF;">)</span> pc<span style="color: #AE81FF;">(</span>p<span style="color: #AE81FF;">)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">标签查找</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c \</td>
+<td class="org-left">用匹配标签搜索的所有标题构造一个稀疏树</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c a m</td>
+<td class="org-left">用所有议程文件匹配的标签构造一个全局列表</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c a M</td>
+<td class="org-left">用所有议程文件匹配的标签构造一个全局列表，但只搜索TODO项，并强制搜索所有子项</td>
+</tr>
+</tbody>
+</table>
+<ul class="org-ul">
+<li>搜索的时候可以使用特殊符号
+<ul class="org-ul">
+<li><code>+a+b-c</code>: 表示搜索带标签a和b但不含c的项</li>
+<li><code>a|b</code>: 表示搜索包含a或b的项</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">6</span> 属性</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+属性是一些与条目关联的键值对。它们位于一个名为 PROPERTIES 的特殊抽屉中。第一个属性都单独一行，键在前（被冒号包围），值在后。
+</p>
+<ul class="org-ul">
+<li><code>:Xyz_ALL:</code>: 后缀为_ALL的属性具有继承性</li>
+<li><code>#+PROPERTY: NDisks_ALL 1 2 3 4</code>: 用于设置全局属性</li>
+</ul>
+
+
+<dl class="org-dl">
+<dt>快捷键</dt><dd></dd>
+</dl>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">C-c C-x p</td>
+<td class="org-left">设置一个属性</td>
+</tr>
+
+<tr>
+<td class="org-left">, P</td>
+<td class="org-left">设置一个属性</td>
+</tr>
+
+<tr>
+<td class="org-left">C-c C-c d</td>
+<td class="org-left">删除一个属性</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-2">
+<h2 id="orgheadline25"><span class="section-number-2">7</span> 捕获——转发——存档</h2>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26"><span class="section-number-2">8</span> 特殊的技巧</h2>
+<div class="outline-text-2" id="text-8">
 <ul class="org-ul">
 <li>使用 <b><code>=...=</code></b> 来使用特殊字符</li>
 <li>使用 &lt;s 再按 TAB 键，快速输入 #+BEGIN&#x2026; #+END&#x2026;</li>
