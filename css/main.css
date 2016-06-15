@@ -118,7 +118,8 @@ header {
   header .wrapper {
     width: 1140px;
     margin: 0 auto;
-    line-height: 52px; }
+    line-height: 52px;
+    height: 52px;}
     header .wrapper .brand {
       font-size: 18px; }
     header .wrapper small {
@@ -156,7 +157,8 @@ header {
     height: 50px; }
     header .wrapper {
       width: 90%;
-      line-height: 50px; }
+      line-height: 50px;
+      height: 50px;}
       header .wrapper .brand {
         font-size: 16px; }
       header .wrapper small {
@@ -177,6 +179,7 @@ header {
       width: 95%;
       margin: 0 auto;
       line-height: 48px;
+      height: 48px;
       position: relative;
       z-index: 101; }
       header .wrapper .brand {
@@ -1010,4 +1013,10 @@ code {
 	border-color: #D6DBDF;
 	background: none repeat scroll 0 0 rgba(102,128,153,.05);
 	border-radius: 0px;
+}
+
+#image_maple {
+    float: left;
+    padding-right: 10px;
+    height: 100%;
 }

@@ -894,7 +894,7 @@ var=$(expr arg1 arg2 arg3)  # 某些符号需要进行转义
 - 自增与自减 :: var++, var--
 ** bash的条件测试
 *** 测试命令
-#+BEGIN_SRC conf
+#+BEGIN_SRC shell
 test EXPRESSION
 [ EXPRESSION ]  # EXPRESSION前后必须有空白字符
 [[ EXPRESSION ]]
@@ -1184,8 +1184,9 @@ chmod g+s FILE
 chmod g-s FILE
 #+END_SRC
 - 经常用于团队协作，因为创建的文件后其他人不会被当作other
+- 如果对可执行文件设定SGID，则文件执行后的进程属组是文件的属组
 **** Sticky(1)
-对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件
+对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件；如果对文件设定，则该文件只能由属主执行删除和移动
 #+BEGIN_SRC conf
 chmod o+t FILE
 chmod o-t FILE
@@ -1487,6 +1488,7 @@ fuser -km MOUNT_POINT  # 终止所有正访问指定文件系统的进程
 - 文件系统空间占用信息 ::
   #+BEGIN_SRC conf
   df [OPTIONS]
+    -l: 只显示本地文件系统分区
     -h: human-readable
     -i: 显示inodes的使用情况
     -P: 以Posix兼容的格式输出，方便于文字处理工具

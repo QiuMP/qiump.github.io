@@ -1,9 +1,9 @@
-#+title: linux网络配置
+#+title: Linux网络配置
 #+date: 2016-06-11
 #+setupfile: ~/myblog/setupfile.org
 #+jekyll_layout: post
-#+jekyll_categories: linux
-#+jekyll_tags: linux 运维 网络
+#+jekyll_categories: Linux
+#+jekyll_tags: Linux 运维 网络
 #+jekyll_published: true
 
 linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：lftp, wget, nmap, tcpdump的使用
@@ -189,7 +189,7 @@ ip OBJECT help  # 获取子命令的帮助
     via GW: 指定网关对象
   #+END_SRC
 *** ss
-管理套接字
+管理套接字，速度比netstat快
 #+BEGIN_SRC conf
 ss [OPTIONS] [FILTER]
   -t: tcp协议相关

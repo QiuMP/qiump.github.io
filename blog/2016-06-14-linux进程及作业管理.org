@@ -1,0 +1,76 @@
+#+TITLE: Linux进程及作业管理
+#+DATE: 2016-06-14
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 进程管理 运维
+#+JEKYLL_PUBLISHED: true
+
+记录了Linux下如何进行进程的查询和管理
+
+
+
+
+-----
+* 进程相关知识 
+** 内核与进程
+- 内核的作用 :: 进程管理、文件系统、网络功能、内存管理、驱动程序、安全功能
+- Process :: 运行中的程序的一个副本
+  - Linux内核使用一个结构来存储进程信息: task_struct
+  - 多个任务的task_struct连成链表：task list
+** 进程的创建
+进程都是由父进程创建的，利用 =fork()= 、 =clone()=
+- 系统的第一个进程init是所有进程的继承者
+** 进程的优先级
+- 优先级范围是0~139
+  - 1-99：实时优先级, 数字越大，优先级越高
+  - 100-139：静态优先级, 数字越小，优先级越高
+    - Nice值：[-20,19]
+- 相同优先级的程序排一队，内核每次顺序执行140个优先级的队列排头程序
+** 进程内存
+- 内存被分割为大量4KB的Page frame，用于存储Page数据
+- 每个进程被分配一定量的Page frame，可能不连续，但在进程看来是连续的
+- MMU: Memory Management Unit，主要管理内存映射关系
+- 对于一次IO访问，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。
+** 进程间通信
+IPC: Inter Process Communication
+- 同一主机上：signal, shared memory(shm), semerphor
+- 不同主机上：RPC, socket
+** 进程类型
+- 启动方式分类 
+  - 守护进程: 跟终端无关的进程，在系统引导过程中启动的进程
+  - 前台进程：跟终端相关，通过终端启动的进程，可以被转换为守护进程
+- 根据资源的使用
+  - CPU-Bound: CPU密集型
+  - IO-Bound：IO密集型
+** 进程状态
+- 运行态R：running
+- 睡眠态：sleeping
+  - 可中断S：interruptable, 可以立即被唤醒执行
+  - 不可中断D：uninterruptable, 无法立即被唤醒执行
+- 停止态T：stopped，暂停于内存中，但不会被调度，除非手动启动
+- 僵死态Z：zombie，子进程的父进程被终止
+* 进程管理工具
+Linux系统各进程的相关信息均保存在 =/proc/PID= 目录下的各文件中
+** pstree
+用于显示进程树
+** ps
+进程状态查看工具
+- ps选项支持两种风格，分别是标准风格和BSD风格
+- 线程相关信息
+  - VSZ: Virtual memory SiZe，虚拟内存集
+  - RSS: ReSident Size, 常驻内存集
+  - STAT：进程状态
+    - R/S/D/T/Z：进程状态
+    - +: 前台进程
+    - l: 多线程进程
+    - N：低优先级进程
+    - <: 高优先级进程
+    - s: session leader会话创建者
+
+#+BEGIN_SRC conf
+ps aux
+  u: 以用户为中心组织进程状态信息显示
+  a: 与终端相关的进程
+  x: 与终端无关的进程
+#+END_SRC
