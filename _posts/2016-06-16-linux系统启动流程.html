@@ -1,0 +1,94 @@
+---
+title: "Linux系统启动流程"
+date: 2016-06-16
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 系统
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. Linux内核</a></li>
+<li><a href="#orgheadline4">2. CentOS系统启动流程</a>
+<ul>
+<li><a href="#orgheadline2">POST: 加电自检</a></li>
+<li><a href="#orgheadline3">Boot Sequence</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+介绍Linux内核相关知识，以及Linux系统启动的流程
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> Linux内核</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>Linux系统由 <code>kernel</code> 、 <code>rootfs</code> 组成</li>
+<li>内核设计流派
+<ol class="org-ol">
+<li>单内核设计：把所有功能集成于同一程序
+<ul class="org-ul">
+<li>效率高，但子程序的故障会影响系统</li>
+<li>例如Linux</li>
+</ul></li>
+<li>微内核设计：每种功能使用一个单独的子系统实现
+<ul class="org-ul">
+<li>效率低，但子程序相互独立</li>
+<li>例如Windows、Solaris</li>
+</ul></li>
+</ol></li>
+<li>Linux内核的特点
+<ol class="org-ol">
+<li>支持模块化: .ko (kernel object)</li>
+<li>支持模块的动态装载和卸载</li>
+</ol></li>
+<li>Linux内核组成的部分
+<ul class="org-ul">
+<li>核心文件: /boot/vmlinuz-VERSION-release</li>
+<li>模块文件：/lib/modules/VERSION-release</li>
+<li>ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
+<ul class="org-ul">
+<li>CentOS 5: /boot/initrd-VERSION-release.img</li>
+<li>CentOS 6: /boot/initramfs-VERSION-release.img</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">2</span> CentOS系统启动流程</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">POST: 加电自检</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ul class="org-ul">
+<li>加载CPU, 设定ROM中的固定地址</li>
+<li>通过ROM(CMOS)内的程序进行自检</li>
+<li>加载BIOS: Basic Input and Output System</li>
+<li>整个计算机的地址空间是ROM+RAM组成的</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">Boot Sequence</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
+</p>
+</div>
+</div>
+</div>

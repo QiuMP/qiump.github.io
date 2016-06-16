@@ -39,7 +39,7 @@ TODO 简要介绍了如何使用DOT语言来绘制各种关系图
 #+begin_src dot :file dot_2.png :cmdline -Tpng :exports code :results silent
   digraph G {
       size = "4,4"  // 设置图片尺寸（英寸）
-      main [shape=box]  // 设置形状
+      main,cleanup [shape=box]  // 设置多个结点的形状
       main -> parse [weight=4]  // 设置权值，让main优先对齐这个
       parse -> execute
       main -> init [style=dotted]  // 线条类型

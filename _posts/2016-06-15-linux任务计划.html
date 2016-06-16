@@ -1,0 +1,201 @@
+---
+title: "Linux任务计划与邮件"
+date: 2016-06-15
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 任务计划
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline3">1. 电子邮件</a>
+<ul>
+<li><a href="#orgheadline1">电子邮件服务的协议</a></li>
+<li><a href="#orgheadline2">MUA</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">2. Linux任务计划</a>
+<ul>
+<li><a href="#orgheadline4">at</a></li>
+<li><a href="#orgheadline5">batch</a></li>
+<li><a href="#orgheadline6">cron</a>
+<ul>
+<li><a href="#orgheadline7">相关程序包</a></li>
+<li><a href="#orgheadline11">设置周期性任务</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+简单介绍了电子邮件的使用，以及Linux定时任务和周期任务的设定，包括at, batch, cron等
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">1</span> 电子邮件</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">电子邮件服务的协议</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>smtp: simple mail transmission protocol, 用于传送邮件</li>
+<li>pop3: Post Office Protocol, 用于接收邮件</li>
+<li>imap4：Internet Mail Access Protocol, 用于接收邮件</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">MUA</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+MUA: Mail User Agent
+</p>
+<ul class="org-ul">
+<li>本机用户的邮件在 <code>/var/spool/mail</code> 的子目录里</li>
+<li>mail: send and receive Internet mail</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">mailx [-s <span style="color: #E6DB74;">'SUBJECT'</span>] username[@hostname]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21457;&#36865;&#37038;&#20214;</span>
+  &#37038;&#20214;&#29983;&#25104;&#26041;&#24335;
+    (1) &#30452;&#25509;&#32473;&#20986;&#65292;Ctrl+d
+    (2) &#36755;&#20837;&#37325;&#23450;&#21521;
+    (3) &#36890;&#36807;&#31649;&#36947;
+
+mailx  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25171;&#24320;&#33258;&#24049;&#30340;&#37038;&#31570;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">2</span> Linux任务计划</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">at</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<ul class="org-ul">
+<li>任务的输出和结果会以邮件的形式通知给相关用户</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">at <span style="color: #AE81FF;">[</span>option<span style="color: #AE81FF;">]</span> TIME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#20219;&#21153;&#65292;Ctrl+D&#25552;&#20132;</span>
+  -q QUEUE: &#25351;&#23450;&#20219;&#21153;&#38431;&#21015;<span style="color: #AE81FF;">(</span>&#40664;&#35748;&#20026;a<span style="color: #AE81FF;">)</span>
+  -l: &#21015;&#20986;&#25351;&#23450;&#38431;&#21015;&#20013;&#31561;&#24453;&#36816;&#34892;&#30340;&#20316;&#19994;&#65292;&#30456;&#24403;&#20110;atq
+  -d: &#21024;&#38500;&#25351;&#23450;&#30340;&#20316;&#19994;&#65292;&#30456;&#24403;&#20110;atrm
+  -c NUM: &#26597;&#30475;&#20855;&#20307;&#20316;&#19994;&#20219;&#21153;
+  -f /path/from/somefile&#65306;&#20174;&#25351;&#23450;&#30340;&#25991;&#20214;&#20013;&#35835;&#21462;&#20219;&#21153;
+
+  TIME
+    HH:MM <span style="color: #AE81FF;">[</span>YYYY-mm-dd<span style="color: #AE81FF;">]</span>
+    noon, midnight, teatime
+    tomorrow
+    now+NUM<span style="color: #AE81FF;">{</span>minutes|hours|days|weeks<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">batch</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+让系统自行选择空闲时间去执行此处指定的任务
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">cron</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+cron用于周期性运行某任务
+</p>
+<ul class="org-ul">
+<li>任务的输出和结果会以邮件的形式通知给相关用户</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">相关程序包</h4>
+<div class="outline-text-4" id="text-orgheadline7">
+<ul class="org-ul">
+<li>cronie: 主程序包，提供了crond守护进程及相关辅助工具</li>
+<li>cronie-anacron：cronie的补充程序，用于监控cronie任务执行状况，如cronie中的任务在过去该运行的时间点未能正常运行，则anacron会随后启动一次此任务</li>
+<li>crontabs：包含CentOS提供系统维护任务</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">设置周期性任务</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+</div><ul class="org-ul"><li><a id="orgheadline8"></a>系统cron任务<br  /><div class="outline-text-5" id="text-orgheadline8">
+<p>
+通过编辑 <code>/etc/crontab</code> 实现
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">min hour day month week user-name COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">crontab&#25991;&#20214;&#26684;&#24335;</span>
+ <span style="color: #AE81FF;">10</span> <span style="color: #AE81FF;">21</span> * * * qiu /bin/echo <span style="color: #E6DB74;">"yes"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#22825;10:21&#20197; qiu &#30340;&#36523;&#20221;&#25191;&#34892; echo "yes"</span>
+ <span style="color: #AE81FF;">0</span> */3 * * * root /bin/echo  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#19977;&#23567;&#26102;&#25191;&#34892;&#19968;&#27425;</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#26368;&#22909;&#29992;&#32477;&#23545;&#36335;&#24452;&#26469;&#34920;&#31034;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>时间表示
+<ol class="org-ol">
+<li>有效范围里的特定值</li>
+<li>整个有效范围: *</li>
+<li>离散值: 1,2,3</li>
+<li>连续值: 1-3,4</li>
+<li>在时间范围内定义步长，即能整除就运行: 范围/NUM</li>
+</ol></li>
+<li>cron条目中，使用 % 需要进行转义，不过在单引号中不用转义</li>
+</ul>
+</div></li>
+<li><a id="orgheadline9"></a>用户cron<br  /><div class="outline-text-5" id="text-orgheadline9">
+<p>
+通过 <code>crontab</code> 来定义
+</p>
+<ul class="org-ul">
+<li>每个用户都有专用的cron任务文件：/var/spool/cron/USERNAME</li>
+<li>用户的cron条目不需要指定用户名</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">crontab [-u user] [-l | -r | -e] [-i] 
+  -l: &#21015;&#20986;&#25152;&#26377;&#20219;&#21153;
+  -e: &#32534;&#36753;&#20219;&#21153;
+  -r: &#31227;&#38500;&#25152;&#26377;&#20219;&#21153;
+  -i: &#19982;-r&#19968;&#21516;&#20351;&#29992;&#65292;&#20197;&#20132;&#20114;&#24335;&#27169;&#24335;&#35753;&#29992;&#25143;&#26377;&#36873;&#25321;&#22320;&#31227;&#38500;&#25351;&#23450;&#20219;&#21153;
+
+  -u user: &#20165;root&#21487;&#36816;&#34892;&#65292;&#20026;&#25351;&#23450;&#29992;&#25143;&#31649;&#29702;cron&#20219;&#21153;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline10"></a>设置特殊时间任务<br  /><div class="outline-text-5" id="text-orgheadline10">
+<ul class="org-ul">
+<li>cron本身无法直接设置秒级任务以及某些特殊时间循环的任务，比如7分种运行一次任务</li>
+<li>利用 <code>sleep</code> 命令来设置秒级别任务和特殊时间循环的任务</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh"> * * * * * for min<span style="color: #F92672;"> in</span> <span style="color: #AE81FF;">0</span> <span style="color: #AE81FF;">1</span> <span style="color: #AE81FF;">2</span>; <span style="color: #F92672;">do </span><span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"hi"</span>; sleep <span style="color: #AE81FF;">20</span>; <span style="color: #F92672;">done</span>
+
+sleep NUM<span style="color: #AE81FF;">[</span>s|m|h|d<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#20026;&#30561;&#30496;NUM&#31186;</span>
+</pre>
+</div>
+</div></li></ul>
+</div>
+</div>
+</div>

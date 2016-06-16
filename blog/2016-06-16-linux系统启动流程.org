@@ -1,0 +1,51 @@
+#+TITLE: Linux系统启动流程
+#+DATE: 2016-06-16
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 系统
+#+JEKYLL_PUBLISHED: true
+
+介绍Linux内核相关知识，以及Linux系统启动的流程
+
+
+
+
+-----
+* Linux内核
+- Linux系统由 =kernel= 、 =rootfs= 组成
+- 内核设计流派
+  1. 单内核设计：把所有功能集成于同一程序
+     - 效率高，但子程序的故障会影响系统
+     - 例如Linux
+  2. 微内核设计：每种功能使用一个单独的子系统实现
+     - 效率低，但子程序相互独立
+     - 例如Windows、Solaris
+- Linux内核的特点
+  1. 支持模块化: .ko (kernel object)
+  2. 支持模块的动态装载和卸载
+- Linux内核组成的部分
+  - 核心文件: /boot/vmlinuz-VERSION-release
+  - 模块文件：/lib/modules/VERSION-release
+  - ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
+    - CentOS 5: /boot/initrd-VERSION-release.img
+    - CentOS 6: /boot/initramfs-VERSION-release.img
+* CentOS系统启动流程
+** POST: 加电自检
+- 加载CPU, 设定ROM中的固定地址
+- 通过ROM(CMOS)内的程序进行自检
+- 加载BIOS: Basic Input and Output System
+- 整个计算机的地址空间是ROM+RAM组成的
+** Boot Sequence
+按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
+- bootloader: 引导加载器
+  - windows: ntloader
+  - Linux: LILO, GRUB, GRUB2
+  - 功能: 提供一个菜单，允许用户选择要启动系统或不同的内核版本；把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核
+- MBR:
+  - 前446字节: bootloader
+  - 64字节: 硬盘分区表(fat)
+  - 2: 55AA
+- GRUB的启动阶段
+  1. bootloader: 加载硬盘分区, 加载的模块已经在安装GRUB的时候就确定了
+  2. disk: 读取内容显示菜单

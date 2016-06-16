@@ -48,10 +48,11 @@ cat /etc/shells  # 显示当前系统使用的所有shell
 - 命令提示符 ::
   - 管理员: #
   - 普通用户: $
-
+** reset
+用于重置当前终端
+- 当终端显示出现异常的时候可以使用
 * 命令
 提请shell程序找到键入命令所对应的可执行程序或代码，并由其分析后提交给内核分配资源将其运行起来
-- 取消命令的执行使用: Ctrl+C
 ** 命令的种类
 #+BEGIN_SRC conf
 type COMMAND  # 查询命令的种类
@@ -113,10 +114,10 @@ man 3 COMMAND  # 查询COMMAND(3)的手册
 - man命令的配置文件: /etc/man.config
   - 其中，MANPATH /PATH/TO/SOMEWHERE: 指明新的手册文件搜索位置
 - 手册中SYNOPSIS的符号说明
-  - []: 可选内容
-  - <>: 必选内容
-  - a|b: 二选一
-  - ...: 同一内容可出现多次
+  - =[]=: 可选内容
+  - =<>=: 必选内容
+  - =a|b=: 二选一
+  - =...=: 同一内容可出现多次
 - man命令其实是使用 less 命令来读取文件
 
 * 基础命令
@@ -264,7 +265,7 @@ cp [OPTION]... -t DIRECTORY SOURCE...
 
 *** dd
 比较底层的复制命令，可用于文件或磁盘的复制
-#+BEGIN_SRC conf
+#+BEGIN_SRC sh
 dd [OPTIONS] if=/PATH/SRC of=/PATH/DEST
   bs=NUM: block size, 复制单元的大小
   count=NUM: 复制多少个bs
@@ -711,12 +712,12 @@ bash中用于实现文件名“通配”
   - [:space:]: 
   - [:punct:]: 标点符号
 ** bash的快捷键
-- Ctrl+l: 清屏，相当于clear命令
-- Ctrl+a: 跳转至命令开始处
-- Ctrl+e: 跳转至命令结尾处
-- Ctrl+c: 取消命令的执行
-- Ctrl+u: 删除光标所在处至行首的所有内容
-- Ctrl+k: 删除光标所在处至行尾的所有内容
+- Ctrl+L: 清屏，相当于clear命令
+- Ctrl+A: 跳转至命令开始处
+- Ctrl+E: 跳转至命令结尾处
+- Ctrl+C: 取消前台进程命令的执行
+- Ctrl+U: 删除光标所在处至行首的所有内容
+- Ctrl+K: 删除光标所在处至行尾的所有内容
 ** I/O重定向及管道
 - 每个打开的文件都会有一个fd: file descripter(文件描述符)
   - 标准输入: keyborad, 0

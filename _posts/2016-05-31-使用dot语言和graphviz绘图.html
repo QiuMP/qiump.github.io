@@ -82,7 +82,7 @@ TODO 简要介绍了如何使用DOT语言来绘制各种关系图
 
 <pre class="src src-dot">digraph <span style="color: #A6E22E;">G</span> {
     <span style="color: #FD971F;">size =</span> <span style="color: #E6DB74;">"4,4"</span>  <span style="color: #75715E;">// </span><span style="color: #75715E;">&#35774;&#32622;&#22270;&#29255;&#23610;&#23544;&#65288;&#33521;&#23544;&#65289;</span>
-    main [<span style="color: #FD971F;">shape=</span><span style="color: #AE81FF;">box</span>]  <span style="color: #75715E;">// </span><span style="color: #75715E;">&#35774;&#32622;&#24418;&#29366;</span>
+    main,cleanup [<span style="color: #FD971F;">shape=</span><span style="color: #AE81FF;">box</span>]  <span style="color: #75715E;">// </span><span style="color: #75715E;">&#35774;&#32622;&#22810;&#20010;&#32467;&#28857;&#30340;&#24418;&#29366;</span>
     main -&gt; parse [<span style="color: #FD971F;">weight=</span>4]  <span style="color: #75715E;">// </span><span style="color: #75715E;">&#35774;&#32622;&#26435;&#20540;&#65292;&#35753;main&#20248;&#20808;&#23545;&#40784;&#36825;&#20010;</span>
     parse -&gt; execute
     main -&gt; init [<span style="color: #FD971F;">style=</span><span style="color: #AE81FF;">dotted</span>]  <span style="color: #75715E;">// </span><span style="color: #75715E;">&#32447;&#26465;&#31867;&#22411;</span>

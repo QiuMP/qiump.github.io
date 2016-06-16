@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 进程管理 运维
 #+JEKYLL_PUBLISHED: true
 
-记录了Linux下如何进行进程的查询和管理
+简单地介绍了Linux进程的相关知识，以及进行进程管理的各种工具，比如pstree, ps, pgrep, pkill, pidof, top, htop, glances, vmstat, dstat, pmap, kill, sar, tsar, iostat, iftop等，同时简单记录了Linux下的前台和后台的作业控制，还有进程优先级的调整
 
 
 
@@ -17,16 +17,10 @@
 - 内核的作用 :: 进程管理、文件系统、网络功能、内存管理、驱动程序、安全功能
 - Process :: 运行中的程序的一个副本
   - Linux内核使用一个结构来存储进程信息: task_struct
-  - 多个任务的task_struct连成链表：task list
+  - 多个任务的task_struct连成链表: task list
 ** 进程的创建
 进程都是由父进程创建的，利用 =fork()= 、 =clone()=
 - 系统的第一个进程init是所有进程的继承者
-** 进程的优先级
-- 优先级范围是0~139
-  - 1-99：实时优先级, 数字越大，优先级越高
-  - 100-139：静态优先级, 数字越小，优先级越高
-    - Nice值：[-20,19]
-- 相同优先级的程序排一队，内核每次顺序执行140个优先级的队列排头程序
 ** 进程内存
 - 内存被分割为大量4KB的Page frame，用于存储Page数据
 - 每个进程被分配一定量的Page frame，可能不连续，但在进程看来是连续的
@@ -34,22 +28,22 @@
 - 对于一次IO访问，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。
 ** 进程间通信
 IPC: Inter Process Communication
-- 同一主机上：signal, shared memory(shm), semerphor
-- 不同主机上：RPC, socket
+- 同一主机上: signal, shared memory(shm), semerphor
+- 不同主机上: RPC, socket
 ** 进程类型
 - 启动方式分类 
   - 守护进程: 跟终端无关的进程，在系统引导过程中启动的进程
-  - 前台进程：跟终端相关，通过终端启动的进程，可以被转换为守护进程
+  - 前台进程: 跟终端相关，通过终端启动的进程，可以被转换为守护进程
 - 根据资源的使用
   - CPU-Bound: CPU密集型
-  - IO-Bound：IO密集型
+  - IO-Bound: IO密集型
 ** 进程状态
-- 运行态R：running
-- 睡眠态：sleeping
-  - 可中断S：interruptable, 可以立即被唤醒执行
-  - 不可中断D：uninterruptable, 无法立即被唤醒执行
-- 停止态T：stopped，暂停于内存中，但不会被调度，除非手动启动
-- 僵死态Z：zombie，子进程的父进程被终止
+- 运行态R: running
+- 睡眠态: sleeping
+  - 可中断S: interruptable, 可以立即被唤醒执行
+  - 不可中断D: uninterruptable, 无法立即被唤醒执行
+- 停止态T: stopped，暂停于内存中，但不会被调度，除非手动启动
+- 僵死态Z: zombie，子进程的父进程被终止
 * 进程管理工具
 Linux系统各进程的相关信息均保存在 =/proc/PID= 目录下的各文件中
 ** pstree
@@ -58,19 +52,232 @@ Linux系统各进程的相关信息均保存在 =/proc/PID= 目录下的各文�
 进程状态查看工具
 - ps选项支持两种风格，分别是标准风格和BSD风格
 - 线程相关信息
-  - VSZ: Virtual memory SiZe，虚拟内存集
-  - RSS: ReSident Size, 常驻内存集
-  - STAT：进程状态
-    - R/S/D/T/Z：进程状态
+  - VSZ/VIRT: Virtual memory SiZe，虚拟内存集
+  - RSS/RES: ReSident Size, 常驻内存集
+  - SHR: 共享内存集
+  - STAT: 进程状态
+    - R/S/D/T/Z: 进程状态
     - +: 前台进程
     - l: 多线程进程
-    - N：低优先级进程
+    - N: 低优先级进程
     - <: 高优先级进程
-    - s: session leader会话创建者
+    - s: session leader会话创建者，终止时其会话成员也会被终止
+  - Time: 运行时的累计时长
+  - COMMAND: 其中[NAME]是内核线程
+  - RTPRIO: 实时优先级
+  - PRI: priority, 优先级
+  - NI: nice值
+  - PSR: processor, 运行在哪个CPU上
 
 #+BEGIN_SRC conf
-ps aux
+ps aux  # 显示系统所有进程
   u: 以用户为中心组织进程状态信息显示
   a: 与终端相关的进程
   x: 与终端无关的进程
+ps -eFH  # 以进程层级格式显示进程相关信息
+  -e: 显示所有进程，相当于ax
+  -F: 显示完整格式程序信息
+  -H: 层级格式显示进程
+ps axZ  # 显示selinux相关
+ps -U USER  # 显示某用户运行的进程
+ps -eo ...  # 自定义显示列表
+#+END_SRC
+** pgrep与pkill
+可使用正则表达式的进程管理工具
+#+BEGIN_SRC conf
+pgrep [options] pattern
+pkill [options] pattern
+  -l: 显示进程名
+  -a: 显示COMMAND
+
+  -u uid: effective user
+  -U uid: real user
+  -t terminal: 与指定终端相关的进程
+  -P pid: 显示其父进程为此处指定的进程的进程列表
+#+END_SRC
+** pidof
+根据进程名获取PID
+** top
+交互式管理所有进程
+#+BEGIN_SRC conf
+top [OPTIONS]
+  -d NUM: 指定刷新时间间隔
+  -b: 以批次输出形式
+  -n NUM: 显示批次的次数
+
+  内置命令
+    P: 以占据的CPU百分比排序
+    M: 以占据内存百分比排序
+    T: 以累积占据CPU时长排序
+
+    l: 切换uptime信息
+    t: 切换tasks和cpu信息
+      1: 切换cpu的显示形式
+    m: 切换memory信息
+
+    s: 修改刷新时间间隔
+    k: 终止指定进程
+    q: 退出命令
+
+#+END_SRC
+- load average: 1分钟、5分钟、15分钟的平均负载
+- cpu分段
+  - us: 用户模式使用
+  - sy: 内核模式使用
+  - ni: nice值
+  - id: idle，空闲比例
+  - wa: 等待IO运行的时间
+  - hi: 硬件中断处理时间
+  - si: 软切换，即模式切换占用的时间
+  - st: 虚拟化使用时间
+** htop
+top的升级版
+#+BEGIN_SRC conf
+htop [OPTIONS]
+  -d NUM: 指定延迟时间
+  -u UserName: 仅显示指定用户的进程
+  -s NAME: 以指定字段进行排序
+
+  内置命令
+  h: 帮助
+  s: 跟踪选定进程的系统调用
+  l: 显示选定进程打开的文件列表
+  a: 将选定的进程绑定至某指定CPU核心
+  t: 显示进程树
+#+END_SRC
+** glances
+远程监控工具
+#+BEGIN_SRC conf
+glances [OPTIONS]
+    -t NUM: 设置时间间隔
+  启动服务
+    -s -B IPADDR: 指定IP与端口
+  远程监控
+    -c server:
+    -p port:
+    -P password:
+    --password:
+  输出文件
+    -f FILE: 设置输出文件的位置
+    -o {HTML|CSV}: 输出格式
+#+END_SRC
+** vmstat
+管理虚拟内存信息
+#+BEGIN_SRC conf
+vmstat [options] [delay [count]]  
+  -s: 显示内存的统计数据
+  delay: 每多少秒刷新一次
+  count: 刷新多少次
+
+  显示的信息
+    procs
+      r: 等待运行的进程的个数
+      b: 处于不可中断睡眠态的进程个数(被阻塞的队列的长度)
+    memory
+      swpd: 交换内存的使用总量
+      free: 空闲物理内存总量
+      buffer: 用于buffer的内存总量
+      cache: 用于cache的内存总量
+    swap
+      si: 数据进入swap中的数据速率(kb/s)
+      so: 数据离开swap中的数据速率(kb/s)
+    io
+      bi: 从块设备读入数据到内存的速率(kb/s)
+      bo: 保存数据至块设备的速率
+    system
+      in: interrupts, 每秒发生多少个中断
+      cs: context switch, 进程切换速率
+#+END_SRC
+** dstat
+用于生成系统统计数据
+#+BEGIN_SRC conf
+dstat [options] [delay [count]]
+  -c: 显示cpu相关信息(默认)
+  -C 1,2,...,total: 显示哪颗CPU
+  -d: 显示disk相关信息(默认)
+  -D sda,sdb,...,total: 显示哪个磁盘
+  -g: 显示page相关统计数据(默认)
+  -m: 显示memory相关统计数据
+  -n: 显示network相关统计数据(默认)
+  -p: 显示process相关统计数据
+  -r: 显示io请求相关的统计数据
+  -s: 显示swapped相关的统计数据
+  
+  --ipc
+  --tcp
+  --udp
+  --unix
+  --raw
+  --socket 
+  
+  --top-cpu: 显示最占用CPU的进程
+  --top-io: 显示最占用io的进程
+  --top-mem: 显示最占用内存的进程
+  --top-lantency: 显示延迟最大的进程
+#+END_SRC
+** pmap
+查询进程内存映射表(Page frame)
+- 这些信息被存在了 =/proc/PID/maps= 中
+#+BEGIN_SRC conf
+pmap [options] pid [...]
+  -x: 显示详细格式的信息
+#+END_SRC
+** kill
+向进程发送控制信号，以实现对进程的管理
+- 常用可用信号
+  | 1,SIGHUP   | 无须关闭进程而让其重读配置文件   |
+  | 2,SIGINT   | 中止正在运行的进程(相当于Ctrl+C) |
+  | 9,SIGKILL  | 杀死正在运行的进程(强制关闭)     |
+  | 15,SIGTERM | 终止正在运行的进程(正常关闭)     |
+  | 18,SIGCONT | 继续执行程序                     |
+  | 19,SIGSTOP | 暂停程序                         |
+
+#+BEGIN_SRC conf
+kill -l  # 显示当前系统可用信号
+man 7 signal  # 显示当前系统可用信号
+
+kill [-SIGNAL] PID...  # 向进程发送信号
+killall [-SIGNAL] Program  # 终止匹配该名称的所有进程
+#+END_SRC
+** TODO sar
+** TODO tsar
+** TODO iostat
+** TODO iftop
+* Linux的作业控制
+** 作业的分类
+- 前台作业：通过终端启动，且启动后一直占据终端
+- 后台作业：可以通过终端启动，但启动后即转入后台运行（释放终端）
+  - 后台作业依旧与终端相关, 会随着终端关闭而关闭
+
+** 创建作业
+- 启动后台作业 ::
+  - 在运行中的作业使用 Ctrl+Z
+  - 尚未启动的作业 COMMAND &
+- 启动与终端无关的作业 ::
+  #+BEGIN_SRC conf
+  nohup COMMAND &  # 创建与终端无关的作业
+  #+END_SRC
+** 相关控制命令
+#+BEGIN_SRC conf
+jobs  # 查看所有作业
+fg [[%]JOB_NUM]  # 把指定的后台作业调回前台
+bg [[%]JOB_NUM]  # 让送往后台的作业在后台继续运行(SIGCONT)
+kill [%JOB_NUM]  # 终止指定的作业
+#+END_SRC
+* 进程优先级调整
+** 进程的优先级
+- 优先级范围是0~139
+  - 1-99: 实时优先级, 数字越大，优先级越高
+  - 100-139: 静态优先级, 数字越小，优先级越高
+    - nice值: [-20,19]
+- 相同优先级的程序排一队，内核每次顺序执行140个优先级的队列排头程序
+- 进程默认启动时的nice值为0, 优先级为120
+- 普通用户只能调高nice值
+** 相关命令
+#+BEGIN_SRC conf
+ps axo pid,comm,ni  # 查看nice
+
+nice [OPTIONS] [COMMAND...]  # 为新创建的进程指定优先级
+  -n NUM: 指定nice值, 默认为10
+renice [-n] NUM PID...  # 为进程指定优先级
 #+END_SRC
