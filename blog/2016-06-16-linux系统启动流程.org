@@ -13,7 +13,6 @@
 
 -----
 * Linux内核
-- Linux系统由 =kernel= 、 =rootfs= 组成
 - 内核设计流派
   1. 单内核设计：把所有功能集成于同一程序
      - 效率高，但子程序的故障会影响系统
@@ -24,6 +23,7 @@
 - Linux内核的特点
   1. 支持模块化: .ko (kernel object)
   2. 支持模块的动态装载和卸载
+  3. 使用缓冲和缓存来加速对磁盘上的文件访问
 - Linux内核组成的部分
   - 核心文件: /boot/vmlinuz-VERSION-release
   - 模块文件：/lib/modules/VERSION-release
@@ -49,3 +49,116 @@
 - GRUB的启动阶段
   1. bootloader: 加载硬盘分区, 加载的模块已经在安装GRUB的时候就确定了
   2. disk: 读取内容显示菜单
+** kernel
+*** 系统初始化
+  - 探测可识别到的所有硬件设备
+  - 加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
+    - ramdisk: ramfs文件系统(防止进行缓存)
+      - initrd(CentOS 5), 用mkinitrd生成
+      - initramfs(CentOS 6), 用dracut生成
+  - 以只读方式挂载根文件系统(rootfs)
+  - 运行用户空间的第一个应用程序
+    - SysV: init(CentOS 5)
+      - 配置文件: /etc/inittab
+    - Upstart: init(CentOS 6)
+      - 配置文件: /etc/inittab, /etc/init/*.conf
+    - Systemd: systemd(CentOS 7)
+      - 配置文件: /usr/lib/systemd/system, /etc/systemd/system
+*** init
+**** 运行级别
+为了系统的运行或维护等应用目的而设定
+| 0 | 关机                                               |
+| 1 | 单用户single模式(root, 无须登录), single, 维护模式 |
+| 2 | 多用户模式，会启动网络功能，但不会启动NFS          |
+| 3 | 多用户模式，正常模式；文本界面                     |
+| 4 | 预留级别；可同3级别                                |
+| 5 | 多用户模式，正常模式；图形界面                     |
+| 6 | 重启                                               |
+- 默认级别: 3, 5
+#+BEGIN_SRC conf
+init NUM  # 切换当前级别
+runlevel  # 查看上一个级别和当前级别
+who -r  # 查看当前级别
+#+END_SRC
+**** 配置文件
+在配置文件 =/etc/inittab= 中，每一行定义一种action以及对应的process
+- 配置文件的内容:
+  #+BEGIN_SRC c
+  id:runlevel:action:process
+    action:
+      wait: 切换至此级别运行一次
+      respawn：此process终止，就重新启动之
+  
+  id:3:initdefault:  # 设置默认级别
+  si::sysinit:/etc/rc.d/rc.sysinit  # 设定系统初始化方式
+  
+  l0:0:wait:/etc/rc.d/rc 0  # 读取/etc/rc.d/rc0.d/
+  l1:1:wait:/etc/rc.d/rc 1  # 读取/etc/rc.d/rc1.d/
+  ...
+  l6:6:wait:/etc/rc.d/rc 6  # 读取/etc/rc.d/rc6.d/
+
+  tty1:2345:respawn:/usr/sbin/mingetty tty1  # 启动tty终端
+  tty2:2345:respawn:/usr/sbin/mingetty tty2  # mingetty会调用login程序
+  ...
+  tty6:2345:respawn:/usr/sbin/mingetty tty6
+  #+END_SRC
+**** /etc/rc.d/rc.sysinit
+系统初始化脚本
+1. 设置主机名
+2. 设置欢迎信息
+3. 激活udev和selinux
+4. 挂载/etc/fstab文件中定义的文件系统
+5. 检测根文件系统，并以读写方式重新挂载根文件系统
+6. 读取硬件时钟设置系统时钟
+7. 激活swap设备
+8. 根据/etc/sysctl.conf文件设置内核参数
+9. 激活lvm及software raid设备
+10. 加载额外设备的驱动程序
+11. 清理操作
+
+**** 服务
+- /etc/rc.d/rc{0-6}.d/
+  - K[NUM]*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
+  - S[NUM]*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
+  #+BEGIN_SRC sh
+  # /etc/rc.d/rc的部分执行内容
+    for srv in /etc/rc.d/rc${1}.d/K*; do
+        $srv stop
+    done
+
+    for srv in /etc/rc.d/rc${1}.d/S*; do
+        $srv start
+    done
+  #+END_SRC
+
+- 正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中
+**** chkconfig
+服务管理工具
+- 查询 ::
+  - 查看服务在所有级别的启动关闭情况
+  #+BEGIN_SRC sh
+  chkconfig --list [NAME]  
+    NAME: 查看指定服务的状态
+  #+END_SRC
+- 添加 ::
+  - 将SysV的服务脚本放置于/etc/rc.d/init.d或/etc/init.d中
+  - 服务的启动关闭设置取决于脚本中的chkconfig设置
+  #+BEGIN_SRC conf
+  chkconfig --add NAME 
+  # 脚本中的chkconfig设置
+  chkconfig: NNN aa bb
+    NNN: 指定在哪个级别下是S状态，没指定的为K状态
+    aa: S状态下的数字
+    bb: K状态下的数字
+  #+END_SRC
+- 修改 :: 
+  - 修改制定的连接类型
+  #+BEGIN_SRC sh
+  chkconfig [--level levels] name <on|off|reset>
+    --level NNN: 指定要设置的级别(默认为2345)
+  #+END_SRC
+- 删除 ::
+  #+BEGIN_SRC conf
+  chkconfig --del NAME
+  #+END_SRC
+*** TODO systemd
