@@ -38,6 +38,7 @@
 - 整个计算机的地址空间是ROM+RAM组成的
 ** Boot Sequence
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
+*** bootloader
 - bootloader: 引导加载器
   - windows: ntloader
   - Linux: LILO, GRUB, GRUB2
@@ -46,9 +47,72 @@
   - 前446字节: bootloader
   - 64字节: 硬盘分区表(fat)
   - 2: 55AA
-- GRUB的启动阶段
-  1. bootloader: 加载硬盘分区, 加载的模块已经在安装GRUB的时候就确定了
-  2. disk: 读取内容显示菜单
+*** grub legacy
+**** grub的启动阶段
+- stage1: mbr
+- stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统
+- stage2：读取磁盘分区(/boot/grub)上的程序
+  1. 提供菜单、并提供交互式接口
+     - e: 编辑模式，用于编辑菜单；
+     - c: 命令模式，交互式接口；
+  2. 加载用户选择的内核或操作系统
+     - 允许传递参数给内核
+     - 可隐藏此菜单
+  3. 为菜单提供了保护机制
+     - 为编辑菜单进行认证
+     - 为启用内核或操作系统进行认证
+**** grub命令行
+- 设备名(hd#, #)
+  - hd#: 磁盘编号，从0开始编号
+  - #: 分区编号，从0开始编号
+  - 只能识别基本分区
+- 常用命令
+  - help: 获取命令帮助
+  - help KEYWORD: 详细帮助信息
+  - find (hd#,#)/PATH/TO/SOMEFILE：查询文件存在性
+  - root (hd#,#): 设定根设备
+  - kernel /PATH/TO/KERNEL_FILE [OPTIONS]: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
+    - 例如: =kernel /vmlinuz-VERSION-RELEASE ro root=/dev/DEVICE=
+    - init=/path/to/init: 该参数能设定开机运行的第一个程序
+  - initrd /PATH/TO/INITRAMFS_FILE: 设定为选定的内核提供额外文件的ramdisk
+  - boot: 引导启动选定的内核
+  
+**** 配置文件
+grub配置文件是 =/boot/grub/grub.conf= ，而 =/etc/grub.conf= 是指向该文件的链接
+#+BEGIN_SRC conf
+default=NUM  # 设定默认启动的菜单项，菜单项(title)编号从0开始
+timeout=NUM  # 指定菜单项等待选项选择的时长
+splashimage=(hd*,*)/PATH/TO/XPM_PIC_FILE  # 指明菜单背景图片文件路径
+hiddenmenu  # 隐藏菜单
+password [--md5] STRING  # 菜单编辑认证，菜单下用p来输入密码解锁
+title TITLE  # 定义菜单项“标题”, 可出现多次
+    root (hd*,*)  # grub查找stage2及kernel文件所在设备分区
+    kernel /PATH/TO/VMLINUZ_FILE [PARAMETERS]  # 启动的内核
+    initrd /PATH/TO/INITRAMFS_FILE  # 内核匹配的ramfs文件
+    password [--md5] STRING  # 启动选定的内核或操作系统时进行认证
+#+END_SRC
+
+- 生成GRUB加密密码的工具: =grub-md5-crypt=
+- 若配置文件出错，则会直接进入命令行操作
+
+**** 进入单用户模式
+1. 编辑grub菜单(选定要编辑的title，而后使用e命令)
+2. 在选定的kernel后附加 1, s, S或single都可以
+3. 在kernel所在行，键入b命令
+
+**** 安装grub
+- grub-install
+  #+BEGIN_SRC sh
+  grub-install --root-directory=ROOT /dev/DISK
+  # ROOT是boot挂载的目录
+  # 建立后grub.conf需要自己创建
+  #+END_SRC
+- grub命令行
+  #+BEGIN_SRC sh
+  grub> root (hd*,*)
+  grub> setup (hd*)
+  #+END_SRC
+- 可以通过光盘的紧急救援模式来修复grub
 ** kernel
 *** 系统初始化
   - 探测可识别到的所有硬件设备
@@ -118,8 +182,8 @@ who -r  # 查看当前级别
 
 **** 服务
 - /etc/rc.d/rc{0-6}.d/
-  - K[NUM]*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
-  - S[NUM]*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
+  - K##*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
+  - S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
   #+BEGIN_SRC sh
   # /etc/rc.d/rc的部分执行内容
     for srv in /etc/rc.d/rc${1}.d/K*; do

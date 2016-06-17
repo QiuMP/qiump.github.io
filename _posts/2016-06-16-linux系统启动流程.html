@@ -16,15 +16,20 @@ comments:
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#orgheadline1">1. Linux内核</a></li>
-<li><a href="#orgheadline13">2. CentOS系统启动流程</a>
+<li><a href="#orgheadline20">2. CentOS系统启动流程</a>
 <ul>
 <li><a href="#orgheadline2">POST: 加电自检</a></li>
-<li><a href="#orgheadline3">Boot Sequence</a></li>
-<li><a href="#orgheadline12">kernel</a>
+<li><a href="#orgheadline3">Boot Sequence</a>
 <ul>
-<li><a href="#orgheadline4">系统初始化</a></li>
-<li><a href="#orgheadline10">init</a></li>
-<li><a href="#orgheadline11"><span class="todo TODO">TODO</span> systemd</a></li>
+<li><a href="#orgheadline4">bootloader</a></li>
+<li><a href="#orgheadline10">grub legacy</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline19">kernel</a>
+<ul>
+<li><a href="#orgheadline11">系统初始化</a></li>
+<li><a href="#orgheadline17">init</a></li>
+<li><a href="#orgheadline18"><span class="todo TODO">TODO</span> systemd</a></li>
 </ul>
 </li>
 </ul>
@@ -76,8 +81,8 @@ comments:
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-2">
-<h2 id="orgheadline13"><span class="section-number-2">2</span> CentOS系统启动流程</h2>
+<div id="outline-container-orgheadline20" class="outline-2">
+<h2 id="orgheadline20"><span class="section-number-2">2</span> CentOS系统启动流程</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline2" class="outline-3">
 <h3 id="orgheadline2">POST: 加电自检</h3>
@@ -96,6 +101,10 @@ comments:
 <p>
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
 </p>
+</div>
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">bootloader</h4>
+<div class="outline-text-4" id="text-orgheadline4">
 <ul class="org-ul">
 <li>bootloader: 引导加载器
 <ul class="org-ul">
@@ -109,20 +118,126 @@ comments:
 <li>64字节: 硬盘分区表(fat)</li>
 <li>2: 55AA</li>
 </ul></li>
-<li>GRUB的启动阶段
-<ol class="org-ol">
-<li>bootloader: 加载硬盘分区, 加载的模块已经在安装GRUB的时候就确定了</li>
-<li>disk: 读取内容显示菜单</li>
-</ol></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">kernel</h3>
-<div class="outline-text-3" id="text-orgheadline12">
-</div><div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">系统初始化</h4>
-<div class="outline-text-4" id="text-orgheadline4">
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">grub legacy</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+</div><ul class="org-ul"><li><a id="orgheadline5"></a>grub的启动阶段<br  /><div class="outline-text-5" id="text-orgheadline5">
+<ul class="org-ul">
+<li>stage1: mbr</li>
+<li>stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统</li>
+<li>stage2：读取磁盘分区(/boot/grub)上的程序
+<ol class="org-ol">
+<li>提供菜单、并提供交互式接口
+<ul class="org-ul">
+<li>e: 编辑模式，用于编辑菜单；</li>
+<li>c: 命令模式，交互式接口；</li>
+</ul></li>
+<li>加载用户选择的内核或操作系统
+<ul class="org-ul">
+<li>允许传递参数给内核</li>
+<li>可隐藏此菜单</li>
+</ul></li>
+<li>为菜单提供了保护机制
+<ul class="org-ul">
+<li>为编辑菜单进行认证</li>
+<li>为启用内核或操作系统进行认证</li>
+</ul></li>
+</ol></li>
+</ul>
+</div></li>
+<li><a id="orgheadline6"></a>grub命令行<br  /><div class="outline-text-5" id="text-orgheadline6">
+<ul class="org-ul">
+<li>设备名(hd#, #)
+<ul class="org-ul">
+<li>hd#: 磁盘编号，从0开始编号</li>
+<li>#: 分区编号，从0开始编号</li>
+<li>只能识别基本分区</li>
+</ul></li>
+<li>常用命令
+<ul class="org-ul">
+<li>help: 获取命令帮助</li>
+<li>help KEYWORD: 详细帮助信息</li>
+<li>find (hd#,#)/PATH/TO/SOMEFILE：查询文件存在性</li>
+<li>root (hd#,#): 设定根设备</li>
+<li>kernel /PATH/TO/KERNEL_FILE [OPTIONS]: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
+<ul class="org-ul">
+<li>例如: <code>kernel /vmlinuz-VERSION-RELEASE ro root=/dev/DEVICE</code></li>
+<li>init=/path/to/init: 该参数能设定开机运行的第一个程序</li>
+</ul></li>
+<li>initrd /PATH/TO/INITRAMFS_FILE: 设定为选定的内核提供额外文件的ramdisk</li>
+<li>boot: 引导启动选定的内核</li>
+</ul></li>
+</ul>
+</div></li>
+
+<li><a id="orgheadline7"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline7">
+<p>
+grub配置文件是 <code>/boot/grub/grub.conf</code> ，而 <code>/etc/grub.conf</code> 是指向该文件的链接
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">default</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#40664;&#35748;&#21551;&#21160;&#30340;&#33756;&#21333;&#39033;&#65292;&#33756;&#21333;&#39033;(title)&#32534;&#21495;&#20174;0&#24320;&#22987;</span>
+<span style="color: #FD971F;">timeout</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#33756;&#21333;&#39033;&#31561;&#24453;&#36873;&#39033;&#36873;&#25321;&#30340;&#26102;&#38271;</span>
+<span style="color: #FD971F;">splashimage</span>=(hd*,*)/PATH/TO/XPM_PIC_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#26126;&#33756;&#21333;&#32972;&#26223;&#22270;&#29255;&#25991;&#20214;&#36335;&#24452;</span>
+hiddenmenu  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38544;&#34255;&#33756;&#21333;</span>
+password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#32534;&#36753;&#35748;&#35777;&#65292;&#33756;&#21333;&#19979;&#29992;p&#26469;&#36755;&#20837;&#23494;&#30721;&#35299;&#38145;</span>
+title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#33756;&#21333;&#39033;&#8220;&#26631;&#39064;&#8221;, &#21487;&#20986;&#29616;&#22810;&#27425;</span>
+    root (hd*,*)  <span style="color: #75715E;"># </span><span style="color: #75715E;">grub&#26597;&#25214;stage2&#21450;kernel&#25991;&#20214;&#25152;&#22312;&#35774;&#22791;&#20998;&#21306;</span>
+    kernel /PATH/TO/VMLINUZ_FILE [PARAMETERS]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#20869;&#26680;</span>
+    initrd /PATH/TO/INITRAMFS_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#26680;&#21305;&#37197;&#30340;ramfs&#25991;&#20214;</span>
+    password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#36873;&#23450;&#30340;&#20869;&#26680;&#25110;&#25805;&#20316;&#31995;&#32479;&#26102;&#36827;&#34892;&#35748;&#35777;</span>
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>生成GRUB加密密码的工具: <code>grub-md5-crypt</code></li>
+<li>若配置文件出错，则会直接进入命令行操作</li>
+</ul>
+</div></li>
+
+<li><a id="orgheadline8"></a>进入单用户模式<br  /><div class="outline-text-5" id="text-orgheadline8">
+<ol class="org-ol">
+<li>编辑grub菜单(选定要编辑的title，而后使用e命令)</li>
+<li>在选定的kernel后附加 1, s, S或single都可以</li>
+<li>在kernel所在行，键入b命令</li>
+</ol>
+</div></li>
+
+<li><a id="orgheadline9"></a>安装grub<br  /><div class="outline-text-5" id="text-orgheadline9">
+<ul class="org-ul">
+<li><p>
+grub-install
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">grub-install --root-directory=ROOT /dev/DISK
+<span style="color: #75715E;"># </span><span style="color: #75715E;">ROOT&#26159;boot&#25346;&#36733;&#30340;&#30446;&#24405;</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#24314;&#31435;&#21518;grub.conf&#38656;&#35201;&#33258;&#24049;&#21019;&#24314;</span>
+</pre>
+</div></li>
+<li><p>
+grub命令行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">grub&gt; root <span style="color: #AE81FF;">(</span>hd*,*<span style="color: #AE81FF;">)</span>
+grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE81FF;">)</span>
+</pre>
+</div></li>
+<li>可以通过光盘的紧急救援模式来修复grub</li>
+</ul>
+</div></li></ul>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">kernel</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+</div><div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">系统初始化</h4>
+<div class="outline-text-4" id="text-orgheadline11">
 <ul class="org-ul">
 <li>探测可识别到的所有硬件设备</li>
 <li>加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
@@ -152,10 +267,10 @@ comments:
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-4">
-<h4 id="orgheadline10">init</h4>
-<div class="outline-text-4" id="text-orgheadline10">
-</div><ul class="org-ul"><li><a id="orgheadline5"></a>运行级别<br  /><div class="outline-text-5" id="text-orgheadline5">
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">init</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+</div><ul class="org-ul"><li><a id="orgheadline12"></a>运行级别<br  /><div class="outline-text-5" id="text-orgheadline12">
 <p>
 为了系统的运行或维护等应用目的而设定
 </p>
@@ -215,7 +330,7 @@ who -r  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#2
 </pre>
 </div>
 </div></li>
-<li><a id="orgheadline6"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline6">
+<li><a id="orgheadline13"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline13">
 <p>
 在配置文件 <code>/etc/inittab</code> 中，每一行定义一种action以及对应的process
 </p>
@@ -246,7 +361,7 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 </div></li>
 </ul>
 </div></li>
-<li><a id="orgheadline7"></a>/etc/rc.d/rc.sysinit<br  /><div class="outline-text-5" id="text-orgheadline7">
+<li><a id="orgheadline14"></a>/etc/rc.d/rc.sysinit<br  /><div class="outline-text-5" id="text-orgheadline14">
 <p>
 系统初始化脚本
 </p>
@@ -265,14 +380,14 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 </ol>
 </div></li>
 
-<li><a id="orgheadline8"></a>服务<br  /><div class="outline-text-5" id="text-orgheadline8">
+<li><a id="orgheadline15"></a>服务<br  /><div class="outline-text-5" id="text-orgheadline15">
 <ul class="org-ul">
 <li><p>
 <i>etc/rc.d/rc{0-6}.d</i>
 </p>
 <ul class="org-ul">
-<li>K[NUM]*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务</li>
-<li>S[NUM]*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务</li>
+<li>K##*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务</li>
+<li>S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务</li>
 </ul>
 <div class="org-src-container">
 
@@ -290,7 +405,7 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 <li>正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中</li>
 </ul>
 </div></li>
-<li><a id="orgheadline9"></a>chkconfig<br  /><div class="outline-text-5" id="text-orgheadline9">
+<li><a id="orgheadline16"></a>chkconfig<br  /><div class="outline-text-5" id="text-orgheadline16">
 <p>
 服务管理工具
 </p>
@@ -335,8 +450,8 @@ chkconfig: NNN aa bb
 </dl>
 </div></li></ul>
 </div>
-<div id="outline-container-orgheadline11" class="outline-4">
-<h4 id="orgheadline11"><span class="todo TODO">TODO</span> systemd</h4>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18"><span class="todo TODO">TODO</span> systemd</h4>
 </div>
 </div>
 </div>
