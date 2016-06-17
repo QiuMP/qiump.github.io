@@ -15,21 +15,39 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. Linux内核</a></li>
-<li><a href="#orgheadline20">2. CentOS系统启动流程</a>
+<li><a href="#orgheadline13">1. Linux内核</a>
 <ul>
-<li><a href="#orgheadline2">POST: 加电自检</a></li>
-<li><a href="#orgheadline3">Boot Sequence</a>
+<li><a href="#orgheadline1">内核设计流派</a></li>
+<li><a href="#orgheadline2">Linux内核的特点</a></li>
+<li><a href="#orgheadline3">Linux内核组成的部分</a></li>
+<li><a href="#orgheadline11">相关命令</a>
 <ul>
-<li><a href="#orgheadline4">bootloader</a></li>
-<li><a href="#orgheadline10">grub legacy</a></li>
+<li><a href="#orgheadline4">uname</a></li>
+<li><a href="#orgheadline5">lsmod</a></li>
+<li><a href="#orgheadline6">modinfo</a></li>
+<li><a href="#orgheadline7">depmod</a></li>
+<li><a href="#orgheadline8">modprobe</a></li>
+<li><a href="#orgheadline9">insmod</a></li>
+<li><a href="#orgheadline10">rmmod</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline19">kernel</a>
+<li><a href="#orgheadline12">/proc</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline32">2. CentOS系统启动流程</a>
 <ul>
-<li><a href="#orgheadline11">系统初始化</a></li>
-<li><a href="#orgheadline17">init</a></li>
-<li><a href="#orgheadline18"><span class="todo TODO">TODO</span> systemd</a></li>
+<li><a href="#orgheadline14">POST: 加电自检</a></li>
+<li><a href="#orgheadline15">Boot Sequence</a>
+<ul>
+<li><a href="#orgheadline16">bootloader</a></li>
+<li><a href="#orgheadline22">grub legacy</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline31">kernel</a>
+<ul>
+<li><a href="#orgheadline23">系统初始化</a></li>
+<li><a href="#orgheadline29">init</a></li>
+<li><a href="#orgheadline30"><span class="todo TODO">TODO</span> systemd</a></li>
 </ul>
 </li>
 </ul>
@@ -45,11 +63,12 @@ comments:
 
 
 <hr  />
-<div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> Linux内核</h2>
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">1</span> Linux内核</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>内核设计流派
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">内核设计流派</h3>
+<div class="outline-text-3" id="text-orgheadline1">
 <ol class="org-ol">
 <li>单内核设计：把所有功能集成于同一程序
 <ul class="org-ul">
@@ -61,32 +80,172 @@ comments:
 <li>效率低，但子程序相互独立</li>
 <li>例如Windows、Solaris</li>
 </ul></li>
-</ol></li>
-<li>Linux内核的特点
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Linux内核的特点</h3>
+<div class="outline-text-3" id="text-orgheadline2">
 <ol class="org-ol">
 <li>支持模块化: .ko (kernel object)</li>
 <li>支持模块的动态装载和卸载</li>
 <li>使用缓冲和缓存来加速对磁盘上的文件访问</li>
-</ol></li>
-<li>Linux内核组成的部分
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">Linux内核组成的部分</h3>
+<div class="outline-text-3" id="text-orgheadline3">
 <ul class="org-ul">
 <li>核心文件: /boot/vmlinuz-VERSION-release</li>
-<li>模块文件：/lib/modules/VERSION-release</li>
+<li>模块文件：/lib/modules/VERSION-release/*.ko
+<ul class="org-ul">
+<li>模块文件可以编译在内核中也可以选择编译为ko文件</li>
+</ul></li>
 <li>ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
 <ul class="org-ul">
 <li>CentOS 5: /boot/initrd-VERSION-release.img</li>
 <li>CentOS 6: /boot/initramfs-VERSION-release.img</li>
 </ul></li>
-</ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline20" class="outline-2">
-<h2 id="orgheadline20"><span class="section-number-2">2</span> CentOS系统启动流程</h2>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">uname</h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<p>
+用于打印系统信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">uname [OPTION]...
+  -n: &#26174;&#31034;&#20027;&#26426;&#21517;&#31216;
+  -r: &#26174;&#31034;VERSION-RELEASE
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">lsmod</h4>
+<div class="outline-text-4" id="text-orgheadline5">
+<p>
+显示由核心已经装载的内核模块
+</p>
+<ul class="org-ul">
+<li>显示的内容来自于 <code>/proc/modules</code> 文件</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">modinfo</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<p>
+显示模块的详细描述信息以及其依赖信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">modinfo [OPTIONS] [modulename|filename...]
+  -k kernel: &#26174;&#31034;&#25351;&#23450;&#20869;&#26680;&#30340;&#27169;&#22359;&#20449;&#24687;
+    -n: &#21482;&#26174;&#31034;&#27169;&#22359;&#25991;&#20214;&#36335;&#24452;
+    -p: &#26174;&#31034;&#27169;&#22359;&#21442;&#25968;
+    -d: description
+</pre>
+</div>
+<ul class="org-ul">
+<li>依赖关系是通过查询 <code>/lib/modules/VERSION-release/modules.dep</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">depmod</h4>
+<div class="outline-text-4" id="text-orgheadline7">
+<p>
+内部模块依赖关系文件以及系统信息映射文件的生成工具
+</p>
+<ul class="org-ul">
+<li>内部模块依赖关系文件: /lib/modules/VERSION-release/modules.dep</li>
+<li>系统信息映射文件: /boot/System.map-VERSION-release</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">modprobe</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<p>
+装载和卸载内核模块，会自动处理依赖问题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">modprobe <span style="color: #AE81FF;">[</span>-C config-file<span style="color: #AE81FF;">]</span>  <span style="color: #AE81FF;">[</span>modulename<span style="color: #AE81FF;">]</span>  <span style="color: #AE81FF;">[</span>module parame-ters...<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#35013;&#36733;&#27169;&#22359;</span>
+modprobe -r modulename  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21368;&#36733;&#27169;&#22359;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>模块配置文件: /etc/modprobe.conf, /etc/modprobe.d/*.conf</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">insmod</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<p>
+装载内核模块，但不会自动解决依赖问题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">insmod <span style="color: #AE81FF;">[</span>filename<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>module options...<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38656;&#35201;&#25351;&#26126;&#27169;&#22359;&#25991;&#20214;&#36335;&#24452;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">rmmod</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<p>
+卸载内核模块
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">/proc</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+内核把自己内部状态信息及统计信息，以及可配置参数通过proc伪文件系统加以输出
+</p>
+<ul class="org-ul">
+<li>/proc/sys中大部分参数可接受用户指定“新值”来实现对内核某功能或特性的配置
+<ol class="org-ol">
+<li><p>
+sysctl命令用于查看或设定此目录中诸多参数
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sysctl -w path.to.parameter=VALUE
+</pre>
+</div></li>
+<li><p>
+echo命令通过重定向的方式也可以修改大多数参数的值
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"VALUE"</span> &gt; /proc/sys/path/to/parameter  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30452;&#25509;&#35206;&#30422;</span>
+</pre>
+</div></li>
+</ol></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-2">
+<h2 id="orgheadline32"><span class="section-number-2">2</span> CentOS系统启动流程</h2>
 <div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">POST: 加电自检</h3>
-<div class="outline-text-3" id="text-orgheadline2">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">POST: 加电自检</h3>
+<div class="outline-text-3" id="text-orgheadline14">
 <ul class="org-ul">
 <li>加载CPU, 设定ROM中的固定地址</li>
 <li>通过ROM(CMOS)内的程序进行自检</li>
@@ -95,16 +254,16 @@ comments:
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">Boot Sequence</h3>
-<div class="outline-text-3" id="text-orgheadline3">
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">Boot Sequence</h3>
+<div class="outline-text-3" id="text-orgheadline15">
 <p>
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
 </p>
 </div>
-<div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">bootloader</h4>
-<div class="outline-text-4" id="text-orgheadline4">
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">bootloader</h4>
+<div class="outline-text-4" id="text-orgheadline16">
 <ul class="org-ul">
 <li>bootloader: 引导加载器
 <ul class="org-ul">
@@ -121,10 +280,10 @@ comments:
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-4">
-<h4 id="orgheadline10">grub legacy</h4>
-<div class="outline-text-4" id="text-orgheadline10">
-</div><ul class="org-ul"><li><a id="orgheadline5"></a>grub的启动阶段<br  /><div class="outline-text-5" id="text-orgheadline5">
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">grub legacy</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+</div><ul class="org-ul"><li><a id="orgheadline17"></a>grub的启动阶段<br  /><div class="outline-text-5" id="text-orgheadline17">
 <ul class="org-ul">
 <li>stage1: mbr</li>
 <li>stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统</li>
@@ -148,7 +307,7 @@ comments:
 </ol></li>
 </ul>
 </div></li>
-<li><a id="orgheadline6"></a>grub命令行<br  /><div class="outline-text-5" id="text-orgheadline6">
+<li><a id="orgheadline18"></a>grub命令行<br  /><div class="outline-text-5" id="text-orgheadline18">
 <ul class="org-ul">
 <li>设备名(hd#, #)
 <ul class="org-ul">
@@ -173,7 +332,7 @@ comments:
 </ul>
 </div></li>
 
-<li><a id="orgheadline7"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline7">
+<li><a id="orgheadline19"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline19">
 <p>
 grub配置文件是 <code>/boot/grub/grub.conf</code> ，而 <code>/etc/grub.conf</code> 是指向该文件的链接
 </p>
@@ -198,7 +357,7 @@ title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;
 </ul>
 </div></li>
 
-<li><a id="orgheadline8"></a>进入单用户模式<br  /><div class="outline-text-5" id="text-orgheadline8">
+<li><a id="orgheadline20"></a>进入单用户模式<br  /><div class="outline-text-5" id="text-orgheadline20">
 <ol class="org-ol">
 <li>编辑grub菜单(选定要编辑的title，而后使用e命令)</li>
 <li>在选定的kernel后附加 1, s, S或single都可以</li>
@@ -206,7 +365,7 @@ title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;
 </ol>
 </div></li>
 
-<li><a id="orgheadline9"></a>安装grub<br  /><div class="outline-text-5" id="text-orgheadline9">
+<li><a id="orgheadline21"></a>安装grub<br  /><div class="outline-text-5" id="text-orgheadline21">
 <ul class="org-ul">
 <li><p>
 grub-install
@@ -232,12 +391,12 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </div></li></ul>
 </div>
 </div>
-<div id="outline-container-orgheadline19" class="outline-3">
-<h3 id="orgheadline19">kernel</h3>
-<div class="outline-text-3" id="text-orgheadline19">
-</div><div id="outline-container-orgheadline11" class="outline-4">
-<h4 id="orgheadline11">系统初始化</h4>
-<div class="outline-text-4" id="text-orgheadline11">
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">kernel</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+</div><div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">系统初始化</h4>
+<div class="outline-text-4" id="text-orgheadline23">
 <ul class="org-ul">
 <li>探测可识别到的所有硬件设备</li>
 <li>加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
@@ -267,10 +426,10 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">init</h4>
-<div class="outline-text-4" id="text-orgheadline17">
-</div><ul class="org-ul"><li><a id="orgheadline12"></a>运行级别<br  /><div class="outline-text-5" id="text-orgheadline12">
+<div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29">init</h4>
+<div class="outline-text-4" id="text-orgheadline29">
+</div><ul class="org-ul"><li><a id="orgheadline24"></a>运行级别<br  /><div class="outline-text-5" id="text-orgheadline24">
 <p>
 为了系统的运行或维护等应用目的而设定
 </p>
@@ -330,7 +489,7 @@ who -r  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#2
 </pre>
 </div>
 </div></li>
-<li><a id="orgheadline13"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline13">
+<li><a id="orgheadline25"></a>配置文件<br  /><div class="outline-text-5" id="text-orgheadline25">
 <p>
 在配置文件 <code>/etc/inittab</code> 中，每一行定义一种action以及对应的process
 </p>
@@ -361,7 +520,7 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 </div></li>
 </ul>
 </div></li>
-<li><a id="orgheadline14"></a>/etc/rc.d/rc.sysinit<br  /><div class="outline-text-5" id="text-orgheadline14">
+<li><a id="orgheadline26"></a>/etc/rc.d/rc.sysinit<br  /><div class="outline-text-5" id="text-orgheadline26">
 <p>
 系统初始化脚本
 </p>
@@ -380,7 +539,7 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 </ol>
 </div></li>
 
-<li><a id="orgheadline15"></a>服务<br  /><div class="outline-text-5" id="text-orgheadline15">
+<li><a id="orgheadline27"></a>服务<br  /><div class="outline-text-5" id="text-orgheadline27">
 <ul class="org-ul">
 <li><p>
 <i>etc/rc.d/rc{0-6}.d</i>
@@ -405,7 +564,7 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 <li>正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中</li>
 </ul>
 </div></li>
-<li><a id="orgheadline16"></a>chkconfig<br  /><div class="outline-text-5" id="text-orgheadline16">
+<li><a id="orgheadline28"></a>chkconfig<br  /><div class="outline-text-5" id="text-orgheadline28">
 <p>
 服务管理工具
 </p>
@@ -450,8 +609,8 @@ chkconfig: NNN aa bb
 </dl>
 </div></li></ul>
 </div>
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18"><span class="todo TODO">TODO</span> systemd</h4>
+<div id="outline-container-orgheadline30" class="outline-4">
+<h4 id="orgheadline30"><span class="todo TODO">TODO</span> systemd</h4>
 </div>
 </div>
 </div>
