@@ -15,7 +15,8 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. </a></li>
+<li><a href="#orgheadline1">1. CentOS安装程序启动过程</a></li>
+<li><a href="#orgheadline2">2. anaconda</a></li>
 </ul>
 </div>
 </div>
@@ -28,5 +29,79 @@ TODO
 
 <hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> </h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> CentOS安装程序启动过程</h2>
+<div class="outline-text-2" id="text-1">
+<ol class="org-ol">
+<li>bootloader: <code>isolinux/boot.cat</code></li>
+<li>stage2: <code>isolinux/isolinux.bin</code>
+<ul class="org-ul">
+<li><p>
+配置文件: <code>isolinux/isolinux.cfg</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#20809;&#30424;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;&#25937;&#25588;&#27169;&#24335;</span>
+label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#34892;&#25552;&#31034;&#31526;&#19979;&#30340;&#25191;&#34892;&#21629;&#20196;</span>
+  menu label ^Rescue installed system  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#19979;&#26174;&#31034;&#30340;&#20869;&#23481;</span>
+  menu default  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#30340;&#36873;&#25321;&#39033;</span>
+  kernel vmlinuz  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21152;&#36733;&#20869;&#26680;</span>
+  <span style="color: #FD971F;">append initrd</span>=initrd.img rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#26680;&#21442;&#25968;</span>
+</pre>
+</div></li>
+<li><p>
+命令行提示符下
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">boot: linux text  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;linux&#26631;&#31614;&#65292;&#24182;&#20026;&#20869;&#26680;&#28155;&#21152;&#21442;&#25968;text</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#21629;&#20196;&#26174;&#24335;&#25351;&#23450;&#20351;&#29992;tui&#25509;&#21475;</span>
+</pre>
+</div></li>
+</ul></li>
+<li>装载根文件系统，并启动anaconda
+<ul class="org-ul">
+<li>anaconda是系统安装程序
+<ul class="org-ul">
+<li>tui: 基于curses的文本窗口(需要添加text参数)</li>
+<li>gui：图形窗口(默认)</li>
+</ul></li>
+</ul></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> anaconda</h2>
+<div class="outline-text-2" id="text-2">
+<ol class="org-ol">
+<li>安装前配置阶段
+<ul class="org-ul">
+<li>安装过程使用的语言</li>
+<li>键盘类型</li>
+<li>安装目标存储设备
+<ul class="org-ul">
+<li>Basic Storage：本地磁盘</li>
+<li>特种设备：iSCSI</li>
+</ul></li>
+<li>设定主机名</li>
+<li>配置网络接口</li>
+<li>时区</li>
+<li>管理员密码</li>
+<li>设定分区方式及MBR的安装位置</li>
+<li>创建一个普通用户</li>
+<li>选定要安装的程序包</li>
+</ul></li>
+<li>安装阶段
+<ul class="org-ul">
+<li>在目标磁盘创建分区，执行格式化操作等</li>
+<li>将选定的程序包安装至目标位置</li>
+<li>安装bootloader</li>
+</ul></li>
+<li>首次启动
+<ul class="org-ul">
+<li>iptables</li>
+<li>selinux</li>
+<li>core dump</li>
+</ul></li>
+</ol>
+</div>
 </div>

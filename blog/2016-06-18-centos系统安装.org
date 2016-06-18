@@ -12,5 +12,47 @@ TODO
 
 
 -----
-* 
+* CentOS安装程序启动过程
+1. bootloader: =isolinux/boot.cat=
+2. stage2: =isolinux/isolinux.bin=
+   - 配置文件: =isolinux/isolinux.cfg=
+     #+BEGIN_SRC conf
+     # 光盘配置文件中的救援模式
+     label rescue  # 命令行提示符下的执行命令
+       menu label ^Rescue installed system  # 菜单下显示的内容
+       menu default  # 默认的选择项
+       kernel vmlinuz  # 加载内核
+       append initrd=initrd.img rescue  # 内核参数
+     #+END_SRC
+   - 命令行提示符下
+     #+BEGIN_SRC conf
+     boot: linux text  # 使用配置文件中的linux标签，并为内核添加参数text
+     # 该命令显式指定使用tui接口
+     #+END_SRC
+3. 装载根文件系统，并启动anaconda
+   - anaconda是系统安装程序
+	   - tui: 基于curses的文本窗口(需要添加text参数)
+	   - gui：图形窗口(默认)
+* anaconda
+1. 安装前配置阶段
+   - 安装过程使用的语言
+   - 键盘类型
+   - 安装目标存储设备
+     - Basic Storage：本地磁盘
+     - 特种设备：iSCSI
+   - 设定主机名
+   - 配置网络接口
+   - 时区
+   - 管理员密码
+   - 设定分区方式及MBR的安装位置					
+   - 创建一个普通用户			
+   - 选定要安装的程序包
+2. 安装阶段
+   - 在目标磁盘创建分区，执行格式化操作等
+   - 将选定的程序包安装至目标位置
+   - 安装bootloader
+3. 首次启动
+   - iptables
+   - selinux
+   - core dump
 
