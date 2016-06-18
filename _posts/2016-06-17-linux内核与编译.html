@@ -1,0 +1,481 @@
+---
+title: "Linux内核与编译"
+date: 2016-06-17
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 内核 
+- 编译
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">1. Linux内核</a>
+<ul>
+<li><a href="#orgheadline1">内核设计流派</a></li>
+<li><a href="#orgheadline2">Linux内核的特点</a></li>
+<li><a href="#orgheadline3">Linux内核组成的部分</a></li>
+<li><a href="#orgheadline4">uname命令</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">2. Linux内核模块的相关命令</a>
+<ul>
+<li><a href="#orgheadline6">lsmod</a></li>
+<li><a href="#orgheadline7">modinfo</a></li>
+<li><a href="#orgheadline8">depmod</a></li>
+<li><a href="#orgheadline9">modprobe</a></li>
+<li><a href="#orgheadline10">insmod</a></li>
+<li><a href="#orgheadline11">rmmod</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">3. Linux内核相关的目录</a>
+<ul>
+<li><a href="#orgheadline13">/proc</a></li>
+<li><a href="#orgheadline14">/sys</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">4. ramdisk文件</a>
+<ul>
+<li><a href="#orgheadline16">制作ramdisk文件</a></li>
+<li><a href="#orgheadline17">展开ramdisk文件</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline27">5. Linux内核的编译</a>
+<ul>
+<li><a href="#orgheadline19">编译的前提</a></li>
+<li><a href="#orgheadline20">配置内核选项</a></li>
+<li><a href="#orgheadline24">开始编译</a>
+<ul>
+<li><a href="#orgheadline21">完全编译</a></li>
+<li><a href="#orgheadline22">部分编译</a></li>
+<li><a href="#orgheadline23">交叉编译</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline25">清理编译后的文件</a></li>
+<li><a href="#orgheadline26">依据模板文件编译</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+简单介绍了Linux内核的特点以及相关命令，内核模块的相关内容和命令，还有与内核相关的proc,sys两个文件夹，以及如何去制作ramdisk文件。同时记录了编译内核的过程，包括如何选择编译选项、单独编译模块、使用配置文件编译等。
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">1</span> Linux内核</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">内核设计流派</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ol class="org-ol">
+<li>单内核设计：把所有功能集成于同一程序
+<ul class="org-ul">
+<li>效率高，但子程序的故障会影响系统</li>
+<li>例如Linux</li>
+</ul></li>
+<li>微内核设计：每种功能使用一个单独的子系统实现
+<ul class="org-ul">
+<li>效率低，但子程序相互独立</li>
+<li>例如Windows、Solaris</li>
+</ul></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Linux内核的特点</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ol class="org-ol">
+<li>支持模块化: .ko (kernel object)</li>
+<li>支持模块的动态装载和卸载</li>
+<li>使用缓冲和缓存来加速对磁盘上的文件访问</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">Linux内核组成的部分</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<ul class="org-ul">
+<li>核心文件: /boot/vmlinuz-VERSION-release</li>
+<li>模块文件：/lib/modules/VERSION-release/*.ko
+<ul class="org-ul">
+<li>模块文件可以编译在内核中也可以选择编译为ko文件</li>
+</ul></li>
+<li>ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
+<ul class="org-ul">
+<li>CentOS 5: /boot/initrd-VERSION-release.img</li>
+<li>CentOS 6: /boot/initramfs-VERSION-release.img</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">uname命令</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+用于打印系统信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">uname [OPTION]...
+  -n: &#26174;&#31034;&#20027;&#26426;&#21517;&#31216;
+  -r: &#26174;&#31034;VERSION-RELEASE
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">2</span> Linux内核模块的相关命令</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">lsmod</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+显示由核心已经装载的内核模块
+</p>
+<ul class="org-ul">
+<li>显示的内容来自于 <code>/proc/modules</code> 文件</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">modinfo</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+显示模块的详细描述信息以及其依赖信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">modinfo [OPTIONS] [modulename|filename...]
+  -k kernel: &#26174;&#31034;&#25351;&#23450;&#20869;&#26680;&#30340;&#27169;&#22359;&#20449;&#24687;
+    -n: &#21482;&#26174;&#31034;&#27169;&#22359;&#25991;&#20214;&#36335;&#24452;
+    -p: &#26174;&#31034;&#27169;&#22359;&#21442;&#25968;
+    -d: description
+</pre>
+</div>
+<ul class="org-ul">
+<li>依赖关系是通过查询 <code>/lib/modules/VERSION-release/modules.dep</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">depmod</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+内部模块依赖关系文件以及系统信息映射文件的生成工具
+</p>
+<ul class="org-ul">
+<li>内部模块依赖关系文件: /lib/modules/VERSION-release/modules.dep</li>
+<li>系统信息映射文件: /boot/System.map-VERSION-release</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">modprobe</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+装载和卸载内核模块，会自动处理依赖问题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">modprobe <span style="color: #AE81FF;">[</span>-C config-file<span style="color: #AE81FF;">]</span>  <span style="color: #AE81FF;">[</span>modulename<span style="color: #AE81FF;">]</span>  <span style="color: #AE81FF;">[</span>module parame-ters...<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#35013;&#36733;&#27169;&#22359;</span>
+modprobe -r modulename  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21368;&#36733;&#27169;&#22359;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>模块配置文件: /etc/modprobe.conf, /etc/modprobe.d/*.conf</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">insmod</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<p>
+装载内核模块，但不会自动解决依赖问题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">insmod <span style="color: #AE81FF;">[</span>filename<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>module options...<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38656;&#35201;&#25351;&#26126;&#27169;&#22359;&#25991;&#20214;&#36335;&#24452;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">rmmod</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<p>
+卸载内核模块
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><span class="section-number-2">3</span> Linux内核相关的目录</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">/proc</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<p>
+内核把自己内部状态信息及统计信息，以及可配置参数通过proc伪文件系统加以输出
+</p>
+<ul class="org-ul">
+<li>proc大部分信息都是只读信息</li>
+<li>/proc/sys中大部分参数可接受用户指定“新值”来实现对内核某功能或特性的配置
+<ol class="org-ol">
+<li><p>
+sysctl命令用于查看或设定此目录中诸多参数
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sysctl -w path.to.parameter=VALUE
+sysctl -p <span style="color: #AE81FF;">[</span>/path/to/conf-file<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26681;&#25454;&#37197;&#32622;&#25991;&#20214;&#26469;&#35774;&#32622;&#21442;&#25968;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>默认配置文件: /etc/sysctl.conf</li>
+</ul></li>
+<li><p>
+echo命令通过重定向的方式也可以修改大多数参数的值
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"VALUE"</span> &gt; /proc/sys/path/to/parameter  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30452;&#25509;&#35206;&#30422;</span>
+</pre>
+</div></li>
+</ol></li>
+<li>常用的参数
+<ul class="org-ul">
+<li>net.ipv4.ip_forward: 路由转发，用于开启多个网卡之间的转发</li>
+<li>vm.drop_caches: 回收buffer和cache所使用的内存空间</li>
+<li>kernel.hostname: 内核中的主机名</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">/sys</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+sysfs输出内核识别出的各硬件设备的相关属性信息，也有内核对硬件特性的设定信息；有些参数是可以修改的，用于调整硬件工作特性
+</p>
+<ul class="org-ul">
+<li>udev
+<ul class="org-ul">
+<li>udev通过此路径下输出的信息动态为各设备创建所需要设备文件</li>
+<li>由于udev是运行用户空间程序，因此需要请求内核重新扫描设备后输出到sys目录中</li>
+<li>专用工具：udevadmin, hotplug</li>
+<li>udev为设备创建设备文件时，会读取其事先定义好的规则文件，一般在/etc/udev/rules.d及/usr/lib/udev/rules.d目录下</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">4</span> ramdisk文件</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">制作ramdisk文件</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<div class="org-src-container">
+
+<pre class="src src-conf">mkinitrd /boot/initramfs-$(uname -r).img $(uname -r)
+dracut /boot/initramfs-$(uname -r).img $(uname -r)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">展开ramdisk文件</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<div class="org-src-container">
+
+<pre class="src src-conf">mv initramfs-VERSION-release.img initramfs-VERSION-release.img.gz
+gzip -d initramfs-VERSION-release.img.gz
+cpio -id &lt; initramfs-VERSION-release.img
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-2">
+<h2 id="orgheadline27"><span class="section-number-2">5</span> Linux内核的编译</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">编译的前提</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<ol class="org-ol">
+<li>准备好开发环境</li>
+<li>获取目标主机上硬件设备的相关信息
+<ul class="org-ul">
+<li><p>
+CPU
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cat /proc/cpuinfo
+x86info -a
+lscpu
+</pre>
+</div></li>
+<li><p>
+PCI
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">lspci
+lsusb
+lsblk  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#22359;&#35774;&#22791;</span>
+</pre>
+</div></li>
+<li><p>
+了解全部硬件设备信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">hal-device
+</pre>
+</div></li>
+</ul></li>
+
+<li>获取到目标主机系统功能的相关信息，例如要启用的文件系统</li>
+<li>获取内核源代码包(www.kernel.org)</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">配置内核选项</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<p>
+内核编译配置文件是目录下的 <code>.config</code> 文件
+</p>
+<ul class="org-ul">
+<li><p>
+可以使用不同方式来修改配置文件
+</p>
+<ul class="org-ul">
+<li>使用更新模式进行配置，即基于原来的.config文件</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">make config  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;&#21629;&#20196;&#34892;&#20197;&#36941;&#21382;&#30340;&#26041;&#24335;&#21435;&#37197;&#32622;&#20869;&#26680;&#20013;&#21487;&#37197;&#32622;&#30340;&#27599;&#20010;&#36873;&#39033;</span>
+make menuconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;curses&#30340;&#25991;&#26412;&#31383;&#21475;&#30028;&#38754;</span>
+make gconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;GTK&#24320;&#21457;&#29615;&#22659;&#30340;&#31383;&#21475;&#30028;&#38754;</span>
+make xconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;Qt&#24320;&#21457;&#29615;&#22659;&#30340;&#31383;&#21475;&#30028;&#38754;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>使用全新配置模式来进行配置</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">make defconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;&#20869;&#26680;&#20026;&#30446;&#26631;&#24179;&#21488;&#25552;&#20379;&#30340;&#8220;&#40664;&#35748;&#8221;&#37197;&#32622;&#36827;&#34892;&#37197;&#32622;</span>
+make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;&#36873;&#39033;&#22343;&#22238;&#31572;&#20026;"no"</span>
+</pre>
+</div></li>
+<li>选项的含义
+<ul class="org-ul">
+<li><code>[ ]</code>: 表示不编译</li>
+<li><code>[M]</code>: 表示编译成模块</li>
+<li><code>[*]</code>: 表示编译进核心</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">开始编译</h3>
+<div class="outline-text-3" id="text-orgheadline24">
+</div><div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">完全编译</h4>
+<div class="outline-text-4" id="text-orgheadline21">
+<div class="org-src-container">
+
+<pre class="src src-conf">make [-j NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25968;&#23383;&#24314;&#35758;&#20351;&#29992;CPU&#26680;&#24515;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">部分编译</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<ul class="org-ul">
+<li><p>
+只编译某子目录的相关代码
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">make PATH/
+</pre>
+</div></li>
+<li><p>
+只编译一个特定模块
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">make PATH/TO/file.ko
+</pre>
+</div>
+<ul class="org-ul">
+<li>编译完只需要把模块文件放进系统的 <code>module</code> 目录下即可</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">交叉编译</h4>
+<div class="outline-text-4" id="text-orgheadline23">
+<p>
+交叉编译用于编译的目标平台与当前平台不同
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">make ARCH</span>=arch_name
+<span style="color: #FD971F;">make ARCH</span>=arch_name help  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#30446;&#26631;&#24179;&#21488;&#30340;&#20351;&#29992;&#24110;&#21161;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">清理编译后的文件</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<div class="org-src-container">
+
+<pre class="src src-conf">make clean  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#29702;&#22823;&#22810;&#25968;&#32534;&#35793;&#29983;&#25104;&#30340;&#25991;&#20214;&#65292;&#20294;&#20250;&#20445;&#30041;config&#25991;&#20214;&#31561;</span>
+make mrproper  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#29702;&#25152;&#26377;&#32534;&#35793;&#29983;&#25104;&#30340;&#25991;&#20214;&#12289;config&#21450;&#26576;&#20123;&#22791;&#20221;&#25991;&#20214;</span>
+make distclean  <span style="color: #75715E;"># </span><span style="color: #75715E;">mrproper&#12289;patches&#20197;&#21450;&#32534;&#36753;&#22120;&#22791;&#20221;&#25991;&#20214;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">依据模板文件编译</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+<div class="org-src-container">
+
+<pre class="src src-conf">tar xf linux-3.10.67.tar.xz -C /usr/src  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35299;&#21387;&#20869;&#26680;</span>
+cd /usr/src
+ln -sv linux-3.10.67 linux
+cd linux
+cp /boot/config-$(uname -r) ./.config  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#24403;&#21069;&#31995;&#32479;&#30340;&#27169;&#26495;&#25991;&#20214;</span>
+
+make menuconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36827;&#20837;&#25991;&#26412;&#31383;&#21475;&#30028;&#38754;&#36827;&#34892;&#35774;&#32622;</span>
+make -j NUM  
+
+make modules_install
+make install
+</pre>
+</div>
+</div>
+</div>
+</div>

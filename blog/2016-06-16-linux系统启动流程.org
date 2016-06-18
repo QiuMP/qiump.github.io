@@ -6,90 +6,20 @@
 #+JEKYLL_TAGS: Linux 运维 系统
 #+JEKYLL_PUBLISHED: true
 
-介绍Linux内核相关知识，以及Linux系统启动的流程
+描述了Linux系统的启动过程，以及各种相关程序的使用，例如grub的配置与命令、init的作用与控制、systemd的使用等
 
 
 
 
 -----
-* Linux内核
-** 内核设计流派
-  1. 单内核设计：把所有功能集成于同一程序
-     - 效率高，但子程序的故障会影响系统
-     - 例如Linux
-  2. 微内核设计：每种功能使用一个单独的子系统实现
-     - 效率低，但子程序相互独立
-     - 例如Windows、Solaris
-** Linux内核的特点
-  1. 支持模块化: .ko (kernel object)
-  2. 支持模块的动态装载和卸载
-  3. 使用缓冲和缓存来加速对磁盘上的文件访问
-** Linux内核组成的部分
-- 核心文件: /boot/vmlinuz-VERSION-release
-- 模块文件：/lib/modules/VERSION-release/*.ko
-  - 模块文件可以编译在内核中也可以选择编译为ko文件
-- ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
-  - CentOS 5: /boot/initrd-VERSION-release.img
-  - CentOS 6: /boot/initramfs-VERSION-release.img
-** 相关命令
-*** uname
-用于打印系统信息
-#+BEGIN_SRC conf
-uname [OPTION]...
-  -n: 显示主机名称
-  -r: 显示VERSION-RELEASE
-#+END_SRC
-*** lsmod
-显示由核心已经装载的内核模块
-- 显示的内容来自于 =/proc/modules= 文件
-*** modinfo
-显示模块的详细描述信息以及其依赖信息
-#+BEGIN_SRC conf
-modinfo [OPTIONS] [modulename|filename...]
-  -k kernel: 显示指定内核的模块信息
-	-n: 只显示模块文件路径
-	-p: 显示模块参数
-	-d: description
-#+END_SRC
-- 依赖关系是通过查询 =/lib/modules/VERSION-release/modules.dep=
-*** depmod
-内部模块依赖关系文件以及系统信息映射文件的生成工具
-- 内部模块依赖关系文件: /lib/modules/VERSION-release/modules.dep
-- 系统信息映射文件: /boot/System.map-VERSION-release
-*** modprobe
-装载和卸载内核模块，会自动处理依赖问题
-#+BEGIN_SRC sh
-modprobe [-C config-file]  [modulename]  [module parame-ters...]  #装载模块
-modprobe -r modulename  # 卸载模块
-#+END_SRC
-- 模块配置文件: /etc/modprobe.conf, /etc/modprobe.d/*.conf
-*** insmod
-装载内核模块，但不会自动解决依赖问题
-#+BEGIN_SRC sh
-insmod [filename] [module options...]  # 需要指明模块文件路径
-#+END_SRC
-*** rmmod
-卸载内核模块
-** /proc
-内核把自己内部状态信息及统计信息，以及可配置参数通过proc伪文件系统加以输出
-- /proc/sys中大部分参数可接受用户指定“新值”来实现对内核某功能或特性的配置
-  1. sysctl命令用于查看或设定此目录中诸多参数
-     #+BEGIN_SRC sh
-     sysctl -w path.to.parameter=VALUE
-     #+END_SRC
-  2. echo命令通过重定向的方式也可以修改大多数参数的值
-     #+BEGIN_SRC sh
-     echo "VALUE" > /proc/sys/path/to/parameter  # 直接覆盖
-     #+END_SRC
-* CentOS系统启动流程
-** POST: 加电自检
+* POST: 加电自检
 - 加载CPU, 设定ROM中的固定地址
 - 通过ROM(CMOS)内的程序进行自检
 - 加载BIOS: Basic Input and Output System
 - 整个计算机的地址空间是ROM+RAM组成的
-** Boot Sequence
+* Boot Sequence
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
-*** bootloader
+** bootloader
 - bootloader: 引导加载器
   - windows: ntloader
   - Linux: LILO, GRUB, GRUB2
@@ -98,8 +28,8 @@ insmod [filename] [module options...]  # 需要指明模块文件路径
   - 前446字节: bootloader
   - 64字节: 硬盘分区表(fat)
   - 2: 55AA
-*** grub legacy
-**** grub的启动阶段
+** grub legacy
+*** grub的启动阶段
 - stage1: mbr
 - stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统
 - stage2：读取磁盘分区(/boot/grub)上的程序
@@ -112,7 +42,7 @@ insmod [filename] [module options...]  # 需要指明模块文件路径
   3. 为菜单提供了保护机制
      - 为编辑菜单进行认证
      - 为启用内核或操作系统进行认证
-**** grub命令行
+*** grub命令行
 - 设备名(hd#, #)
   - hd#: 磁盘编号，从0开始编号
   - #: 分区编号，从0开始编号
@@ -128,7 +58,7 @@ insmod [filename] [module options...]  # 需要指明模块文件路径
   - initrd /PATH/TO/INITRAMFS_FILE: 设定为选定的内核提供额外文件的ramdisk
   - boot: 引导启动选定的内核
   
-**** 配置文件
+*** 配置文件
 grub配置文件是 =/boot/grub/grub.conf= ，而 =/etc/grub.conf= 是指向该文件的链接
 #+BEGIN_SRC conf
 default=NUM  # 设定默认启动的菜单项，菜单项(title)编号从0开始
@@ -146,12 +76,12 @@ title TITLE  # 定义菜单项“标题”, 可出现多次
 - 生成GRUB加密密码的工具: =grub-md5-crypt=
 - 若配置文件出错，则会直接进入命令行操作
 
-**** 进入单用户模式
+*** 进入单用户模式
 1. 编辑grub菜单(选定要编辑的title，而后使用e命令)
 2. 在选定的kernel后附加 1, s, S或single都可以
 3. 在kernel所在行，键入b命令
 
-**** 安装grub
+*** 安装grub
 - grub-install
   #+BEGIN_SRC sh
   grub-install --root-directory=ROOT /dev/DISK
@@ -164,8 +94,8 @@ title TITLE  # 定义菜单项“标题”, 可出现多次
   grub> setup (hd*)
   #+END_SRC
 - 可以通过光盘的紧急救援模式来修复grub
-** kernel
-*** 系统初始化
+* kernel
+** 系统初始化
   - 探测可识别到的所有硬件设备
   - 加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
     - ramdisk: ramfs文件系统(防止进行缓存)
@@ -179,8 +109,8 @@ title TITLE  # 定义菜单项“标题”, 可出现多次
       - 配置文件: /etc/inittab, /etc/init/*.conf
     - Systemd: systemd(CentOS 7)
       - 配置文件: /usr/lib/systemd/system, /etc/systemd/system
-*** init
-**** 运行级别
+** init
+*** 运行级别
 为了系统的运行或维护等应用目的而设定
 | 0 | 关机                                               |
 | 1 | 单用户single模式(root, 无须登录), single, 维护模式 |
@@ -195,7 +125,7 @@ init NUM  # 切换当前级别
 runlevel  # 查看上一个级别和当前级别
 who -r  # 查看当前级别
 #+END_SRC
-**** 配置文件
+*** 配置文件
 在配置文件 =/etc/inittab= 中，每一行定义一种action以及对应的process
 - 配置文件的内容:
   #+BEGIN_SRC c
@@ -217,7 +147,7 @@ who -r  # 查看当前级别
   ...
   tty6:2345:respawn:/usr/sbin/mingetty tty6
   #+END_SRC
-**** /etc/rc.d/rc.sysinit
+*** /etc/rc.d/rc.sysinit
 系统初始化脚本
 1. 设置主机名
 2. 设置欢迎信息
@@ -231,7 +161,7 @@ who -r  # 查看当前级别
 10. 加载额外设备的驱动程序
 11. 清理操作
 
-**** 服务
+*** 服务
 - /etc/rc.d/rc{0-6}.d/
   - K##*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
   - S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
@@ -247,7 +177,7 @@ who -r  # 查看当前级别
   #+END_SRC
 
 - 正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中
-**** chkconfig
+*** chkconfig
 服务管理工具
 - 查询 ::
   - 查看服务在所有级别的启动关闭情况
@@ -276,4 +206,4 @@ who -r  # 查看当前级别
   #+BEGIN_SRC conf
   chkconfig --del NAME
   #+END_SRC
-*** TODO systemd
+** TODO systemd

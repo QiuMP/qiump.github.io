@@ -1,0 +1,180 @@
+#+TITLE: Linux内核与编译
+#+DATE: 2016-06-17
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 内核 编译
+#+JEKYLL_PUBLISHED: true
+
+简单介绍了Linux内核的特点以及相关命令，内核模块的相关内容和命令，还有与内核相关的proc,sys两个文件夹。同时记录了编译内核的简单过程。
+
+
+
+
+-----
+* Linux内核
+** 内核设计流派
+  1. 单内核设计：把所有功能集成于同一程序
+     - 效率高，但子程序的故障会影响系统
+     - 例如Linux
+  2. 微内核设计：每种功能使用一个单独的子系统实现
+     - 效率低，但子程序相互独立
+     - 例如Windows、Solaris
+** Linux内核的特点
+  1. 支持模块化: .ko (kernel object)
+  2. 支持模块的动态装载和卸载
+  3. 使用缓冲和缓存来加速对磁盘上的文件访问
+** Linux内核组成的部分
+- 核心文件: /boot/vmlinuz-VERSION-release
+- 模块文件：/lib/modules/VERSION-release/*.ko
+  - 模块文件可以编译在内核中也可以选择编译为ko文件
+- ramdisk: 根据用户的硬件生成的，开机时加载到内存中，把一部分内存当作磁盘使用，包含系统启动需要的驱动
+  - CentOS 5: /boot/initrd-VERSION-release.img
+  - CentOS 6: /boot/initramfs-VERSION-release.img
+** uname命令
+用于打印系统信息
+#+BEGIN_SRC conf
+uname [OPTION]...
+  -n: 显示主机名称
+  -r: 显示VERSION-RELEASE
+#+END_SRC
+* Linux内核模块的相关命令
+** lsmod
+显示由核心已经装载的内核模块
+- 显示的内容来自于 =/proc/modules= 文件
+** modinfo
+显示模块的详细描述信息以及其依赖信息
+#+BEGIN_SRC conf
+modinfo [OPTIONS] [modulename|filename...]
+  -k kernel: 显示指定内核的模块信息
+	-n: 只显示模块文件路径
+	-p: 显示模块参数
+	-d: description
+#+END_SRC
+- 依赖关系是通过查询 =/lib/modules/VERSION-release/modules.dep=
+** depmod
+内部模块依赖关系文件以及系统信息映射文件的生成工具
+- 内部模块依赖关系文件: /lib/modules/VERSION-release/modules.dep
+- 系统信息映射文件: /boot/System.map-VERSION-release
+** modprobe
+装载和卸载内核模块，会自动处理依赖问题
+#+BEGIN_SRC sh
+modprobe [-C config-file]  [modulename]  [module parame-ters...]  #装载模块
+modprobe -r modulename  # 卸载模块
+#+END_SRC
+- 模块配置文件: /etc/modprobe.conf, /etc/modprobe.d/*.conf
+** insmod
+装载内核模块，但不会自动解决依赖问题
+#+BEGIN_SRC sh
+insmod [filename] [module options...]  # 需要指明模块文件路径
+#+END_SRC
+** rmmod
+卸载内核模块
+* Linux内核相关的目录
+** /proc
+内核把自己内部状态信息及统计信息，以及可配置参数通过proc伪文件系统加以输出
+- proc大部分信息都是只读信息
+- /proc/sys中大部分参数可接受用户指定“新值”来实现对内核某功能或特性的配置
+  1. sysctl命令用于查看或设定此目录中诸多参数
+     #+BEGIN_SRC sh
+     sysctl -w path.to.parameter=VALUE
+     sysctl -p [/path/to/conf-file]  # 根据配置文件来设置参数
+     #+END_SRC
+     - 默认配置文件: /etc/sysctl.conf
+  2. echo命令通过重定向的方式也可以修改大多数参数的值
+     #+BEGIN_SRC sh
+     echo "VALUE" > /proc/sys/path/to/parameter  # 直接覆盖
+     #+END_SRC
+- 常用的参数
+  - net.ipv4.ip_forward: 路由转发，用于开启多个网卡之间的转发
+  - vm.drop_caches: 回收buffer和cache所使用的内存空间
+  - kernel.hostname: 内核中的主机名
+** /sys
+sysfs输出内核识别出的各硬件设备的相关属性信息，也有内核对硬件特性的设定信息；有些参数是可以修改的，用于调整硬件工作特性
+- udev
+  - udev通过此路径下输出的信息动态为各设备创建所需要设备文件
+  - 由于udev是运行用户空间程序，因此需要请求内核重新扫描设备后输出到sys目录中
+  - 专用工具：udevadmin, hotplug
+  - udev为设备创建设备文件时，会读取其事先定义好的规则文件，一般在/etc/udev/rules.d及/usr/lib/udev/rules.d目录下
+* ramdisk文件
+** 制作ramdisk文件
+#+BEGIN_SRC conf
+mkinitrd /boot/initramfs-$(uname -r).img $(uname -r)
+dracut /boot/initramfs-$(uname -r).img $(uname -r) 
+#+END_SRC
+** 展开ramdisk文件
+#+BEGIN_SRC conf
+mv initramfs-VERSION-release.img initramfs-VERSION-release.img.gz
+gzip -d initramfs-VERSION-release.img.gz
+cpio -id < initramfs-VERSION-release.img
+#+END_SRC
+* Linux内核的编译
+** 编译的前提
+1. 准备好开发环境
+2. 获取目标主机上硬件设备的相关信息
+   - CPU
+     #+BEGIN_SRC conf
+     cat /proc/cpuinfo
+     x86info -a
+     lscpu
+     #+END_SRC
+   - PCI
+     #+BEGIN_SRC conf
+     lspci
+     lsusb
+     lsblk  # 查询块设备
+     #+END_SRC
+   - 了解全部硬件设备信息
+     #+BEGIN_SRC conf
+     hal-device
+     #+END_SRC
+     
+3. 获取到目标主机系统功能的相关信息，例如要启用的文件系统
+4. 获取内核源代码包(www.kernel.org)
+** 配置内核选项
+内核编译配置文件是目录下的 =.config= 文件
+- 可以使用不同方式来修改配置文件
+  - 使用更新模式进行配置，即基于原来的.config文件
+  #+BEGIN_SRC conf
+  make config  # 基于命令行以遍历的方式去配置内核中可配置的每个选项
+  make menuconfig  # 基于curses的文本窗口界面
+  make gconfig  # 基于GTK开发环境的窗口界面
+  make xconfig  # 基于Qt开发环境的窗口界面
+  #+END_SRC
+  - 使用全新配置模式来进行配置
+  #+BEGIN_SRC conf
+  make defconfig  # 基于内核为目标平台提供的“默认”配置进行配置
+  make allnoconfig  # 所有选项均回答为"no"
+  #+END_SRC
+- 选项的含义
+  - =[ ]=: 表示不编译
+  - =[M]=: 表示编译成模块
+  - =[*]=: 表示编译进核心
+** 开始编译
+*** 完全编译
+  #+BEGIN_SRC conf
+  make [-j NUM]  # 数字建议使用CPU核心
+  #+END_SRC
+*** 部分编译
+- 只编译某子目录的相关代码
+  #+BEGIN_SRC conf
+  make PATH/
+  #+END_SRC
+- 只编译一个特定模块
+  #+BEGIN_SRC conf
+  make PATH/file.ko
+  #+END_SRC
+** 依据模板文件编译
+#+BEGIN_SRC conf
+tar xf linux-3.10.67.tar.xz -C /usr/src  # 解压内核
+cd /usr/src
+ln -sv linux-3.10.67 linux
+cd linux
+cp /boot/config-$(uname -r) ./.config  # 使用当前系统的模板文件
+
+make menuconfig  # 进入文本窗口界面进行设置
+make -j NUM  
+
+make modules_install
+make install
+#+END_SRC
