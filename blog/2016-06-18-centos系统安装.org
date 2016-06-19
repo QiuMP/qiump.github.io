@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 CentOS
 #+JEKYLL_PUBLISHED: true
 
-TODO
+描述CentOS光盘的安装程序安装CentOS的过程，包括其bootloader、anaconda的相关配置，以及如何使用光盘的命令行模式，描述了kickstart配置文件的编写，最后简单记录如何去制作引导光盘。
 
 
 
@@ -35,7 +35,7 @@ TODO
      - gui：图形窗口(默认)
      - anaconda及其安装用到的程序包可以位于多种位置上
 * 安装引导选项
-- boot:
+- boot: 添加在label名后
   - text: 文本安装方式
   - method: 手动指定使用的安装方法
   - 设置与网络相关的引导选项
@@ -55,7 +55,7 @@ TODO
     - HTTPS server: =ks=https://host:port/path/to/KICKSTART_FILE=
   - 启动紧急救援模式：
     - rescue
-
+- 官方文档：《Installation Guide》
 * anaconda
 ** anaconda安装过程
 1. 安装前配置阶段
@@ -100,18 +100,38 @@ TODO
   - %post: 安装完成后执行的脚本
   - %end: 脚本内容结束标识符
 *** 命令段中的命令
-- 必备命令: 
+- 必备命令
+  - install OR upgrade
   - authconfig: 认证方式配置
     #+BEGIN_SRC conf 
     authconfig --useshadow  --passalgo=sha512
     #+END_SRC
   - bootloader：bootloader的安装位置及相关配置
     #+BEGIN_SRC sh
-    bootloader --location=mbr --driveorder=sda --append="crashkernel=auto crashkernel=auto rhgb rhgb quiet quiet"  # 在grub.cfg中向内核传递选项
+    bootloader --location=mbr --driveorder=sda --append="crashkernel=auto rhgb quiet"  # 在grub.cfg中向内核传递选项
     #+END_SRC
   - keyboard: 设定键盘类型
   - lang: 语言类型
-  - part: 创建分区
+  - part: 创建分区，升级无需此命令
   - rootpw: 指明root的密码
   - timezone: 时区
+- 可选命令
+  - text: 文本安装界面
+  - network
+  - firewall
+  - selinux
+  - halt/poweroff/reboot: 完成后的操作
+  - repo: 而外指定rpm源
+  - user：安装完成后为系统创建新用户
+  - url: 指明安装源
+*** 创建ks文件
+- 依据某模板修改
+  - CentOS安装后会默认在root目录下放置一个当前系统的ks文件
+- 使用创建工具: =system-config-kickstart=
+- 检查ks文件的语法错误: =ksvalidator=
+* 自定义创建引导光盘
+将CentOS光盘中的isolinux复制出来后自行定义修改，然后制作引导光盘，用于网络安装
+#+BEGIN_SRC conf
+mkisofs -R -J -T -v --no-emul-boot --boot-load-size 4 --boot-info-table -V "CentOS 6.6 x86_64 boot" -b isolinux/isolinux.bin -c isolinux/boot.cat -o /root/boot.iso myiso/
+#+END_SRC
 
