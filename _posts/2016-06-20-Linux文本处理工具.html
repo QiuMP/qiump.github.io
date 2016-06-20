@@ -1,0 +1,206 @@
+---
+title: "Linux文本处理工具"
+date: 2016-06-20
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 文本处理
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline11">1. 文本处理工具</a>
+<ul>
+<li><a href="#orgheadline1">head, tail</a></li>
+<li><a href="#orgheadline2">tr</a></li>
+<li><a href="#orgheadline3">wc</a></li>
+<li><a href="#orgheadline4">cut</a></li>
+<li><a href="#orgheadline5">sort</a></li>
+<li><a href="#orgheadline6">uniq</a></li>
+<li><a href="#orgheadline7">grep</a></li>
+<li><a href="#orgheadline8"><span class="todo TODO">TODO</span> sed</a></li>
+<li><a href="#orgheadline9"><span class="todo TODO">TODO</span> awk</a></li>
+<li><a href="#orgheadline10"><span class="todo TODO">TODO</span> xargs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+TODO
+</p>
+
+
+
+<hr  />
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">1</span> 文本处理工具</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">head, tail</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-conf">head [OPTION]... [FILE]...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#22836;</span>
+  -c num: &#25351;&#23450;&#33719;&#21462;&#21069;num&#23383;&#33410;
+  -n num/-num: &#25351;&#23450;&#33719;&#21462;&#21069;num&#34892;
+  -n -num: &#25490;&#38500;&#21518;num&#34892;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-conf">tail [OPTION]... [FILE]...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#23614;</span>
+  -c num: &#25351;&#23450;&#33719;&#21462;&#21518;num&#23383;&#33410;
+  -n num/-num: &#25351;&#23450;&#33719;&#21462;&#21518;num&#34892;
+  -n +num: &#25490;&#38500;&#31532;num&#34892;&#20043;&#21069;&#30340;&#34892;&#25968;
+  -f: &#36319;&#36394;&#26174;&#31034;&#25991;&#20214;&#26032;&#36861;&#21152;&#30340;&#20869;&#23481;&#65307;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">tr</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+转换或删除字符
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">tr [OPTION]... SET1 [SET2]
+  -d: &#21024;&#38500;SET1&#20013;&#30340;&#23383;&#31526;(&#40664;&#35748;&#20026;&#36716;&#25442;&#20026;SET2&#23545;&#24212;&#30340;&#23383;&#31526;)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">wc</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+行数 单词 字节
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">wc [OPTION]... [FILE]...
+  -l: lines
+  -w: words
+  -c: characters
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">cut</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+通过分隔符切割后显示指定字段
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cut [OPTION]... [FILE]...
+  -d DELIMITER: &#25351;&#23450;&#20998;&#38548;&#31526;(&#40664;&#35748;&#20026;&#21046;&#34920;&#31526;)
+  -f FILEDS: &#25351;&#23450;&#23383;&#27573;&#65292;&#22914; 1-3,7
+  <span style="color: #FD971F;">--output-delimiter</span>=STRING: &#25351;&#23450;&#36755;&#20986;&#20998;&#38548;&#31526;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">sort</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+排序
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">sort [OPTION]... [FILE]...
+  -f: &#24573;&#30053;&#23383;&#31526;&#22823;&#23567;&#20889;
+  -r: &#36870;&#24207;
+  -t DELIMITER: &#23383;&#27573;&#20998;&#38548;&#31526;
+  -k num: &#20197;&#25351;&#23450;&#23383;&#27573;&#20026;&#26631;&#20934;&#25490;&#24207;
+  -n: &#20197;&#25968;&#20540;&#22823;&#23567;&#36827;&#34892;&#25490;&#24207;
+  -u: uniq&#65292;&#25490;&#24207;&#21518;&#21435;&#37325;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">uniq</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+去除连续且完全相同的行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">uniq [OPTION]... [FILE]...
+  -c: &#26174;&#31034;&#27599;&#34892;&#37325;&#22797;&#20986;&#29616;&#30340;&#27425;&#25968;&#65307;
+  -d: &#20165;&#26174;&#31034;&#37325;&#22797;&#36807;&#30340;&#34892;&#65307;
+  -u: &#20165;&#26174;&#31034;&#19981;&#26366;&#37325;&#22797;&#30340;&#34892;&#65307;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">grep</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>grep是一个文本搜索工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行</li>
+<li>grep工具有三种: 
+<ul class="org-ul">
+<li>grep支持基础正则表达式</li>
+<li>egrep相当于 <code>grep -E</code> ，用于扩展正则表达式</li>
+<li>fgrep不支持正则表达时，但匹配速度快</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">grep [OPTIONS] PATTERN [FILE...]
+  -E: &#20351;&#29992;&#25193;&#23637;&#27491;&#21017;&#34920;&#36798;&#24335;ERE
+
+  -v: &#26174;&#31034;&#19981;&#33021;&#22815;&#34987;pattern&#21305;&#37197;&#21040;&#30340;&#34892;
+  -i: ignore &#24573;&#30053;&#23383;&#31526;&#22823;&#23567;&#20889;
+  -o: only &#20165;&#26174;&#31034;&#21305;&#37197;&#21040;&#30340;&#23383;&#31526;&#20018;
+  -q: quite &#38745;&#40664;&#27169;&#24335;&#65292;&#19981;&#36755;&#20986;&#20219;&#20309;&#20449;&#24687;(&#21518;&#36793;&#21487;&#20197;&#26816;&#26597;$?&#26469;&#26816;&#26597;&#26159;&#21542;&#21305;&#37197;&#21040;)
+
+  -r: &#21516;&#26102;&#25628;&#32034;&#30446;&#24405;&#30340;&#23376;&#30446;&#24405;
+
+  -A num: after, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21518;num&#34892;
+  -B num: before, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21069;num&#34892;
+  -C num: context, &#21305;&#37197;&#30340;&#34892;&#21516;&#26102;&#26174;&#31034;&#20854;&#21069;&#21518;num&#34892;
+
+  <span style="color: #FD971F;">--color</span>=auto: &#23545;&#21305;&#37197;&#21040;&#30340;&#25991;&#26412;&#30528;&#33394;&#26174;&#31034;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8"><span class="todo TODO">TODO</span> sed</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<ul class="org-ul">
+<li>文本编辑工具</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9"><span class="todo TODO">TODO</span> awk</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<ul class="org-ul">
+<li>文本报告生成器</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10"><span class="todo TODO">TODO</span> xargs</h3>
+</div>
+</div>

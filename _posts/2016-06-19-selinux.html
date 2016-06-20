@@ -1,0 +1,189 @@
+---
+title: "SELinux"
+date: 2016-06-19
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 安全
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline6">1. SELinux相关内容</a>
+<ul>
+<li><a href="#orgheadline1">访问控制的类型</a></li>
+<li><a href="#orgheadline2">SELinux的工作级别</a></li>
+<li><a href="#orgheadline3">SELinux的安全标签</a></li>
+<li><a href="#orgheadline4">SELinux规则库</a></li>
+<li><a href="#orgheadline5">SELinux日志</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">2. 配置SELinux</a>
+<ul>
+<li><a href="#orgheadline7">SELinux状态</a></li>
+<li><a href="#orgheadline8">更改文件标签</a></li>
+<li><a href="#orgheadline9">设定布尔型规则</a></li>
+<li><a href="#orgheadline10"><span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+简单记录了SELinux相关的内容，以及如何去配置SELinux
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">1</span> SELinux相关内容</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>SELinux: Secure Enhanced Linux
+<ul class="org-ul">
+<li>通过为每个进程设定sandbox，来限制进程的访问范围</li>
+</ul></li>
+</ul>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">访问控制的类型</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>DAC: 自主访问控制</li>
+<li>MAC: 强制访问控制，限制进程的访问权限</li>
+<li>SELinux是一种MAC模式</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">SELinux的工作级别</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ul class="org-ul">
+<li>strict: 每个进程都受到selinux的控制</li>
+<li>targeted: 仅有限个进程受到selinux控制，只监控容易被入侵的进程</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">SELinux的安全标签</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<ul class="org-ul">
+<li>SELinux为每个文件提供了安全标签，也为进程提供了安全标签
+<ul class="org-ul">
+<li>标签内容为 <code>user:role:type</code>
+<ul class="org-ul">
+<li>user: SELinux的user</li>
+<li>role: 角色</li>
+<li>type: 对文件来说是类型，对进程来说是域</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-conf">ls -Z FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25991;&#20214;&#30340;&#23433;&#20840;&#26631;&#31614;</span>
+ps auxZ FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#31243;&#24207;&#30340;&#23433;&#20840;&#26631;&#31614;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">SELinux规则库</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+规则：定义哪种域能访问哪些类型的文件
+</p>
+<ul class="org-ul">
+<li>若进程访问规则没有允许访问的类型的文件，则会拒绝访问并记录到日志中</li>
+<li>为了更快的查询速度，规则库使用二进制编码</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">SELinux日志</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+SELinux日志位置在 <code>/var/log/audit/audit.log</code>
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">2</span> 配置SELinux</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">SELinux状态</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>enforcing: 强制，每个受限的进程都必然受限</li>
+<li>permissive: 启用，每个受限的进程违规操作不会被禁止，但会被记录于审计日志</li>
+<li>disabled: 关闭，启用后需要重启系统</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">getenforce  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24403;&#21069;SELinux&#30340;&#29366;&#24577;</span>
+setenforce 0|1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26242;&#26102;&#35774;&#32622;&#24403;&#21069;SELinux&#30340;&#29366;&#24577;</span>
+  0: permissive
+  1: enforcing
+</pre>
+</div>
+<ul class="org-ul">
+<li>永久生效需要修改配置文件: <code>/etc/sysconfig/selinux</code> 或 <code>/etc/selinux/config</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">更改文件标签</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<ul class="org-ul">
+<li>文件标签一般只改TYPE</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">chcon [OPTION]... CONTEXT FILE...
+chcon [OPTION]... [-u USER] [-r ROLE] [-t TYPE] FILE...
+<span style="color: #FD971F;">chcon [OPTION]... --reference</span>=RFILE FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26356;&#25913;&#25104;&#20854;&#20182;&#25991;&#20214;&#30340;SELinux</span>
+  -R: &#36882;&#24402;
+</pre>
+</div>
+<ul class="org-ul">
+<li>还原文件的默认标签</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">restorecon [-R] FILE
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">设定布尔型规则</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-conf">getsebool [-a] [boolean]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24067;&#23572;&#22411;&#35268;&#21017;</span>
+setsebool [-P] boolean value
+  -P: &#23558;&#35268;&#21017;&#20889;&#20837;&#37197;&#32622;&#25991;&#20214;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10"><span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</h3>
+</div>
+</div>

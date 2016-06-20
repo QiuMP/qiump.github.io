@@ -1,0 +1,79 @@
+#+TITLE: SELinux
+#+DATE: 2016-06-19
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 安全
+#+JEKYLL_PUBLISHED: true
+
+简单记录了SELinux相关的内容，以及如何去配置SELinux
+
+
+
+
+-----
+* SELinux相关内容
+- SELinux: Secure Enhanced Linux
+  - 通过为每个进程设定sandbox，来限制进程的访问范围
+
+** 访问控制的类型
+- DAC: 自主访问控制
+- MAC: 强制访问控制，限制进程的访问权限
+- SELinux是一种MAC模式
+
+** SELinux的工作级别
+- strict: 每个进程都受到selinux的控制
+- targeted: 仅有限个进程受到selinux控制，只监控容易被入侵的进程
+
+** SELinux的安全标签
+- SELinux为每个文件提供了安全标签，也为进程提供了安全标签
+  - 标签内容为 =user:role:type=
+    - user: SELinux的user
+    - role: 角色
+    - type: 对文件来说是类型，对进程来说是域
+
+#+BEGIN_SRC conf
+ls -Z FILE  # 查询文件的安全标签
+ps auxZ FILE  # 查询程序的安全标签
+#+END_SRC
+
+** SELinux规则库
+规则：定义哪种域能访问哪些类型的文件
+- 若进程访问规则没有允许访问的类型的文件，则会拒绝访问并记录到日志中
+- 为了更快的查询速度，规则库使用二进制编码
+
+** SELinux日志
+SELinux日志位置在 =/var/log/audit/audit.log=
+
+
+* 配置SELinux
+** SELinux状态
+- enforcing: 强制，每个受限的进程都必然受限
+- permissive: 启用，每个受限的进程违规操作不会被禁止，但会被记录于审计日志
+- disabled: 关闭，启用后需要重启系统
+#+BEGIN_SRC conf
+getenforce  # 获取当前SELinux的状态
+setenforce 0|1  # 暂时设置当前SELinux的状态
+  0: permissive
+  1: enforcing
+#+END_SRC
+- 永久生效需要修改配置文件: =/etc/sysconfig/selinux= 或 =/etc/selinux/config=
+** 更改文件标签
+- 文件标签一般只改TYPE
+#+BEGIN_SRC conf
+chcon [OPTION]... CONTEXT FILE...
+chcon [OPTION]... [-u USER] [-r ROLE] [-t TYPE] FILE...
+chcon [OPTION]... --reference=RFILE FILE...  # 更改成其他文件的SELinux
+  -R: 递归
+#+END_SRC
+- 还原文件的默认标签
+#+BEGIN_SRC conf
+restorecon [-R] FILE
+#+END_SRC
+** 设定布尔型规则
+#+BEGIN_SRC conf
+getsebool [-a] [boolean]  # 获取布尔型规则
+setsebool [-P] boolean value
+  -P: 将规则写入配置文件
+#+END_SRC
+** TODO 使用semanage设置文件夹文件默认标签
