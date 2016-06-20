@@ -128,6 +128,13 @@ man 3 COMMAND  # 查询COMMAND(3)的手册
     -n: 禁止自动添加换行符号
     -e: 允许使用转义符
   #+END_SRC
+  - 使用cat来简化输出多行
+    #+BEGIN_SRC sh
+    cat << EOF
+    yesfdsfdf
+    fdfsdfssfer
+    EOF   # 定义的结束符
+    #+END_SRC
 
 ** 时钟
 *** 系统时钟
@@ -381,6 +388,7 @@ find [OPTION]... [查找路径] [查找条件] [处理动作]
   - -ok COMMAND {} \; : 对查找到的每个文件执行由COMMAND指定的命令，执行前会交互式要求用户确认
 	  - {}: 用于引用查找到的文件名称自身
     - 注意: find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性传递给后面的命令，有些命令不能接受过多参数，可以使用 =find | xargs COMMAND= 来解决
+** TODO xargs
 
 ** 查看文本文件
 *** cat, tac
@@ -695,22 +703,46 @@ read [option]... [name ...]
       # COMMAND1和COMMAND2都失败后执行的代码
   fi  # if结束标志
   #+END_SRC
+- case ::
+  #+BEGIN_SRC sh
+  case 变量引用 in
+  glob1)
+      分支1
+      ;;
+  glob2)  # 可使用 glob 风格通配符
+      分支2
+      ;;
+  ...
+  *)
+      默认分支
+      ;;
+  esac
+  #+END_SRC
 *** 循环执行
 - for ::
-  #+BEGIN_SRC sh
-  for 变量名 in 列表; do
-      循环体
-  done
-  # 依次将列表中的元素赋值给"变量名"; 每次赋值后即执行一次循环体; 直到列表中的元素耗尽，循环结束
-  #+END_SRC
-  - 列表生成方式
-    1. 直接给出列表
-    2. 整数列表
-       1. {start..end}
-       2. $(seq [start [step]] end) 
-    3. 返回列表的命令
-    4. 文件名通配glob, 会展开文件名列表
-    5. 变量引用, 例如$@、$*
+  - 列表式
+    #+BEGIN_SRC sh
+    for 变量名 in 列表; do
+        循环体
+    done
+    # 依次将列表中的元素赋值给"变量名"; 每次赋值后即执行一次循环体; 直到列表中的元素耗尽，循环结束
+    #+END_SRC
+    - 列表生成方式
+      1. 直接给出列表
+      2. 整数列表
+         1. {start..end}
+         2. $(seq [start [step]] end) 
+      3. 返回列表的命令
+      4. 文件名通配glob, 会展开文件名列表
+      5. 变量引用, 例如$@、$*
+  - C风格式
+    #+BEGIN_SRC sh
+    for ((控制变量初始化;条件判断表达式;控制变量的修正表达式)); do
+        循环体
+    done
+    #+END_SRC
+    - 控制变量初始化：仅在运行到循环代码段时执行一次
+    - 控制变量的修正表达式：每轮循环结束会先进行控制变量修正运算，而后再做条件判断
 
 - while ::
   #+BEGIN_SRC sh
@@ -719,6 +751,12 @@ read [option]... [name ...]
   done
   # 当COMMAND为真的时候, 重复执行循环体直至COMMAND为假
   #+END_SRC
+  - 特殊用法: 遍历文件的每一行
+    #+BEGIN_SRC sh
+    while read line; do
+        循环体
+    done < FILE
+    #+END_SRC
 
 - until :: 
   #+BEGIN_SRC sh
@@ -727,7 +765,11 @@ read [option]... [name ...]
   done
   # 当COMMAND为假的时候, 重复执行循环体直至COMMAND为真
   #+END_SRC
-*** 函数
+- 循环控制语句 ::
+  - continue [N]: 提前结束第N层的本轮循环，直接进入下一轮判断
+  - break [N]: 提前结束第N层的循环
+    - 在死循环(while true)中使用break来控制循环
+*** TODO 函数
 *** 检查和调试脚本
 #+BEGIN_SRC conf
 bash -n SCRIPT  # 检测脚本中的语法错误

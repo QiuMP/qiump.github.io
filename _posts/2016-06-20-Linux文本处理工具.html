@@ -15,7 +15,7 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline11">1. 文本处理工具</a>
+<li><a href="#orgheadline10">1. 文本处理工具</a>
 <ul>
 <li><a href="#orgheadline1">head, tail</a></li>
 <li><a href="#orgheadline2">tr</a></li>
@@ -24,9 +24,8 @@ comments:
 <li><a href="#orgheadline5">sort</a></li>
 <li><a href="#orgheadline6">uniq</a></li>
 <li><a href="#orgheadline7">grep</a></li>
-<li><a href="#orgheadline8"><span class="todo TODO">TODO</span> sed</a></li>
+<li><a href="#orgheadline8">sed</a></li>
 <li><a href="#orgheadline9"><span class="todo TODO">TODO</span> awk</a></li>
-<li><a href="#orgheadline10"><span class="todo TODO">TODO</span> xargs</a></li>
 </ul>
 </li>
 </ul>
@@ -39,8 +38,8 @@ TODO
 
 
 <hr  />
-<div id="outline-container-orgheadline11" class="outline-2">
-<h2 id="orgheadline11"><span class="section-number-2">1</span> 文本处理工具</h2>
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10"><span class="section-number-2">1</span> 文本处理工具</h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-orgheadline1" class="outline-3">
 <h3 id="orgheadline1">head, tail</h3>
@@ -185,13 +184,101 @@ TODO
 </div>
 </div>
 <div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8"><span class="todo TODO">TODO</span> sed</h3>
+<h3 id="orgheadline8">sed</h3>
 <div class="outline-text-3" id="text-orgheadline8">
 <ul class="org-ul">
-<li>文本编辑工具</li>
+<li>sed: Stream EDitor，是一个行编辑器</li>
+<li>sed有两个缓存空间：模式空间和保持空间</li>
+<li>sed每次读取文件的一行到模式空间中处理，结束时将模式空间的内容输出至屏幕</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">sed [option]... <span style="color: #E6DB74;">'script'</span> inputfile...
+  -n: &#19981;&#36755;&#20986;&#27169;&#24335;&#31354;&#38388;&#20013;&#30340;&#20869;&#23481;&#33267;&#23631;&#24149;
+  -e: &#22810;&#28857;&#32534;&#36753;
+  -f /PATH/TO/SCRIPT_FILE: &#20174;&#25351;&#23450;&#25991;&#20214;&#20013;&#35835;&#21462;&#32534;&#36753;&#33050;&#26412;
+  -r: &#25903;&#25345;&#20351;&#29992;&#25193;&#23637;&#27491;&#21017;&#34920;&#36798;&#24335;
+  -i: &#21407;&#25991;&#20214;&#32534;&#36753;
+
+  script&#26684;&#24335;: &#22320;&#22336;+&#21629;&#20196;&#65292;&#22810;&#26465;&#21629;&#20196;&#29992;;&#38548;&#24320;&#65292;&#21629;&#20196;&#21487;&#20197;&#20351;&#29992;{}&#25324;&#36215;&#22810;&#26465;&#21629;&#20196;
+</pre>
+</div>
+<ul class="org-ul">
+<li>地址定界
+<ol class="org-ol">
+<li>不给地址：对全文进行处理</li>
+<li>单地址：
+<ul class="org-ul">
+<li>#: 指定的行</li>
+<li>/pattern/：被此处模式所能够匹配到的每一行</li>
+</ul></li>
+<li>地址范围：
+<ul class="org-ul">
+<li><code>#,#</code></li>
+<li><code>#,+#</code></li>
+<li><code>/pat1/,/pat2/</code></li>
+<li><code>#,/pat1/</code></li>
+</ul></li>
+<li>~：步进 (first~step)</li>
+</ol></li>
+<li>编辑命令
+<ul class="org-ul">
+<li>!: 取反条件，放在编辑命令之前</li>
+<li>d: 删除</li>
+<li>p: 显示模式空间中的内容(一般配合-n使用)</li>
+<li>a \text：在行后面追加新行(支持使用\n实现多行追加)</li>
+<li>i \text：在行前面插入文本(支持使用\n实现多行插入)</li>
+<li>c \text：替换行(同时替换地址范围所有行)为单行或多行文本</li>
+<li>w /path/to/somefile: 保存模式空间匹配到的行至指定文件中</li>
+<li>r /path/from/somefile：读取指定文件的文本流至模式空间中匹配到的行的行后</li>
+<li>=: 为模式空间中的行打印行号</li>
+<li>l: 打印行中的特殊字符</li>
+<li>y/inchars/outchars/: 转换命令，对inchars中的字符替换成outchars对应的字符</li>
+<li>s///NUM：查找替换第NUM个(默认为1)匹配
+<ul class="org-ul">
+<li>替换内容中使用 &amp; 来代表所匹配的内容</li>
+<li>替换标记
+<ul class="org-ul">
+<li>g: 行内全局替换</li>
+<li>p: 显示替换成功的行</li>
+<li>w /PATH/TO/SOMEFILE：将替换成功的结果保存至指定文件中</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>高级编辑命令
+<ul class="org-ul">
+<li>h: 把模式空间中的内容覆盖至保持空间中</li>
+<li>H：把模式空间中的内容追加至保持空间中</li>
+<li>g: 从保持空间取出数据覆盖至模式空间</li>
+<li>G：从保持空间取出内容追加至模式空间</li>
+<li>x: 把模式空间中的内容与保持空间中的内容进行互换</li>
+<li>n: 输出模式空间的内容，读取匹配到的行的下一行至模式空间</li>
+<li>N：追加匹配到的行的下一行至模式空间，若到没有下一行可读，则立即停止程序</li>
+<li>d: 删除模式空间中的所有行</li>
+<li>D：删除模式空间中的第一行，即删除到第一个换行符</li>
+</ul></li>
+<li>改变流
+<ul class="org-ul">
+<li>D: D命令删除第一行后会强制sed返回脚本顶部，而不读取新的行</li>
+<li><p>
+b [label]: 跳转到label标签的位置，若省略则跳转到脚本结尾
+</p>
+<ul class="org-ul">
+<li>标签的位置通过 <code>:label</code> 来指定</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">:start
+s/,//1p
+/,/b start  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#22320;&#22336;&#27169;&#24335;&#36991;&#20813;&#27515;&#24490;&#29615;</span>
+</pre>
+</div></li>
+<li>t [label]: 检查最近一次替换是否成功，成功则跳转到标签位置或脚本结尾，失败则继续执行脚本</li>
+</ul></li>
 </ul>
 </div>
 </div>
+
 <div id="outline-container-orgheadline9" class="outline-3">
 <h3 id="orgheadline9"><span class="todo TODO">TODO</span> awk</h3>
 <div class="outline-text-3" id="text-orgheadline9">
@@ -199,8 +286,5 @@ TODO
 <li>文本报告生成器</li>
 </ul>
 </div>
-</div>
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10"><span class="todo TODO">TODO</span> xargs</h3>
 </div>
 </div>
