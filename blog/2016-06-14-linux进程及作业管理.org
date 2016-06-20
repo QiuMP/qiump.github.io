@@ -78,7 +78,8 @@ ps -eFH  # 以进程层级格式显示进程相关信息
   -e: 显示所有进程，相当于ax
   -F: 显示完整格式程序信息
   -H: 层级格式显示进程
-ps axZ  # 显示selinux相关
+ps axZ  # 显示SELinux相关
+  Z: 显示SELinux的安全标签
 ps -U USER  # 显示某用户运行的进程
 ps -eo ...  # 自定义显示列表
 #+END_SRC

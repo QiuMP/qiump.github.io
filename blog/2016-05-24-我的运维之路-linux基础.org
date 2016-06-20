@@ -218,9 +218,10 @@ ls [OPTION]... [DIR]...
   -a, --all: 显示所有文件，包括隐藏文件
   -l: 长格式
   -h, --human-readable: 单位换算
-  -d: 显示目录自身的相关属性；通常要与-l一起使用；
+  -d: 显示目录自身的相关属性，通常要与-l一起使用
   -r, --reverse: 逆序显示
   -R, --recursive: 递归
+  -Z: 显示SELinux权限
 #+END_SRC
 - 长格式 ::
   [[file:ls.gif]]
