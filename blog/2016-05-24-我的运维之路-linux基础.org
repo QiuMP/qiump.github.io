@@ -775,7 +775,7 @@ read [option]... [name ...]
 *** 选择执行
 - if ::
   - if语句可以进行嵌套
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   if COMMAND1
   then
       # COMMAND1成功后执行的代码
@@ -787,7 +787,7 @@ read [option]... [name ...]
   #+END_SRC
 *** 循环执行
 - for ::
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   for 变量名 in 列表; do
       循环体
   done
@@ -803,7 +803,7 @@ read [option]... [name ...]
     5. 变量引用, 例如$@、$*
 
 - while ::
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   while COMMAND; do
       循环体
   done
@@ -811,12 +811,13 @@ read [option]... [name ...]
   #+END_SRC
 
 - until :: 
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   until COMMAND; do
       循环体
   done
   # 当COMMAND为假的时候, 重复执行循环体直至COMMAND为真
   #+END_SRC
+*** 函数
 *** 检查和调试脚本
 #+BEGIN_SRC conf
 bash -n SCRIPT  # 检测脚本中的语法错误
