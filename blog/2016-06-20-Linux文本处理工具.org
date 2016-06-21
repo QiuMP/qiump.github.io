@@ -41,6 +41,8 @@ wc [OPTION]... [FILE]...
   -l: lines
   -w: words
   -c: characters
+  
+wc -l FILE | cut -d' ' -f1  # 统计文件的行数
 #+END_SRC
 
 ** cut

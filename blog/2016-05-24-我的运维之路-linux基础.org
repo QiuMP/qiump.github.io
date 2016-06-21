@@ -614,6 +614,7 @@ unalias [-a] name...
   -a: 撤销所有别名
 #+END_SRC
 - 如果要忽略别名执行原命令的话，可使用 =\COMMAND=
+
 ** glob
 bash中用于实现文件名“通配”
 - 通配符 ::
@@ -630,6 +631,7 @@ bash中用于实现文件名“通配”
   - [:alnum:]: 任意数字或字母
   - [:space:]: 
   - [:punct:]: 标点符号
+
 ** bash的快捷键
 - Ctrl+L: 清屏，相当于clear命令
 - Ctrl+A: 跳转至命令开始处
@@ -804,7 +806,7 @@ bash -x SCRIPT  # 调试执行脚本
 - 特殊变量: $?, $*, $@, $#
 *** 本地与环境变量
 - 变量的赋值 ::
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   # 本地变量
   name="value: $val"  # 直接赋值字符串
   name=`COMMAND`  # 命令引用
@@ -830,7 +832,7 @@ bash -x SCRIPT  # 调试执行脚本
   
   unset name  # 销毁变量
   #+END_SRC
-
+  
 *** 局部变量
 在函数中定义局部变量，函数结束的时候该变量会被销毁
 #+BEGIN_SRC shell
@@ -859,6 +861,73 @@ declare -r name
   #+BEGIN_SRC conf
   shift [n]  # 参数删除前面n个，会影响所有位置变量
   #+END_SRC
+** bash数组
+- 引用数组: 
+  #+BEGIN_SRC sh
+  echo ${ARRAY_NAME[INDEX]}  # 若下标省略则引用下标为0的元素
+  echo ${ARRAY[@]} ${ARRAY[*]}  # 引用数组的所有元素
+  echo ${ARRAY[@]:offset:number}  # 跳过offset个元素后取出number个元素(number可以省略)
+  #+END_SRC
+- 声明数组:
+  #+BEGIN_SRC sh
+  declare -a ARRAY_NAME  # 普通数组，下标从0开始
+  declare -A ARRAY_NAME  # 关联数组，下标引可以自定义
+  #+END_SRC
+- 数组元素的赋值
+  1. 一次只赋值一个元素
+     #+BEGIN_SRC sh
+     ARRAY_NAME[INDEX]=VALUE
+     #+END_SRC
+  2. 一次赋值全部元素
+     #+BEGIN_SRC sh
+     ARRAY_NAME=("VAL1" "VAL2" ...)
+     files=(/var/log/*.log)  # 通过glob来生成数组
+     #+END_SRC
+  3. 只赋值特定元素
+     #+BEGIN_SRC sh
+     ARRAY_NAME=([0]="VAL1" [3]="VAL2" ...)  # 创建稀疏格式数组
+     ARRAY_NAME=([abc]="VAL1" [fdc]="VAL2" ...)  # 创建关联数组
+     #+END_SRC
+  4. 读取用户输入
+     #+BEGIN_SRC sh
+     read -a ARRAY
+     #+END_SRC
+  5. 追加元素
+     #+BEGIN_SRC c
+     ARRAY[${#ARRAY[*]}]=VALUE
+     #+END_SRC
+- 数组的长度
+  #+BEGIN_SRC c
+  echo ${#ARRAY_NAME[*]}
+  echo ${#ARRAY_NAME[@]}
+  #+END_SRC
+
+** bash字符串处理
+- 子符串切片 ::
+  - ${str:offset:number}: 跳过offset个字符后取出number个字符(可省略number)
+  - ${str: -length}: 取出右侧length个字符(注意空格)
+- 基于glob取子串 ::
+  - ${str#glob}: 自左向右的删除glob的第一次最短匹配
+  - ${str##glob}: 自左向右的删除glob的第一次最长匹配
+    - ${str##*word}: 删除字符串开头到最后一次word匹配的字符
+  - ${str%glob}: 自右向左的删除glob的第一次最短匹配
+  - ${str%%glob}: 自右向左的删除glob的第一次最长匹配
+    - ${str%%word*}: 删除第一次word匹配到字符串末尾
+- 查找替换(最长匹配) ::
+  - ${str/glob/substr}: 用substr替换第一次被glob匹配到的字符串(/substr省略则为删除)
+  - ${str//glob/substr}: 用substr替换所有能被glob匹配到的字符串(/substr省略则为删除)
+  - ${str/#glob/substr}: 用substr替换行首被glob匹配到的字符串(/substr省略则为删除)
+  - ${str/%glob/substr}: 用substr替换行尾被glob匹配到的字符串(/substr省略则为删除)
+- 大小写转换 ::
+  - ${var^^}：把var中的所有小写字母转换为大写
+  - ${var,,}：把var中的所有大写字母转换为小写
+- 变量赋值 ::
+  - ${var-value}：如果var未设置，那么返回value；否则，则返回var的值
+  - ${var=value}：如果var未设置，那么返回value，并将value赋值给var；否则，则返回var的值
+  - ${var+value}：如果var已设置，则返回value
+  - ${var?error_info}：如果var未设置，那么输出错误error_info；否则，则返回var的值
+  - 若在-=+?前加上冒号:，那么空变量会视为未设置
+
 ** bash中的算术计算
 *** 计算命令
 #+BEGIN_SRC conf
@@ -961,7 +1030,7 @@ test EXPRESSION
   - 读取配置文件: ~/.bashrc -> /etc/bashrc -> /etc/profile.d/*.sh
 *** 载入配置文件的方式
 1. 重新启动shell进程
-2. 使用source或.命令载入配置
+2. 使用source或.命令载入配置(脚本中也可用)
 
 * 用户和组
 ** 资源分派
