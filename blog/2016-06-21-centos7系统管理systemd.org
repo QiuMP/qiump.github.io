@@ -6,6 +6,11 @@
 #+JEKYLL_TAGS: Linux 运维 CentOS7
 #+JEKYLL_PUBLISHED: true
 
+记录CentOS 7新增的systemd系列命令的特性，以及其使用和配置文件的设置
+
+
+
+-----
 * systemd
 ** 特性
 - 系统引导时实现服务并行启动
