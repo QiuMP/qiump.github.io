@@ -1,0 +1,272 @@
+---
+title: "CentOS7系统管理Systemd"
+date: 2016-06-21
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- CentOS7
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline8">1. systemd</a>
+<ul>
+<li><a href="#orgheadline1">特性</a></li>
+<li><a href="#orgheadline2">Unit</a></li>
+<li><a href="#orgheadline3">管理系统服务</a></li>
+<li><a href="#orgheadline6">Target unit</a>
+<ul>
+<li><a href="#orgheadline4">运行级别</a></li>
+<li><a href="#orgheadline5">相关命令</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">开关机命令</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">1</span> systemd</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">特性</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>系统引导时实现服务并行启动</li>
+<li>按需激活进程和服务
+<ul class="org-ul">
+<li>基于socket的激活机制：socket被访问时激活服务</li>
+<li>基于bus的激活机制：</li>
+<li>基于device的激活机制：当设备接入时激活服务</li>
+<li>基于path的激活机制：某路径的文件发生变动时激活服务</li>
+</ul></li>
+<li>系统状态快照：保存当前所有Unit的状态</li>
+<li>基于依赖关系定义服务控制逻辑</li>
+<li>非由systemd启动的服务，systemctl无法与之通信</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Unit</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+进行标识和配置的配置文件，主要包含了系统服务、监听socket、保存的系统快照以及其它与init相关的信息
+</p>
+<ul class="org-ul">
+<li>相关目录
+<ul class="org-ul">
+<li>/usr/lib/systemd/system</li>
+<li>/etc/systemd/system</li>
+<li>/run/systemd/system</li>
+</ul></li>
+<li><p>
+Unit类型
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Unit类型</th>
+<th scope="col" class="org-left">文件扩展名</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Service unit</td>
+<td class="org-left">.service</td>
+<td class="org-left">用于定义系统服务</td>
+</tr>
+
+<tr>
+<td class="org-left">Target unit</td>
+<td class="org-left">.target</td>
+<td class="org-left">用于模拟实现“运行级别”</td>
+</tr>
+
+<tr>
+<td class="org-left">Device unit</td>
+<td class="org-left">.device</td>
+<td class="org-left">用于定义内核识别的设备</td>
+</tr>
+
+<tr>
+<td class="org-left">Mount unit</td>
+<td class="org-left">.mount</td>
+<td class="org-left">定义文件系统挂载点</td>
+</tr>
+
+<tr>
+<td class="org-left">Socket unit</td>
+<td class="org-left">.socket</td>
+<td class="org-left">用于标识进程间通信用的socket文件</td>
+</tr>
+
+<tr>
+<td class="org-left">Snapshot unit</td>
+<td class="org-left">.snapshot</td>
+<td class="org-left">管理系统快照</td>
+</tr>
+
+<tr>
+<td class="org-left">Swap unit</td>
+<td class="org-left">.swap</td>
+<td class="org-left">用于标识swap设备</td>
+</tr>
+
+<tr>
+<td class="org-left">Automount unit</td>
+<td class="org-left">.automount</td>
+<td class="org-left">文件系统的自动挂载点</td>
+</tr>
+
+<tr>
+<td class="org-left">Path unit</td>
+<td class="org-left">.path</td>
+<td class="org-left">用于定义文件系统中的一个文件或目录</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">管理系统服务</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-conf">systemctl COMMAND name[.service]
+  COMMAND
+    start: &#21551;&#21160;&#26381;&#21153;
+    stop: &#20572;&#27490;&#26381;&#21153;
+    restart: &#37325;&#21551;&#25110;&#21551;&#21160;&#26381;&#21153;
+    try-restart: &#33509;&#26381;&#21153;&#21551;&#21160;&#21017;&#37325;&#21551;&#65292;&#33509;&#26381;&#21153;&#26410;&#21551;&#21160;&#21017;&#19981;&#25805;&#20316;
+    reload-or-restart: &#37325;&#36733;&#25110;&#37325;&#21551;&#26381;&#21153;
+    reload-or-try-restart: &#37325;&#36733;&#25110;&#26465;&#20214;&#24335;&#37325;&#21551;&#26381;&#21153;
+
+    mask: &#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null&#65292;&#21017;&#26381;&#21153;&#26080;&#27861;&#36827;&#34892;&#24320;&#26426;&#33258;&#21551;&#30340;&#35774;&#23450;
+    unmask: &#21462;&#28040;&#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null
+
+    enable: &#35774;&#32622;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
+    disable: &#20851;&#38381;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
+
+    status: &#26597;&#35810;&#29366;&#24577;&#21644;&#26368;&#36817;&#29366;&#24577;&#26085;&#24535;
+    is-active: &#26597;&#35810;&#26381;&#21153;&#24403;&#21069;&#26159;&#21542;&#21551;&#29992;
+    is-enabled: &#26597;&#35810;&#26381;&#21153;&#26159;&#21542;&#24320;&#26426;&#33258;&#21551;
+
+    list-dependencies: &#26597;&#35810;&#26381;&#21153;&#30340;&#20381;&#36182;&#20851;&#31995;
+
+    list-units --type service: &#26597;&#30475;&#25152;&#26377;&#24050;&#32463;&#21551;&#21160;&#30340;&#26381;&#21153;&#30340;&#20449;&#24687;
+    list-units --type service --all: &#26597;&#30475;&#25152;&#26377;&#26381;&#21153;&#30340;&#20449;&#24687;
+    list-unit-files --type service: &#26597;&#35810;&#25152;&#26377;&#26381;&#21153;&#30340;&#24320;&#26426;&#33258;&#21551;&#29366;&#24577;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">Target unit</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">运行级别</h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">级别</th>
+<th scope="col" class="org-left">对应的target文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">runlevel0.target -&gt; poweroff.target</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">runlevel1.target -&gt; rescue.target</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">runlevel2.target -&gt; multi-user.target</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">runlevel3.target -&gt; multi-user.target</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">runlevel4.target -&gt; multi-user.target</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">runlevel5.target -&gt; graphical.target</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">runlevel6.target -&gt; reboot.target</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">相关命令</h4>
+<div class="outline-text-4" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-conf">systemctl list-units --type target  <span style="color: #75715E;">#  </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#24050;&#35013;&#36733;&#30340;target</span>
+
+systemctl isolate name.target  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#24403;&#21069;&#30340;target&#25991;&#20214;</span>
+systemctl rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#21040;&#32039;&#24613;&#25937;&#25588;&#27169;&#24335;</span>
+systemctl emergency  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#21040;emergency&#27169;&#24335;&#65292;&#19981;&#21152;&#36733;&#39537;&#21160;</span>
+systemctl get-default  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#40664;&#35748;&#36816;&#34892;&#32423;&#21035;</span>
+systemctl set-default name.target  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#40664;&#35748;&#36816;&#34892;&#32423;&#21035;&#65292;&#35774;&#32622;/etc/systemd/system/default.target</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">开关机命令</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-conf">systemctl {halt|poweroff}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#26426;</span>
+systemctl reboot  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#21551;</span>
+systemctl suspend  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25346;&#36215;</span>
+systemctl hibernate  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24555;&#29031;</span>
+systemctl hybrid-sleep  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24555;&#29031;&#24182;&#25346;&#36215;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>

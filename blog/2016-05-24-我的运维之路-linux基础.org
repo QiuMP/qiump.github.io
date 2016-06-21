@@ -704,12 +704,12 @@ read [option]... [name ...]
   fi  # if结束标志
   #+END_SRC
 - case ::
-  #+BEGIN_SRC sh
+  #+BEGIN_SRC shell
   case 变量引用 in
-  glob1)
+  glob1)  # 可使用 glob 风格通配符
       分支1
       ;;
-  glob2)  # 可使用 glob 风格通配符
+  glob2|glob3)  # 使用|来匹配多个glob
       分支2
       ;;
   ...
@@ -717,6 +717,7 @@ read [option]... [name ...]
       默认分支
       ;;
   esac
+  # 只执行第一次成功匹配的分支
   #+END_SRC
 *** 循环执行
 - for ::
@@ -769,11 +770,29 @@ read [option]... [name ...]
   - continue [N]: 提前结束第N层的本轮循环，直接进入下一轮判断
   - break [N]: 提前结束第N层的循环
     - 在死循环(while true)中使用break来控制循环
-*** TODO 函数
+*** 函数
+- 函数有两种风格的写法，只有被调用才会执行
+#+BEGIN_SRC sh
+function f_name {
+    ...
+}
+
+f_name() {
+    ...
+    return 0   # 用于结束函数并返回函数的执行结果，若省略则返回最后一个命令的结果，范围是0-255
+}
+#+END_SRC
+- 函数的返回值
+  - 函数的执行结果返回值: 通过echo或print进行输出，使用命令引用来取得
+  - 函数退出状态码：通过return或最后一条命令的退出状态码
+- 在函数中，可以像脚本传递参数那样使用其参数
+  - 在函数中，不可使用外边脚本的参数
+
 *** 检查和调试脚本
 #+BEGIN_SRC conf
 bash -n SCRIPT  # 检测脚本中的语法错误
 bash -x SCRIPT  # 调试执行脚本
+  # 行头+代表层数
 #+END_SRC
 
 ** bash变量
@@ -812,6 +831,14 @@ bash -x SCRIPT  # 调试执行脚本
   unset name  # 销毁变量
   #+END_SRC
 
+*** 局部变量
+在函数中定义局部变量，函数结束的时候该变量会被销毁
+#+BEGIN_SRC shell
+function f_name {
+    local NAME=VALUE  # 该变量只在函数内生效
+}
+#+END_SRC
+- 如果函数中有局部变量，其名称本地变量相同，则本地变量在函数内会被隐藏
 *** 只读变量
 - 只读变量不能被修改或销毁
 - 只读变量可以声明为本地变量或环境变量，也可以将已有的变量转换为只读变量

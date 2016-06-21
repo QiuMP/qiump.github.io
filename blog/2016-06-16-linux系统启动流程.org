@@ -109,7 +109,7 @@ title TITLE  # 定义菜单项“标题”, 可出现多次
       - 配置文件: /etc/inittab, /etc/init/*.conf
     - Systemd: systemd(CentOS 7)
       - 配置文件: /usr/lib/systemd/system, /etc/systemd/system
-** init
+** init(CentOS 6)
 *** 运行级别
 为了系统的运行或维护等应用目的而设定
 | 0 | 关机                                               |
@@ -206,4 +206,3 @@ who -r  # 查看当前级别
   #+BEGIN_SRC conf
   chkconfig --del NAME
   #+END_SRC
-** TODO systemd
