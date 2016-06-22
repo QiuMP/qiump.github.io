@@ -15,35 +15,29 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline10">1. 文本处理工具</a>
-<ul>
-<li><a href="#orgheadline1">head, tail</a></li>
-<li><a href="#orgheadline2">tr</a></li>
-<li><a href="#orgheadline3">wc</a></li>
-<li><a href="#orgheadline4">cut</a></li>
-<li><a href="#orgheadline5">sort</a></li>
-<li><a href="#orgheadline6">uniq</a></li>
-<li><a href="#orgheadline7">grep</a></li>
-<li><a href="#orgheadline8">sed</a></li>
-<li><a href="#orgheadline9"><span class="todo TODO">TODO</span> awk</a></li>
-</ul>
-</li>
+<li><a href="#orgheadline1">1. head, tail</a></li>
+<li><a href="#orgheadline2">2. tr</a></li>
+<li><a href="#orgheadline3">3. wc</a></li>
+<li><a href="#orgheadline4">4. cut</a></li>
+<li><a href="#orgheadline5">5. sort</a></li>
+<li><a href="#orgheadline6">6. uniq</a></li>
+<li><a href="#orgheadline7">7. grep</a></li>
+<li><a href="#orgheadline8">8. sed</a></li>
+<li><a href="#orgheadline9">9. gawk</a></li>
 </ul>
 </div>
 </div>
 <p>
-TODO
+介绍了Linux下常用的文本处理工具，包括head, tail, tr, wc, cut, sort, uniq，以及文本处理三剑客grep, sed, awk
 </p>
 
 
 
+
 <hr  />
-<div id="outline-container-orgheadline10" class="outline-2">
-<h2 id="orgheadline10"><span class="section-number-2">1</span> 文本处理工具</h2>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> head, tail</h2>
 <div class="outline-text-2" id="text-1">
-</div><div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">head, tail</h3>
-<div class="outline-text-3" id="text-orgheadline1">
 <div class="org-src-container">
 
 <pre class="src src-conf">head [OPTION]... [FILE]...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#22836;</span>
@@ -64,9 +58,9 @@ TODO
 </div>
 </div>
 
-<div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">tr</h3>
-<div class="outline-text-3" id="text-orgheadline2">
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> tr</h2>
+<div class="outline-text-2" id="text-2">
 <p>
 转换或删除字符
 </p>
@@ -79,9 +73,9 @@ TODO
 </div>
 </div>
 
-<div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">wc</h3>
-<div class="outline-text-3" id="text-orgheadline3">
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> wc</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 行数 单词 字节
 </p>
@@ -98,9 +92,9 @@ wc -l FILE | cut -d<span style="color: #E6DB74;">' '</span> -f1  <span style="co
 </div>
 </div>
 
-<div id="outline-container-orgheadline4" class="outline-3">
-<h3 id="orgheadline4">cut</h3>
-<div class="outline-text-3" id="text-orgheadline4">
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> cut</h2>
+<div class="outline-text-2" id="text-4">
 <p>
 通过分隔符切割后显示指定字段
 </p>
@@ -115,9 +109,9 @@ wc -l FILE | cut -d<span style="color: #E6DB74;">' '</span> -f1  <span style="co
 </div>
 </div>
 
-<div id="outline-container-orgheadline5" class="outline-3">
-<h3 id="orgheadline5">sort</h3>
-<div class="outline-text-3" id="text-orgheadline5">
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> sort</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 排序
 </p>
@@ -135,9 +129,9 @@ wc -l FILE | cut -d<span style="color: #E6DB74;">' '</span> -f1  <span style="co
 </div>
 </div>
 
-<div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6">uniq</h3>
-<div class="outline-text-3" id="text-orgheadline6">
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> uniq</h2>
+<div class="outline-text-2" id="text-6">
 <p>
 去除连续且完全相同的行
 </p>
@@ -152,11 +146,11 @@ wc -l FILE | cut -d<span style="color: #E6DB74;">' '</span> -f1  <span style="co
 </div>
 </div>
 
-<div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">grep</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> grep</h2>
+<div class="outline-text-2" id="text-7">
 <ul class="org-ul">
-<li>grep是一个文本搜索工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行</li>
+<li>grep是一个文本过滤工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行</li>
 <li>grep工具有三种: 
 <ul class="org-ul">
 <li>grep支持基础正则表达式</li>
@@ -185,9 +179,9 @@ wc -l FILE | cut -d<span style="color: #E6DB74;">' '</span> -f1  <span style="co
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">sed</h3>
-<div class="outline-text-3" id="text-orgheadline8">
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">8</span> sed</h2>
+<div class="outline-text-2" id="text-8">
 <ul class="org-ul">
 <li>sed: Stream EDitor，是一个行编辑器</li>
 <li>sed有两个缓存空间：模式空间和保持空间</li>
@@ -276,17 +270,166 @@ s/,//1p
 </pre>
 </div></li>
 <li>t [label]: 检查最近一次替换是否成功，成功则跳转到标签位置或脚本结尾，失败则继续执行脚本</li>
+<li>T [label]: 检查最近一次替换是否失败，失败则跳转到标签位置或脚本结尾，成功则继续执行脚本</li>
 </ul></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9"><span class="todo TODO">TODO</span> awk</h3>
-<div class="outline-text-3" id="text-orgheadline9">
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">9</span> gawk</h2>
+<div class="outline-text-2" id="text-9">
 <ul class="org-ul">
-<li>文本报告生成器</li>
+<li>文本报告生成器，用于格式化文本输出</li>
+<li>Linux下的awk也是gawk的链接文件</li>
+<li>gawk每次读取文件的一行到模式空间中处理，根据字段分隔符进行切割</li>
 </ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">gawk [options] <span style="color: #E6DB74;">'program'</span> FILE...
+  -F: &#25351;&#26126;&#36755;&#20837;&#26102;&#29992;&#21040;&#30340;&#23383;&#27573;&#20998;&#38548;&#31526;(&#40664;&#35748;&#20026;&#31354;&#30333;&#23383;&#31526;&#65292;&#19981;&#21516;&#20110;cut)&#65292;&#21487;&#20197;&#29992;[%:]&#25351;&#23450;&#22810;&#20010;&#20998;&#38548;&#31526;
+  -f FILE: &#20174;FILE&#20013;&#35835;&#21462;program
+  <span style="color: #FD971F;">-v var</span>=value: &#33258;&#23450;&#20041;&#21464;&#37327;
+
+  program: PATTERN{ACTION}
+</pre>
 </div>
+<ul class="org-ul">
+<li>字段
+<ul class="org-ul">
+<li>$0: 当前处理的内容</li>
+<li>$1,$2,&#x2026;: 第n个字段</li>
+</ul></li>
+<li>变量(引用变量时不需要用$)
+<ul class="org-ul">
+<li>内建变量
+<ul class="org-ul">
+<li>FS：input field seperator，默认为空白字符</li>
+<li>OFS：output field seperator，默认为空白字符</li>
+<li>RS：input record seperator，输入时的行分隔符</li>
+<li>ORS：output record seperator，输出时的行分隔符</li>
+<li>NF：number of field，当前行字段数量
+<ul class="org-ul">
+<li>$NF为最后一个字段的内容</li>
+</ul></li>
+<li>NR：number of record, 当前已处理的行数</li>
+<li>FNR：当前文件已处理的行数</li>
+<li>FILENAME：当前文件名</li>
+<li>ARGC：命令行参数的个数</li>
+<li>ARGV[n]：保存命令行所给定的各参数的数组</li>
+</ul></li>
+<li>自定变量
+<ul class="org-ul">
+<li>使用 <code>-v var=value</code></li>
+<li>在program中直接定义</li>
+</ul></li>
+</ul></li>
+<li>数组
+<ul class="org-ul">
+<li>awk支持关联数组: array["yes"]</li>
+<li>在引用时，如果某数组元素事先不存在，awk会自动创建此元素，并将其值初始化为"空串"</li>
+<li>判断数组中是否存在某元素，使用 <code>index in array</code></li>
+</ul></li>
+<li>操作符
+<ul class="org-ul">
+<li>算数操作符: <code>+,-,*,/,**,%</code></li>
+<li>赋值操作符: =,+=,-+,*=,/=,%=,^=,++,&#x2013;
+<ul class="org-ul">
+<li>空字符串计算时会被视作0</li>
+</ul></li>
+<li>比较操作符: &gt;,&gt;=,&lt;,&lt;=,!=,==</li>
+<li>模式匹配符:
+<ul class="org-ul">
+<li>~: 是否匹配
+<ul class="org-ul">
+<li>例如 <code>$NF~/bash$/</code> 匹配最后一个字段是否以bash结尾</li>
+</ul></li>
+<li>!~: 是否不匹配</li>
+</ul></li>
+<li>逻辑操作符: &amp;&amp;,||,!</li>
+<li>三元操作符: CONDITION?if-true-expression:if-false-expression</li>
+<li>函数调用: FNAME(argu1,argu2&#x2026;)</li>
+</ul></li>
+<li>PATTERN
+<ol class="org-ol">
+<li>empty: 空模式，匹配每一行</li>
+<li><code>/regular/</code>: 仅处理能够被此处的模式匹配到的行</li>
+<li><code>!/regular/</code>: 仅处理不能够被此处的模式匹配到的行</li>
+<li><code>/pat1/,/pat2/</code>: 从pat1匹配的行到pat2匹配的行</li>
+<li>关系表达式: 结果为真时(非0值或非空字符)才会被处理，若有多个判断则用括号括起来</li>
+<li>BEGIN: 仅在开始处理文件中的文本之前执行一次，可在里边定义分隔符</li>
+<li>END: 仅在文本处理完成之后执行一次</li>
+</ol></li>
+<li>输出
+<ul class="org-ul">
+<li><p>
+print
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">print item1, item2, ...
+</pre>
+</div>
+<ul class="org-ul">
+<li>分隔符要使用逗号，若使用空格则会被连接起来显示</li>
+<li>输出的item可以是字符串(用双引号括起)、数值，也可以是当前记录的字段、变量或awk的表达式(不能用双引号括起来)</li>
+<li>如果省略item, 相当于 <code>print $0</code></li>
+<li>print每句会自动换行</li>
+</ul></li>
+<li><p>
+printf
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">printf FORMAT, item1, ...
+  &#26684;&#24335;&#31526;
+    %c: &#26174;&#31034;&#23383;&#31526;&#30340;ASCII&#30721;
+    %d, %i: &#26174;&#31034;&#21313;&#36827;&#21046;&#25972;&#25968;
+    %e, %E: &#31185;&#23398;&#35745;&#25968;&#27861;&#25968;&#20540;&#26174;&#31034;
+    %f: &#26174;&#31034;&#20026;&#28014;&#28857;&#25968;
+    %g, %G: &#20197;&#31185;&#23398;&#35745;&#25968;&#27861;&#25110;&#28014;&#28857;&#24418;&#24335;&#26174;&#31034;&#25968;&#20540;
+    %s: &#26174;&#31034;&#23383;&#31526;&#20018;
+    %u: &#26080;&#31526;&#21495;&#25972;&#25968;
+    %%: &#26174;&#31034;%&#33258;&#36523;
+  &#20462;&#39280;&#31526;
+    *[.*]: &#31532;&#19968;&#20010;&#25968;&#23383;&#25511;&#21046;&#26174;&#31034;&#30340;&#23485;&#24230;&#65292;&#31532;&#20108;&#20010;*&#34920;&#31034;&#23567;&#25968;&#28857;&#21518;&#30340;&#31934;&#24230;&#65292;&#20363;&#22914; %3.1f
+    -: &#24038;&#23545;&#40784;
+    +: &#26174;&#31034;&#25968;&#20540;&#30340;&#31526;&#21495;
+</pre>
+</div></li>
+</ul></li>
+<li>控制语句
+<ul class="org-ul">
+<li><code>if(condition) {statments}</code></li>
+<li><code>if(condition) {statments} else {statements}</code></li>
+<li><code>switch(expression) {case VALUE1 or /REGEXP/: statement; ...; default: statement}</code></li>
+<li><code>while(conditon) {statments}</code></li>
+<li><code>do {statements} while(condition)</code></li>
+<li><code>for(expr1;expr2;expr3) {statements}</code></li>
+<li><code>for(var in array) {statements}</code>: var会遍历array的每个索引</li>
+<li><code>break [n]</code></li>
+<li><code>continue [n]</code></li>
+<li><code>delete array[index]</code>: 删除数组中的指定元素</li>
+<li><code>delete array</code></li>
+<li><code>netx</code>: 提前结束对本行的处理而直接进入下一行</li>
+<li><code>exit [n]</code>: 马上执行END块后结束awk，如果已经在END块中则退出状态码为n</li>
+</ul></li>
+<li>函数
+<ul class="org-ul">
+<li>常用内置函数
+<ul class="org-ul">
+<li>rand(): 返回0到1之间的一个随机数</li>
+<li>length([s])：返回指定字符串的长度</li>
+<li>sub(r,s,[t])：以r表示的模式来查找t所表示的字符中的匹配的内容，并将其第一次出现替换为s所表示的内容</li>
+<li>gsub(r,s,[t])：以r表示的模式来查找t所表示的字符中的匹配的内容，并将其所有出现均替换为s所表示的内容</li>
+<li>split(s,a[,r])：以r为分隔符切割字符s，并将切割后的结果保存至a所表示的数组中</li>
+</ul></li>
+<li>自定义函数
+<ul class="org-ul">
+<li>function name(argu,&#x2026;){statments}</li>
+<li>自定义函数需要放在所有代码块(包括BEGIN代码块)之前</li>
+</ul></li>
+</ul></li>
+</ul>
 </div>
 </div>

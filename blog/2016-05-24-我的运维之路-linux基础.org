@@ -270,7 +270,16 @@ cp [OPTION]... -t DIRECTORY SOURCE...
 - cp -r 目录SRC DEST
   - 如果目标不存在: 新建DEST目录，复制SRC中所有文件至DEST中
   - 如果DEST存在且为目录: 在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中
-
+*** install
+#+BEGIN_SRC conf
+install [OPTION]... [-T] SOURCE DEST  # 相当于cp
+install [OPTION]... SOURCE... DIRECTORY  # 相当于cp
+install [OPTION]... -t DIRECTORY SOURCE...  # 相当于cp
+install [OPTION]... -d DIRECTORY...  # 创建目录
+  -m MODE
+  -o OWNER
+  -g GROUP
+#+END_SRC
 *** dd
 比较底层的复制命令，可用于文件或磁盘的复制
 #+BEGIN_SRC sh
@@ -301,6 +310,14 @@ rm [OPTION]... FILE...
   -r: 递归删除目录
 #+END_SRC
 
+*** mktemp
+创建临时文件
+#+BEGIN_SRC conf
+mktemp [OPRIONS] [TEMPLATE]
+  -d: 创建临时目录
+  -p /PATH/SOMEWHERE: 指名临时文件目录的位置(默认为当前目录)
+  TEMPLATE: filename.XXX(X会被替换成随机字符, 且至少出现三个)
+#+END_SRC
 ** 文件查找
 在文件系统上查找符合条件的文件
 - 文件查找的类型 ::
