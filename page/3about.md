@@ -20,7 +20,7 @@ icon: heart
 
 ## 联系我
 
-* GitHub：[Gaohaoyang](https://github.com/QiuMP)
+* GitHub：[QiuMP](https://github.com/QiuMP)
 * email：qiumupo@qq.com
 
 ## Comments
