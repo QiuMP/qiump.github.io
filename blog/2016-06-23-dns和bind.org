@@ -1,0 +1,10 @@
+#+TITLE: DNS和BIND
+#+DATE: 2016-06-23
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_PUBLISHED: true
+
+* 
+
