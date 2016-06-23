@@ -1600,6 +1600,8 @@ bash中用于实现文件名“通配”
 <ul class="org-ul">
 <li>/dev/null: 丢弃数据的设备</li>
 <li>/dev/zero: 产生0的设备</li>
+<li>/dev/random：仅从熵池返回随机数；随机数用尽，阻塞</li>
+<li>/dev/urandom：从熵池返回随机数；随机数用尽，会利用软件生成伪随机数</li>
 </ul>
 </div>
 </div>

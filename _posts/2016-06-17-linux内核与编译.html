@@ -79,12 +79,12 @@ comments:
 <h3 id="orgheadline1">内核设计流派</h3>
 <div class="outline-text-3" id="text-orgheadline1">
 <ol class="org-ol">
-<li>单内核设计：把所有功能集成于同一程序
+<li>单内核设计: 把所有功能集成于同一程序
 <ul class="org-ul">
 <li>效率高，但子程序的故障会影响系统</li>
 <li>例如Linux</li>
 </ul></li>
-<li>微内核设计：每种功能使用一个单独的子系统实现
+<li>微内核设计: 每种功能使用一个单独的子系统实现
 <ul class="org-ul">
 <li>效率低，但子程序相互独立</li>
 <li>例如Windows、Solaris</li>
@@ -107,7 +107,7 @@ comments:
 <div class="outline-text-3" id="text-orgheadline3">
 <ul class="org-ul">
 <li>核心文件: /boot/vmlinuz-VERSION-release</li>
-<li>模块文件：/lib/modules/VERSION-release/*.ko
+<li>模块文件: /lib/modules/VERSION-release/*.ko
 <ul class="org-ul">
 <li>模块文件可以编译在内核中也可以选择编译为ko文件</li>
 </ul></li>
@@ -274,7 +274,7 @@ sysfs输出内核识别出的各硬件设备的相关属性信息，也有内核
 <ul class="org-ul">
 <li>udev通过此路径下输出的信息动态为各设备创建所需要设备文件</li>
 <li>由于udev是运行用户空间程序，因此需要请求内核重新扫描设备后输出到sys目录中</li>
-<li>专用工具：udevadmin, hotplug</li>
+<li>专用工具: udevadmin, hotplug</li>
 <li>udev为设备创建设备文件时，会读取其事先定义好的规则文件，一般在/etc/udev/rules.d及/usr/lib/udev/rules.d目录下</li>
 </ul></li>
 </ul>
