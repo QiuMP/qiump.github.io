@@ -15,11 +15,85 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. </a></li>
+<li><a href="#orgheadline5">1. DNS</a>
+<ul>
+<li><a href="#orgheadline1">hosts</a></li>
+<li><a href="#orgheadline2">顶级域</a></li>
+<li><a href="#orgheadline3">名称服务器</a></li>
+<li><a href="#orgheadline4">解析类型</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline6">2. BIND</a></li>
 </ul>
 </div>
 </div>
+<p>
+TODO
+</p>
 
-<div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> </h2>
+
+
+
+<hr  />
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">1</span> DNS</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
+</p>
+</div>
+<div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">hosts</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+/etc/hosts是本地名称解析配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">1.1.1.1 www.magedu.com
+1.2.2.2 www.apple.com
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">顶级域</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+Top Level Domain(tld): com, edu, mil, gov, net, org, int
+</p>
+<ul class="org-ul">
+<li>顶级域分为三类: 组织域、国家域、反向域</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">名称服务器</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+名称服务器(NS)是域内负责解析本域内的名称的主机
+</p>
+<ul class="org-ul">
+<li>根服务器: 13组服务器</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">解析类型</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<ul class="org-ul">
+<li>正向解析: Name -&gt; IP</li>
+<li>反向解析: IP -&gt; Name</li>
+<li>正反向解析是两个不同的名称空间，是两棵不同的解析树</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">2</span> BIND</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+BIND：Bekerley Internat Name Domain
+</p>
+</div>
 </div>

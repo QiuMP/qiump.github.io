@@ -1178,7 +1178,6 @@ chage [OPTION]... NAME
   -W, --warndays WARN_DAYS
 #+END_SRC
 **** userdel
-
 删除用户
 #+BEGIN_SRC conf
 userdel [OPTION]... NAME
@@ -1219,8 +1218,12 @@ groupdel GROUP
   设置用户详细信息
 - finger ::
   查看用户详细信息
-- chsh :: 
-  改变用户默认shell
+- chsh ::
+  - 改变用户默认shell
+  #+BEGIN_SRC conf
+  chsh [OPTIONS] [username]
+    -s SHELL: 指定shell
+  #+END_SRC
 ** 文件权限管理
 *** 三类对象
 - owner: 属主 u
@@ -1289,14 +1292,14 @@ chmod [OPTION]... --reference=RFILE FILE...
 
 
 - 修改属主: chown ::
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   chown [OPTION]... [OWNER][:[GROUP]] FILE...
   chown [OPTION]... --reference=RFILE FILE...
     -R: 目录递归修改
   #+END_SRC
   - chown也可只改属组，即不写OWNER
 - 修改属组: chgrp :: 
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC sh
   chgrp [OPTION]... GROUP FILE...
   chgrp [OPTION]... --reference=RFILE FILE...
     -R: 目录递归修改

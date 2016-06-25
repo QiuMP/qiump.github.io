@@ -12,5 +12,23 @@ TODO
 
 
 -----
-* 
-
+* DNS
+DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
+** hosts
+/etc/hosts是本地名称解析配置文件
+#+BEGIN_SRC conf
+1.1.1.1 www.magedu.com
+1.2.2.2 www.apple.com
+#+END_SRC
+** 顶级域
+Top Level Domain(tld): com, edu, mil, gov, net, org, int
+- 顶级域分为三类: 组织域、国家域、反向域
+** 名称服务器
+名称服务器(NS)是域内负责解析本域内的名称的主机
+- 根服务器: 13组服务器
+** 解析类型
+- 正向解析: Name -> IP
+- 反向解析: IP -> Name
+- 正反向解析是两个不同的名称空间，是两棵不同的解析树
+* BIND
+BIND：Bekerley Internat Name Domain

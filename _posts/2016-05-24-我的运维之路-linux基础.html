@@ -2547,7 +2547,15 @@ passwd [OPTIONS] UserName  <span style="color: #75715E;"># </span><span style="c
 <dt>pwck</dt><dd>检查密码文件的完整性</dd>
 <dt>chfn</dt><dd>设置用户详细信息</dd>
 <dt>finger</dt><dd>查看用户详细信息</dd>
-<dt>chsh</dt><dd>改变用户默认shell</dd>
+<dt>chsh</dt><dd><ul class="org-ul">
+<li>改变用户默认shell</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">chsh [OPTIONS] [username]
+  -s SHELL: &#25351;&#23450;shell
+</pre>
+</div></dd>
 </dl>
 </div>
 </div>
@@ -2681,8 +2689,8 @@ chmod o-t FILE
 <dl class="org-dl">
 <dt>修改属主: chown</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">chown [OPTION]... [OWNER][:[GROUP]] FILE...
-<span style="color: #FD971F;">chown [OPTION]... --reference</span>=RFILE FILE...
+<pre class="src src-sh">chown <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>OWNER<span style="color: #AE81FF;">][</span>:<span style="color: #66D9EF;">[</span>GROUP<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span> FILE...
+chown <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... --reference=RFILE FILE...
   -R: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
 </pre>
 </div>
@@ -2691,8 +2699,8 @@ chmod o-t FILE
 </ul></dd>
 <dt>修改属组: chgrp</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">chgrp [OPTION]... GROUP FILE...
-<span style="color: #FD971F;">chgrp [OPTION]... --reference</span>=RFILE FILE...
+<pre class="src src-sh">chgrp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... GROUP FILE...
+chgrp <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... --reference=RFILE FILE...
   -R: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
 </pre>
 </div></dd>
