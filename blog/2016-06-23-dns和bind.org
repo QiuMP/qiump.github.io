@@ -17,7 +17,7 @@ DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
 ** hosts
 /etc/hosts是本地名称解析配置文件
 #+BEGIN_SRC conf
-1.1.1.1 www.magedu.com
+1.1.1.1 www.qiump.com
 1.2.2.2 www.apple.com
 #+END_SRC
 ** 顶级域
@@ -26,9 +26,102 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 ** 名称服务器
 名称服务器(NS)是域内负责解析本域内的名称的主机
 - 根服务器: 13组服务器
-** 解析类型
-- 正向解析: Name -> IP
-- 反向解析: IP -> Name
-- 正反向解析是两个不同的名称空间，是两棵不同的解析树
+** DNS解析
+- FQDN: Full Qualified Domain Name，每个网址最后都有个 =.= 表示根，只是浏览器上会省略
+- 正向区域: FQDN -> IP
+- 反向区域: IP -> FQDN
+- 正反向解析是两个不同的名称空间，是两棵不同的解析树，各需要一个解析库来分别负责本地域名的正向和反向解析
+** DNS服务器的类型
+- 主DNS服务器: 维护所负责解析的域内解析库服务器，解析库由管理员维护
+  - "通知"机制: 当主DNS服务器内容发生改变时会通知从DNS服务器
+- 从DNS服务器: 从主DNS服务器或其它的从DNS服务器那里复制（区域传递）一份解析库
+  - 序列号：解析库的版本号；前提：主服务器解析库内容发生变化，其序列递增
+  - 刷新时间间隔：从服务器从主服务器请求同步解析库的时间间隔
+  - 重试时间间隔：从服务器从主服务器请求同步解析库失败时，再次尝试的时间间隔
+  - 过期时长：从服务器始终联系不到主服务器时，多久多后放弃从服务器角度，停止提供服务
+  - 区域传送: 全量传送，增量传送
+- 缓存DNS服务器: 使用hash进行缓存
+- 转发器
+** 一次查询请求的流程
+- 过程: Client -> hosts文件 -> Local Cache -> DNS Server -> Server Cache -> iteration
+- 特殊查询结果
+  - 否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存
+  - 非权威答案：由缓存查询而来
+** 资源记录RR
+- 区域解析库由众多资源记录RR(Resource Record)组成
+*** 记录类型
+- SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，而必须为解析库的第一条记录
+- A：internet Address，作用，FQDN --> IP
+- AAAA: FQDN --> IPv6
+- PTR: PoinTeR，IP --> FQDN
+- NS: Name Server，专用于标明当前区域的DNS服务器
+- CNAME：Canonical Name，别名记录
+- MX:　Mail eXchanger，邮件交换器
+*** 资源记录的格式
+**** 语法
+#+BEGIN_SRC sh
+name [TTL] IN RR_type value
+  TTL: RR缓存时间
+#+END_SRC
+1. TTL可从全局继承
+2. @可用于引用当前区域的名字
+3. 相邻的两个资源记录的name相同时，后续的可省略
+**** SOA
+- name: 当前区域的名字，例如 =qiump.com.=
+- value: 由多部分组成
+  1. 当前区域的主DNS服务器的FQDN，也可以使用当前区域的名字
+  2. 当前区域管理员的邮箱地址，但地址中不能使用@符号，使用.替换
+  3. 主从服务协调属性的定义以及否定的答案的统一的TTL
+#+BEGIN_SRC dns
+qiump.com.  86400  IN  SOA  ns.qiump.com.  qiumupo.qq.com.  (
+    20160627 ;序列号
+    2H  ;刷新时间
+    10M  ;重试时间
+    1W  ;过期时间
+    1D  ;否定答案
+)
+#+END_SRC
+**** NS
+- name: 当前区域的名字
+- value: 当前区域的某DNS服务器的名字
+#+BEGIN_SRC dns
+qiump.com.	 IN  NS  ns1.qiump.com.
+qiump.com.	 IN  NS  ns2.qiump.com.
+#+END_SRC
+- 任何一个NS记录后面的value，都应该在后续有一个A记录
+**** MX
+- name: 当前区域的名字
+- value: 当前区域的某邮件服务器(smtp服务器)的主机名
+  - 每个记录的value之前应该有一个数字(0-99)，表示此服务器的优先级，数字越小优先级越高
+#+BEGIN_SRC dns
+qiump.com.	 IN  MX  10  mx1.qiump.com.
+             IN  MX  20  mx2.qiump.com.
+#+END_SRC
+- 任何一个MX记录后面的value，都应该在后续有一个A记录
+**** A
+- name: 某主机的FQDN
+- value: 主机名对应的主机的IPv4地址
+#+BEGIN_SRC dns
+www.qiump.com.  IN  A  1.1.1.1
+www.qiump.com.  IN  A  1.1.1.2
+qiump.com.  IN  A  1.1.1.1
+
+*.qiump.com.  IN  A  1.1.1.4  ;当用户写错名称时，会解析至此地址
+#+END_SRC
+- 同一个name可以有多个不同的value，服务器会轮询解析
+- 同一个value也可以有多个不能的name
+**** AAAA
+- name: FQDN
+- value: IPv6
+**** CNAME
+name: 别名的FQDN
+value: 原名字的FQDN
+**** PTR
+- name: 特定格式的IP地址，要把IP地址反过来写，同时加上后缀 =in-addr.arpa.=
+- value: FQDN
+#+BEGIN_SRC dns
+2.1.1.1.in-addr.arpa.  IN  PTR  www.qiump.com.
+2  IN  PTR  www.qiump.com.  ;网络地址及后缀可省略
+#+END_SRC
 * BIND
 BIND：Bekerley Internat Name Domain
