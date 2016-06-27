@@ -15,15 +15,23 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline5">1. DNS</a>
+<li><a href="#orgheadline18">1. DNS</a>
 <ul>
 <li><a href="#orgheadline1">hosts</a></li>
 <li><a href="#orgheadline2">顶级域</a></li>
 <li><a href="#orgheadline3">名称服务器</a></li>
-<li><a href="#orgheadline4">解析类型</a></li>
+<li><a href="#orgheadline4">DNS解析</a></li>
+<li><a href="#orgheadline5">DNS服务器的类型</a></li>
+<li><a href="#orgheadline6">一次查询请求的流程</a></li>
+<li><a href="#orgheadline7">资源记录RR</a>
+<ul>
+<li><a href="#orgheadline8">记录类型</a></li>
+<li><a href="#orgheadline17">资源记录的格式</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline6">2. BIND</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline19">2. BIND</a></li>
 </ul>
 </div>
 </div>
@@ -35,8 +43,8 @@ TODO
 
 
 <hr  />
-<div id="outline-container-orgheadline5" class="outline-2">
-<h2 id="orgheadline5"><span class="section-number-2">1</span> DNS</h2>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">1</span> DNS</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
@@ -50,7 +58,7 @@ DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">1.1.1.1 www.magedu.com
+<pre class="src src-conf">1.1.1.1 www.qiump.com
 1.2.2.2 www.apple.com
 </pre>
 </div>
@@ -79,18 +87,190 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 </div>
 </div>
 <div id="outline-container-orgheadline4" class="outline-3">
-<h3 id="orgheadline4">解析类型</h3>
+<h3 id="orgheadline4">DNS解析</h3>
 <div class="outline-text-3" id="text-orgheadline4">
 <ul class="org-ul">
-<li>正向解析: Name -&gt; IP</li>
-<li>反向解析: IP -&gt; Name</li>
-<li>正反向解析是两个不同的名称空间，是两棵不同的解析树</li>
+<li>FQDN: Full Qualified Domain Name，每个网址最后都有个 <code>.</code> 表示根，只是浏览器上会省略</li>
+<li>正向区域: FQDN -&gt; IP</li>
+<li>反向区域: IP -&gt; FQDN</li>
+<li>正反向解析是两个不同的名称空间，是两棵不同的解析树，各需要一个解析库来分别负责本地域名的正向和反向解析</li>
 </ul>
 </div>
 </div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">DNS服务器的类型</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<ul class="org-ul">
+<li>主DNS服务器: 维护所负责解析的域内解析库服务器，解析库由管理员维护
+<ul class="org-ul">
+<li>"通知"机制: 当主DNS服务器内容发生改变时会通知从DNS服务器</li>
+</ul></li>
+<li>从DNS服务器: 从主DNS服务器或其它的从DNS服务器那里复制（区域传递）一份解析库
+<ul class="org-ul">
+<li>序列号：解析库的版本号；前提：主服务器解析库内容发生变化，其序列递增</li>
+<li>刷新时间间隔：从服务器从主服务器请求同步解析库的时间间隔</li>
+<li>重试时间间隔：从服务器从主服务器请求同步解析库失败时，再次尝试的时间间隔</li>
+<li>过期时长：从服务器始终联系不到主服务器时，多久多后放弃从服务器角度，停止提供服务</li>
+<li>区域传送: 全量传送，增量传送</li>
+</ul></li>
+<li>缓存DNS服务器: 使用hash进行缓存</li>
+<li>转发器</li>
+</ul>
 </div>
-<div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6"><span class="section-number-2">2</span> BIND</h2>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">一次查询请求的流程</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<ul class="org-ul">
+<li>过程: Client -&gt; hosts文件 -&gt; Local Cache -&gt; DNS Server -&gt; Server Cache -&gt; iteration</li>
+<li>特殊查询结果
+<ul class="org-ul">
+<li>否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存</li>
+<li>非权威答案：由缓存查询而来</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">资源记录RR</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>区域解析库由众多资源记录RR(Resource Record)组成</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">记录类型</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<ul class="org-ul">
+<li>SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，而必须为解析库的第一条记录</li>
+<li>A：internet Address，作用，FQDN &#x2013;&gt; IP</li>
+<li>AAAA: FQDN &#x2013;&gt; IPv6</li>
+<li>PTR: PoinTeR，IP &#x2013;&gt; FQDN</li>
+<li>NS: Name Server，专用于标明当前区域的DNS服务器</li>
+<li>CNAME：Canonical Name，别名记录</li>
+<li>MX:　Mail eXchanger，邮件交换器</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">资源记录的格式</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+</div><ul class="org-ul"><li><a id="orgheadline9"></a>语法<br  /><div class="outline-text-5" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-sh">name <span style="color: #AE81FF;">[</span>TTL<span style="color: #AE81FF;">]</span> IN RR_type value
+  TTL: RR&#32531;&#23384;&#26102;&#38388;
+</pre>
+</div>
+<ol class="org-ol">
+<li>TTL可从全局继承</li>
+<li>@可用于引用当前区域的名字</li>
+<li>相邻的两个资源记录的name相同时，后续的可省略</li>
+</ol>
+</div></li>
+<li><a id="orgheadline10"></a>SOA<br  /><div class="outline-text-5" id="text-orgheadline10">
+<ul class="org-ul">
+<li>name: 当前区域的名字，例如 <code>qiump.com.</code></li>
+<li>value: 由多部分组成
+<ol class="org-ol">
+<li>当前区域的主DNS服务器的FQDN，也可以使用当前区域的名字</li>
+<li>当前区域管理员的邮箱地址，但地址中不能使用@符号，使用.替换</li>
+<li>主从服务协调属性的定义以及否定的答案的统一的TTL</li>
+</ol></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-dns">qiump.com.  86400  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span>  ns.qiump.com.  qiumupo.qq.com.  (
+    20160627 <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24207;&#21015;&#21495;</span>
+    2H  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21047;&#26032;&#26102;&#38388;</span>
+    10M  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#37325;&#35797;&#26102;&#38388;</span>
+    1W  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#36807;&#26399;&#26102;&#38388;</span>
+    1D  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21542;&#23450;&#31572;&#26696;</span>
+)
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline11"></a>NS<br  /><div class="outline-text-5" id="text-orgheadline11">
+<ul class="org-ul">
+<li>name: 当前区域的名字</li>
+<li>value: 当前区域的某DNS服务器的名字</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-dns">qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns1.qiump.com.
+qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns2.qiump.com.
+</pre>
+</div>
+<ul class="org-ul">
+<li>任何一个NS记录后面的value，都应该在后续有一个A记录</li>
+</ul>
+</div></li>
+<li><a id="orgheadline12"></a>MX<br  /><div class="outline-text-5" id="text-orgheadline12">
+<ul class="org-ul">
+<li>name: 当前区域的名字</li>
+<li>value: 当前区域的某邮件服务器(smtp服务器)的主机名
+<ul class="org-ul">
+<li>每个记录的value之前应该有一个数字(0-99)，表示此服务器的优先级，数字越小优先级越高</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-dns">qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">MX</span>  10  mx1.qiump.com.
+             <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">MX</span>  20  mx2.qiump.com.
+</pre>
+</div>
+<ul class="org-ul">
+<li>任何一个MX记录后面的value，都应该在后续有一个A记录</li>
+</ul>
+</div></li>
+<li><a id="orgheadline13"></a>A<br  /><div class="outline-text-5" id="text-orgheadline13">
+<ul class="org-ul">
+<li>name: 某主机的FQDN</li>
+<li>value: 主机名对应的主机的IPv4地址</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-dns">www.qiump.com.  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>  1.1.1.1
+www.qiump.com.  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>  1.1.1.2
+qiump.com.  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>  1.1.1.1
+
+*.qiump.com.  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>  1.1.1.4  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24403;&#29992;&#25143;&#20889;&#38169;&#21517;&#31216;&#26102;&#65292;&#20250;&#35299;&#26512;&#33267;&#27492;&#22320;&#22336;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>同一个name可以有多个不同的value，服务器会轮询解析</li>
+<li>同一个value也可以有多个不能的name</li>
+</ul>
+</div></li>
+<li><a id="orgheadline14"></a>AAAA<br  /><div class="outline-text-5" id="text-orgheadline14">
+<ul class="org-ul">
+<li>name: FQDN</li>
+<li>value: IPv6</li>
+</ul>
+</div></li>
+<li><a id="orgheadline15"></a>CNAME<br  /><div class="outline-text-5" id="text-orgheadline15">
+<p>
+name: 别名的FQDN
+value: 原名字的FQDN
+</p>
+</div></li>
+<li><a id="orgheadline16"></a>PTR<br  /><div class="outline-text-5" id="text-orgheadline16">
+<ul class="org-ul">
+<li>name: 特定格式的IP地址，要把IP地址反过来写，同时加上后缀 <code>in-addr.arpa.</code></li>
+<li>value: FQDN</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-dns">2.1.1.1.in-addr.arpa.  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span>  www.qiump.com.
+2  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span>  www.qiump.com.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#32593;&#32476;&#22320;&#22336;&#21450;&#21518;&#32512;&#21487;&#30465;&#30053;</span>
+</pre>
+</div>
+</div></li></ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">2</span> BIND</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 BIND：Bekerley Internat Name Domain
