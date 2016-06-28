@@ -26,6 +26,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 ** 名称服务器
 名称服务器(NS)是域内负责解析本域内的名称的主机
 - 根服务器: 13组服务器
+- 子域授权：每个域的名称服务器，都是通过其上级名称服务器在解析库进行授权
 ** DNS解析
 - FQDN: Full Qualified Domain Name，每个网址最后都有个 =.= 表示根，只是浏览器上会省略
 - 正向区域: FQDN -> IP
@@ -73,7 +74,7 @@ name [TTL] IN RR_type value
   2. 当前区域管理员的邮箱地址，但地址中不能使用@符号，使用.替换
   3. 主从服务协调属性的定义以及否定的答案的统一的TTL
 #+BEGIN_SRC dns
-qiump.com.  86400  IN  SOA  ns.qiump.com.  qiumupo.qq.com.  (
+qiump.com.  86400  IN  SOA  @  qiumupo.qq.com.  (
     20160627 ;序列号
     2H  ;刷新时间
     10M  ;重试时间
@@ -125,3 +126,72 @@ value: 原名字的FQDN
 #+END_SRC
 * BIND
 BIND：Bekerley Internat Name Domain
+** 程序包
+- bind
+- bind-libs
+- bind-utils: dig, host, nslookup, nsupdate
+- bind-chroot: /var/named/chroot
+- 程序名: named
+** bind组成
+- 服务脚本：/etc/rc.d/init.d/named
+- 主配置文件：/etc/named.conf, /etc/named.rfc1912.zones, /etc/rndc.key
+- 解析库文件：/var/named/ZONE_NAME.zone
+  - 必须要有根区域.文件: named.ca
+  - 应该有两个(或ipv6)实现localhost和本地回环地址的解析库
+- 日志文件: /var/log/named.log
+- rndc: remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接named进程，用于提供辅助性的管理功能
+** 主配置文件
+- 全局配置：options {}
+  - listen-on: 用于配置监听的端口和IP
+  - =allow-query { any; };=: 允许任何主机查询
+- 日志子系统配置：logging {}
+- 区域定义：zone "ZONE_NAME" IN {}
+  - type {master|slave|hint|forward}
+** 缓存名称服务器
+- 直接监听外部地址即可
+- dnssec: 用于防止dns污染，测试时一般关闭
+** 主DNS服务器
+1. 在主配置文件中定义区域(一般在 =named.rfc1912.zones= 中定义)
+   #+BEGIN_SRC conf
+   zone "ZONE_NAME" IN {
+       type master;
+	   file "ZONE_NAME.zone";
+   };
+   #+END_SRC
+2. 定义区域解析库文件
+   - 定义在 /var/named/ZONE_NAME.zone
+   - 文件属组应为named，权限为640
+   #+BEGIN_SRC zone
+   $TTL 86400  ;定义默认的TTL
+   $ORIGIN qiump.com.  ;为后缀不是.的地址补全后缀
+   @	IN	SOA	ns1.qiump.com.	admin.qiump.com (
+     20160627 ;序列号
+     2H  ;刷新时间
+     10M  ;重试时间
+     1W  ;过期时间
+     1D  ;否定答案
+     )
+   		IN	NS	ns
+   		IN	MX 10	mx
+   ns	IN	A	172.16.100.11
+   mx	IN	A	172.16.100.12
+   www	IN	A	172.16.100.11
+   www	IN	A	172.16.100.12
+   ftp	IN	CNAME	www
+   #+END_SRC
+3. 检查配置文件
+   #+BEGIN_SRC sh
+   named-checkconf
+   named-checkconf "qiump.com" /var/named/qiump.com.zone
+   #+END_SRC
+* 相关命令
+** dig
+dig用于查询DNS系统，并不会查询hosts文件
+#+BEGIN_SRC conf
+dig [-t type] name [@SERVER] [query options]  # 正向解析
+  type: 查询的RR类型
+  SERVER: 指定使用的DNS服务器
+
+  +[no]trace: 跟踪解析过程
+  +[no]recurse: 进行递归解析
+#+END_SRC

@@ -31,7 +31,20 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline19">2. BIND</a></li>
+<li><a href="#orgheadline24">2. BIND</a>
+<ul>
+<li><a href="#orgheadline19">程序包</a></li>
+<li><a href="#orgheadline20">bind组成</a></li>
+<li><a href="#orgheadline21">主配置文件</a></li>
+<li><a href="#orgheadline22">缓存名称服务器</a></li>
+<li><a href="#orgheadline23">主DNS服务器</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline26">3. 相关命令</a>
+<ul>
+<li><a href="#orgheadline25">dig</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -83,6 +96,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 </p>
 <ul class="org-ul">
 <li>根服务器: 13组服务器</li>
+<li>子域授权：每个域的名称服务器，都是通过其上级名称服务器在解析库进行授权</li>
 </ul>
 </div>
 </div>
@@ -180,7 +194,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-dns">qiump.com.  86400  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span>  ns.qiump.com.  qiumupo.qq.com.  (
+<pre class="src src-dns">qiump.com.  86400  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span>  @  qiumupo.qq.com.  (
     20160627 <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24207;&#21015;&#21495;</span>
     2H  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21047;&#26032;&#26102;&#38388;</span>
     10M  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#37325;&#35797;&#26102;&#38388;</span>
@@ -269,11 +283,141 @@ value: 原名字的FQDN
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline19" class="outline-2">
-<h2 id="orgheadline19"><span class="section-number-2">2</span> BIND</h2>
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">2</span> BIND</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 BIND：Bekerley Internat Name Domain
 </p>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">程序包</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<ul class="org-ul">
+<li>bind</li>
+<li>bind-libs</li>
+<li>bind-utils: dig, host, nslookup, nsupdate</li>
+<li>bind-chroot: /var/named/chroot</li>
+<li>程序名: named</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">bind组成</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<ul class="org-ul">
+<li>服务脚本：/etc/rc.d/init.d/named</li>
+<li>主配置文件：/etc/named.conf, /etc/named.rfc1912.zones, /etc/rndc.key</li>
+<li>解析库文件：/var/named/ZONE_NAME.zone
+<ul class="org-ul">
+<li>必须要有根区域.文件: named.ca</li>
+<li>应该有两个(或ipv6)实现localhost和本地回环地址的解析库</li>
+</ul></li>
+<li>日志文件: /var/log/named.log</li>
+<li>rndc: remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接named进程，用于提供辅助性的管理功能</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">主配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<ul class="org-ul">
+<li>全局配置：options {}
+<ul class="org-ul">
+<li>listen-on: 用于配置监听的端口和IP</li>
+<li><code>allow-query { any; };</code>: 允许任何主机查询</li>
+</ul></li>
+<li>日志子系统配置：logging {}</li>
+<li>区域定义：zone "ZONE_NAME" IN {}
+<ul class="org-ul">
+<li>type {master|slave|hint|forward}</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">缓存名称服务器</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<ul class="org-ul">
+<li>直接监听外部地址即可</li>
+<li>dnssec: 用于防止dns污染，测试时一般关闭</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">主DNS服务器</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<ol class="org-ol">
+<li><p>
+在主配置文件中定义区域(一般在 <code>named.rfc1912.zones</code> 中定义)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">zone </span><span style="color: #66D9EF;">"ZONE_NAME"</span><span style="color: #66D9EF;"> IN</span> {
+    type master;
+    file <span style="color: #E6DB74;">"ZONE_NAME.zone"</span>;
+};
+</pre>
+</div></li>
+<li><p>
+定义区域解析库文件
+</p>
+<ul class="org-ul">
+<li>定义在 /var/named/ZONE_NAME.zone</li>
+<li>文件属组应为named，权限为640</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-zone"><span style="color: #FD971F; font-weight: bold; font-style: italic; text-decoration: underline;">$TTL</span> 86400  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#23450;&#20041;&#40664;&#35748;&#30340;TTL</span>
+<span style="color: #F92672;">$ORIGIN</span> qiump.com.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#20026;&#21518;&#32512;&#19981;&#26159;.&#30340;&#22320;&#22336;&#34917;&#20840;&#21518;&#32512;</span>
+@    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span> ns1.qiump.com.  admin.qiump.com (
+  20160627 <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24207;&#21015;&#21495;</span>
+  2H  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21047;&#26032;&#26102;&#38388;</span>
+  10M  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#37325;&#35797;&#26102;&#38388;</span>
+  1W  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#36807;&#26399;&#26102;&#38388;</span>
+  1D  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21542;&#23450;&#31572;&#26696;</span>
+  )
+     <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns
+     <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">MX</span> 10   mx
+ns   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11
+mx   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
+www  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11
+www  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
+ftp  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">CNAME</span>   www
+</pre>
+</div></li>
+<li><p>
+检查配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">named-checkconf
+named-checkconf <span style="color: #E6DB74;">"qiump.com"</span> /var/named/qiump.com.zone
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26"><span class="section-number-2">3</span> 相关命令</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">dig</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<p>
+dig用于查询DNS系统，并不会查询hosts文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">dig [-t type] name [@SERVER] [query options]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27491;&#21521;&#35299;&#26512;</span>
+  type: &#26597;&#35810;&#30340;RR&#31867;&#22411;
+  SERVER: &#25351;&#23450;&#20351;&#29992;&#30340;DNS&#26381;&#21153;&#22120;
+
+  +[no]trace: &#36319;&#36394;&#35299;&#26512;&#36807;&#31243;
+  +[no]recurse: &#36827;&#34892;&#36882;&#24402;&#35299;&#26512;
+</pre>
+</div>
+</div>
 </div>
 </div>
