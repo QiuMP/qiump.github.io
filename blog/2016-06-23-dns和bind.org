@@ -139,7 +139,6 @@ BIND：Bekerley Internat Name Domain
   - 必须要有根区域.文件: named.ca
   - 应该有两个(或ipv6)实现localhost和本地回环地址的解析库
 - 日志文件: /var/log/named.log
-- rndc: remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接named进程，用于提供辅助性的管理功能
 ** 主配置文件
 - 全局配置：options {}
   - listen-on: 用于配置监听的端口和IP
@@ -161,29 +160,63 @@ BIND：Bekerley Internat Name Domain
 2. 定义区域解析库文件
    - 定义在 /var/named/ZONE_NAME.zone
    - 文件属组应为named，权限为640
-   #+BEGIN_SRC zone
-   $TTL 86400  ;定义默认的TTL
-   $ORIGIN qiump.com.  ;为后缀不是.的地址补全后缀
-   @	IN	SOA	ns1.qiump.com.	admin.qiump.com (
-     20160627 ;序列号
-     2H  ;刷新时间
-     10M  ;重试时间
-     1W  ;过期时间
-     1D  ;否定答案
-     )
-   		IN	NS	ns
-   		IN	MX 10	mx
-   ns	IN	A	172.16.100.11
-   mx	IN	A	172.16.100.12
-   www	IN	A	172.16.100.11
-   www	IN	A	172.16.100.12
-   ftp	IN	CNAME	www
-   #+END_SRC
+   - 正向解析
+     #+BEGIN_SRC zone
+     $TTL 86400  ;定义默认的TTL
+     $ORIGIN qiump.com.  ;为后缀不是.的地址补全后缀
+     @	IN	SOA	ns1.qiump.com.	admin.qiump.com (
+       20160627 ;序列号
+       2H  ;刷新时间
+       10M  ;重试时间
+       1W  ;过期时间
+       1D  ;否定答案
+       )
+   		  IN	NS	ns1
+   		  IN	NS	ns2
+   		  IN	MX 10	mx
+     ns1	IN	A	172.16.100.10  ;指向自己
+     ns2	IN	A	172.16.100.11  ;指向从服务器，用于保证解析库的同步
+     mx	IN	A	172.16.100.12
+     www	IN	A	172.16.100.11
+     www	IN	A	172.16.100.12
+     ftp	IN	CNAME	www
+     *	IN	A	172.16.100.13  ;匹配用户输错的网址
+     #+END_SRC
+   - 反向解析: 文件名一般使用 IP.zone
+     #+BEGIN_SRC zone
+     $TTL 86400  ;定义默认的TTL
+     $ORIGIN 100.16.172.in-addr.arpa.  ;定义反向区域的名字
+     @	IN	SOA	ns1.qiump.com. admin.magedu.com. (
+         2015042201
+         1H
+         5M
+         7D
+         1D )
+       	IN	NS	ns1.qiump.com.
+	    IN	NS	ns2.qiump.com.
+     11	IN	PTR	ns1.qiump.com.
+     11	IN	PTR	www.qiump.com.
+     12	IN	PTR	mx1.qiump.com.
+     12	IN	PTR	www.qiump.com.
+     13	IN	PTR	mx2.qiump.com.	
+     #+END_SRC
 3. 检查配置文件
    #+BEGIN_SRC sh
    named-checkconf
    named-checkconf "qiump.com" /var/named/qiump.com.zone
    #+END_SRC
+** 从DNS服务器
+- 主DNS服务器应该限制可以作区域传送的从服务器
+- 主从服务器时间应该同步，可通过ntp进行
+- 从服务器的bind版本应该大于或等于主服务器
+- 在主配置文件中定义要同步的区域
+  #+BEGIN_SRC conf
+  zone "ZONE_NAME" IN {
+	  type slave;
+	  masters { MASTER_IP; };
+	  file "slaves/ZONE_NAME.zone";
+  };
+  #+END_SRC
 * 相关命令
 ** dig
 dig用于查询DNS系统，并不会查询hosts文件
@@ -194,4 +227,35 @@ dig [-t type] name [@SERVER] [query options]  # 正向解析
 
   +[no]trace: 跟踪解析过程
   +[no]recurse: 进行递归解析
+
+dig -x IP [@SERVER]  # 反向解析
+
+dig -t axfr ZONE_NAME [@SERVER]  # 请求DNS服务器全量传送
+#+END_SRC
+** host
+简单的DNS查询
+#+BEGIN_SRC conf
+host [-t type] name [SERVER]
+#+END_SRC
+** nslookup
+交互式DNS查询
+#+BEGIN_SRC 
+nslookup [-option] [name | -] [server]
+  交互式命令:
+    server IP: 指定DNS服务器
+    set q=RR_type: 指定查询的RR类型
+    NAME: 指定要查询的名称
+#+END_SRC
+** rndc
+remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接，用于提供辅助性的管理功能
+#+BEGIN_SRC conf
+rndc COMMAND
+  status: 查询当前电脑的DNS状态
+  reload: 重载主配置文件和区域解析库文件
+  reload zone: 重载区域解析库文件
+  retransfer zone: 手动启动区域传送过程，而不管序列号是否增加
+  notify zone: 重新对区域传送发通知
+  reconfig: 重载主配置文件
+  querylog: 开启或关闭查询日志，一般关闭
+  trace [LEVEL]: 指定Debug级别，默认提高1级
 #+END_SRC
