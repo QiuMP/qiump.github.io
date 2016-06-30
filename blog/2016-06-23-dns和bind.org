@@ -45,6 +45,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 - 转发器
 ** 一次查询请求的流程
 - 过程: Client -> hosts文件 -> Local Cache -> DNS Server -> Server Cache -> iteration
+- 一般由DNS服务器从根服务器开始进行递归查询
 - 特殊查询结果
   - 否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存
   - 非权威答案：由缓存查询而来
@@ -83,11 +84,12 @@ qiump.com.  86400  IN  SOA  @  qiumupo.qq.com.  (
 )
 #+END_SRC
 **** NS
-- name: 当前区域的名字
-- value: 当前区域的某DNS服务器的名字
+- name: 区域的名字
+- value: 区域的某DNS服务器的名字
 #+BEGIN_SRC dns
-qiump.com.	 IN  NS  ns1.qiump.com.
+qiump.com.	 IN  NS  ns1.qiump.com.  ;当前区域
 qiump.com.	 IN  NS  ns2.qiump.com.
+y.qiump.com. IN  NS  ns.y.qiump.com.  ;子区域授权
 #+END_SRC
 - 任何一个NS记录后面的value，都应该在后续有一个A记录
 **** MX
@@ -146,6 +148,10 @@ BIND：Bekerley Internat Name Domain
 - 日志子系统配置：logging {}
 - 区域定义：zone "ZONE_NAME" IN {}
   - type {master|slave|hint|forward}
+    - master: 主服务器
+    - slave: 从服务器
+    - hint: 设置根服务器
+    - forward: 设置转发规则
 ** 缓存名称服务器
 - 直接监听外部地址即可
 - dnssec: 用于防止dns污染，测试时一般关闭
@@ -172,7 +178,7 @@ BIND：Bekerley Internat Name Domain
        1D  ;否定答案
        )
    		  IN	NS	ns1
-   		  IN	NS	ns2
+   		  IN	NS	ns2  
    		  IN	MX 10	mx
      ns1	IN	A	172.16.100.10  ;指向自己
      ns2	IN	A	172.16.100.11  ;指向从服务器，用于保证解析库的同步
@@ -217,6 +223,49 @@ BIND：Bekerley Internat Name Domain
 	  file "slaves/ZONE_NAME.zone";
   };
   #+END_SRC
+** 转发服务器
+- 被转发的服务器需要能够为请求者做递归，否则，转发请求不予进行
+- 全部转发: 凡是对非本机所有负责解析的区域的请求，统统转发给指定的服务器
+  #+BEGIN_SRC conf
+  Options {
+	  forward {first|only};    # only则表示转发失败时自己不处理
+	  fowwarders;
+  };
+  #+END_SRC
+- 区域转发: 仅转发对特定的区域的请求至某服务器
+  #+BEGIN_SRC conf
+  zone "ZONE_NAME" IN {
+	  type forward;
+	  forward {first|only};
+	  forwarders;
+  };
+  #+END_SRC
+- 关闭dnssec功能
+#+BEGIN_SRC conf
+dnssec-enable no;
+dnssec-validation no;
+#+END_SRC
+** 安全相关配置
+*** acl
+acl用于把一个或多个地址归并为一个集合，使用统一的名称调用
+#+BEGIN_SRC conf
+acl acl_name {
+    ip;
+    net/prelen;
+};
+#+END_SRC
+- bind中有四个内置的acl
+  - none: 没有一个主机
+  - any: 任意主机
+  - local: 本机
+  - localnet: 本机的IP同掩码运算后得到的网络地址
+*** 访问控制
+访问控制指定可以放在全局设置中，也可以放在特定zone中
+- allow-query {}: 允许查询的主机
+- allow-transfer {}: 允许区域传送的主机
+- allow-recursion {}: 允许递归的主机
+- allow-update {}: 允许更新区域数据库中的内容
+
 * 相关命令
 ** dig
 dig用于查询DNS系统，并不会查询hosts文件
@@ -226,7 +275,7 @@ dig [-t type] name [@SERVER] [query options]  # 正向解析
   SERVER: 指定使用的DNS服务器
 
   +[no]trace: 跟踪解析过程
-  +[no]recurse: 进行递归解析
+  +[no]recurse: 进行递归解析，不递归则返回父域内容
 
 dig -x IP [@SERVER]  # 反向解析
 
