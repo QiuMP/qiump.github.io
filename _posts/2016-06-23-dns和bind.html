@@ -31,18 +31,29 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline24">2. BIND</a>
+<li><a href="#orgheadline29">2. BIND</a>
 <ul>
 <li><a href="#orgheadline19">程序包</a></li>
 <li><a href="#orgheadline20">bind组成</a></li>
 <li><a href="#orgheadline21">主配置文件</a></li>
 <li><a href="#orgheadline22">缓存名称服务器</a></li>
 <li><a href="#orgheadline23">主DNS服务器</a></li>
+<li><a href="#orgheadline24">从DNS服务器</a></li>
+<li><a href="#orgheadline25">转发服务器</a></li>
+<li><a href="#orgheadline28">安全相关配置</a>
+<ul>
+<li><a href="#orgheadline26">acl</a></li>
+<li><a href="#orgheadline27">访问控制</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline26">3. 相关命令</a>
+</ul>
+</li>
+<li><a href="#orgheadline34">3. 相关命令</a>
 <ul>
-<li><a href="#orgheadline25">dig</a></li>
+<li><a href="#orgheadline30">dig</a></li>
+<li><a href="#orgheadline31">host</a></li>
+<li><a href="#orgheadline32">nslookup</a></li>
+<li><a href="#orgheadline33">rndc</a></li>
 </ul>
 </li>
 </ul>
@@ -137,6 +148,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 <div class="outline-text-3" id="text-orgheadline6">
 <ul class="org-ul">
 <li>过程: Client -&gt; hosts文件 -&gt; Local Cache -&gt; DNS Server -&gt; Server Cache -&gt; iteration</li>
+<li>一般将需求递归给DNS服务器，DNS服务器从根服务器开始进行迭代查询</li>
 <li>特殊查询结果
 <ul class="org-ul">
 <li>否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存</li>
@@ -206,13 +218,14 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 </div></li>
 <li><a id="orgheadline11"></a>NS<br  /><div class="outline-text-5" id="text-orgheadline11">
 <ul class="org-ul">
-<li>name: 当前区域的名字</li>
-<li>value: 当前区域的某DNS服务器的名字</li>
+<li>name: 区域的名字</li>
+<li>value: 区域的某DNS服务器的名字</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-dns">qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns1.qiump.com.
+<pre class="src src-dns">qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns1.qiump.com.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24403;&#21069;&#21306;&#22495;</span>
 qiump.com.   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns2.qiump.com.
+y.qiump.com. <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns.y.qiump.com.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#23376;&#21306;&#22495;&#25480;&#26435;</span>
 </pre>
 </div>
 <ul class="org-ul">
@@ -283,8 +296,8 @@ value: 原名字的FQDN
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline24" class="outline-2">
-<h2 id="orgheadline24"><span class="section-number-2">2</span> BIND</h2>
+<div id="outline-container-orgheadline29" class="outline-2">
+<h2 id="orgheadline29"><span class="section-number-2">2</span> BIND</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 BIND：Bekerley Internat Name Domain
@@ -314,7 +327,6 @@ BIND：Bekerley Internat Name Domain
 <li>应该有两个(或ipv6)实现localhost和本地回环地址的解析库</li>
 </ul></li>
 <li>日志文件: /var/log/named.log</li>
-<li>rndc: remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接named进程，用于提供辅助性的管理功能</li>
 </ul>
 </div>
 </div>
@@ -330,7 +342,13 @@ BIND：Bekerley Internat Name Domain
 <li>日志子系统配置：logging {}</li>
 <li>区域定义：zone "ZONE_NAME" IN {}
 <ul class="org-ul">
-<li>type {master|slave|hint|forward}</li>
+<li>type {master|slave|hint|forward}
+<ul class="org-ul">
+<li>master: 主服务器</li>
+<li>slave: 从服务器</li>
+<li>hint: 设置根服务器</li>
+<li>forward: 设置转发规则</li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -359,33 +377,59 @@ BIND：Bekerley Internat Name Domain
 };
 </pre>
 </div></li>
-<li><p>
-定义区域解析库文件
-</p>
+<li>定义区域解析库文件
 <ul class="org-ul">
 <li>定义在 /var/named/ZONE_NAME.zone</li>
 <li>文件属组应为named，权限为640</li>
-</ul>
+<li><p>
+正向解析
+</p>
 <div class="org-src-container">
 
 <pre class="src src-zone"><span style="color: #FD971F; font-weight: bold; font-style: italic; text-decoration: underline;">$TTL</span> 86400  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#23450;&#20041;&#40664;&#35748;&#30340;TTL</span>
 <span style="color: #F92672;">$ORIGIN</span> qiump.com.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#20026;&#21518;&#32512;&#19981;&#26159;.&#30340;&#22320;&#22336;&#34917;&#20840;&#21518;&#32512;</span>
-@    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span> ns1.qiump.com.  admin.qiump.com (
+@  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span> ns1.qiump.com.  admin.qiump.com (
   20160627 <span style="color: #75715E;">;</span><span style="color: #75715E;">&#24207;&#21015;&#21495;</span>
   2H  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21047;&#26032;&#26102;&#38388;</span>
   10M  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#37325;&#35797;&#26102;&#38388;</span>
   1W  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#36807;&#26399;&#26102;&#38388;</span>
   1D  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21542;&#23450;&#31572;&#26696;</span>
   )
-     <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns
-     <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">MX</span> 10   mx
-ns   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11
-mx   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
-www  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11
-www  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
-ftp  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">CNAME</span>   www
+     <span style="color: #AE81FF;">IN</span>    <span style="color: #66D9EF;">NS</span>  ns1
+     <span style="color: #AE81FF;">IN</span>    <span style="color: #66D9EF;">NS</span>  ns2  
+     <span style="color: #AE81FF;">IN</span>    <span style="color: #66D9EF;">MX</span> 10   mx
+ns1    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.10  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#25351;&#21521;&#33258;&#24049;</span>
+ns2    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#25351;&#21521;&#20174;&#26381;&#21153;&#22120;&#65292;&#29992;&#20110;&#20445;&#35777;&#35299;&#26512;&#24211;&#30340;&#21516;&#27493;</span>
+mx <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
+www    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.11
+www    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.12
+ftp    <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">CNAME</span>   www
+*  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">A</span>   172.16.100.13  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#21305;&#37197;&#29992;&#25143;&#36755;&#38169;&#30340;&#32593;&#22336;</span>
 </pre>
 </div></li>
+<li><p>
+反向解析: 文件名一般使用 IP.zone
+</p>
+<div class="org-src-container">
+
+<pre class="src src-zone"><span style="color: #FD971F; font-weight: bold; font-style: italic; text-decoration: underline;">$TTL</span> 86400  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#23450;&#20041;&#40664;&#35748;&#30340;TTL</span>
+<span style="color: #F92672;">$ORIGIN</span> 100.16.172.in-addr.arpa.  <span style="color: #75715E;">;</span><span style="color: #75715E;">&#23450;&#20041;&#21453;&#21521;&#21306;&#22495;&#30340;&#21517;&#23383;</span>
+@  <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">SOA</span> ns1.qiump.com. admin.magedu.com. (
+    2015042201
+    1H
+    5M
+    7D
+    1D )
+   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns1.qiump.com.
+   <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">NS</span>  ns2.qiump.com.
+11 <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span> ns1.qiump.com.
+11 <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span> www.qiump.com.
+12 <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span> mx1.qiump.com.
+12 <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span> www.qiump.com.
+13 <span style="color: #AE81FF;">IN</span>  <span style="color: #66D9EF;">PTR</span> mx2.qiump.com.
+</pre>
+</div></li>
+</ul></li>
 <li><p>
 检查配置文件
 </p>
@@ -398,13 +442,117 @@ named-checkconf <span style="color: #E6DB74;">"qiump.com"</span> /var/named/qium
 </ol>
 </div>
 </div>
+<div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">从DNS服务器</h3>
+<div class="outline-text-3" id="text-orgheadline24">
+<ul class="org-ul">
+<li>主DNS服务器应该限制可以作区域传送的从服务器</li>
+<li>主从服务器时间应该同步，可通过ntp进行</li>
+<li>从服务器的bind版本应该大于或等于主服务器</li>
+<li><p>
+在主配置文件中定义要同步的区域
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">zone </span><span style="color: #66D9EF;">"ZONE_NAME"</span><span style="color: #66D9EF;"> IN</span> {
+    type slave;
+    masters { MASTER_IP; };
+    file <span style="color: #E6DB74;">"slaves/ZONE_NAME.zone"</span>;
+};
+</pre>
+</div></li>
+</ul>
 </div>
-<div id="outline-container-orgheadline26" class="outline-2">
-<h2 id="orgheadline26"><span class="section-number-2">3</span> 相关命令</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">dig</h3>
+</div>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">转发服务器</h3>
 <div class="outline-text-3" id="text-orgheadline25">
+<ul class="org-ul">
+<li>被转发的服务器需要能够为请求者做递归，否则，转发请求不予进行</li>
+<li><p>
+全部转发: 凡是对非本机所有负责解析的区域的请求，统统转发给指定的服务器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">Options</span> {
+    forward {first|only};    <span style="color: #75715E;"># </span><span style="color: #75715E;">only&#21017;&#34920;&#31034;&#36716;&#21457;&#22833;&#36133;&#26102;&#33258;&#24049;&#19981;&#22788;&#29702;</span>
+    fowwarders;
+};
+</pre>
+</div></li>
+<li><p>
+区域转发: 仅转发对特定的区域的请求至某服务器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">zone </span><span style="color: #66D9EF;">"ZONE_NAME"</span><span style="color: #66D9EF;"> IN</span> {
+    type forward;
+    forward {first|only};
+    forwarders;
+};
+</pre>
+</div></li>
+<li>关闭dnssec功能</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">dnssec-enable no;
+dnssec-validation no;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">安全相关配置</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+</div><div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">acl</h4>
+<div class="outline-text-4" id="text-orgheadline26">
+<p>
+acl用于把一个或多个地址归并为一个集合，使用统一的名称调用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">acl acl_name</span> {
+    ip;
+    net/prelen;
+};
+</pre>
+</div>
+<ul class="org-ul">
+<li>bind中有四个内置的acl
+<ul class="org-ul">
+<li>none: 没有一个主机</li>
+<li>any: 任意主机</li>
+<li>local: 本机</li>
+<li>localnet: 本机的IP同掩码运算后得到的网络地址</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-4">
+<h4 id="orgheadline27">访问控制</h4>
+<div class="outline-text-4" id="text-orgheadline27">
+<p>
+访问控制指定可以放在全局设置中，也可以放在特定zone中
+</p>
+<ul class="org-ul">
+<li>allow-query {}: 允许查询的主机</li>
+<li>allow-transfer {}: 允许区域传送的主机</li>
+<li>allow-recursion {}: 允许递归的主机</li>
+<li>allow-update {}: 允许更新区域数据库中的内容，一般关闭(使用none)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline34" class="outline-2">
+<h2 id="orgheadline34"><span class="section-number-2">3</span> 相关命令</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">dig</h3>
+<div class="outline-text-3" id="text-orgheadline30">
 <p>
 dig用于查询DNS系统，并不会查询hosts文件
 </p>
@@ -415,7 +563,62 @@ dig用于查询DNS系统，并不会查询hosts文件
   SERVER: &#25351;&#23450;&#20351;&#29992;&#30340;DNS&#26381;&#21153;&#22120;
 
   +[no]trace: &#36319;&#36394;&#35299;&#26512;&#36807;&#31243;
-  +[no]recurse: &#36827;&#34892;&#36882;&#24402;&#35299;&#26512;
+  +[no]recurse: &#36827;&#34892;&#36882;&#24402;&#35299;&#26512;&#65292;&#19981;&#36882;&#24402;&#21017;&#36820;&#22238;&#29238;&#22495;&#20869;&#23481;
+
+dig -x IP [@SERVER]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21453;&#21521;&#35299;&#26512;</span>
+
+dig -t axfr ZONE_NAME [@SERVER]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35831;&#27714;DNS&#26381;&#21153;&#22120;&#20840;&#37327;&#20256;&#36865;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">host</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<p>
+简单的DNS查询
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">host [-t type] name [SERVER]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">nslookup</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<p>
+交互式DNS查询
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">nslookup [-option] [name | -] [server]
+  &#20132;&#20114;&#24335;&#21629;&#20196;:
+    server IP: &#25351;&#23450;DNS&#26381;&#21153;&#22120;
+    <span style="color: #FD971F;">set q</span>=RR_type: &#25351;&#23450;&#26597;&#35810;&#30340;RR&#31867;&#22411;
+    NAME: &#25351;&#23450;&#35201;&#26597;&#35810;&#30340;&#21517;&#31216;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">rndc</h3>
+<div class="outline-text-3" id="text-orgheadline33">
+<p>
+remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接，用于提供辅助性的管理功能
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">rndc COMMAND
+  status: &#26597;&#35810;&#24403;&#21069;&#30005;&#33041;&#30340;DNS&#29366;&#24577;
+  reload: &#37325;&#36733;&#20027;&#37197;&#32622;&#25991;&#20214;&#21644;&#21306;&#22495;&#35299;&#26512;&#24211;&#25991;&#20214;
+  reload zone: &#37325;&#36733;&#21306;&#22495;&#35299;&#26512;&#24211;&#25991;&#20214;
+  retransfer zone: &#25163;&#21160;&#21551;&#21160;&#21306;&#22495;&#20256;&#36865;&#36807;&#31243;&#65292;&#32780;&#19981;&#31649;&#24207;&#21015;&#21495;&#26159;&#21542;&#22686;&#21152;
+  notify zone: &#37325;&#26032;&#23545;&#21306;&#22495;&#20256;&#36865;&#21457;&#36890;&#30693;
+  reconfig: &#37325;&#36733;&#20027;&#37197;&#32622;&#25991;&#20214;
+  querylog: &#24320;&#21551;&#25110;&#20851;&#38381;&#26597;&#35810;&#26085;&#24535;&#65292;&#19968;&#33324;&#20851;&#38381;
+  trace [LEVEL]: &#25351;&#23450;Debug&#32423;&#21035;&#65292;&#40664;&#35748;&#25552;&#39640;1&#32423;
 </pre>
 </div>
 </div>

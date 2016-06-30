@@ -45,7 +45,7 @@ Top Level Domain(tld): com, edu, mil, gov, net, org, int
 - 转发器
 ** 一次查询请求的流程
 - 过程: Client -> hosts文件 -> Local Cache -> DNS Server -> Server Cache -> iteration
-- 一般由DNS服务器从根服务器开始进行递归查询
+- 一般将需求递归给DNS服务器，DNS服务器从根服务器开始进行迭代查询
 - 特殊查询结果
   - 否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存
   - 非权威答案：由缓存查询而来
@@ -264,7 +264,7 @@ acl acl_name {
 - allow-query {}: 允许查询的主机
 - allow-transfer {}: 允许区域传送的主机
 - allow-recursion {}: 允许递归的主机
-- allow-update {}: 允许更新区域数据库中的内容
+- allow-update {}: 允许更新区域数据库中的内容，一般关闭(使用none)
 
 * 相关命令
 ** dig
@@ -288,7 +288,7 @@ host [-t type] name [SERVER]
 #+END_SRC
 ** nslookup
 交互式DNS查询
-#+BEGIN_SRC 
+#+BEGIN_SRC conf
 nslookup [-option] [name | -] [server]
   交互式命令:
     server IP: 指定DNS服务器
