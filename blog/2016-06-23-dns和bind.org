@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 网络
 #+JEKYLL_PUBLISHED: true
 
-TODO
+记录了DNS的相关内容，包括DNS的解析、DNS的服务器、DNS的资源记录RR，同时简单介绍了如何使用bind来建立DNS服务器，包括主DNS服务器、从DNS服务器、缓存DNS服务器、转发DNS服务器。以及介绍了DNS相关命令的使用，例如dig、host、nslookup，和DNS服务器管理工具rndc、DNS服务器压力测试工具queryperf
 
 
 
@@ -322,4 +322,10 @@ rndc COMMAND
   trace [LEVEL]: 指定Debug级别，默认提高1级
 rndc-confgen [-r /dev/urandom] # 用于生成rndc配置文件
   # 当random随机池不够用时会阻塞
+#+END_SRC
+** queryperf
+用于测试DNS服务器的性能
+#+BEGIN_SRC conf
+queryperf -d FILE -s SERVER
+  -d FILE: 指定用于查询的地址列表
 #+END_SRC

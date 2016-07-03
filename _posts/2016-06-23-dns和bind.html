@@ -31,7 +31,7 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline29">2. BIND</a>
+<li><a href="#orgheadline30">2. BIND</a>
 <ul>
 <li><a href="#orgheadline19">程序包</a></li>
 <li><a href="#orgheadline20">bind组成</a></li>
@@ -46,21 +46,23 @@ comments:
 <li><a href="#orgheadline27">访问控制</a></li>
 </ul>
 </li>
+<li><a href="#orgheadline29">view</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline34">3. 相关命令</a>
+<li><a href="#orgheadline36">3. 相关命令</a>
 <ul>
-<li><a href="#orgheadline30">dig</a></li>
-<li><a href="#orgheadline31">host</a></li>
-<li><a href="#orgheadline32">nslookup</a></li>
-<li><a href="#orgheadline33">rndc</a></li>
+<li><a href="#orgheadline31">dig</a></li>
+<li><a href="#orgheadline32">host</a></li>
+<li><a href="#orgheadline33">nslookup</a></li>
+<li><a href="#orgheadline34">rndc</a></li>
+<li><a href="#orgheadline35">queryperf</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <p>
-TODO
+记录了DNS的相关内容，包括DNS的解析、DNS的服务器、DNS的资源记录RR，同时简单介绍了如何使用bind来建立DNS服务器，包括主DNS服务器、从DNS服务器、缓存DNS服务器、转发DNS服务器。以及介绍了DNS相关命令的使用，例如dig、host、nslookup，和DNS服务器管理工具rndc、DNS服务器压力测试工具queryperf
 </p>
 
 
@@ -296,8 +298,8 @@ value: 原名字的FQDN
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline29" class="outline-2">
-<h2 id="orgheadline29"><span class="section-number-2">2</span> BIND</h2>
+<div id="outline-container-orgheadline30" class="outline-2">
+<h2 id="orgheadline30"><span class="section-number-2">2</span> BIND</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 BIND：Bekerley Internat Name Domain
@@ -454,11 +456,11 @@ named-checkconf <span style="color: #E6DB74;">"qiump.com"</span> /var/named/qium
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #66D9EF;">zone </span><span style="color: #66D9EF;">"ZONE_NAME"</span><span style="color: #66D9EF;"> IN</span> {
-    type slave;
-    masters { MASTER_IP; };
+<pre class="src src-C">zone <span style="color: #E6DB74;">"ZONE_NAME"</span> IN <span style="color: #AE81FF;">{</span>
+    <span style="color: #66D9EF;">type</span> <span style="color: #FD971F;">slave</span>;
+    masters <span style="color: #66D9EF;">{</span> MASTER_IP; <span style="color: #66D9EF;">}</span>;
     file <span style="color: #E6DB74;">"slaves/ZONE_NAME.zone"</span>;
-};
+<span style="color: #AE81FF;">}</span>;
 </pre>
 </div></li>
 </ul>
@@ -474,10 +476,10 @@ named-checkconf <span style="color: #E6DB74;">"qiump.com"</span> /var/named/qium
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #66D9EF;">Options</span> {
-    forward {first|only};    <span style="color: #75715E;"># </span><span style="color: #75715E;">only&#21017;&#34920;&#31034;&#36716;&#21457;&#22833;&#36133;&#26102;&#33258;&#24049;&#19981;&#22788;&#29702;</span>
+<pre class="src src-c">Options <span style="color: #AE81FF;">{</span>
+    forward <span style="color: #66D9EF;">{</span>first|only<span style="color: #66D9EF;">}</span>;    <span style="color: #75715E;">// </span><span style="color: #75715E;">only&#21017;&#34920;&#31034;&#36716;&#21457;&#22833;&#36133;&#26102;&#33258;&#24049;&#19981;&#22788;&#29702;</span>
     fowwarders;
-};
+<span style="color: #AE81FF;">}</span>;
 </pre>
 </div></li>
 <li><p>
@@ -485,11 +487,11 @@ named-checkconf <span style="color: #E6DB74;">"qiump.com"</span> /var/named/qium
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #66D9EF;">zone </span><span style="color: #66D9EF;">"ZONE_NAME"</span><span style="color: #66D9EF;"> IN</span> {
-    type forward;
-    forward {first|only};
+<pre class="src src-c">zone <span style="color: #E6DB74;">"ZONE_NAME"</span> IN <span style="color: #AE81FF;">{</span>
+    <span style="color: #66D9EF;">type</span> <span style="color: #FD971F;">forward</span>;
+    forward <span style="color: #66D9EF;">{</span>first|only<span style="color: #66D9EF;">}</span>;
     forwarders;
-};
+<span style="color: #AE81FF;">}</span>;
 </pre>
 </div></li>
 <li>关闭dnssec功能</li>
@@ -513,10 +515,10 @@ acl用于把一个或多个地址归并为一个集合，使用统一的名称�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #66D9EF;">acl acl_name</span> {
+<pre class="src src-C"><span style="color: #66D9EF;">acl</span> <span style="color: #FD971F;">acl_name</span> <span style="color: #AE81FF;">{</span>
     ip;
     net/prelen;
-};
+<span style="color: #AE81FF;">}</span>;
 </pre>
 </div>
 <ul class="org-ul">
@@ -545,14 +547,38 @@ acl用于把一个或多个地址归并为一个集合，使用统一的名称�
 </div>
 </div>
 </div>
-</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">view</h3>
+<div class="outline-text-3" id="text-orgheadline29">
+<ul class="org-ul">
+<li>view用于为不同的客户端提供不同的zone解析
+<ul class="org-ul">
+<li>一个bind服务器可定义多个view，每个view中可定义一个或多个zone</li>
+<li>多个view内可能需要对同一个区域进行解析，但使用不同的区域解析库文件</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
 
-<div id="outline-container-orgheadline34" class="outline-2">
-<h2 id="orgheadline34"><span class="section-number-2">3</span> 相关命令</h2>
+<pre class="src src-c"><span style="color: #66D9EF;">view</span> <span style="color: #FD971F;">VIEW_NAME</span> <span style="color: #AE81FF;">{</span>
+    match-clients <span style="color: #66D9EF;">{</span>  <span style="color: #66D9EF;">}</span>;  <span style="color: #75715E;">//</span><span style="color: #75715E;">&#29992;&#20110;&#23450;&#20041;&#21305;&#37197;&#30340;&#23458;&#25143;&#31471;</span>
+<span style="color: #AE81FF;">}</span>;
+</pre>
+</div>
+<ul class="org-ul">
+<li>一旦启用了view，所有的zone都只能定义在view中</li>
+<li>仅有必要在匹配到允许递归请求的客户所在view中定义根区域</li>
+<li>客户端请求到达时，是自上而下检查每个view所服务的客户端列表</li>
+<li>智能DNS: 可用于CDN(Content Delivery Network)的中缓存服务器地址的分配</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline36" class="outline-2">
+<h2 id="orgheadline36"><span class="section-number-2">3</span> 相关命令</h2>
 <div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline30" class="outline-3">
-<h3 id="orgheadline30">dig</h3>
-<div class="outline-text-3" id="text-orgheadline30">
+</div><div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">dig</h3>
+<div class="outline-text-3" id="text-orgheadline31">
 <p>
 dig用于查询DNS系统，并不会查询hosts文件
 </p>
@@ -570,11 +596,14 @@ dig -x IP [@SERVER]  <span style="color: #75715E;"># </span><span style="color: 
 dig -t axfr ZONE_NAME [@SERVER]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35831;&#27714;DNS&#26381;&#21153;&#22120;&#20840;&#37327;&#20256;&#36865;</span>
 </pre>
 </div>
+<ul class="org-ul">
+<li>dig的输出可直接生成zone文件</li>
+</ul>
 </div>
 </div>
-<div id="outline-container-orgheadline31" class="outline-3">
-<h3 id="orgheadline31">host</h3>
-<div class="outline-text-3" id="text-orgheadline31">
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">host</h3>
+<div class="outline-text-3" id="text-orgheadline32">
 <p>
 简单的DNS查询
 </p>
@@ -585,9 +614,9 @@ dig -t axfr ZONE_NAME [@SERVER]  <span style="color: #75715E;"># </span><span st
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline32" class="outline-3">
-<h3 id="orgheadline32">nslookup</h3>
-<div class="outline-text-3" id="text-orgheadline32">
+<div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">nslookup</h3>
+<div class="outline-text-3" id="text-orgheadline33">
 <p>
 交互式DNS查询
 </p>
@@ -602,9 +631,9 @@ dig -t axfr ZONE_NAME [@SERVER]  <span style="color: #75715E;"># </span><span st
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline33" class="outline-3">
-<h3 id="orgheadline33">rndc</h3>
-<div class="outline-text-3" id="text-orgheadline33">
+<div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">rndc</h3>
+<div class="outline-text-3" id="text-orgheadline34">
 <p>
 remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接，用于提供辅助性的管理功能
 </p>
@@ -619,6 +648,22 @@ remote name domain controller，默认与bind安装在同一主机，且只能�
   reconfig: &#37325;&#36733;&#20027;&#37197;&#32622;&#25991;&#20214;
   querylog: &#24320;&#21551;&#25110;&#20851;&#38381;&#26597;&#35810;&#26085;&#24535;&#65292;&#19968;&#33324;&#20851;&#38381;
   trace [LEVEL]: &#25351;&#23450;Debug&#32423;&#21035;&#65292;&#40664;&#35748;&#25552;&#39640;1&#32423;
+rndc-confgen [-r /dev/urandom] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#29983;&#25104;rndc&#37197;&#32622;&#25991;&#20214;</span>
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;random&#38543;&#26426;&#27744;&#19981;&#22815;&#29992;&#26102;&#20250;&#38459;&#22622;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="orgheadline35">queryperf</h3>
+<div class="outline-text-3" id="text-orgheadline35">
+<p>
+用于测试DNS服务器的性能
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">queryperf -d FILE -s SERVER
+  -d FILE: &#25351;&#23450;&#29992;&#20110;&#26597;&#35810;&#30340;&#22320;&#22336;&#21015;&#34920;
 </pre>
 </div>
 </div>
