@@ -689,7 +689,7 @@ tee [OPTION]... [FILE]... # 将标准输入输出到标准输出和文件
 #+END_SRC
 - /dev/null: 丢弃数据的设备
 - /dev/zero: 产生0的设备
-- /dev/random：仅从熵池返回随机数；随机数用尽，阻塞
+- /dev/random：仅从熵池返回随机数；随机数用尽，则会阻塞
 - /dev/urandom：从熵池返回随机数；随机数用尽，会利用软件生成伪随机数
 ** Shell脚本
 - Shell编程: 过程式、解释执行

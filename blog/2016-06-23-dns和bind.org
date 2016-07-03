@@ -216,7 +216,7 @@ BIND：Bekerley Internat Name Domain
 - 主从服务器时间应该同步，可通过ntp进行
 - 从服务器的bind版本应该大于或等于主服务器
 - 在主配置文件中定义要同步的区域
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC C
   zone "ZONE_NAME" IN {
 	  type slave;
 	  masters { MASTER_IP; };
@@ -226,14 +226,14 @@ BIND：Bekerley Internat Name Domain
 ** 转发服务器
 - 被转发的服务器需要能够为请求者做递归，否则，转发请求不予进行
 - 全部转发: 凡是对非本机所有负责解析的区域的请求，统统转发给指定的服务器
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC c
   Options {
-	  forward {first|only};    # only则表示转发失败时自己不处理
+	  forward {first|only};    // only则表示转发失败时自己不处理
 	  fowwarders;
   };
   #+END_SRC
 - 区域转发: 仅转发对特定的区域的请求至某服务器
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC c
   zone "ZONE_NAME" IN {
 	  type forward;
 	  forward {first|only};
@@ -248,7 +248,7 @@ dnssec-validation no;
 ** 安全相关配置
 *** acl
 acl用于把一个或多个地址归并为一个集合，使用统一的名称调用
-#+BEGIN_SRC conf
+#+BEGIN_SRC C
 acl acl_name {
     ip;
     net/prelen;
@@ -265,7 +265,19 @@ acl acl_name {
 - allow-transfer {}: 允许区域传送的主机
 - allow-recursion {}: 允许递归的主机
 - allow-update {}: 允许更新区域数据库中的内容，一般关闭(使用none)
-
+** view
+- view用于为不同的客户端提供不同的zone解析
+  - 一个bind服务器可定义多个view，每个view中可定义一个或多个zone
+  - 多个view内可能需要对同一个区域进行解析，但使用不同的区域解析库文件
+#+BEGIN_SRC c
+view VIEW_NAME {
+    match-clients {  };  //用于定义匹配的客户端
+};
+#+END_SRC
+- 一旦启用了view，所有的zone都只能定义在view中
+- 仅有必要在匹配到允许递归请求的客户所在view中定义根区域
+- 客户端请求到达时，是自上而下检查每个view所服务的客户端列表
+- 智能DNS: 可用于CDN(Content Delivery Network)的中缓存服务器地址的分配
 * 相关命令
 ** dig
 dig用于查询DNS系统，并不会查询hosts文件
@@ -281,6 +293,7 @@ dig -x IP [@SERVER]  # 反向解析
 
 dig -t axfr ZONE_NAME [@SERVER]  # 请求DNS服务器全量传送
 #+END_SRC
+- dig的输出可直接生成zone文件
 ** host
 简单的DNS查询
 #+BEGIN_SRC conf
@@ -307,4 +320,6 @@ rndc COMMAND
   reconfig: 重载主配置文件
   querylog: 开启或关闭查询日志，一般关闭
   trace [LEVEL]: 指定Debug级别，默认提高1级
+rndc-confgen [-r /dev/urandom] # 用于生成rndc配置文件
+  # 当random随机池不够用时会阻塞
 #+END_SRC
