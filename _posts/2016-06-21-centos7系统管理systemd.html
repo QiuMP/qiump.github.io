@@ -15,20 +15,16 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline8">1. systemd</a>
-<ul>
-<li><a href="#orgheadline1">特性</a></li>
-<li><a href="#orgheadline2">Unit</a></li>
-<li><a href="#orgheadline3">管理系统服务</a></li>
-<li><a href="#orgheadline6">Target unit</a>
+<li><a href="#orgheadline1">1. 特性</a></li>
+<li><a href="#orgheadline2">2. Unit</a></li>
+<li><a href="#orgheadline3">3. 管理系统服务</a></li>
+<li><a href="#orgheadline6">4. Target unit</a>
 <ul>
 <li><a href="#orgheadline4">运行级别</a></li>
 <li><a href="#orgheadline5">相关命令</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline7">开关机命令</a></li>
-</ul>
-</li>
+<li><a href="#orgheadline7">5. 开关机命令</a></li>
 </ul>
 </div>
 </div>
@@ -39,12 +35,9 @@ comments:
 
 
 <hr  />
-<div id="outline-container-orgheadline8" class="outline-2">
-<h2 id="orgheadline8"><span class="section-number-2">1</span> systemd</h2>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 特性</h2>
 <div class="outline-text-2" id="text-1">
-</div><div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">特性</h3>
-<div class="outline-text-3" id="text-orgheadline1">
 <ul class="org-ul">
 <li>系统引导时实现服务并行启动</li>
 <li>按需激活进程和服务
@@ -60,9 +53,9 @@ comments:
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">Unit</h3>
-<div class="outline-text-3" id="text-orgheadline2">
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> Unit</h2>
+<div class="outline-text-2" id="text-2">
 <p>
 进行标识和配置的配置文件，主要包含了系统服务、监听socket、保存的系统快照以及其它与init相关的信息
 </p>
@@ -152,9 +145,9 @@ Unit类型
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">管理系统服务</h3>
-<div class="outline-text-3" id="text-orgheadline3">
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 管理系统服务</h2>
+<div class="outline-text-2" id="text-3">
 <div class="org-src-container">
 
 <pre class="src src-conf">systemctl COMMAND name[.service]
@@ -185,12 +178,12 @@ Unit类型
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6">Target unit</h3>
-<div class="outline-text-3" id="text-orgheadline6">
-</div><div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">运行级别</h4>
-<div class="outline-text-4" id="text-orgheadline4">
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">4</span> Target unit</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">运行级别</h3>
+<div class="outline-text-3" id="text-orgheadline4">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -244,9 +237,9 @@ Unit类型
 </table>
 </div>
 </div>
-<div id="outline-container-orgheadline5" class="outline-4">
-<h4 id="orgheadline5">相关命令</h4>
-<div class="outline-text-4" id="text-orgheadline5">
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline5">
 <div class="org-src-container">
 
 <pre class="src src-conf">systemctl list-units --type target  <span style="color: #75715E;">#  </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#24050;&#35013;&#36733;&#30340;target</span>
@@ -261,9 +254,9 @@ systemctl set-default name.target  <span style="color: #75715E;"># </span><span 
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">开关机命令</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">5</span> 开关机命令</h2>
+<div class="outline-text-2" id="text-5">
 <div class="org-src-container">
 
 <pre class="src src-conf">systemctl {halt|poweroff}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#26426;</span>
@@ -272,7 +265,6 @@ systemctl suspend  <span style="color: #75715E;"># </span><span style="color: #7
 systemctl hibernate  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24555;&#29031;</span>
 systemctl hybrid-sleep  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24555;&#29031;&#24182;&#25346;&#36215;</span>
 </pre>
-</div>
 </div>
 </div>
 </div>

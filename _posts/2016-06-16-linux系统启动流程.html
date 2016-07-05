@@ -30,16 +30,17 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline17">3. kernel</a>
+<li><a href="#orgheadline18">3. kernel</a>
 <ul>
 <li><a href="#orgheadline10">系统初始化</a></li>
-<li><a href="#orgheadline16">init(CentOS 6)</a>
+<li><a href="#orgheadline17">init(CentOS 6)</a>
 <ul>
 <li><a href="#orgheadline11">运行级别</a></li>
 <li><a href="#orgheadline12">配置文件</a></li>
 <li><a href="#orgheadline13">/etc/rc.d/rc.sysinit</a></li>
 <li><a href="#orgheadline14">服务</a></li>
 <li><a href="#orgheadline15">chkconfig</a></li>
+<li><a href="#orgheadline16">xinetd</a></li>
 </ul>
 </li>
 </ul>
@@ -218,8 +219,8 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-2">
-<h2 id="orgheadline17"><span class="section-number-2">3</span> kernel</h2>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">3</span> kernel</h2>
 <div class="outline-text-2" id="text-3">
 </div><div id="outline-container-orgheadline10" class="outline-3">
 <h3 id="orgheadline10">系统初始化</h3>
@@ -253,9 +254,9 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16">init(CentOS 6)</h3>
-<div class="outline-text-3" id="text-orgheadline16">
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">init(CentOS 6)</h3>
+<div class="outline-text-3" id="text-orgheadline17">
 </div><div id="outline-container-orgheadline11" class="outline-4">
 <h4 id="orgheadline11">运行级别</h4>
 <div class="outline-text-4" id="text-orgheadline11">
@@ -448,6 +449,14 @@ chkconfig: NNN aa bb
 </pre>
 </div></dd>
 </dl>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">xinetd</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+<p>
+xinetd是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理
+</p>
 </div>
 </div>
 </div>

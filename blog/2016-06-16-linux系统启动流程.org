@@ -206,3 +206,5 @@ who -r  # 查看当前级别
   #+BEGIN_SRC conf
   chkconfig --del NAME
   #+END_SRC
+*** xinetd
+xinetd是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理

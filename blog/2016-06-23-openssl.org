@@ -1,4 +1,4 @@
-#+TITLE: OpenSSL
+#+TITLE: OpenSSL和OpenSSH
 #+DATE: 2016-06-23
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 安全
 #+JEKYLL_PUBLISHED: true
 
-讲述了安全和加密相关的知识，同时记录了OpenSSL命令的使用
+讲述了安全和加密相关的知识，同时记录了OpenSSL命令的使用，如何使用OpenSSL来建立私有CA，同时介绍了ssh协议和OpenSSH的使用和配置，包括ssh、scp、sftp、sshd
 
 
 
@@ -46,18 +46,6 @@
   - DH算法: 用于解决公钥的安全性
     1. A知道数字p,g,x，B知道数字p,g,y，即p,g是公开的
     2. A发送p^x%g给B，B发送p^y%g给A，之后两人使用的密钥就是p^xy%g
-- PKI: Public Key Infrastructure
-  - 签证机构: CA，通过该机构来验证公钥的作者
-  - 注册机构: RA
-  - 证书吊销列表: CRL
-  - 证书存取库: 所有可信公钥会放在所有用户电脑上
-  - 证书结构和认证协议标准: X.509
-  - https访问过程
-    1. 建立TCP连接
-    2. 获得网站的证书，检查证书名是否与服务器主机名相同，
-    3. 使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中
-    4. 客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方
-    5. 通过对称加密密钥进行加密传输数据
 - 单向加密: 只能加密，不能解密，用于提取数据指纹
   - 特性: 定长输出，雪崩效应
   - 常见算法: md5, sha1, sha224, sha256, sha384, sha512
@@ -72,7 +60,7 @@
 * OpenSSL
 ** 组件
 - openssl: 多用途的命令行工具
-- libcrypto: 公共加密库
+- libcrypto: 公共加密解密库
 - libssl: 实现了ssl和tls的库
 ** openssl命令
 #+BEGIN_SRC conf
@@ -92,3 +80,146 @@ openssl rand -{hex|base64} NUM  # 生成NUM个字节的随机字符串
 openssl genrsa -out key.pri 2048  # 生成私钥
 openssl rsa -in key.pri -pubout  # 通过私钥生成公钥
 #+END_SRC
+** 创建私有CA
+*** PKI
+PKI: Public Key Infrastructure
+- 签证机构: CA，通过该机构来验证公钥的作者
+- 注册机构: RA
+- 证书吊销列表: CRL
+- 证书存取库: 所有可信公钥会放在所有用户电脑上
+- 证书结构和认证协议标准: X.509
+- https访问过程
+  1. 建立TCP连接
+  2. 获得网站的证书，检查证书名是否与服务器主机名相同，
+  3. 使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中
+  4. 客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方
+  5. 通过对称加密密钥进行加密传输数据
+*** 证书的申请和签署过程
+1. 生成申请请求
+2. RA核验
+3. CA签署
+4. 获取证书
+*** 创建私有CA
+openssl配置文件: =/etc/pki/tls/openssl.cnf=
+1. 创建所需要的文件
+   #+BEGIN_SRC conf
+   cd /etc/pki/CA
+   touch index.txt  # 存储所有证书的索引信息
+   echo 01 > serial  # 证书的编号
+   #+END_SRC
+2. CA自签证书
+   #+BEGIN_SRC sh
+   (umask 077; openssl genrsa -out /etc/pki/CA/private/cakey.pem 2048)
+   openssl req -new -x509 -key /etc/pki/CA/private/cakey.epm -days 7300 -out /etc/pki/CA/cacert.pem
+     -new: 生成新证书签署请求
+     -x509: 专用于CA生成自签证书
+     -key: 生成请求时用到的私钥文件
+     -days n：证书的有效期限
+     -out /PATH/TO/SOMECERTFILE: 证书的保存路径
+   #+END_SRC
+3. 发证
+   1. 用到证书的主机生成证书请求
+      #+BEGIN_SRC sh
+      (umask 077; openssl genrsa -out /etc/httpd/ssl/httpd.key 2048)
+      openssl req -new -key /etc/httpd/ssl/httpd.key -days 365 -out /etc/httpd/ssl/httpd.csr
+      #+END_SRC
+   2. 把请求文件传输给CA
+   3. CA签署证书，并将证书发还给请求者
+      #+BEGIN_SRC conf
+      openssl ca -in /tmp/httpd.csr -out /etc/pki/CA/certs/httpd.crt -days 365
+      openssl x509 -in /PATH/FROM/CERT_FILE -noout -text|-subject|-serial  # 查看证书中的信息
+      #+END_SRC
+4. 吊销证书
+   1. 客户端获取要吊销的证书的serial
+      #+BEGIN_SRC conf
+      openssl x509 -in /PATH/FROM/CERT_FILE -noout -serial -subject
+      #+END_SRC
+   2. CA
+      1. 对比客户提交的serial与subject信息是否与index.txt的信息一致
+      2. 吊销证书
+         #+BEGIN_SRC conf
+         openssl ca -revoke /etc/pki/CA/newcerts/SERIAL.pem
+         #+END_SRC
+      3. 生成吊销证书编号
+         #+BEGIN_SRC conf
+         echo 01 > /etc/pki/CA/crlnumber
+         #+END_SRC
+      4. 更新证书吊销列表
+         #+BEGIN_SRC conf
+         openssl ca -gencrl -out thisca.crl
+         openssl crl -in /PATH/FROM/CRL_FILE.crl -noout -text  # 查看crl文件
+         #+END_SRC
+
+* OpenSSH
+** ssh和telnet
+- ssh: secure shell，是一种协议(22/tcp)，用于安全的远程登录
+  - v1: 基于CRC-32做MAC，不安全，会被man-in-middle攻击
+  - v2：双方主机协商选择安全的MAC方式，基于DH算法做密钥交换，基于RSA或DSA算法实现身份认证
+- telnet是另一种协议(23/tcp)，简单但不安全
+- ssh用于用户登录认证的方式: 基于password、基于key
+
+** OpenSSH
+- OpenSSH是ssh协议的开源实现，dropbear则是另一个开源实现
+*** 客户端
+**** ssh
+- 配置文件: =/etc/ssh/ssh_config=
+  - 配置文件可以为不同客户端设定不同配置
+  #+BEGIN_SRC conf
+  Host NAME  # 指定名称
+      HostName 主机名
+      User 登录用户名
+      port 22  # 指定ssh端口号
+  #+END_SRC
+#+BEGIN_SRC sh
+ssh [user@]host [COMMAND]  # user默认是当前系统上登录的用户名
+  -p port: 设置远程服务器监听的端口
+  COMMAND: 不登录远程主机仅执行COMMAND命令
+  -X: 支持x11转发，即远程运行图形界面程序
+  -Y: 支持安全的x11转发
+#+END_SRC
+- 配置密钥认证
+  #+BEGIN_SRC conf
+  ssh-keygen -t rsa [-P '' -f "~/.ssh/id_rsa"]  # 在客户端生成密钥对
+  ssh-copy-id [-i "~/.ssh/id_rsa.pub"] [user@]host  # 将公钥传输至服务器的.ssh/authorized_keys中
+  #+END_SRC
+  - 服务器的 =.ssh/authorized_keys权限必须是600
+**** scp
+scp可用于发送文件到服务器或获取服务器的文件
+#+BEGIN_SRC sh
+scp [options] SRC...  DEST
+  [user@]host:/PATH/FILE: 指定服务器端的文件或目录
+  -r: 递归复制
+  -p: 保持原文件的属性信息
+  -q: quiet
+  -P port: 指定端口
+#+END_SRC
+**** sftp
+类似于ftp客户端，但基于ssh
+*** 服务器端
+**** sshd
+- 配置文件: =/etc/ssh/sshd_config=
+  #+BEGIN_SRC conf
+  Port 22
+  ListenAddress ip  # 一般只允许使用内网登录
+  PermitRootLogin no
+  PasswordAuthentication no  # 可以只允许使用密钥认证
+  UseDNS no  # 关闭DNS反向解析
+
+  AllowUsers user1 user2  # 用户白名单
+  AllowGroups user1 user2  # 组白名单
+  #+END_SRC
+- Kerberos可以使用其他服务器进行统一认证
+- ssh登录的请求日志存放在 =/var/log/secure= 中
+** ssh服务的注意事项
+1. 不要使用默认端口
+2. 禁止使用protocol 1
+3. 限制可登录用户
+4. 设定空闲会话超时时长
+5. 利用防火墙设置ssh访问策略
+6. 仅监听特定的IP地址
+7. 基于口令认证时，使用强密码策略
+8. 使用基于密钥的认证
+9. 禁止使用空密码
+10. 禁止root用户直接登录
+11. 限制ssh的访问频度和并发在线数
+12. 做好日志，经常分析

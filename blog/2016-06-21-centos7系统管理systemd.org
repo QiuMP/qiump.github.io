@@ -11,8 +11,7 @@
 
 
 -----
-* systemd
-** 特性
+* 特性
 - 系统引导时实现服务并行启动
 - 按需激活进程和服务
   - 基于socket的激活机制: socket被访问时激活服务
@@ -22,7 +21,7 @@
 - 系统状态快照: 保存当前所有Unit的状态
 - 基于依赖关系定义服务控制逻辑
 - 非由systemd启动的服务，systemctl无法与之通信
-** Unit
+* Unit
 进行标识和配置的配置文件，主要包含了系统服务、监听socket、保存的系统快照以及其它与init相关的信息
 - 相关目录
   - /usr/lib/systemd/system
@@ -40,7 +39,7 @@
   | Swap unit      | .swap      | 用于标识swap设备                   |
   | Automount unit | .automount | 文件系统的自动挂载点               |
   | Path unit      | .path      | 用于定义文件系统中的一个文件或目录 |
-** 管理系统服务
+* 管理系统服务
 #+BEGIN_SRC conf
 systemctl COMMAND name[.service]
   COMMAND
@@ -67,8 +66,8 @@ systemctl COMMAND name[.service]
     list-units --type service --all: 查看所有服务的信息
     list-unit-files --type service: 查询所有服务的开机自启状态
 #+END_SRC
-** Target unit
-*** 运行级别
+* Target unit
+** 运行级别
 | 级别 | 对应的target文件                      |
 |------+---------------------------------------|
 |    0 | runlevel0.target -> poweroff.target   |
@@ -78,7 +77,7 @@ systemctl COMMAND name[.service]
 |    4 | runlevel4.target -> multi-user.target |
 |    5 | runlevel5.target -> graphical.target  |
 |    6 | runlevel6.target -> reboot.target     |
-*** 相关命令
+** 相关命令
 #+BEGIN_SRC conf
 systemctl list-units --type target  #  查看当前已装载的target
 
@@ -88,7 +87,7 @@ systemctl emergency  # 切换到emergency模式，不加载驱动
 systemctl get-default  # 查看默认运行级别
 systemctl set-default name.target  # 设置默认运行级别，设置/etc/systemd/system/default.target
 #+END_SRC
-** 开关机命令
+* 开关机命令
 #+BEGIN_SRC conf
 systemctl {halt|poweroff}  # 关机
 systemctl reboot  # 重启

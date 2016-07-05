@@ -1,5 +1,5 @@
 ---
-title: "OpenSSL"
+title: "OpenSSL和OpenSSH"
 date: 2016-06-23
 layout: post
 categories: 
@@ -24,17 +24,36 @@ comments:
 <li><a href="#orgheadline5">SSL与TLS</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline9">2. OpenSSL</a>
+<li><a href="#orgheadline13">2. OpenSSL</a>
 <ul>
 <li><a href="#orgheadline7">组件</a></li>
 <li><a href="#orgheadline8">openssl命令</a></li>
+<li><a href="#orgheadline12">创建私有CA</a>
+<ul>
+<li><a href="#orgheadline9">PKI</a></li>
+<li><a href="#orgheadline10">证书的申请和签署过程</a></li>
+<li><a href="#orgheadline11">创建私有CA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline23">3. OpenSSH</a>
+<ul>
+<li><a href="#orgheadline14">ssh和telnet</a></li>
+<li><a href="#orgheadline15">OpenSSH</a>
+<ul>
+<li><a href="#orgheadline19">客户端</a></li>
+<li><a href="#orgheadline21">服务器端</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline22">ssh服务的注意事项</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <p>
-讲述了安全和加密相关的知识，同时记录了OpenSSL命令的使用
+讲述了安全和加密相关的知识，同时记录了OpenSSL命令的使用，如何使用OpenSSL来建立私有CA，同时介绍了ssh协议和OpenSSH的使用和配置，包括ssh、scp、sftp、sshd
 </p>
 
 
@@ -110,22 +129,6 @@ comments:
 <li>A发送p^x%g给B，B发送p^y%g给A，之后两人使用的密钥就是p^xy%g</li>
 </ol></li>
 </ul></li>
-<li>PKI: Public Key Infrastructure
-<ul class="org-ul">
-<li>签证机构: CA，通过该机构来验证公钥的作者</li>
-<li>注册机构: RA</li>
-<li>证书吊销列表: CRL</li>
-<li>证书存取库: 所有可信公钥会放在所有用户电脑上</li>
-<li>证书结构和认证协议标准: X.509</li>
-<li>https访问过程
-<ol class="org-ol">
-<li>建立TCP连接</li>
-<li>获得网站的证书，检查证书名是否与服务器主机名相同，</li>
-<li>使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中</li>
-<li>客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方</li>
-<li>通过对称加密密钥进行加密传输数据</li>
-</ol></li>
-</ul></li>
 <li>单向加密: 只能加密，不能解密，用于提取数据指纹
 <ul class="org-ul">
 <li>特性: 定长输出，雪崩效应</li>
@@ -149,15 +152,15 @@ comments:
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline9" class="outline-2">
-<h2 id="orgheadline9"><span class="section-number-2">2</span> OpenSSL</h2>
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">2</span> OpenSSL</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline7" class="outline-3">
 <h3 id="orgheadline7">组件</h3>
 <div class="outline-text-3" id="text-orgheadline7">
 <ul class="org-ul">
 <li>openssl: 多用途的命令行工具</li>
-<li>libcrypto: 公共加密库</li>
+<li>libcrypto: 公共加密解密库</li>
 <li>libssl: 实现了ssl和tls的库</li>
 </ul>
 </div>
@@ -184,6 +187,277 @@ openssl genrsa -out key.pri 2048  <span style="color: #75715E;"># </span><span s
 openssl rsa -in key.pri -pubout  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;&#31169;&#38053;&#29983;&#25104;&#20844;&#38053;</span>
 </pre>
 </div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">创建私有CA</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">PKI</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<p>
+PKI: Public Key Infrastructure
+</p>
+<ul class="org-ul">
+<li>签证机构: CA，通过该机构来验证公钥的作者</li>
+<li>注册机构: RA</li>
+<li>证书吊销列表: CRL</li>
+<li>证书存取库: 所有可信公钥会放在所有用户电脑上</li>
+<li>证书结构和认证协议标准: X.509</li>
+<li>https访问过程
+<ol class="org-ol">
+<li>建立TCP连接</li>
+<li>获得网站的证书，检查证书名是否与服务器主机名相同，</li>
+<li>使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中</li>
+<li>客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方</li>
+<li>通过对称加密密钥进行加密传输数据</li>
+</ol></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">证书的申请和签署过程</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<ol class="org-ol">
+<li>生成申请请求</li>
+<li>RA核验</li>
+<li>CA签署</li>
+<li>获取证书</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">创建私有CA</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<p>
+openssl配置文件: <code>/etc/pki/tls/openssl.cnf</code>
+</p>
+<ol class="org-ol">
+<li><p>
+创建所需要的文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cd /etc/pki/CA
+touch index.txt  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23384;&#20648;&#25152;&#26377;&#35777;&#20070;&#30340;&#32034;&#24341;&#20449;&#24687;</span>
+echo 01 &gt; serial  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35777;&#20070;&#30340;&#32534;&#21495;</span>
+</pre>
+</div></li>
+<li><p>
+CA自签证书
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #AE81FF;">(</span><span style="color: #F92672;">umask</span> <span style="color: #AE81FF;">077</span>; openssl genrsa -out /etc/pki/CA/private/cakey.pem <span style="color: #AE81FF;">2048</span><span style="color: #AE81FF;">)</span>
+openssl req -new -x509 -key /etc/pki/CA/private/cakey.epm -days <span style="color: #AE81FF;">7300</span> -out /etc/pki/CA/cacert.pem
+  -new: &#29983;&#25104;&#26032;&#35777;&#20070;&#31614;&#32626;&#35831;&#27714;
+  -x509: &#19987;&#29992;&#20110;CA&#29983;&#25104;&#33258;&#31614;&#35777;&#20070;
+  -key: &#29983;&#25104;&#35831;&#27714;&#26102;&#29992;&#21040;&#30340;&#31169;&#38053;&#25991;&#20214;
+  -days n&#65306;&#35777;&#20070;&#30340;&#26377;&#25928;&#26399;&#38480;
+  -out /PATH/TO/SOMECERTFILE: &#35777;&#20070;&#30340;&#20445;&#23384;&#36335;&#24452;
+</pre>
+</div></li>
+<li>发证
+<ol class="org-ol">
+<li><p>
+用到证书的主机生成证书请求
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #AE81FF;">(</span><span style="color: #F92672;">umask</span> <span style="color: #AE81FF;">077</span>; openssl genrsa -out /etc/httpd/ssl/httpd.key <span style="color: #AE81FF;">2048</span><span style="color: #AE81FF;">)</span>
+openssl req -new -key /etc/httpd/ssl/httpd.key -days <span style="color: #AE81FF;">365</span> -out /etc/httpd/ssl/httpd.csr
+</pre>
+</div></li>
+<li>把请求文件传输给CA</li>
+<li><p>
+CA签署证书，并将证书发还给请求者
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">openssl ca -in /tmp/httpd.csr -out /etc/pki/CA/certs/httpd.crt -days 365
+openssl x509 -in /PATH/FROM/CERT_FILE -noout -text|-subject|-serial  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#35777;&#20070;&#20013;&#30340;&#20449;&#24687;</span>
+</pre>
+</div></li>
+</ol></li>
+<li>吊销证书
+<ol class="org-ol">
+<li><p>
+客户端获取要吊销的证书的serial
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">openssl x509 -in /PATH/FROM/CERT_FILE -noout -serial -subject
+</pre>
+</div></li>
+<li>CA
+<ol class="org-ol">
+<li>对比客户提交的serial与subject信息是否与index.txt的信息一致</li>
+<li><p>
+吊销证书
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">openssl ca -revoke /etc/pki/CA/newcerts/SERIAL.pem
+</pre>
+</div></li>
+<li><p>
+生成吊销证书编号
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">echo 01 &gt; /etc/pki/CA/crlnumber
+</pre>
+</div></li>
+<li><p>
+更新证书吊销列表
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">openssl ca -gencrl -out thisca.crl
+openssl crl -in /PATH/FROM/CRL_FILE.crl -noout -text  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;crl&#25991;&#20214;</span>
+</pre>
+</div></li>
+</ol></li>
+</ol></li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">3</span> OpenSSH</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">ssh和telnet</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<ul class="org-ul">
+<li>ssh: secure shell，是一种协议(22/tcp)，用于安全的远程登录
+<ul class="org-ul">
+<li>v1: 基于CRC-32做MAC，不安全，会被man-in-middle攻击</li>
+<li>v2：双方主机协商选择安全的MAC方式，基于DH算法做密钥交换，基于RSA或DSA算法实现身份认证</li>
+</ul></li>
+<li>telnet是另一种协议(23/tcp)，简单但不安全</li>
+<li>ssh用于用户登录认证的方式: 基于password、基于key</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">OpenSSH</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<ul class="org-ul">
+<li>OpenSSH是ssh协议的开源实现，dropbear则是另一个开源实现</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">客户端</h4>
+<div class="outline-text-4" id="text-orgheadline19">
+</div><ul class="org-ul"><li><a id="orgheadline16"></a>ssh<br  /><div class="outline-text-5" id="text-orgheadline16">
+<ul class="org-ul">
+<li><p>
+配置文件: <code>/etc/ssh/ssh_config</code>
+</p>
+<ul class="org-ul">
+<li>配置文件可以为不同客户端设定不同配置</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf">Host NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#21517;&#31216;</span>
+    HostName &#20027;&#26426;&#21517;
+    User &#30331;&#24405;&#29992;&#25143;&#21517;
+    port 22  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;ssh&#31471;&#21475;&#21495;</span>
+</pre>
+</div></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh <span style="color: #AE81FF;">[</span>user@<span style="color: #AE81FF;">]</span>host <span style="color: #AE81FF;">[</span>COMMAND<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">user&#40664;&#35748;&#26159;&#24403;&#21069;&#31995;&#32479;&#19978;&#30331;&#24405;&#30340;&#29992;&#25143;&#21517;</span>
+  -p port: &#35774;&#32622;&#36828;&#31243;&#26381;&#21153;&#22120;&#30417;&#21548;&#30340;&#31471;&#21475;
+  COMMAND: &#19981;&#30331;&#24405;&#36828;&#31243;&#20027;&#26426;&#20165;&#25191;&#34892;COMMAND&#21629;&#20196;
+  -X: &#25903;&#25345;x11&#36716;&#21457;&#65292;&#21363;&#36828;&#31243;&#36816;&#34892;&#22270;&#24418;&#30028;&#38754;&#31243;&#24207;
+  -Y: &#25903;&#25345;&#23433;&#20840;&#30340;x11&#36716;&#21457;
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+配置密钥认证
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ssh-keygen -t rsa [-P <span style="color: #E6DB74;">''</span> -f <span style="color: #E6DB74;">"~/.ssh/id_rsa"</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#23458;&#25143;&#31471;&#29983;&#25104;&#23494;&#38053;&#23545;</span>
+ssh-copy-id [-i <span style="color: #E6DB74;">"~/.ssh/id_rsa.pub"</span>] [user@]host  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#20844;&#38053;&#20256;&#36755;&#33267;&#26381;&#21153;&#22120;&#30340;.ssh/authorized_keys&#20013;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>服务器的 =.ssh/authorized_keys权限必须是600</li>
+</ul></li>
+</ul>
+</div></li>
+<li><a id="orgheadline17"></a>scp<br  /><div class="outline-text-5" id="text-orgheadline17">
+<p>
+scp可用于发送文件到服务器或获取服务器的文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">scp <span style="color: #AE81FF;">[</span>options<span style="color: #AE81FF;">]</span> SRC...  DEST
+  <span style="color: #AE81FF;">[</span>user@<span style="color: #AE81FF;">]</span>host:/PATH/FILE: &#25351;&#23450;&#26381;&#21153;&#22120;&#31471;&#30340;&#25991;&#20214;&#25110;&#30446;&#24405;
+  -r: &#36882;&#24402;&#22797;&#21046;
+  -p: &#20445;&#25345;&#21407;&#25991;&#20214;&#30340;&#23646;&#24615;&#20449;&#24687;
+  -q: quiet
+  -P port: &#25351;&#23450;&#31471;&#21475;
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline18"></a>sftp<br  /><div class="outline-text-5" id="text-orgheadline18">
+<p>
+类似于ftp客户端，但基于ssh
+</p>
+</div></li></ul>
+</div>
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">服务器端</h4>
+<div class="outline-text-4" id="text-orgheadline21">
+</div><ul class="org-ul"><li><a id="orgheadline20"></a>sshd<br  /><div class="outline-text-5" id="text-orgheadline20">
+<ul class="org-ul">
+<li><p>
+配置文件: <code>/etc/ssh/sshd_config</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">Port 22
+ListenAddress ip  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19968;&#33324;&#21482;&#20801;&#35768;&#20351;&#29992;&#20869;&#32593;&#30331;&#24405;</span>
+PermitRootLogin no
+PasswordAuthentication no  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#21482;&#20801;&#35768;&#20351;&#29992;&#23494;&#38053;&#35748;&#35777;</span>
+UseDNS no  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#38381;DNS&#21453;&#21521;&#35299;&#26512;</span>
+
+AllowUsers user1 user2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#25143;&#30333;&#21517;&#21333;</span>
+AllowGroups user1 user2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32452;&#30333;&#21517;&#21333;</span>
+</pre>
+</div></li>
+<li>Kerberos可以使用其他服务器进行统一认证</li>
+<li>ssh登录的请求日志存放在 <code>/var/log/secure</code> 中</li>
+</ul>
+</div></li></ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">ssh服务的注意事项</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<ol class="org-ol">
+<li>不要使用默认端口</li>
+<li>禁止使用protocol 1</li>
+<li>限制可登录用户</li>
+<li>设定空闲会话超时时长</li>
+<li>利用防火墙设置ssh访问策略</li>
+<li>仅监听特定的IP地址</li>
+<li>基于口令认证时，使用强密码策略</li>
+<li>使用基于密钥的认证</li>
+<li>禁止使用空密码</li>
+<li>禁止root用户直接登录</li>
+<li>限制ssh的访问频度和并发在线数</li>
+<li>做好日志，经常分析</li>
+</ol>
 </div>
 </div>
 </div>
