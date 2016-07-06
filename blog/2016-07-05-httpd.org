@@ -1,4 +1,4 @@
-#+TITLE: http
+#+TITLE: httpd
 #+DATE: 2016-07-05
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -12,61 +12,69 @@ TODO
 
 
 -----
-* Socket
-** TCP/IP
-- 链路层: 提供设备间的通信
-- 网络层: 提供主机间的通信
-- 传输层: 提供进程间的通信，包括tcp和udp协议，端口号是0-65535
-*** TCP特性
-- 建立连接：三次握手
-- 将数据打包成段：校验和（CRC-32）
-- 确认、重传以及超时
-- 排序：逻辑序号
-- 流量控制：滑动窗口算法
-- 拥塞控制：慢启动和拥塞避免算法
+#+BEGIN_EXAMPLE
+httpd开发者创建了apache
+a patchy server = apache
+ASF: apache software foundation
+#+END_EXAMPLE
+* httpd的特性
+- 高度模块化：core + modules
+- DSO: Dynamic Shared Object，支持动态装卸载
+- MPM：Multi-Processing Modules
+  - prefork：多进程模型 ::
+       一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个
+  - worker：多线程模型 ::
+       一个主进程生成多个子进程，每个子进程负责生个多个线程，每个线程响应一个请求
+  - event：事件驱动模型(httpd-2.4) :: 
+       一个主进程生成多个子进程，每个进程响应多个请求
+* httpd的功能
+- 虚拟主机: IP、Port、FQDN
+- CGI：Common Gateway Interface，通用网关接口
+- 反向代理
+- 负载均衡
+- 路径别名
+- 用户认证机制: basic、digest
+- 支持第三方模块
+* CentOS 6的httpd
+** 程序环境
+- 配置文件 ::
+     #+BEGIN_VERSE
+     /etc/httpd/conf/httpd.conf
+     /etc/httpd/conf.d/*.conf
+     #+END_VERSE
+- 服务脚本 :: 
+     #+BEGIN_VERSE
+     /etc/rc.d/init.d/httpd
+     配置文件：/etc/sysconfig/httpd
+     #+END_VERSE
+- 主程序文件 :: 
+     #+BEGIN_VERSE
+     /usr/sbin/httpd: 使用prefork模型
+     /usr/sbin/httpd.event
+     /usr/sbin/httpd.worker
+     #+END_VERSE
+- 日志文件 :: 
+     #+BEGIN_VERSE
+     /var/log/httpd/access_log: 访问日志
+     /var/log/httpd/error_log：错误日志
+     #+END_VERSE
+- 站点文档目录 :: 
+     /var/www/html
+- 模块文件路径 ::
+     /usr/lib64/httpd/modules
+** 配置文件
+*** 配置文件组成
+#+BEGIN_SRC conf
+### Section 1: Global Environment
+### Section 2: 'Main' server configuration
+### Section 3: Virtual Hosts
+#+END_SRC
+*** 修改监听的IP和端口
+#+BEGIN_SRC conf
+Listen [IP:]PORT  
+#+END_SRC
+- 省略ip表示监听本机所有IP
+- Listen可重复出现多次，即同时监听多个端口
+*** 持久连接
 
-** IANA
-IANA负责分配端口号
-- 0-1023：众所周知，永久的分配给固定的应用使用的特权端口，如22/tcp(ssh), 80/tcp(http), 443/tcp(https)
-- 1024-41951：注册端口，但要求并不是特别严格，分配给程序注册为某应用使用，如11211/tcp/udp (memcached), 3306/tcp(mysql)
-- 41952+：客户端程序随机使用的端口: 动态端口，或私有端口；其范围的定义在/proc/sys/net/ipv4/ip_local_port_range
-** Socket
-Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上不同进程之间进行通信和数据交换
-*** 分类
-- 根据传输层协议的不同
-  - SOCK_STREAM：tcp套接字(流)
-  - SOCK_DGRAM：udp套接字(数据包)
-  - SOCK_RAW: 裸套接字，直接使用IP
-- 根据地址的不同
-  - AF_INET：Address Family，IPv4
-  - AF_INET6：IPv6
-  - AF_UNIX：同一主机上不同进程之间通信时使用
-* http
-** Web资源
-- 静态文件：.jpg, .gif, .html, .txt, .js, .css, .mp3, .avi
-- 动态文件：.php, .jsp
-- http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
-  - MIME类型: major/minor，例如text/html、text/plain、image/gif
-  - 资源类型决定浏览器调用对应的程序进行处理
-- URI: Uniform Resource Identifier
-  - URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
-    - Scheme://Server:Port/path/to/resource
-  - URN: Uniform Resource Naming
-** http版本
-- HTTP/0.9：原型版本，功能简陋
-- HTTP/1.0：第一个广泛使用的版本，支持MIME
-- HTTP/1.1: 增强了缓存功能
-- HTTP/2.0：
-** http请求处理过程
-1. 建立或处理连接：接收请求或拒绝请求
-2. 接收请求: 接收来自于网络的请求报文中对某资源的一次请求的过程
-   #+BEGIN_EXAMPLE
-   并发访问响应模型（Web I/O）：
-     单进程I/O结构：启动一个进程处理用户请求，而且一次只处理一个；多个请求被串行响应；
-     多进程I/O结构：并行启动多个进程，每个进程响应一个请求；
-     复用I/O结构：一个进程响应n个请求；
-     多线程模型：一个进程生成N个线程，每个线程响应一个用户请求；
-   事件驱动：event-driven
-   复用的多进程I/O结构：启动多个（m）进程，每个进程响应n个请求；
-   #+END_EXAMPLE
-3. 处理请求：对请求报文进行解析，并获取请求的资源及请求方法等相关信息
+

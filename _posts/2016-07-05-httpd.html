@@ -1,5 +1,5 @@
 ---
-title: "http"
+title: "httpd"
 date: 2016-07-05
 layout: post
 categories: 
@@ -15,26 +15,18 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline6">1. Socket</a>
+<li><a href="#orgheadline1">1. httpd的特性</a></li>
+<li><a href="#orgheadline2">2. httpd的功能</a></li>
+<li><a href="#orgheadline8">3. CentOS 6的httpd</a>
 <ul>
-<li><a href="#orgheadline1">TCP/IP</a>
+<li><a href="#orgheadline3">程序环境</a></li>
+<li><a href="#orgheadline7">配置文件</a>
 <ul>
-<li><a href="#orgheadline2">TCP特性</a></li>
+<li><a href="#orgheadline4">配置文件组成</a></li>
+<li><a href="#orgheadline5">修改监听的IP和端口</a></li>
+<li><a href="#orgheadline6">持久连接</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline3">IANA</a></li>
-<li><a href="#orgheadline4">Socket</a>
-<ul>
-<li><a href="#orgheadline5">分类</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#orgheadline10">2. http</a>
-<ul>
-<li><a href="#orgheadline7">Web资源</a></li>
-<li><a href="#orgheadline8">http版本</a></li>
-<li><a href="#orgheadline9">http请求处理过程</a></li>
 </ul>
 </li>
 </ul>
@@ -48,129 +40,100 @@ TODO
 
 
 <hr  />
-<div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6"><span class="section-number-2">1</span> Socket</h2>
+<pre class="example">
+httpd开发者创建了apache
+a patchy server = apache
+ASF: apache software foundation
+</pre>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> httpd的特性</h2>
 <div class="outline-text-2" id="text-1">
-</div><div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">TCP/IP</h3>
-<div class="outline-text-3" id="text-orgheadline1">
 <ul class="org-ul">
-<li>链路层: 提供设备间的通信</li>
-<li>网络层: 提供主机间的通信</li>
-<li>传输层: 提供进程间的通信，包括tcp和udp协议，端口号是0-65535</li>
-</ul>
-</div>
-<div id="outline-container-orgheadline2" class="outline-4">
-<h4 id="orgheadline2">TCP特性</h4>
-<div class="outline-text-4" id="text-orgheadline2">
-<ul class="org-ul">
-<li>建立连接：三次握手</li>
-<li>将数据打包成段：校验和（CRC-32）</li>
-<li>确认、重传以及超时</li>
-<li>排序：逻辑序号</li>
-<li>流量控制：滑动窗口算法</li>
-<li>拥塞控制：慢启动和拥塞避免算法</li>
+<li>高度模块化：core + modules</li>
+<li>DSO: Dynamic Shared Object，支持动态装卸载</li>
+<li>MPM：Multi-Processing Modules
+<dl class="org-dl">
+<dt>prefork：多进程模型</dt><dd>一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个</dd>
+<dt>worker：多线程模型</dt><dd>一个主进程生成多个子进程，每个子进程负责生个多个线程，每个线程响应一个请求</dd>
+<dt>event：事件驱动模型(httpd-2.4)</dt><dd>一个主进程生成多个子进程，每个进程响应多个请求</dd>
+</dl></li>
 </ul>
 </div>
 </div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> httpd的功能</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>虚拟主机: IP、Port、FQDN</li>
+<li>CGI：Common Gateway Interface，通用网关接口</li>
+<li>反向代理</li>
+<li>负载均衡</li>
+<li>路径别名</li>
+<li>用户认证机制: basic、digest</li>
+<li>支持第三方模块</li>
+</ul>
 </div>
-
-<div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">IANA</h3>
+</div>
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">3</span> CentOS 6的httpd</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">程序环境</h3>
 <div class="outline-text-3" id="text-orgheadline3">
-<p>
-IANA负责分配端口号
-</p>
-<ul class="org-ul">
-<li>0-1023：众所周知，永久的分配给固定的应用使用的特权端口，如22/tcp(ssh), 80/tcp(http), 443/tcp(https)</li>
-<li>1024-41951：注册端口，但要求并不是特别严格，分配给程序注册为某应用使用，如11211/tcp/udp (memcached), 3306/tcp(mysql)</li>
-<li>41952+：客户端程序随机使用的端口: 动态端口，或私有端口；其范围的定义在/proc/sys/net/ipv4/ip_local_port_range</li>
-</ul>
+<dl class="org-dl">
+<dt>配置文件</dt><dd><p class="verse">
+/etc/httpd/conf/httpd.conf<br  />
+/etc/httpd/conf.d/*.conf<br  />
+</p></dd>
+<dt>服务脚本</dt><dd><p class="verse">
+/etc/rc.d/init.d/httpd<br  />
+配置文件：/etc/sysconfig/httpd<br  />
+</p></dd>
+<dt>主程序文件</dt><dd><p class="verse">
+/usr/sbin/httpd: 使用prefork模型<br  />
+/usr/sbin/httpd.event<br  />
+/usr/sbin/httpd.worker<br  />
+</p></dd>
+<dt>日志文件</dt><dd><p class="verse">
+/var/log/httpd/access_log: 访问日志<br  />
+/var/log/httpd/error_log：错误日志<br  />
+</p></dd>
+<dt>站点文档目录</dt><dd>/var/www/html</dd>
+<dt>模块文件路径</dt><dd>/usr/lib64/httpd/modules</dd>
+</dl>
 </div>
 </div>
-<div id="outline-container-orgheadline4" class="outline-3">
-<h3 id="orgheadline4">Socket</h3>
-<div class="outline-text-3" id="text-orgheadline4">
-<p>
-Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上不同进程之间进行通信和数据交换
-</p>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">配置文件组成</h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #75715E;">### </span><span style="color: #75715E;">Section 1: Global Environment</span>
+<span style="color: #75715E;">### </span><span style="color: #75715E;">Section 2: 'Main' server configuration</span>
+<span style="color: #75715E;">### </span><span style="color: #75715E;">Section 3: Virtual Hosts</span>
+</pre>
+</div>
+</div>
 </div>
 <div id="outline-container-orgheadline5" class="outline-4">
-<h4 id="orgheadline5">分类</h4>
+<h4 id="orgheadline5">修改监听的IP和端口</h4>
 <div class="outline-text-4" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-conf">Listen [IP:]PORT
+</pre>
+</div>
 <ul class="org-ul">
-<li>根据传输层协议的不同
-<ul class="org-ul">
-<li>SOCK_STREAM：tcp套接字(流)</li>
-<li>SOCK_DGRAM：udp套接字(数据包)</li>
-<li>SOCK_RAW: 裸套接字，直接使用IP</li>
-</ul></li>
-<li>根据地址的不同
-<ul class="org-ul">
-<li>AF_INET：Address Family，IPv4</li>
-<li>AF_INET6：IPv6</li>
-<li>AF_UNIX：同一主机上不同进程之间通信时使用</li>
-</ul></li>
+<li>省略ip表示监听本机所有IP</li>
+<li>Listen可重复出现多次，即同时监听多个端口</li>
 </ul>
 </div>
 </div>
-</div>
-</div>
-<div id="outline-container-orgheadline10" class="outline-2">
-<h2 id="orgheadline10"><span class="section-number-2">2</span> http</h2>
-<div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">Web资源</h3>
-<div class="outline-text-3" id="text-orgheadline7">
-<ul class="org-ul">
-<li>静态文件：.jpg, .gif, .html, .txt, .js, .css, .mp3, .avi</li>
-<li>动态文件：.php, .jsp</li>
-<li>http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
-<ul class="org-ul">
-<li>MIME类型: major/minor，例如text/html、text/plain、image/gif</li>
-<li>资源类型决定浏览器调用对应的程序进行处理</li>
-</ul></li>
-<li>URI: Uniform Resource Identifier
-<ul class="org-ul">
-<li>URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
-<ul class="org-ul">
-<li>Scheme://Server:Port/path/to/resource</li>
-</ul></li>
-<li>URN: Uniform Resource Naming</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">http版本</h3>
-<div class="outline-text-3" id="text-orgheadline8">
-<ul class="org-ul">
-<li>HTTP/0.9：原型版本，功能简陋</li>
-<li>HTTP/1.0：第一个广泛使用的版本，支持MIME</li>
-<li>HTTP/1.1: 增强了缓存功能</li>
-<li>HTTP/2.0：</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">http请求处理过程</h3>
-<div class="outline-text-3" id="text-orgheadline9">
-<ol class="org-ol">
-<li>建立或处理连接：接收请求或拒绝请求</li>
-<li><p>
-接收请求: 接收来自于网络的请求报文中对某资源的一次请求的过程
-</p>
-<pre class="example">
-并发访问响应模型（Web I/O）：
-  单进程I/O结构：启动一个进程处理用户请求，而且一次只处理一个；多个请求被串行响应；
-  多进程I/O结构：并行启动多个进程，每个进程响应一个请求；
-  复用I/O结构：一个进程响应n个请求；
-  多线程模型：一个进程生成N个线程，每个线程响应一个用户请求；
-事件驱动：event-driven
-复用的多进程I/O结构：启动多个（m）进程，每个进程响应n个请求；
-</pre></li>
-<li>处理请求：对请求报文进行解析，并获取请求的资源及请求方法等相关信息</li>
-</ol>
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">持久连接</h4>
 </div>
 </div>
 </div>
