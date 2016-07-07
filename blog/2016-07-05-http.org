@@ -43,8 +43,8 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
   - AF_UNIX：同一主机上不同进程之间通信时使用
 * Web相关知识
 ** Web资源
-- 静态文件：.jpg, .gif, .html, .txt, .js, .css, .mp3, .avi
-- 动态文件：.php, .jsp
+- 静态资源：静态内容，客户端从服务器获得的资源的表现形式与原文件相同
+- 动态资源：通常是程序文件，需要在服务器执行之后，将执行的结果返回给客户端
 - http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
   - MIME类型: major/minor，例如text/html、text/plain、image/gif
   - 资源类型决定浏览器调用对应的程序进行处理

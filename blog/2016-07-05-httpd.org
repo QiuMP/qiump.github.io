@@ -1,4 +1,4 @@
-#+TITLE: httpd
+#+TITLE: httpd与LAMP
 #+DATE: 2016-07-05
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -18,18 +18,18 @@ a patchy server = apache
 ASF: apache software foundation
 #+END_EXAMPLE
 * httpd的特性
-- 高度模块化：core + modules
+- 高度模块化: core + modules
 - DSO: Dynamic Shared Object，支持动态装卸载，由mod_so模块负责
-- MPM：Multi-Processing Modules
-  - prefork：多进程模型 ::
+- MPM: Multi-Processing Modules
+  - prefork: 多进程模型 ::
        一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个
-  - worker：多线程模型 ::
+  - worker: 多线程模型 ::
        一个主进程生成多个子进程，每个子进程负责生个多个线程，每个线程响应一个请求
-  - event：事件驱动模型(httpd-2.4) :: 
+  - event: 事件驱动模型(httpd-2.4) :: 
        一个主进程生成多个子进程，每个进程响应多个请求
 * httpd的功能
 - 虚拟主机: IP、Port、FQDN
-- CGI：Common Gateway Interface，通用网关接口
+- CGI: Common Gateway Interface，通用网关接口
 - 反向代理
 - 负载均衡
 - 路径别名
@@ -45,7 +45,7 @@ ASF: apache software foundation
 - 服务脚本 :: 
      #+BEGIN_VERSE
      /etc/rc.d/init.d/httpd
-     配置文件：/etc/sysconfig/httpd
+     配置文件: /etc/sysconfig/httpd
      #+END_VERSE
 - 主程序文件 :: 
      #+BEGIN_VERSE
@@ -56,7 +56,7 @@ ASF: apache software foundation
 - 日志文件 :: 
      #+BEGIN_VERSE
      /var/log/httpd/access_log: 访问日志
-     /var/log/httpd/error_log：错误日志
+     /var/log/httpd/error_log: 错误日志
      #+END_VERSE
 - 站点文档目录 :: 
      /var/www/html
@@ -87,7 +87,7 @@ Listen [IP:]PORT
 - Listen可重复出现多次，即同时监听多个端口
 - 修改端口需要重启服务
 *** 持久连接
-Persistent Connection：连接建立后，每个资源获取完成后不会断开连接，而是继续等待其它的请求完成
+Persistent Connection: 连接建立后，每个资源获取完成后不会断开连接，而是继续等待其它的请求完成
 #+BEGIN_SRC conf
 KeepAlive {On|Off}  # 开关持久连接
 MaxKeepAliveRequests 100  # 持久连接请求数量限制，默认为100个
@@ -176,8 +176,8 @@ DocumentRoot "/var/www/html"
   - 认证类型: 
     - basic: 明文传输
     - digest: 使用随机数利用MD5加密后进行传输
-- 安全域：需要用户认证后方能访问的路径，通过名称进行标识
-- 虚拟账号：仅用于访问某服务时用到的认证标识
+- 安全域: 需要用户认证后方能访问的路径，通过名称进行标识
+- 虚拟账号: 仅用于访问某服务时用到的认证标识
   - 存储方式: 文本文件、SQL数据库、ldap、nis
 ***** 认证过程
 1. 定义安全域
@@ -233,17 +233,17 @@ DirecotryIndex index.html index.html.var  # 自左而右扫描
      #+BEGIN_SRC conf
      CustomLog logs/access_log 日志格式名
      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined  # 定义格式
-       %h：客户端IP地址
+       %h: 客户端IP地址
        %l: Remote logname (from identd, if supplied). -表示为空
        %u: Remote user, (from auth; may be bogus if return status (%s) is 401)
-       %t：服务器收到请求的时间
-       %r：request，请求报文的首行信息
+       %t: 服务器收到请求的时间
+       %r: request，请求报文的首行信息
        %>s: 响应状态码
        %b: 响应报文的大小，单位是字节，不包括响应报文首部；
-       %{Referer}i：请求报文当中"referer"首部的值，referer是当前资源的访问入口，即从哪个页面中的超链接跳转而来
-       %{User-Agent}i：请求报文当中"User-Agent"首部的值，即发出请求用到的应用程序
+       %{Referer}i: 请求报文当中"referer"首部的值，referer是当前资源的访问入口，即从哪个页面中的超链接跳转而来
+       %{User-Agent}i: 请求报文当中"User-Agent"首部的值，即发出请求用到的应用程序
      #+END_SRC
-  - 详情：http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
+  - 详情: http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
 *** 路径别名
 将指定URL映射到另一个路径
 #+BEGIN_SRC conf
@@ -255,9 +255,9 @@ AddDefaultCharset UTF-8
 #+END_SRC
 *** 虚拟主机
 - 实现方案
-  - 基于ip：为每个虚拟主机准备至少一个ip地址
-  - 基于port：为每个虚拟主机准备至少一个专用port
-  - 基于hostname(常用)：为每个虚拟主机准备至少一个专用hostname
+  - 基于ip: 为每个虚拟主机准备至少一个ip地址
+  - 基于port: 为每个虚拟主机准备至少一个专用port
+  - 基于hostname(常用): 为每个虚拟主机准备至少一个专用hostname
   - 上述方式可以混合使用，优先使用第一个匹配
 - 虚拟主机不能和中心主机(DocumentRoot)同时使用
 #+BEGIN_SRC conf
@@ -298,7 +298,6 @@ ExtendedStatus On  # status显示更详细的信息
    #+BEGIN_SRC sh
    openssl s_client [-connect host:port] [-cert filename] [-CApath directory] [-CAfile filename]
    #+END_SRC
-** 模块
 *** mod_deflate
 mod_deflate模块用于压缩页面以优化传输速度，默认模块是启用的但未设置
 #+BEGIN_SRC conf
@@ -325,11 +324,11 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
 #+END_SRC
 ** 相关命令
 - htpasswd: basic认证基于文件实现时，用到的账号密码文件生成工具
-- apachectl：httpd自带的服务控制脚本
-- apxs：由httpd-devel包提供的，扩展httpd使用第三方模块的工具
-- rotatelogs：日志滚动工具
+- apachectl: httpd自带的服务控制脚本
+- apxs: 由httpd-devel包提供的，扩展httpd使用第三方模块的工具
+- rotatelogs: 日志滚动工具
   - access.log --> access.log, access.1.log
-- suexec：访问某些有特殊权限配置的资源时，临时切换至指定用户运行
+- suexec: 访问某些有特殊权限配置的资源时，临时切换至指定用户运行
 
 * httpd-2.4
 ** 与http-2.2的区别
@@ -344,11 +343,59 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
   8. 基于FQDN的虚拟主机不再需要NameVirtualHost指令
   9. 支持用户自定义变量
 - 新模块 ::
-  1. mod_proxy_fcgi
-  2. mod_ratelimit
-  3. mod_remoteip
+  1. mod_proxy_fcgi: FastCGI协议
+  2. mod_ratelimit: 速率限制
+  3. mod_remoteip: 远端ip地址控制
 - 配置机制 ::
      不再支持使用Order, Deny, Allow来做基于IP的访问控制
+** CentOS6下httpd-2.4的编译
+1. 安装开发环境，安装pcre-devel(增强正则表达式)
+2. apr-1.4+: apache portable runtime，用于统一底层接口的层
+   #+BEGIN_SRC sh
+   ./configure --prefix=/usr/local/apr  # 避免与系统中的1.3.9相冲突
+   make && make install
+   #+END_SRC
+3. apr-util-1.4+: apr的工作组件
+   #+BEGIN_SRC sh
+   ./configure --prefix=/usr/local/apr-util --with=/usr/local/apr
+   make && make install
+   #+END_SRC
+4. 安装httpd-2.4
+   #+BEGIN_SRC sh
+   groupadd -r apache
+   useradd -r -g apache apahce
+   ./configure --prefix=/usr/local/apache --sysconf=/etc/httpd24 --enable-so --enable-ssl --enable-cgi --enable-rewrite --with-zlib --with-pcre --with-apr=/usr/local/apr --with-apr-util=/usr/local/apr-util/ --enable-modules=most --enable-mpms-shared=all --with-mpm=prefork
+   make && make install
+   #+END_SRC
+5. 使用apachectl启动服务或配置服务脚本
+   - 配置服务脚本使用httpd-2.2的脚本略加修改即可
+   
+** httpd-2.4的特殊配置
+*** 配置文件类型
+- 主配置文件: /etc/httpd/conf/httpd.conf
+- 模块配置文件: /etc/httpd/conf.modules.d/*.conf
+  - MPM: 以DSO机制提供，配置文件00-mpm.conf
+- 辅助配置文件: /etc/httpd/conf.d/*.conf
+*** 基于IP的访问控制
+- 允许所有主机访问: Require all granted
+- 拒绝所有主机访问(默认): Require all deny
+- 控制特定IP访问
+  - Require ip IPADDR: 授权指定来源地址的主机访问
+  - Require not ip IPADDR: 拒绝指定来源地址的主机访问
+- 控制特定主机(HOSTNAME)访问
+  - Require host HOSTNAME
+  - Require not host HOSTNAME
+- 设定特定主机或IP需要定义在 =RequireAll= 内
+  #+BEGIN_SRC conf
+  <RequireAll>
+      Require all granted
+      Require not ip 10.252.46.165
+  </RequireAll>
+  #+END_SRC
+*** 启用ssl模块
+#+BEGIN_SRC conf
+LoadModule ssl_module modules/mod_ssl.so
+#+END_SRC
 
 * http压力测试工具
 - 普通测试
@@ -367,3 +414,33 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
   - jmeter
   - loadrunner
   - tcpcopy: 网易出品
+
+* LAMP
+** LAMP组件与工作过程
+- LAMP组件
+  - a: apache
+  - m: mariadb, mysql
+  - p: php+php-mysql, perl, python
+- LAMMP组件: memcached
+- 一般工作过程: Client --> (http) --> httpd --> (cgi) --> application server (program file) --> (mysql) --> mariadb
+- httpd与php结合的方式
+  - modules: 作为模块结合，无需运行子进程，要求httpd使用prefork
+  - cgi: 比较少用
+  - fastcgi(fpm)
+
+** CGI
+CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服务器与后端服务器的交互，其中Web服务器相当于客户端，后端服务器相当于服务器端
+- CGI工作原理: 每当客户请求CGI的时候，WEB服务器就请求操作系统生成一个新的CGI解释器进程(如php-cgi.exe)，当CGI满足要求后，WEB服务器就杀死这个进程
+- FastCGI: web服务器收到一个请求时，他不会重新fork一个进程（因为这个进程在web服务器启动时就开启了，而且不会退出），web服务器直接把内容通过socket传递给这个进程，这个进程收到请求后进行处理，把结果返回给web服务器，最后自己接着等待下一个请求的到来
+
+** 测试php与mysql
+#+BEGIN_SRC php
+<?php
+	$conn = mysql_connect('HOST','USERNAME','PASSWORD'); 
+	if ($conn)
+		echo "OK";
+	else
+		echo "Failure";
+	mysql_close();
+?>
+#+END_SRC
