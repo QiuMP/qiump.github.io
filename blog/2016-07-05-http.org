@@ -1,4 +1,4 @@
-#+TITLE: http
+#+TITLE: http与https
 #+DATE: 2016-07-05
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -41,22 +41,46 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
   - AF_INET：Address Family，IPv4
   - AF_INET6：IPv6
   - AF_UNIX：同一主机上不同进程之间通信时使用
-* http
+* Web相关知识
 ** Web资源
 - 静态文件：.jpg, .gif, .html, .txt, .js, .css, .mp3, .avi
 - 动态文件：.php, .jsp
 - http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
   - MIME类型: major/minor，例如text/html、text/plain、image/gif
   - 资源类型决定浏览器调用对应的程序进行处理
-- URI: Uniform Resource Identifier
-  - URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
-    - Scheme://Server:Port/path/to/resource
-  - URN: Uniform Resource Naming
-** http版本
-- HTTP/0.9：原型版本，功能简陋
-- HTTP/1.0：第一个广泛使用的版本，支持MIME
-- HTTP/1.1: 增强了缓存功能
-- HTTP/2.0：
+** URI\URL\URN
+- URI: Uniform Resource Identifier，用于标识一个资源
+- URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
+  #+BEGIN_SRC http
+  <scheme>://<user>:<password>@<host>:<port>/<path>;<params>?<query>#<frag>
+    ;params: 参数，如 http://www.magedu.com/bbs/hello;gender=f
+    ?query: 查询条件，如 http://www.magedu.com/bbs/item.php?username=tom&title=abc
+    #frag: 跳转到文档中的某位置
+  #+END_SRC
+  - URL分为相对URL和绝对URL
+- URN: Uniform Resource Naming，唯一标识一个资源的标识符
+** 网站访问量
+- PV: Page View
+- UV: User View，独立IP量
+** 应用程序
+- http服务器程序
+  - httpd (apache)
+  - nginx 
+  - lighttpd
+- 应用程序服务器
+  - IIS
+  - tomcat, jetty
+  - webshpere, weblogic
+* http
+** http
+- http版本
+  - HTTP/0.9：原型版本，功能简陋
+  - HTTP/1.0：第一个广泛使用的版本，支持MIME
+  - HTTP/1.1: 增强了缓存功能
+  - HTTP/2.0：
+- http协议是stateless的，服务器无法持续追踪访问者来源
+  - 开发者使用cookie和session来追踪同一个用户
+  - cookie机制采用的是在客户端保持状态的方案，而session机制采用的是在服务器端保持状态的方案，服务器通过客户端的cookie来识别存储在服务器对应session中的用户信息
 ** http请求处理过程
 1. 建立或处理连接：接收请求或拒绝请求
 2. 接收请求: 接收来自于网络的请求报文中对某资源的一次请求的过程
@@ -85,12 +109,152 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
    - URL重定向: web服务构建的响应并非客户端请求的资源，而是资源另外一个访问路径
 6. 发送响应报文
 7. 记录日志
-** 应用程序
-- http服务器程序
-  - httpd (apache)
-  - nginx 
-  - lighttpd
-- 应用程序服务器
-  - IIS
-  - tomcat, jetty
-  - webshpere, weblogic
+** http事务
+*** 报文分类
+- request报文
+  #+BEGIN_SRC sh
+  <method> <request-URL> <version>
+  <headers>
+
+  <entity-body>
+  #+END_SRC
+- response报文
+  #+BEGIN_SRC sh
+  <version> <status> <reason-phrase>
+  <headers>
+
+  <entity-body>
+  #+END_SRC
+*** method
+请求方法，标明客户端希望服务器对资源执行的动作
+- GET：从服务器获取一个资源
+- HEAD：只从服务器获取文档的响应首部，即不获取文档内容
+- POST：向服务器发送要处理的数据
+- PUT：将请求的主体部分存储在服务器上
+- DELETE：请求删除服务器上指定的文档
+- TRACE：追踪请求到达服务器中间经过的代理服务器
+- OPTIONS：请求服务器返回对指定资源支持使用的请求方法
+
+*** version
+标识http版本，如 HTTP/1.1
+
+*** status与reason-phrase
+status标记请求处理过程中发生的情况的状态码，reason-phrase则是状态码所标记的状态的简要描述
+- 1xx：100-101, 信息提示
+- 2xx：200-206, 成功
+- 3xx：300-305, 重定向与资源相关
+- 4xx：400-415, 错误类信息，客户端错误
+- 5xx：500-505, 错误类信息，服务器端错误
+
+
+- 常用状态码 ::
+  - 200(OK): 成功，请求的所有数据通过响应报文的entity-body部分发送
+  - 301(Moved Permanently): 请求的URL指向的资源已经被删除，但在响应报文中通过首部Location指明了资源现在所处的新位置 
+  - 302(Found): 与301相似，但为临时重定向，在响应报文中通过Location指明资源现在所处临时新位置
+  - 304(Not Modified): 客户端发出了条件式请求，但服务器上的资源未曾发生改变，则通过响应此响应状态码通知客户端 
+  - 401(Unauthorized): 需要输入账号和密码认证方能访问资源
+  - 403(Forbidden): 请求被禁止
+  - 404(Not Found): 服务器无法找到客户端请求的资源
+  - 500(Internal Server Error): 服务器内部错误
+  - 502(Bad Gateway): 代理服务器从后端服务器收到了一条伪响应
+
+*** headers
+每个请求或响应报文可包含任意个首部；每个首部都有首部名称，后面跟一个冒号，而后跟上一个可选空格，接着是一个值
+- 格式: 多行 =Name: Value= 组成
+**** 首部的分类
+- 通用首部 ::
+  - Date: 报文的创建时间
+  - Connection：连接状态，如keep-alive, close
+  - Via：显示报文经过的中间节点
+  - Cache-Control：控制缓存
+  - Pragma：兼容HTTP/1.0，与缓存相关
+
+- 请求首部 ::
+  - 信息式
+    - Accept：通过服务器自己可接受的媒体类型
+      - =Accept:Value;q=0.8= 中q为该Value的权值，默认为1
+    - Accept-Charset：可接受的字符集
+    - Accept-Encoding：可接受编码格式，如gzip
+    - Accept-Language：可接受的语言
+    - Client-IP: 客户端IP
+    - Host: 请求的服务器名称[和端口号]
+    - Referer：包含当前正在请求的资源的上一级资源，即从什么地址引用
+    - User-Agent：客户端代理
+  - 条件式
+    - Expect：期望的资源类型
+    - If-Modified-Since：自从指定的时间之后，请求的资源是否发生过修改
+    - If-Unmodified-Since：自从指定的时间之后，请求的资源是否未发生修改
+    - If-None-Match：本地缓存中存储的文档的ETag标签是否与服务器文档的Etag不匹配
+    - If-Match：本地缓存中存储的文档的ETag标签是否与服务器文档的Etag匹配
+  - 安全
+    - Authorization：向服务器发送认证信息，如账号和密码
+    - Cookie: 客户端向服务器发送cookie
+    - Cookie2：
+  - 代理
+    - Proxy-Authorization: 向代理服务器认证
+
+- 响应首部 ::
+  - 信息性
+    - Age：从原始服务器到代理缓存形成的估算时间
+    - Server：服务器程序软件名称和版本
+  - 协商首部: 某资源有多种表示方法时使用
+    - Accept-Ranges：服务器可接受的请求范围类型
+    - Vary：告诉下游代理是使用缓存响应还是从原始服务器请求
+  - 安全
+    - WWW-Authenticate：来自服务器的对客户端的质询认证表单
+    - Set-Cookie：向客户端设置cookie
+    - Set-Cookie2: 
+
+- 实体首部 ::
+  - 描述实体
+    - Allow: 列出对此实体可使用的请求方法
+    - Location：告诉客户端真正的实体位于何处
+    - Content-Encoding:
+    - Content-Language:
+    - Content-Length: 主体的长度
+    - Content-Location: 实体真正所处位置
+    - Content-Type：主体的对象类型
+  - 缓存相关
+    - ETag：实体的扩展标签
+    - Expires：实体的过期时间
+    - Last-Modified：最后一次修改的时间
+
+*** entity-body
+请求时附加的数据或响应时附加的数据
+* https
+** https访问过程
+1. 建立443端口的TCP连接
+2. 客户端发送可供选择的加密方式，并向服务器请求证书
+3. 服务器端发送证书以及选定的加密方式给客户端
+4. 客户端取得证书并与其信任CA进行证书验证
+   1. 验正证书来源的合法性: 用CA的公钥解密证书上数字签名
+   2. 验正证书的内容的合法性: 完整性验证
+   3. 检查证书的有效期限
+   4. 检查证书是否被吊销
+   5. 证书中拥有者的名字，与访问的目标主机要一致
+5. 客户端生成临时会话密钥（对称密钥），并使用服务器端的公钥加密此数据发送给服务器，完成密钥交换
+   - SSL会话是基于IP地址创建的，所以在单IP的地址上，仅可以使用一个https虚拟主机
+6. 服务用此密钥加密用户请求的资源，响应给客户端
+
+* 相关命令
+** 协议查看或分析工具
+tcpdump, tshark, wireshark
+** curl
+curl是基于URL语法在命令行方式下工作的文件传输工具，它支持FTP、FTPS、HTTP、HTTPS、GOPHER、TELNET、DICT、FILE及LDAP等协议。curl支持HTTPS认证，并且支持HTTP的POST、PUT等方法，FTP上传，kerberos认证，HTTP上传，代理服务器，cookies，用户名/密码认证，下载文件断点续传，上载文件断点续传、http代理服务器管道（proxy tunneling），甚至它还支持IPv6，socks5代理服务器,，通过http代理服务器上传文件到FTP服务器等等，功能十分强大。
+#+BEGIN_SRC conf
+curl [OPTIONS] [URL...]
+  -A/--user-agent STRING: 设置用户代理发送给服务器
+  -e/--referer URL: 模拟来源网址
+  -H/--header LINE: 自定义首部信息传递给服务器
+  -I/--head: 只显示响应报文首部信息(HEAD报文)
+  --compressed:  要求返回是压缩的格式
+  --limit-rate RATE: 设置传输速度
+
+  --cacert FILE: CA证书(SSL)
+  --tcp-nodelay: 使用TCP_NODELAY选项
+
+  --basic: 使用HTTP基本认证(basic认证)
+  -u/--user USER[:PASSWORD]: 设置服务器的用户和密码
+
+  -0/--http1.0: 使用HTTP 1.0	
+#+END_SRC

@@ -981,6 +981,7 @@ dt {
 ol,
 ul {
     -webkit-margin-before: 0px;
+    padding-left: 20px; 
 }
 
 .src {

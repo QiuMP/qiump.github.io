@@ -88,12 +88,6 @@ PKI: Public Key Infrastructure
 - 证书吊销列表: CRL
 - 证书存取库: 所有可信公钥会放在所有用户电脑上
 - 证书结构和认证协议标准: X.509
-- https访问过程
-  1. 建立TCP连接
-  2. 获得网站的证书，检查证书名是否与服务器主机名相同，
-  3. 使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中
-  4. 客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方
-  5. 通过对称加密密钥进行加密传输数据
 *** 证书的申请和签署过程
 1. 生成申请请求
 2. RA核验
@@ -156,6 +150,10 @@ openssl配置文件: =/etc/pki/tls/openssl.cnf=
   - v1: 基于CRC-32做MAC，不安全，会被man-in-middle攻击
   - v2：双方主机协商选择安全的MAC方式，基于DH算法做密钥交换，基于RSA或DSA算法实现身份认证
 - telnet是另一种协议(23/tcp)，简单但不安全
+  - 文本格式传输的连接都可以使用telnet进行连接，例如80端口
+    #+BEGIN_SRC conf
+    telnet HOST PORT
+    #+END_SRC
 - ssh用于用户登录认证的方式: 基于password、基于key
 
 ** OpenSSH

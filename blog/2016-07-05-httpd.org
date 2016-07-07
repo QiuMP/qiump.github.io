@@ -19,7 +19,7 @@ ASF: apache software foundation
 #+END_EXAMPLE
 * httpd的特性
 - 高度模块化：core + modules
-- DSO: Dynamic Shared Object，支持动态装卸载
+- DSO: Dynamic Shared Object，支持动态装卸载，由mod_so模块负责
 - MPM：Multi-Processing Modules
   - prefork：多进程模型 ::
        一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个
@@ -35,7 +35,7 @@ ASF: apache software foundation
 - 路径别名
 - 用户认证机制: basic、digest
 - 支持第三方模块
-* CentOS 6的httpd
+* httpd-2.2
 ** 程序环境
 - 配置文件 ::
      #+BEGIN_VERSE
@@ -69,12 +69,301 @@ ASF: apache software foundation
 ### Section 2: 'Main' server configuration
 ### Section 3: Virtual Hosts
 #+END_SRC
+- 配置格式 ::
+     #+BEGIN_SRC conf
+     directive value 
+       directive: 不区分大小写
+       value: 路径取决于文件系统
+     #+END_SRC
+*** 测试配置文件语法
+#+BEGIN_SRC conf
+httpd -t
+#+END_SRC
 *** 修改监听的IP和端口
 #+BEGIN_SRC conf
 Listen [IP:]PORT  
 #+END_SRC
 - 省略ip表示监听本机所有IP
 - Listen可重复出现多次，即同时监听多个端口
+- 修改端口需要重启服务
 *** 持久连接
+Persistent Connection：连接建立后，每个资源获取完成后不会断开连接，而是继续等待其它的请求完成
+#+BEGIN_SRC conf
+KeepAlive {On|Off}  # 开关持久连接
+MaxKeepAliveRequests 100  # 持久连接请求数量限制，默认为100个
+KeepAliveTimeout 15  # 持久连接时间限制，默认单位为秒，http2.4支持毫秒级别
+#+END_SRC
+- 对并发访问量较大的服务器，持久连接功能会使用有些请求得不到响应，因此一般使用较短的持久连接时间
+*** MPM
+- httpd-2.2不支持同时编译多个模块，所以只能编译时选定一个
+- rpm安装的包提供三个二进制程序文件，分别用于实现对不同MPM机制的支持
+  #+BEGIN_SRC conf
+  ps aux | grep httpd  # 确认使用rpm包安装的httpd使用的MPM机制
+  #+END_SRC
+  - 默认使用prefork，修改 =/etc/sysconfig/httpd= 来更换httpd程序
 
+- prefork的配置
+  #+BEGIN_SRC conf
+  <IfModule prefork.c>
+  StartServers       8  # 启动进程数
+  MinSpareServers    5  # 最小空闲进程数
+  MaxSpareServers   20  # 最大空闲进程数
+  ServerLimit      256  # 最大进程数
+  MaxClients       256  # 最大处理进程数
+  MaxRequestsPerChild  4000  # 一个进程最多处理请求的数量
+  </IfModule>
+  #+END_SRC
+- worker的配置
+  #+BEGIN_SRC conf
+  <IfModule worker.c>
+  StartServers         4
+  MaxClients         300  # 最大线程数
+  MinSpareThreads     25
+  MaxSpareThreads     75  # 最大启动的线程数，也是为什么启动时只有3个线程的原因
+  ThreadsPerChild     25  # 每个进程启动的线程数
+  MaxRequestsPerChild  0
+  </IfModule>
+  #+END_SRC
+*** DSO
+- 查询模块 ::
+     #+BEGIN_SRC conf
+     httpd -l  # 查看静态编译的模块
+     httpd -M  # 查看静态编译和动态装载的模块
+     #+END_SRC
+- 加载模块 ::
+     #+BEGIN_SRC conf
+     LoadModule <mod_name> <mod_path>
+     #+END_SRC
+  - 模块路径可以使用相对地址(相对于ServerRoot(/etc/httpd)而言)
+*** 定义文档页面路径
+#+BEGIN_SRC conf
+DocumentRoot "/var/www/html"
+#+END_SRC
+- DocumentRoot指向的路径为URL路径的起始位置
+*** 站点访问控制
+**** 基于资源类型控制
+- 基于文件系统路径
+  #+BEGIN_SRC sh
+	<Directory ""> </Direcotry>
+	<File ""> </File>
+	<FileMatch ""> </FileMatch>  # 正则匹配
+  #+END_SRC
+- 基于URL路径
+  #+BEGIN_SRC sh
+	<Location ""> </Location>
+  #+END_SRC
+  - 可以限制http的访问方式
+**** 基于IP的访问控制
+1. Options
+   - 所有可用的特性: Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+   - Indexes: 若无默认页面则显示目录索引，比较危险的选项
+   - FollowSymLinks: 允许符号链接文件
+   - SymLinksifOwnerMatch: 当属主匹配的时候才允许
+   - None, All: 对所有特性进行操作
+2. AllowOverride
+   - 允许使用目录中的.htaccess进行访问控制，一般不启用
+3. 基于来源地址进行控制
+   #+BEGIN_SRC conf
+   Order allow,deny  # 默认禁止访问
+   Order deny,allow  # 默认允许访问
 
+   Allow/Deny from IP/NetAddr  # 定义Allow和Deny列表
+   #+END_SRC
+   - IP/NetAddr可以使用网络地址或主机名，如172.16、172.16.0.0/16、qiump.com
+**** 基于用户的访问控制
+- 认证质询(WWW-Authenticate): 状态码为401，请求用户账号密码
+- 认证(Authorization): 验证用户账号密码的请求报文
+  - 认证类型: 
+    - basic: 明文传输
+    - digest: 使用随机数利用MD5加密后进行传输
+- 安全域：需要用户认证后方能访问的路径，通过名称进行标识
+- 虚拟账号：仅用于访问某服务时用到的认证标识
+  - 存储方式: 文本文件、SQL数据库、ldap、nis
+***** 认证过程
+1. 定义安全域
+   #+BEGIN_SRC conf
+   <Directory "PATH">
+       Options None
+       AllowOverride None
+       AuthType Basic
+       AuthName "NAME"
+       AuthUserFile "/PATH/TO/.htpasswd"
+       Require user...  # 允许指定用户登录
+       Require valid-user  # 允许账号文件中的所有用户访问
+   </Directory>
+   #+END_SRC
+2. 创建账号和密码存储文件
+   #+BEGIN_SRC conf
+   htpasswd [options] /PATH/TO/.htpasswd username
+     -c: 创建passwordfile，仅应该在添加第一个用户时使用
+     -m: md5加密用户密码
+     -s: sha1加密用户密码
+     -D: 删除指定用户
+   #+END_SRC
+3. 基于组进行认证
+   - 安全域
+     #+BEGIN_SRC conf
+     <Directory "PATH">
+         Options None
+         AllowOverride None
+         AuthType Basic
+         AuthName "NAME"
+         AuthUserFile "/PATH/TO/.htpasswd"
+         AuthGroupFile "/PATH/TO/.htgroup"  # 指定组文件
+         Require group...  # 允许指定组中的用户登录
+     </Directory>
+     #+END_SRC
+   - 组文件 =.htgroup=
+     #+BEGIN_SRC conf
+     GRP_NAME: user1 user2 user3 ...
+     GRP_NAME: user1 user2 user3 ...
+     #+END_SRC
+*** 定义默认主页面
+访问目录时的默认页面
+#+BEGIN_SRC conf
+DirecotryIndex index.html index.html.var  # 自左而右扫描
+#+END_SRC
+*** 日志设定
+- 错误日志 ::
+     #+BEGIN_SRC conf
+     ErrorLog logs/error_log  # 相对于ServerRoot而言，而ServerRoot中的logs文件夹为/var/log的链接
+     LogLevel {debug|info|notice|warn|error|crit|alert|emerg}  # 设置日志级别，一般为warn
+     #+END_SRC
+- 访问日志 :: 
+     #+BEGIN_SRC conf
+     CustomLog logs/access_log 日志格式名
+     LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined  # 定义格式
+       %h：客户端IP地址
+       %l: Remote logname (from identd, if supplied). -表示为空
+       %u: Remote user, (from auth; may be bogus if return status (%s) is 401)
+       %t：服务器收到请求的时间
+       %r：request，请求报文的首行信息
+       %>s: 响应状态码
+       %b: 响应报文的大小，单位是字节，不包括响应报文首部；
+       %{Referer}i：请求报文当中"referer"首部的值，referer是当前资源的访问入口，即从哪个页面中的超链接跳转而来
+       %{User-Agent}i：请求报文当中"User-Agent"首部的值，即发出请求用到的应用程序
+     #+END_SRC
+  - 详情：http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
+*** 路径别名
+将指定URL映射到另一个路径
+#+BEGIN_SRC conf
+Alias /URL/ "/PATH/TO/"
+#+END_SRC
+*** 设定默认字符集
+#+BEGIN_SRC conf
+AddDefaultCharset UTF-8
+#+END_SRC
+*** 虚拟主机
+- 实现方案
+  - 基于ip：为每个虚拟主机准备至少一个ip地址
+  - 基于port：为每个虚拟主机准备至少一个专用port
+  - 基于hostname(常用)：为每个虚拟主机准备至少一个专用hostname
+  - 上述方式可以混合使用，优先使用第一个匹配
+- 虚拟主机不能和中心主机(DocumentRoot)同时使用
+#+BEGIN_SRC conf
+NameVirtualHost IP:HOST  # httpd2.2使用基于hostname虚拟主机需要开启
+<VirtualHost "IP:PORT">  # 可以使用*
+	SeverName hostname
+	DocumentRoot ""
+
+  ServerAlias hostname  # 虚拟主机别名
+  ErrorLog
+  CustomLog
+  <Directory ""> </Directory> 
+</VirtualHost>
+#+END_SRC
+*** 内置的status页面
+#+BEGIN_SRC conf
+<Location /server-status>
+    SetHandler server-status
+    Order deny,allow
+    Deny from all
+    Allow from 172.16
+</Location>	
+ExtendedStatus On  # status显示更详细的信息
+#+END_SRC
+*** 配置https
+1. 安装ssl模块
+   #+BEGIN_SRC conf
+   yum -y install mod_ssl
+   #+END_SRC
+2. 编辑配置文件 =/etc/httpd/conf.d/ssl.conf=
+   #+BEGIN_SRC conf
+   DocumentRoot
+   ServerName
+   SSLCertificateFile  
+   SSLCertificateKeyFile
+   #+END_SRC
+3. 测试基于https访问相应的主机
+   #+BEGIN_SRC sh
+   openssl s_client [-connect host:port] [-cert filename] [-CApath directory] [-CAfile filename]
+   #+END_SRC
+** 模块
+*** mod_deflate
+mod_deflate模块用于压缩页面以优化传输速度，默认模块是启用的但未设置
+#+BEGIN_SRC conf
+SetOutputFilter DEFLATE
+
+# mod_deflate configuration
+# Restrict compression to these MIME types
+AddOutputFilterByType DEFLATE text/plain 
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/x-javascript
+AddOutputFilterByType DEFLATE text/javascript
+AddOutputFilterByType DEFLATE text/css
+
+# Level of compression (Highest 9 - Lowest 1)
+DeflateCompressionLevel 9  # 默认为6
+ 
+# 通过User-agent来判断用户的浏览器
+BrowserMatch ^Mozilla/4 gzip-only-text/html
+BrowserMatch ^Mozilla/4\.0[678] no-gzip
+BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+#+END_SRC
+** 相关命令
+- htpasswd: basic认证基于文件实现时，用到的账号密码文件生成工具
+- apachectl：httpd自带的服务控制脚本
+- apxs：由httpd-devel包提供的，扩展httpd使用第三方模块的工具
+- rotatelogs：日志滚动工具
+  - access.log --> access.log, access.1.log
+- suexec：访问某些有特殊权限配置的资源时，临时切换至指定用户运行
+
+* httpd-2.4
+** 与http-2.2的区别
+- 新特性 ::
+  1. MPM支持运行DSO机制，以模块形式按需加载
+  2. 支持event MPM
+  3. 支持异步读写
+  4. 支持每模块及每个目录分别使用各自的日志级别
+  5. 每请求配置: <If>
+  6. 增强版的表达式分析器
+  7. 支持毫秒级的keepalive timeout
+  8. 基于FQDN的虚拟主机不再需要NameVirtualHost指令
+  9. 支持用户自定义变量
+- 新模块 ::
+  1. mod_proxy_fcgi
+  2. mod_ratelimit
+  3. mod_remoteip
+- 配置机制 ::
+     不再支持使用Order, Deny, Allow来做基于IP的访问控制
+
+* http压力测试工具
+- 普通测试
+  - ab: apache benchmark，压力测试工具
+    #+BEGIN_SRC conf 
+    ab [OPTIONS] URL
+      -n: 总的请求数
+      -c: 模拟的并发数
+      -k: 以持久连接模式测试
+    
+    ulimit -n NUM  # 测试前需要将用户打开文件数的限制放大
+    #+END_SRC
+  - webbench
+  - http_load
+- 专业测试
+  - jmeter
+  - loadrunner
+  - tcpcopy: 网易出品
