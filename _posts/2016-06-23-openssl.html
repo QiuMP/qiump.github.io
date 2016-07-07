@@ -204,14 +204,6 @@ PKI: Public Key Infrastructure
 <li>证书吊销列表: CRL</li>
 <li>证书存取库: 所有可信公钥会放在所有用户电脑上</li>
 <li>证书结构和认证协议标准: X.509</li>
-<li>https访问过程
-<ol class="org-ol">
-<li>建立TCP连接</li>
-<li>获得网站的证书，检查证书名是否与服务器主机名相同，</li>
-<li>使用证书的CA的公钥解密证书，同时证书是否完整且不在CRL中</li>
-<li>客户端生成对称加密密钥用对方的公钥进行加密，然后发送给对方</li>
-<li>通过对称加密密钥进行加密传输数据</li>
-</ol></li>
 </ul>
 </div>
 </div>
@@ -337,7 +329,17 @@ openssl crl -in /PATH/FROM/CRL_FILE.crl -noout -text  <span style="color: #75715
 <li>v1: 基于CRC-32做MAC，不安全，会被man-in-middle攻击</li>
 <li>v2：双方主机协商选择安全的MAC方式，基于DH算法做密钥交换，基于RSA或DSA算法实现身份认证</li>
 </ul></li>
-<li>telnet是另一种协议(23/tcp)，简单但不安全</li>
+<li>telnet是另一种协议(23/tcp)，简单但不安全
+<ul class="org-ul">
+<li><p>
+文本格式传输的连接都可以使用telnet进行连接，例如80端口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">telnet HOST PORT
+</pre>
+</div></li>
+</ul></li>
 <li>ssh用于用户登录认证的方式: 基于password、基于key</li>
 </ul>
 </div>
