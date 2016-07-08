@@ -38,38 +38,34 @@ comments:
 <li><a href="#orgheadline10">应用程序</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline22">3. http</a>
+<li><a href="#orgheadline23">3. http</a>
 <ul>
 <li><a href="#orgheadline12">http</a></li>
 <li><a href="#orgheadline13">http请求处理过程</a></li>
-<li><a href="#orgheadline21">http事务</a>
+<li><a href="#orgheadline14">https访问过程</a></li>
+<li><a href="#orgheadline22">http事务</a>
 <ul>
-<li><a href="#orgheadline14">报文分类</a></li>
-<li><a href="#orgheadline15">method</a></li>
-<li><a href="#orgheadline16">version</a></li>
-<li><a href="#orgheadline17">status与reason-phrase</a></li>
-<li><a href="#orgheadline18">headers</a></li>
-<li><a href="#orgheadline20">entity-body</a></li>
+<li><a href="#orgheadline15">报文分类</a></li>
+<li><a href="#orgheadline16">method</a></li>
+<li><a href="#orgheadline17">version</a></li>
+<li><a href="#orgheadline18">status与reason-phrase</a></li>
+<li><a href="#orgheadline19">headers</a></li>
+<li><a href="#orgheadline21">entity-body</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline24">4. https</a>
+<li><a href="#orgheadline26">4. 相关命令</a>
 <ul>
-<li><a href="#orgheadline23">https访问过程</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline27">5. 相关命令</a>
-<ul>
-<li><a href="#orgheadline25">协议查看或分析工具</a></li>
-<li><a href="#orgheadline26">curl</a></li>
+<li><a href="#orgheadline24">协议查看或分析工具</a></li>
+<li><a href="#orgheadline25">curl</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <p>
-TODO
+记录了Socket相关的知识，Web相关的知识，包括URI\URL\URN、PV\UV、动态资源\静态资源，详细地介绍了http和https相关的内容，包括其请求处理过程、报文内容。最后介绍了http相关工具的使用，包括curl
 </p>
 
 
@@ -151,8 +147,8 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
 <h3 id="orgheadline7">Web资源</h3>
 <div class="outline-text-3" id="text-orgheadline7">
 <ul class="org-ul">
-<li>静态文件：.jpg, .gif, .html, .txt, .js, .css, .mp3, .avi</li>
-<li>动态文件：.php, .jsp</li>
+<li>静态资源：静态内容，客户端从服务器获得的资源的表现形式与原文件相同</li>
+<li>动态资源：通常是程序文件，需要在服务器执行之后，将执行的结果返回给客户端</li>
 <li>http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
 <ul class="org-ul">
 <li>MIME类型: major/minor，例如text/html、text/plain、image/gif</li>
@@ -213,8 +209,8 @@ URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-2">
-<h2 id="orgheadline22"><span class="section-number-2">3</span> http</h2>
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">3</span> http</h2>
 <div class="outline-text-2" id="text-3">
 </div><div id="outline-container-orgheadline12" class="outline-3">
 <h3 id="orgheadline12">http</h3>
@@ -277,12 +273,36 @@ web服务器资源路径映射方式：
 </ol>
 </div>
 </div>
-<div id="outline-container-orgheadline21" class="outline-3">
-<h3 id="orgheadline21">http事务</h3>
-<div class="outline-text-3" id="text-orgheadline21">
-</div><div id="outline-container-orgheadline14" class="outline-4">
-<h4 id="orgheadline14">报文分类</h4>
-<div class="outline-text-4" id="text-orgheadline14">
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">https访问过程</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<ol class="org-ol">
+<li>建立443端口的TCP连接</li>
+<li>客户端发送可供选择的加密方式，并向服务器请求证书</li>
+<li>服务器端发送证书以及选定的加密方式给客户端</li>
+<li>客户端取得证书并与其信任CA进行证书验证
+<ol class="org-ol">
+<li>验正证书来源的合法性: 用CA的公钥解密证书上数字签名</li>
+<li>验正证书的内容的合法性: 完整性验证</li>
+<li>检查证书的有效期限</li>
+<li>检查证书是否被吊销</li>
+<li>证书中拥有者的名字，与访问的目标主机要一致</li>
+</ol></li>
+<li>客户端生成临时会话密钥（对称密钥），并使用服务器端的公钥加密此数据发送给服务器，完成密钥交换
+<ul class="org-ul">
+<li>SSL会话是基于IP地址创建的，所以在单IP的地址上，仅可以使用一个https虚拟主机</li>
+</ul></li>
+<li>服务用此密钥加密用户请求的资源，响应给客户端</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">http事务</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+</div><div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">报文分类</h4>
+<div class="outline-text-4" id="text-orgheadline15">
 <ul class="org-ul">
 <li><p>
 request报文
@@ -309,9 +329,9 @@ response报文
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline15" class="outline-4">
-<h4 id="orgheadline15">method</h4>
-<div class="outline-text-4" id="text-orgheadline15">
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">method</h4>
+<div class="outline-text-4" id="text-orgheadline16">
 <p>
 请求方法，标明客户端希望服务器对资源执行的动作
 </p>
@@ -327,18 +347,18 @@ response报文
 </div>
 </div>
 
-<div id="outline-container-orgheadline16" class="outline-4">
-<h4 id="orgheadline16">version</h4>
-<div class="outline-text-4" id="text-orgheadline16">
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">version</h4>
+<div class="outline-text-4" id="text-orgheadline17">
 <p>
 标识http版本，如 HTTP/1.1
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">status与reason-phrase</h4>
-<div class="outline-text-4" id="text-orgheadline17">
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">status与reason-phrase</h4>
+<div class="outline-text-4" id="text-orgheadline18">
 <p>
 status标记请求处理过程中发生的情况的状态码，reason-phrase则是状态码所标记的状态的简要描述
 </p>
@@ -367,9 +387,9 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div>
 </div>
 
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">headers</h4>
-<div class="outline-text-4" id="text-orgheadline18">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">headers</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 <p>
 每个请求或响应报文可包含任意个首部；每个首部都有首部名称，后面跟一个冒号，而后跟上一个可选空格，接着是一个值
 </p>
@@ -377,7 +397,7 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 <li>格式: 多行 <code>Name: Value</code> 组成</li>
 </ul>
 </div>
-<ul class="org-ul"><li><a id="orgheadline19"></a>首部的分类<br  /><div class="outline-text-5" id="text-orgheadline19">
+<ul class="org-ul"><li><a id="orgheadline20"></a>首部的分类<br  /><div class="outline-text-5" id="text-orgheadline20">
 <dl class="org-dl">
 <dt>通用首部</dt><dd><ul class="org-ul">
 <li>Date: 报文的创建时间</li>
@@ -463,9 +483,9 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div></li></ul>
 </div>
 
-<div id="outline-container-orgheadline20" class="outline-4">
-<h4 id="orgheadline20">entity-body</h4>
-<div class="outline-text-4" id="text-orgheadline20">
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">entity-body</h4>
+<div class="outline-text-4" id="text-orgheadline21">
 <p>
 请求时附加的数据或响应时附加的数据
 </p>
@@ -473,48 +493,20 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline24" class="outline-2">
-<h2 id="orgheadline24"><span class="section-number-2">4</span> https</h2>
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26"><span class="section-number-2">4</span> 相关命令</h2>
 <div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline23" class="outline-3">
-<h3 id="orgheadline23">https访问过程</h3>
-<div class="outline-text-3" id="text-orgheadline23">
-<ol class="org-ol">
-<li>建立443端口的TCP连接</li>
-<li>客户端发送可供选择的加密方式，并向服务器请求证书</li>
-<li>服务器端发送证书以及选定的加密方式给客户端</li>
-<li>客户端取得证书并与其信任CA进行证书验证
-<ol class="org-ol">
-<li>验正证书来源的合法性: 用CA的公钥解密证书上数字签名</li>
-<li>验正证书的内容的合法性: 完整性验证</li>
-<li>检查证书的有效期限</li>
-<li>检查证书是否被吊销</li>
-<li>证书中拥有者的名字，与访问的目标主机要一致</li>
-</ol></li>
-<li>客户端生成临时会话密钥（对称密钥），并使用服务器端的公钥加密此数据发送给服务器，完成密钥交换
-<ul class="org-ul">
-<li>SSL会话是基于IP地址创建的，所以在单IP的地址上，仅可以使用一个https虚拟主机</li>
-</ul></li>
-<li>服务用此密钥加密用户请求的资源，响应给客户端</li>
-</ol>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgheadline27" class="outline-2">
-<h2 id="orgheadline27"><span class="section-number-2">5</span> 相关命令</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">协议查看或分析工具</h3>
-<div class="outline-text-3" id="text-orgheadline25">
+</div><div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">协议查看或分析工具</h3>
+<div class="outline-text-3" id="text-orgheadline24">
 <p>
 tcpdump, tshark, wireshark
 </p>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">curl</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">curl</h3>
+<div class="outline-text-3" id="text-orgheadline25">
 <p>
 curl是基于URL语法在命令行方式下工作的文件传输工具，它支持FTP、FTPS、HTTP、HTTPS、GOPHER、TELNET、DICT、FILE及LDAP等协议。curl支持HTTPS认证，并且支持HTTP的POST、PUT等方法，FTP上传，kerberos认证，HTTP上传，代理服务器，cookies，用户名/密码认证，下载文件断点续传，上载文件断点续传、http代理服务器管道（proxy tunneling），甚至它还支持IPv6，socks5代理服务器,，通过http代理服务器上传文件到FTP服务器等等，功能十分强大。
 </p>
