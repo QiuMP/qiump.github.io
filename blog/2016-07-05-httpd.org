@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 网络
 #+JEKYLL_PUBLISHED: true
 
-TODO
+介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程
 
 
 
@@ -420,11 +420,14 @@ LoadModule ssl_module modules/mod_ssl.so
 - LAMP组件
   - a: apache
   - m: mariadb, mysql
+    - phpMyAdmin: 数据库的WebGUI
   - p: php+php-mysql, perl, python
 - LAMMP组件: memcached
-- 一般工作过程: Client --> (http) --> httpd --> (cgi) --> application server (program file) --> (mysql) --> mariadb
+- 一般请求过程: Client --> (http) --> httpd --> (cgi) --> application server --> (mysql) --> mariadb
 - httpd与php结合的方式
-  - modules: 作为模块结合，无需运行子进程，要求httpd使用prefork
+  - modules: 作为模块结合，无需运行子进程
+    - httpd prefork: libphp5.so
+    - httpd event or worker: libphp5-zts.so
   - cgi: 比较少用
   - fastcgi(fpm)
 
@@ -444,3 +447,14 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 	mysql_close();
 ?>
 #+END_SRC
+
+** php
+- 配置文件: /etc/php.ini, /etc/php.d/*.ini
+  - 配置文件在PHP启动时被读取: 对于服务器模块版本的PHP，仅在web服务器启动时读取一次；对于CGI和CLI 版本，每次调用都会读取
+  #+BEGIN_SRC conf
+  [Foo] ;Secion Header
+  directive = value
+  mysql.allow_persistent = on  ;连接mysql是否使用持久模式
+  #+END_SRC
+- php执行过程: php文件 --> opcode --> excute
+- 加速器: Xcache
