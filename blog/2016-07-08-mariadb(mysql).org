@@ -63,10 +63,158 @@ TODO
 - 物理层：决定数据的存储格式，即RDBMS在磁盘上如何组织文件
 - 逻辑层：描述DB存储什么数据，以及数据间存在什么样的关系
 - 视图层：描述DB中的部分数据
+** 关系型数据库的常见组件
+- 数据库：database
+- 表：table
+  - 行：row
+  - 列：column
+- 索引：index
+- 视图：view
+- 用户：user
+- 权限：privilege
+- 存储过程：procedure
+- 存储函数：function
+- 触发器：trigger
+- 事件调度器：event scheduler
 
 * SQL
-** SQL基础概念
+** SQL基础
 SQL(Structure Query Language)是一个结构化查询语言，通过SQL解释器执行
+- DDL: Data Defination Language，如CREATE、DROP、ALTER
+- DML: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT、GRANT、REVOKE
+- 获取命令帮助
+  #+BEGIN_SRC sql
+  HELP KEYWORD;
+  #+END_SRC
+** 数据类型
+*** 字符型
+- 定长字符型
+  - CHAR(#): 不区分大小写
+  - BINARY(#): 区分大小写
+- 变长字符型: VARCHAR(#), VARBINARY(#)
+- 对象存储
+  - TEXT: 不区分大小写
+    - SMALLTEXT, MEDIUMTEXT, TEXT, LONGTEXT
+  - BLOB：区分字符大小写
+    - SMALLBLOB, MEDIUMBLOB, BLOB, LONGBLOB
+- 内置类型
+  - ENUM: 枚举值
+  - SET: 集合值
 
+*** 数值型
+- 精确数值型
+  - 整型
+    - tinyint: 1byte
+    - smallint: 2bytes
+    - mediumint: 3bytes
+    - int: 4bytes
+    - bigint: 8bytes
+  - 十进制: decimal
+- 近似数值型
+	- 单精度浮点型: float
+	- 双精度浮点型: double
+** 修饰符
+- NOT NULL：非空约束
+- DEFAULT VALUE: 设定默认值
 
-* MariaDB
+** 数据库
+#+BEGIN_SRC sql
+CREATE DATABASE|SCHEMA [IF NOT EXISTS] 'DB_NAME' [OPTIONS];  --创建数据库
+DROP DATABASE|SCHEMA [IF EXISTS] 'DB_NAME' [OPTIONS];  --删除数据库
+  CHARACTER SET 'charecter set name'  --指定字符集
+  COLLATE 'collate name'  --指定排序规则
+
+SHOW DATABASES;  --查看所有数据库
+SHOW CHARACTER SET;  --查看支持的所有字符集
+SHOW COLLATION;  --查看支持的所有排序规则
+#+END_SRC
+** 表
+#+BEGIN_SRC sql
+CREATE TABLE [IF NOT EXISTS] tb_name (col1 datatype 修饰符, col2 datatype 修饰符) [ENGINE=''];  --创建表
+DROP TABLE [IF EXISTS] tb_name;  --删除表
+
+SHOW ENGINES;  --查看所有的引擎
+SHOW TABLES [FROM db_name];  --查看表列表
+DESC [db_name.]tb_name;  --查看指定表的结构
+#+END_SRC
+
+* MariaDB(mysql)
+** MariaDB特性
+1. 更多存储引擎
+   - 插件式存储引擎：存储管理器有多种实现版本，功能和特性可能均略有差别，用户可根据需要灵活选择
+   - MyISAM --> Aria
+   - InnoDB --> XtraDB
+2. 诸多扩展和新特性
+3. 提供了较多测试组件
+4. truly open source
+** CentOS6下用二进制格式安装
+1. 准备数据目录
+2. 配置MariaDB
+   #+BEGIN_SRC conf
+   useradd -r mysql
+   tar xf mariadb-VERSION.tar.xz -C /usr/local
+   ln -sv 
+   cd /usr/local/mysql
+   chown -R root:mysql ./*
+   mkdir /mydata/data
+   chown mysql:mysql /mydata/data
+   scripts/mysql_install_db --datadir=/mydata/data --user=mysql
+   cp supper-files/mysql.server /etc/rc.d/init.d/mysqld
+   chkconfig --add mysqld
+   #+END_SRC
+3. 准备配置文件
+   - 配置格式：类ini格式，为各程序均通过单个配置文件提供配置信息
+     #+BEGIN_SRC conf
+     [prog_name]
+     ...
+     #+END_SRC
+   - 配置文件装载顺序: /etc/my.cnf --> /etc/mysql/my.cnf --> --default-extra-file=/PATH/TO/CONF_FILE --> ~/.my.cnf
+     #+BEGIN_SRC conf
+     mkdir /etc/mysql
+     cp support-files/my-large.cnf /etc/mysql/my.cnf
+     #+END_SRC
+   - 为配置文件添加选项
+     #+BEGIN_SRC conf
+     datadir = /mydata/data
+     innodb_file_per_table = on
+     skip_name_resolve = on  # 防止客户端的来源地址反解
+     #+END_SRC
+4. 安全初始化
+   #+BEGIN_SRC conf
+   bin/mysql_secure_installation  # 初始化root密码
+   #+END_SRC
+** MariaDB的程序组成
+- Client ::
+  - mysql：CLI交互式客户端程序
+  - mysqldump, mysqladmin...
+- Server :: 
+  - mysqld_safe
+  - mysqld
+  - mysqld_multi
+- 服务器监听的两种socket地址 ::
+  - ip socket: 监听在tcp的3306端口，支持远程通信
+  - unix sock: 监听在sock文件上(/tmp/mysql.sock, /var/lib/mysql/mysql.sock)，仅支持本地通信
+** 用户账号
+- 使用客户端程序mysql来登录服务器
+  #+BEGIN_SRC conf
+  mysql [OPTIONS]
+    -uUSERNAME: 用户名(默认为root)
+    -hHOST: 服务器主机(默认为localhost)
+    -p[PASSWORD]: 用户的密码(默认为空密码)
+  #+END_SRC
+  - 命令类型
+    - 客户端命令: 本地执行
+      #+BEGIN_SRC conf
+      help  # 获取所有客户端命令
+      status  # 显示当前服务的信息
+      #+END_SRC
+    - 服务端命令: 通过mysql协议发往服务器执行并取回结果，默认以分号结束
+- mysql用户账号由两部分组成: 'USERNAME'@'HOST'
+  - HOST用于限制此用户可通过哪些主机远程连接mysql服务，支持使用通配符
+    - %: 匹配任意长度的任意字符
+    - _: 匹配任意单个字符
+  #+BEGIN_SRC sql
+  use mysql
+  SELECT Name, Host, Password FROM user;  --查询本机的用户账号
+  #+END_SRC
+
