@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 网络
 #+JEKYLL_PUBLISHED: true
 
-介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程
+介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程，以及php的编译
 
 
 
@@ -287,14 +287,19 @@ ExtendedStatus On  # status显示更详细的信息
    #+BEGIN_SRC conf
    yum -y install mod_ssl
    #+END_SRC
-2. 编辑配置文件 =/etc/httpd/conf.d/ssl.conf=
+2. 启用ssl模块
+   #+BEGIN_SRC conf
+   LoadModule ssl_module modules/mod_ssl.so
+   #+END_SRC
+
+3. 编辑配置文件 =/etc/httpd/conf.d/ssl.conf=
    #+BEGIN_SRC conf
    DocumentRoot
    ServerName
    SSLCertificateFile  
    SSLCertificateKeyFile
    #+END_SRC
-3. 测试基于https访问相应的主机
+4. 测试基于https访问相应的主机
    #+BEGIN_SRC sh
    openssl s_client [-connect host:port] [-cert filename] [-CApath directory] [-CAfile filename]
    #+END_SRC
@@ -321,6 +326,15 @@ DeflateCompressionLevel 9  # 默认为6
 BrowserMatch ^Mozilla/4 gzip-only-text/html
 BrowserMatch ^Mozilla/4\.0[678] no-gzip
 BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+#+END_SRC
+*** 配置php模块
+#+BEGIN_SRC conf
+LoadModule php5_module modules/libphp5.so
+
+AddType application/x-httpd-php  .php
+AddType application/x-httpd-php-source  .phps
+
+DirectoryIndex  index.php  index.html
 #+END_SRC
 ** 相关命令
 - htpasswd: basic认证基于文件实现时，用到的账号密码文件生成工具
@@ -367,7 +381,11 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
    ./configure --prefix=/usr/local/apache --sysconf=/etc/httpd24 --enable-so --enable-ssl --enable-cgi --enable-rewrite --with-zlib --with-pcre --with-apr=/usr/local/apr --with-apr-util=/usr/local/apr-util/ --enable-modules=most --enable-mpms-shared=all --with-mpm=prefork
    make && make install
    #+END_SRC
-5. 使用apachectl启动服务或配置服务脚本
+5. 修改httpd的主配置文件
+   #+BEGIN_SRC conf
+   PidFile  "/var/run/httpd.pid"  # 设置pid的文件路径
+   #+END_SRC
+6. 使用apachectl启动服务或配置服务脚本
    - 配置服务脚本使用httpd-2.2的脚本略加修改即可
    
 ** httpd-2.4的特殊配置
@@ -392,11 +410,22 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
       Require not ip 10.252.46.165
   </RequireAll>
   #+END_SRC
-*** 启用ssl模块
-#+BEGIN_SRC conf
-LoadModule ssl_module modules/mod_ssl.so
-#+END_SRC
+*** 配置php-fpm
+- 主配置文件
+  #+BEGIN_SRC conf
+  LoadModule proxy_module modules/mod_proxy.so
+  LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
 
+  AddType application/x-httpd-php  .php
+  AddType application/x-httpd-php-source  .phps
+
+  DirectoryIndex  index.php  index.html
+  #+END_SRC
+- 配置相应的虚拟主机
+  #+BEGIN_SRC conf
+  ProxyRequests Off
+  ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/PATH/TO/DOCUMENT_ROOT/$1
+  #+END_SRC
 * http压力测试工具
 - 普通测试
   - ab: apache benchmark，压力测试工具
@@ -458,3 +487,60 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
   #+END_SRC
 - php执行过程: php文件 --> opcode --> excute
 - 加速器: Xcache
+
+*** php的编译
+1. 解决依赖关系
+   #+BEGIN_SRC conf
+   yum -y groupinstall "Desktop Platform Development" 
+   yum -y install bzip2-devel libmcrypt-devel libxml2-devel
+   #+END_SRC
+2. 编译安装php
+   #+BEGIN_SRC conf
+   tar xf php-5.4.26.tar.bz2
+   cd php-5.4.26
+   ./configure --prefix=/usr/local/php --with-mysql=/usr/local/mysql --with-openssl --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml  --enable-sockets --enable-fpm --with-apxs2=/usr/local/apache/bin/apxs --with-mcrypt  --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-bz2  --enable-maintainer-zts
+
+   make && make install
+   #+END_SRC
+3. 复制配置文件
+   #+BEGIN_SRC conf
+   cp php.ini-production /etc/php.ini
+   #+END_SRC
+4. 配置php-fpm
+   #+BEGIN_SRC conf
+   cp sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
+   chmod +x /etc/rc.d/init.d/php-fpm
+   chkconfig --add php-fpm
+   chkconfig php-fpm on
+
+   cp /usr/local/php5/etc/php-fpm.conf.default /etc/php-fpm.conf 
+   #+END_SRC
+   - 配置php-fpm.ini
+     #+BEGIN_SRC conf
+     pm.max_children = 50
+     pm.start_servers = 5
+     pm.min_spare_servers = 2
+     pm.max_spare_servers = 8
+     pid = /usr/local/php5/var/run/php-fpm.pid  # 与服务脚本保持一致
+     #+END_SRC
+
+*** Xcache的编译
+1. 编译安装
+   #+BEGIN_SRC conf
+   tar xf xcache-3.0.3.tar.gz
+   cd xcache-3.0.3
+   /usr/local/php/bin/phpize
+   ./configure --enable-xcache --with-php-config=/usr/local/php/bin/php-config
+   make && make install
+   #+END_SRC
+   - 记录安装完成的提示结果
+2. 整合php和Xcache
+   #+BEGIN_SRC conf
+   mkdir /etc/php.d
+   cp xcache.ini /etc/php.d
+   #+END_SRC
+3. 编辑配置文件
+   #+BEGIN_SRC conf
+   # 编辑xcache.ini，值使用第一步的提示结果
+   zend_extension = /usr/local/php/lib/php/extensions/no-debug-zts-20100525/xcache.so
+   #+END_SRC

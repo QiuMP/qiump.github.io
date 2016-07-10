@@ -65,7 +65,7 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline35">3. MariaDB(mysql)</a>
+<li><a href="#orgheadline35">3. <span class="todo TODO">TODO</span> MariaDB(mysql)</a>
 <ul>
 <li><a href="#orgheadline30">MariaDB特性</a></li>
 <li><a href="#orgheadline31">CentOS6下用二进制格式安装</a></li>
@@ -78,7 +78,7 @@ comments:
 </div>
 </div>
 <p>
-TODO
+记录了数据库的相关知识，包括设计范式、事务、常见组件等，同时记录了SQL语言的用法，包括DDL、DML、DCL，最后简单介绍了MariaDB的配置和使用(TODO)
 </p>
 
 
@@ -491,6 +491,9 @@ mysql用户账号由两部分组成: 'USERNAME'@'HOST'
 <span style="color: #F92672;">SELECT</span> <span style="color: #F92672;">User</span>, <span style="color: #F92672;">Host</span>, Password <span style="color: #F92672;">FROM</span> mysql.<span style="color: #F92672;">user</span>;  <span style="color: #75715E;">--&#26597;&#35810;&#26412;&#26426;&#30340;&#29992;&#25143;&#36134;&#21495;</span>
 </pre>
 </div>
+<ul class="org-ul">
+<li>可直接修改user表来修改用户，但要之后要重读授权表</li>
+</ul>
 </div>
 </div>
 <div id="outline-container-orgheadline27" class="outline-4">
@@ -523,7 +526,7 @@ FLUSH <span style="color: #F92672;">PRIVILEGES</span>;  <span style="color: #757
 </div>
 </div>
 <div id="outline-container-orgheadline35" class="outline-2">
-<h2 id="orgheadline35"><span class="section-number-2">3</span> MariaDB(mysql)</h2>
+<h2 id="orgheadline35"><span class="section-number-2">3</span> <span class="todo TODO">TODO</span> MariaDB(mysql)</h2>
 <div class="outline-text-2" id="text-3">
 </div><div id="outline-container-orgheadline30" class="outline-3">
 <h3 id="orgheadline30">MariaDB特性</h3>
@@ -564,6 +567,15 @@ chkconfig --add mysqld
 </pre>
 </div></li>
 <li><p>
+复制配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mkdir /etc/mysql
+cp support-files/my-large.cnf /etc/mysql/my.cnf
+</pre>
+</div></li>
+<li><p>
 安全初始化
 </p>
 <div class="org-src-container">
@@ -571,6 +583,33 @@ chkconfig --add mysqld
 <pre class="src src-conf">bin/mysql_secure_installation  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21021;&#22987;&#21270;root&#23494;&#30721;</span>
 </pre>
 </div></li>
+<li><p>
+输出mysql的man手册至man命令的查找路径
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#36753;/etc/man.config</span>
+MANPATH  /usr/local/mysql/man
+</pre>
+</div></li>
+<li><p>
+输出mysql的头文件至系统头文件路径/usr/include
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ln -sv /usr/local/mysql/include  /usr/include/mysql
+</pre>
+</div></li>
+<li><p>
+输出mysql的库文件给系统库查找路径
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">echo <span style="color: #E6DB74;">'/usr/local/mysql/lib'</span> &gt; /etc/ld.so.conf.d/mysql.conf
+ldconfig  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#26032;&#36733;&#20837;&#31995;&#32479;&#24211;</span>
+</pre>
+</div></li>
+<li>修改PATH环境变量</li>
 </ol>
 </div>
 </div>
@@ -587,15 +626,7 @@ chkconfig --add mysqld
 ...
 </pre>
 </div></li>
-<li><p>
-配置文件装载顺序: <i>etc/my.cnf &#x2013;&gt; /etc/mysql/my.cnf &#x2013;&gt; &#x2013;default-extra-file=/PATH/TO/CONF_FILE &#x2013;&gt; ~</i>.my.cnf
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">mkdir /etc/mysql
-cp support-files/my-large.cnf /etc/mysql/my.cnf
-</pre>
-</div></li>
+<li>配置文件装载顺序: <i>etc/my.cnf &#x2013;&gt; /etc/mysql/my.cnf &#x2013;&gt; &#x2013;default-extra-file=/PATH/TO/CONF_FILE &#x2013;&gt; ~</i>.my.cnf</li>
 <li><p>
 为配置文件添加选项
 </p>
@@ -604,6 +635,7 @@ cp support-files/my-large.cnf /etc/mysql/my.cnf
 <pre class="src src-conf"><span style="color: #FD971F;">datadir</span> = /mydata/data
 <span style="color: #FD971F;">innodb_file_per_table</span> = on
 <span style="color: #FD971F;">skip_name_resolve</span> = on  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38450;&#27490;&#23458;&#25143;&#31471;&#30340;&#26469;&#28304;&#22320;&#22336;&#21453;&#35299;</span>
+<span style="color: #FD971F;">thread_concurrency</span> = 2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25968;&#37327;&#19968;&#33324;&#20026;CPU&#20010;&#25968;&#20056;&#20197;2</span>
 </pre>
 </div></li>
 </ul>

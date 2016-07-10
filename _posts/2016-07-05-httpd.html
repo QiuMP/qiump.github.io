@@ -17,10 +17,10 @@ comments:
 <ul>
 <li><a href="#orgheadline1">1. httpd的特性</a></li>
 <li><a href="#orgheadline2">2. httpd的功能</a></li>
-<li><a href="#orgheadline26">3. httpd-2.2</a>
+<li><a href="#orgheadline27">3. httpd-2.2</a>
 <ul>
 <li><a href="#orgheadline3">程序环境</a></li>
-<li><a href="#orgheadline24">配置文件</a>
+<li><a href="#orgheadline25">配置文件</a>
 <ul>
 <li><a href="#orgheadline4">配置文件组成</a></li>
 <li><a href="#orgheadline5">测试配置文件语法</a></li>
@@ -38,38 +38,44 @@ comments:
 <li><a href="#orgheadline21">内置的status页面</a></li>
 <li><a href="#orgheadline22">配置https</a></li>
 <li><a href="#orgheadline23">mod_deflate</a></li>
+<li><a href="#orgheadline24">配置php模块</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline25">相关命令</a></li>
+<li><a href="#orgheadline26">相关命令</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline33">4. httpd-2.4</a>
+<li><a href="#orgheadline34">4. httpd-2.4</a>
 <ul>
-<li><a href="#orgheadline27">与http-2.2的区别</a></li>
-<li><a href="#orgheadline28">CentOS6下httpd-2.4的编译</a></li>
-<li><a href="#orgheadline32">httpd-2.4的特殊配置</a>
+<li><a href="#orgheadline28">与http-2.2的区别</a></li>
+<li><a href="#orgheadline29">CentOS6下httpd-2.4的编译</a></li>
+<li><a href="#orgheadline33">httpd-2.4的特殊配置</a>
 <ul>
-<li><a href="#orgheadline29">配置文件类型</a></li>
-<li><a href="#orgheadline30">基于IP的访问控制</a></li>
-<li><a href="#orgheadline31">启用ssl模块</a></li>
+<li><a href="#orgheadline30">配置文件类型</a></li>
+<li><a href="#orgheadline31">基于IP的访问控制</a></li>
+<li><a href="#orgheadline32">配置php-fpm</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline34">5. http压力测试工具</a></li>
-<li><a href="#orgheadline39">6. LAMP</a>
+<li><a href="#orgheadline35">5. http压力测试工具</a></li>
+<li><a href="#orgheadline42">6. LAMP</a>
 <ul>
-<li><a href="#orgheadline35">LAMP组件与工作过程</a></li>
-<li><a href="#orgheadline36">CGI</a></li>
-<li><a href="#orgheadline37">测试php与mysql</a></li>
-<li><a href="#orgheadline38">php</a></li>
+<li><a href="#orgheadline36">LAMP组件与工作过程</a></li>
+<li><a href="#orgheadline37">CGI</a></li>
+<li><a href="#orgheadline38">测试php与mysql</a></li>
+<li><a href="#orgheadline39">php</a>
+<ul>
+<li><a href="#orgheadline40">php的编译</a></li>
+<li><a href="#orgheadline41">Xcache的编译</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <p>
-介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程
+介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程，以及php的编译
 </p>
 
 
@@ -110,8 +116,8 @@ ASF: apache software foundation
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-2">
-<h2 id="orgheadline26"><span class="section-number-2">3</span> httpd-2.2</h2>
+<div id="outline-container-orgheadline27" class="outline-2">
+<h2 id="orgheadline27"><span class="section-number-2">3</span> httpd-2.2</h2>
 <div class="outline-text-2" id="text-3">
 </div><div id="outline-container-orgheadline3" class="outline-3">
 <h3 id="orgheadline3">程序环境</h3>
@@ -139,9 +145,9 @@ ASF: apache software foundation
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">配置文件</h3>
-<div class="outline-text-3" id="text-orgheadline24">
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline25">
 </div><div id="outline-container-orgheadline4" class="outline-4">
 <h4 id="orgheadline4">配置文件组成</h4>
 <div class="outline-text-4" id="text-orgheadline4">
@@ -552,6 +558,15 @@ ExtendedStatus On  <span style="color: #75715E;"># </span><span style="color: #7
 </pre>
 </div></li>
 <li><p>
+启用ssl模块
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">LoadModule ssl_module modules/mod_ssl.so
+</pre>
+</div></li>
+
+<li><p>
 编辑配置文件 <code>/etc/httpd/conf.d/ssl.conf</code>
 </p>
 <div class="org-src-container">
@@ -605,10 +620,25 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
 </div>
 </div>
 </div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">配置php模块</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<div class="org-src-container">
+
+<pre class="src src-conf">LoadModule php5_module modules/libphp5.so
+
+AddType application/x-httpd-php  .php
+AddType application/x-httpd-php-source  .phps
+
+DirectoryIndex  index.php  index.html
+</pre>
 </div>
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">相关命令</h3>
-<div class="outline-text-3" id="text-orgheadline25">
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline26">
 <ul class="org-ul">
 <li>htpasswd: basic认证基于文件实现时，用到的账号密码文件生成工具</li>
 <li>apachectl: httpd自带的服务控制脚本</li>
@@ -623,12 +653,12 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
 </div>
 </div>
 
-<div id="outline-container-orgheadline33" class="outline-2">
-<h2 id="orgheadline33"><span class="section-number-2">4</span> httpd-2.4</h2>
+<div id="outline-container-orgheadline34" class="outline-2">
+<h2 id="orgheadline34"><span class="section-number-2">4</span> httpd-2.4</h2>
 <div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline27" class="outline-3">
-<h3 id="orgheadline27">与http-2.2的区别</h3>
-<div class="outline-text-3" id="text-orgheadline27">
+</div><div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">与http-2.2的区别</h3>
+<div class="outline-text-3" id="text-orgheadline28">
 <dl class="org-dl">
 <dt>新特性</dt><dd><ol class="org-ol">
 <li>MPM支持运行DSO机制，以模块形式按需加载</li>
@@ -650,9 +680,9 @@ BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">CentOS6下httpd-2.4的编译</h3>
-<div class="outline-text-3" id="text-orgheadline28">
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">CentOS6下httpd-2.4的编译</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <ol class="org-ol">
 <li>安装开发环境，安装pcre-devel(增强正则表达式)</li>
 <li><p>
@@ -684,6 +714,14 @@ useradd -r -g apache apahce
 make &amp;&amp; make install
 </pre>
 </div></li>
+<li><p>
+修改httpd的主配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">PidFile  <span style="color: #E6DB74;">"/var/run/httpd.pid"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;pid&#30340;&#25991;&#20214;&#36335;&#24452;</span>
+</pre>
+</div></li>
 <li>使用apachectl启动服务或配置服务脚本
 <ul class="org-ul">
 <li>配置服务脚本使用httpd-2.2的脚本略加修改即可</li>
@@ -692,12 +730,12 @@ make &amp;&amp; make install
 </div>
 </div>
 
-<div id="outline-container-orgheadline32" class="outline-3">
-<h3 id="orgheadline32">httpd-2.4的特殊配置</h3>
-<div class="outline-text-3" id="text-orgheadline32">
-</div><div id="outline-container-orgheadline29" class="outline-4">
-<h4 id="orgheadline29">配置文件类型</h4>
-<div class="outline-text-4" id="text-orgheadline29">
+<div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">httpd-2.4的特殊配置</h3>
+<div class="outline-text-3" id="text-orgheadline33">
+</div><div id="outline-container-orgheadline30" class="outline-4">
+<h4 id="orgheadline30">配置文件类型</h4>
+<div class="outline-text-4" id="text-orgheadline30">
 <ul class="org-ul">
 <li>主配置文件: /etc/httpd/conf/httpd.conf</li>
 <li>模块配置文件: /etc/httpd/conf.modules.d/*.conf
@@ -708,9 +746,9 @@ make &amp;&amp; make install
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline30" class="outline-4">
-<h4 id="orgheadline30">基于IP的访问控制</h4>
-<div class="outline-text-4" id="text-orgheadline30">
+<div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31">基于IP的访问控制</h4>
+<div class="outline-text-4" id="text-orgheadline31">
 <ul class="org-ul">
 <li>允许所有主机访问: Require all granted</li>
 <li>拒绝所有主机访问(默认): Require all deny</li>
@@ -738,21 +776,40 @@ make &amp;&amp; make install
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline31" class="outline-4">
-<h4 id="orgheadline31">启用ssl模块</h4>
-<div class="outline-text-4" id="text-orgheadline31">
+<div id="outline-container-orgheadline32" class="outline-4">
+<h4 id="orgheadline32">配置php-fpm</h4>
+<div class="outline-text-4" id="text-orgheadline32">
+<ul class="org-ul">
+<li><p>
+主配置文件
+</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">LoadModule ssl_module modules/mod_ssl.so
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
+<pre class="src src-conf">LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
 
-<div id="outline-container-orgheadline34" class="outline-2">
-<h2 id="orgheadline34"><span class="section-number-2">5</span> http压力测试工具</h2>
+AddType application/x-httpd-php  .php
+AddType application/x-httpd-php-source  .phps
+
+DirectoryIndex  index.php  index.html
+</pre>
+</div></li>
+<li><p>
+配置相应的虚拟主机
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ProxyRequests Off
+ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/PATH/TO/DOCUMENT_ROOT/$1
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-2">
+<h2 id="orgheadline35"><span class="section-number-2">5</span> http压力测试工具</h2>
 <div class="outline-text-2" id="text-5">
 <ul class="org-ul">
 <li>普通测试
@@ -783,12 +840,12 @@ ulimit -n NUM  <span style="color: #75715E;"># </span><span style="color: #75715
 </div>
 </div>
 
-<div id="outline-container-orgheadline39" class="outline-2">
-<h2 id="orgheadline39"><span class="section-number-2">6</span> LAMP</h2>
+<div id="outline-container-orgheadline42" class="outline-2">
+<h2 id="orgheadline42"><span class="section-number-2">6</span> LAMP</h2>
 <div class="outline-text-2" id="text-6">
-</div><div id="outline-container-orgheadline35" class="outline-3">
-<h3 id="orgheadline35">LAMP组件与工作过程</h3>
-<div class="outline-text-3" id="text-orgheadline35">
+</div><div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36">LAMP组件与工作过程</h3>
+<div class="outline-text-3" id="text-orgheadline36">
 <ul class="org-ul">
 <li>LAMP组件
 <ul class="org-ul">
@@ -815,9 +872,9 @@ ulimit -n NUM  <span style="color: #75715E;"># </span><span style="color: #75715
 </div>
 </div>
 
-<div id="outline-container-orgheadline36" class="outline-3">
-<h3 id="orgheadline36">CGI</h3>
-<div class="outline-text-3" id="text-orgheadline36">
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">CGI</h3>
+<div class="outline-text-3" id="text-orgheadline37">
 <p>
 CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服务器与后端服务器的交互，其中Web服务器相当于客户端，后端服务器相当于服务器端
 </p>
@@ -828,9 +885,9 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </div>
 </div>
 
-<div id="outline-container-orgheadline37" class="outline-3">
-<h3 id="orgheadline37">测试php与mysql</h3>
-<div class="outline-text-3" id="text-orgheadline37">
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">测试php与mysql</h3>
+<div class="outline-text-3" id="text-orgheadline38">
 <div class="org-src-container">
 
 <pre class="src src-php"><span style="color: #F92672;">&lt;?php</span>
@@ -846,9 +903,9 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </div>
 </div>
 
-<div id="outline-container-orgheadline38" class="outline-3">
-<h3 id="orgheadline38">php</h3>
-<div class="outline-text-3" id="text-orgheadline38">
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">php</h3>
+<div class="outline-text-3" id="text-orgheadline39">
 <ul class="org-ul">
 <li><p>
 配置文件: /etc/php.ini, /etc/php.d/*.ini
@@ -866,6 +923,111 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 <li>php执行过程: php文件 &#x2013;&gt; opcode &#x2013;&gt; excute</li>
 <li>加速器: Xcache</li>
 </ul>
+</div>
+
+<div id="outline-container-orgheadline40" class="outline-4">
+<h4 id="orgheadline40">php的编译</h4>
+<div class="outline-text-4" id="text-orgheadline40">
+<ol class="org-ol">
+<li><p>
+解决依赖关系
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">yum -y groupinstall <span style="color: #E6DB74;">"Desktop Platform Development"</span> 
+yum -y install bzip2-devel libmcrypt-devel libxml2-devel
+</pre>
+</div></li>
+<li><p>
+编译安装php
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">tar xf php-5.4.26.tar.bz2
+cd php-5.4.26
+<span style="color: #FD971F;">./configure --prefix</span>=/usr/local/php --with-mysql=/usr/local/mysql --with-openssl --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml  --enable-sockets --enable-fpm --with-apxs2=/usr/local/apache/bin/apxs --with-mcrypt  --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-bz2  --enable-maintainer-zts
+
+make &amp;&amp; make install
+</pre>
+</div></li>
+<li><p>
+复制配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cp php.ini-production /etc/php.ini
+</pre>
+</div></li>
+<li><p>
+配置php-fpm
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cp sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
+chmod +x /etc/rc.d/init.d/php-fpm
+chkconfig --add php-fpm
+chkconfig php-fpm on
+
+cp /usr/local/php5/etc/php-fpm.conf.default /etc/php-fpm.conf
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+配置php-fpm.ini
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">pm.max_children</span> = 50
+<span style="color: #FD971F;">pm.start_servers</span> = 5
+<span style="color: #FD971F;">pm.min_spare_servers</span> = 2
+<span style="color: #FD971F;">pm.max_spare_servers</span> = 8
+<span style="color: #FD971F;">pid</span> = /usr/local/php5/var/run/php-fpm.pid  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19982;&#26381;&#21153;&#33050;&#26412;&#20445;&#25345;&#19968;&#33268;</span>
+</pre>
+</div></li>
+</ul></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline41" class="outline-4">
+<h4 id="orgheadline41">Xcache的编译</h4>
+<div class="outline-text-4" id="text-orgheadline41">
+<ol class="org-ol">
+<li><p>
+编译安装
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">tar xf xcache-3.0.3.tar.gz
+cd xcache-3.0.3
+/usr/local/php/bin/phpize
+<span style="color: #FD971F;">./configure --enable-xcache --with-php-config</span>=/usr/local/php/bin/php-config
+make &amp;&amp; make install
+</pre>
+</div>
+<ul class="org-ul">
+<li>记录安装完成的提示结果</li>
+</ul></li>
+<li><p>
+整合php和Xcache
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mkdir /etc/php.d
+cp xcache.ini /etc/php.d
+</pre>
+</div></li>
+<li><p>
+编辑配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#36753;xcache.ini&#65292;&#20540;&#20351;&#29992;&#31532;&#19968;&#27493;&#30340;&#25552;&#31034;&#32467;&#26524;</span>
+<span style="color: #FD971F;">zend_extension</span> = /usr/local/php/lib/php/extensions/no-debug-zts-20100525/xcache.so
+</pre>
+</div></li>
+</ol>
+</div>
 </div>
 </div>
 </div>

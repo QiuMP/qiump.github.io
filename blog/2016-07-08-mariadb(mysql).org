@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: 运维 数据库 MySQL
 #+JEKYLL_PUBLISHED: true
 
-TODO
+记录了数据库的相关知识，包括设计范式、事务、常见组件等，同时记录了SQL语言的用法，包括DDL、DML、DCL，最后简单介绍了MariaDB的配置和使用(TODO)
 
 
 
@@ -223,6 +223,7 @@ DROP USER 'username'@'host', ...;  --删除用户
 
 SELECT User, Host, Password FROM mysql.user;  --查询本机的用户账号
 #+END_SRC
+- 可直接修改user表来修改用户，但要之后要重读授权表
 *** 授权
 权限级别: 管理权限、数据库、表、字段、存储例程
 #+BEGIN_SRC sql
@@ -240,7 +241,7 @@ SHOW GRANTS [FOR CURRENT_USER];  --默认查看当前用户
 FLUSH PRIVILEGES;  --重读授权表
 #+END_SRC
 - 授权实际上是修改授权表，然后自动重读授权表
-* MariaDB(mysql)
+* TODO MariaDB(mysql)
 ** MariaDB特性
 1. 更多存储引擎
    - 插件式存储引擎：存储管理器有多种实现版本，功能和特性可能均略有差别，用户可根据需要灵活选择
@@ -264,10 +265,30 @@ FLUSH PRIVILEGES;  --重读授权表
    cp supper-files/mysql.server /etc/rc.d/init.d/mysqld
    chkconfig --add mysqld
    #+END_SRC
-3. 安全初始化
+3. 复制配置文件
+   #+BEGIN_SRC conf
+   mkdir /etc/mysql
+   cp support-files/my-large.cnf /etc/mysql/my.cnf
+   #+END_SRC
+4. 安全初始化
    #+BEGIN_SRC conf
    bin/mysql_secure_installation  # 初始化root密码
    #+END_SRC
+5. 输出mysql的man手册至man命令的查找路径
+   #+BEGIN_SRC conf
+   # 编辑/etc/man.config
+   MANPATH  /usr/local/mysql/man
+   #+END_SRC
+6. 输出mysql的头文件至系统头文件路径/usr/include
+   #+BEGIN_SRC conf
+   ln -sv /usr/local/mysql/include  /usr/include/mysql
+   #+END_SRC
+7. 输出mysql的库文件给系统库查找路径
+   #+BEGIN_SRC conf
+   echo '/usr/local/mysql/lib' > /etc/ld.so.conf.d/mysql.conf
+   ldconfig  # 重新载入系统库
+   #+END_SRC
+8. 修改PATH环境变量
 ** 配置文件
 - 配置文件格式：类ini格式，为各程序均通过单个配置文件提供配置信息
   #+BEGIN_SRC conf
@@ -275,15 +296,12 @@ FLUSH PRIVILEGES;  --重读授权表
   ...
   #+END_SRC
 - 配置文件装载顺序: /etc/my.cnf --> /etc/mysql/my.cnf --> --default-extra-file=/PATH/TO/CONF_FILE --> ~/.my.cnf
-  #+BEGIN_SRC conf
-  mkdir /etc/mysql
-  cp support-files/my-large.cnf /etc/mysql/my.cnf
-  #+END_SRC
 - 为配置文件添加选项
   #+BEGIN_SRC conf
   datadir = /mydata/data
   innodb_file_per_table = on
   skip_name_resolve = on  # 防止客户端的来源地址反解
+  thread_concurrency = 2  # 数量一般为CPU个数乘以2
   #+END_SRC
 ** MariaDB的程序组成
 - Client ::
