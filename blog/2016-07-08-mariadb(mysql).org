@@ -81,7 +81,8 @@ TODO
 ** SQL基础
 SQL(Structure Query Language)是一个结构化查询语言，通过SQL解释器执行
 - DDL: Data Defination Language，如CREATE、DROP、ALTER
-- DML: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT、GRANT、REVOKE
+- DML: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT
+- DCL: Data Control Language，如GRANT、REVOKE
 - 获取命令帮助
   #+BEGIN_SRC sql
   HELP KEYWORD;
@@ -104,40 +105,141 @@ SQL(Structure Query Language)是一个结构化查询语言，通过SQL解释器
 *** 数值型
 - 精确数值型
   - 整型
-    - tinyint: 1byte
-    - smallint: 2bytes
-    - mediumint: 3bytes
-    - int: 4bytes
-    - bigint: 8bytes
-  - 十进制: decimal
+    - TINYINT: 1byte
+    - SMALLINT: 2bytes
+    - MEDIUMINT: 3bytes
+    - INT: 4bytes
+    - BIGINT: 8bytes
+  - 十进制(精确小数): DECIMAL
 - 近似数值型
-	- 单精度浮点型: float
-	- 双精度浮点型: double
-** 修饰符
-- NOT NULL：非空约束
-- DEFAULT VALUE: 设定默认值
+  - 单精度浮点型: FLOAT
+  - 双精度浮点型: DOUBLE
 
-** 数据库
+*** 日期时间型
+- 日期：DATE
+- 时间：TIME
+- 日期时间：DATETIME
+- 时间戳：TIMESTAMP
+- 年份：YEAR(2), YEAR(4)
+
+** DDL
+*** 修饰符
+- 所有类型适用
+  - NOT NULL：非空约束
+  - DEFAULT VALUE: 设定默认值
+  - PRIMARY KEY: 主键
+  - UNIQUE KEY: 唯一键
+- 数值类型适用
+  - UNSIGNED: 无符号类型
+  - AUTO_INCREMENT: 自增
+    
+*** 数据库
 #+BEGIN_SRC sql
-CREATE DATABASE|SCHEMA [IF NOT EXISTS] 'DB_NAME' [OPTIONS];  --创建数据库
-DROP DATABASE|SCHEMA [IF EXISTS] 'DB_NAME' [OPTIONS];  --删除数据库
-  CHARACTER SET 'charecter set name'  --指定字符集
-  COLLATE 'collate name'  --指定排序规则
+CREATE DATABASE|SCHEMA [IF NOT EXISTS] 'db_name' [OPTIONS];  --创建数据库
+DROP DATABASE|SCHEMA [IF EXISTS] 'db_name' [OPTIONS];  --删除数据库
+  CHARACTER SET [=] 'charecter set name'  --指定字符集
+  COLLATE [=] 'collate name'  --指定排序规则
 
 SHOW DATABASES;  --查看所有数据库
 SHOW CHARACTER SET;  --查看支持的所有字符集
 SHOW COLLATION;  --查看支持的所有排序规则
+SHOW TABLES [FROM db_name];  --查看数据库中的表列表
 #+END_SRC
-** 表
+*** 表
 #+BEGIN_SRC sql
-CREATE TABLE [IF NOT EXISTS] tb_name (col1 datatype 修饰符, col2 datatype 修饰符) [ENGINE=''];  --创建表
+CREATE TABLE [IF NOT EXISTS] tb_name (字段1, 字段2, ...) [OPTIONS];  --创建表
+  字段: 
+    col_name type 修饰符
+    PRIMARY KEY(col1,...)
+    INDEX(col1, ...)
+    UNIQUE KEY(col1, ...)
+
+  OPTIONS:
+    ENGINE [=] 'engine_name'
+    COMMENT [=] 'string'
+    ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}
+
+ALTER TABLE tb_name [OPTIONS];
+  ADD: 添加
+    ADD 字段 [FIRST|AFTER col_name]
+  DROP: 删除
+  ALTER|change|modify: 修改
+    ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
+    CHANGE [COLUMN] old_col_name new_col_name column_definition [FIRST|AFTER col_name]
+    MODIFY [COLUMN] col_name column_definition [FIRST|AFTER col_name]
+
 DROP TABLE [IF EXISTS] tb_name;  --删除表
 
+HELP CREATE TABLE;  --查询CREATE TABLE命令的相关参数帮助
 SHOW ENGINES;  --查看所有的引擎
-SHOW TABLES [FROM db_name];  --查看表列表
+SHOW CREATE TABLE tb_name;  --查看表的创建命令
+SHOW TABLE STATUS LIKE 'tb_name'\G  --竖行查看表的状态
 DESC [db_name.]tb_name;  --查看指定表的结构
-#+END_SRC
 
+CREATE INDEX index_name ON tbl_name (index_col_name,...);  --创建索引
+DROP INDEX index_name ON tbl_name;  --删除索引
+SHOW INDEXES FROM [db_name.]tbl_name;  --查看表的索引
+#+END_SRC
+** DML
+*** INSERT
+#+BEGIN_SRC sql
+INSERT [INTO] tbl_name [(col_name,...)] {VALUES | VALUE} (val1,...),(...),...
+#+END_SRC
+*** SELECT
+#+BEGIN_SRC sql
+SELECT 字段1,字段2,... FROM tbl_name [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
+  字段:
+    *: 所有字段
+    AS: 字段别名，可以省略
+  
+  WHERE clause
+    >, <, >=, <=, ==, !=
+    BETWEEN ... AND ...: 相当于>=和<=
+    LIKE '':
+	    %：任意长度的任意字符
+	    _：任意单个字符
+    RLIKE '': 正则表达式模式匹配
+    IS [NOT] NULL
+    and/or/not
+#+END_SRC
+*** DELETE
+#+BEGIN_SRC sql
+DELETE FROM tbl_name [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
+#+END_SRC
+*** UPDATE
+#+BEGIN_SRC sql 
+UPDATE tbl_name SET col1=new_val1, col2=new_val2, ... [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
+#+END_SRC
+** DCL
+*** 用户账号
+mysql用户账号由两部分组成: 'USERNAME'@'HOST'
+- USERNAME: 用户名
+- HOST: 用于限制此用户可通过哪些主机远程连接mysqld服务，支持使用IP、网络地址、主机名、通配符
+  - %: 匹配任意长度的任意字符，可用于表示所有主机
+  - _: 匹配任意单个字符
+#+BEGIN_SRC sql
+CREATE USER 'username'@'host' [IDENTIFIED BY 'password'];  --创建用户账号
+DROP USER 'username'@'host', ...;  --删除用户
+
+SELECT User, Host, Password FROM mysql.user;  --查询本机的用户账号
+#+END_SRC
+*** 授权
+权限级别: 管理权限、数据库、表、字段、存储例程
+#+BEGIN_SRC sql
+GRANT priv_type,... ON [object_type] db_name.tb_name/routine_name TO 'user'@'host' [IDENTIFIED BY 'password'] [WITH GRANT OPTION];  --用户不存在会自动创建
+  priv_type: ALL,SELECT,DELETE...
+  object_type: TABLE(默认), FUNCTION, PROCEDURE
+  db_name.tb_name/routine_name: 可使用 *.* 指定所有库的所有表
+  WITH GRANT OPTION: 用户是否可转授自己的权限
+
+REVOKE priv_type, ... ON db_name.tb_name FROM 'user'@'host';  --撤销授权
+
+SHOW GRANTS FOR 'user'@'host';  --查看指定的用户获得的权限
+SHOW GRANTS [FOR CURRENT_USER];  --默认查看当前用户
+
+FLUSH PRIVILEGES;  --重读授权表
+#+END_SRC
+- 授权实际上是修改授权表，然后自动重读授权表
 * MariaDB(mysql)
 ** MariaDB特性
 1. 更多存储引擎
@@ -162,27 +264,27 @@ DESC [db_name.]tb_name;  --查看指定表的结构
    cp supper-files/mysql.server /etc/rc.d/init.d/mysqld
    chkconfig --add mysqld
    #+END_SRC
-3. 准备配置文件
-   - 配置格式：类ini格式，为各程序均通过单个配置文件提供配置信息
-     #+BEGIN_SRC conf
-     [prog_name]
-     ...
-     #+END_SRC
-   - 配置文件装载顺序: /etc/my.cnf --> /etc/mysql/my.cnf --> --default-extra-file=/PATH/TO/CONF_FILE --> ~/.my.cnf
-     #+BEGIN_SRC conf
-     mkdir /etc/mysql
-     cp support-files/my-large.cnf /etc/mysql/my.cnf
-     #+END_SRC
-   - 为配置文件添加选项
-     #+BEGIN_SRC conf
-     datadir = /mydata/data
-     innodb_file_per_table = on
-     skip_name_resolve = on  # 防止客户端的来源地址反解
-     #+END_SRC
-4. 安全初始化
+3. 安全初始化
    #+BEGIN_SRC conf
    bin/mysql_secure_installation  # 初始化root密码
    #+END_SRC
+** 配置文件
+- 配置文件格式：类ini格式，为各程序均通过单个配置文件提供配置信息
+  #+BEGIN_SRC conf
+  [prog_name]
+  ...
+  #+END_SRC
+- 配置文件装载顺序: /etc/my.cnf --> /etc/mysql/my.cnf --> --default-extra-file=/PATH/TO/CONF_FILE --> ~/.my.cnf
+  #+BEGIN_SRC conf
+  mkdir /etc/mysql
+  cp support-files/my-large.cnf /etc/mysql/my.cnf
+  #+END_SRC
+- 为配置文件添加选项
+  #+BEGIN_SRC conf
+  datadir = /mydata/data
+  innodb_file_per_table = on
+  skip_name_resolve = on  # 防止客户端的来源地址反解
+  #+END_SRC
 ** MariaDB的程序组成
 - Client ::
   - mysql：CLI交互式客户端程序
@@ -209,12 +311,4 @@ DESC [db_name.]tb_name;  --查看指定表的结构
       status  # 显示当前服务的信息
       #+END_SRC
     - 服务端命令: 通过mysql协议发往服务器执行并取回结果，默认以分号结束
-- mysql用户账号由两部分组成: 'USERNAME'@'HOST'
-  - HOST用于限制此用户可通过哪些主机远程连接mysql服务，支持使用通配符
-    - %: 匹配任意长度的任意字符
-    - _: 匹配任意单个字符
-  #+BEGIN_SRC sql
-  use mysql
-  SELECT Name, Host, Password FROM user;  --查询本机的用户账号
-  #+END_SRC
 

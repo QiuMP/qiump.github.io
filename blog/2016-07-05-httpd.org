@@ -429,7 +429,7 @@ LoadModule ssl_module modules/mod_ssl.so
     - httpd prefork: libphp5.so
     - httpd event or worker: libphp5-zts.so
   - cgi: 比较少用
-  - fastcgi(fpm)
+  - fastcgi(fpm): php作为独立的服务
 
 ** CGI
 CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服务器与后端服务器的交互，其中Web服务器相当于客户端，后端服务器相当于服务器端

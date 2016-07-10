@@ -15,7 +15,7 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline10">1. 数据库相关知识</a>
+<li><a href="#orgheadline11">1. 数据库相关知识</a>
 <ul>
 <li><a href="#orgheadline1">数据结构模型</a></li>
 <li><a href="#orgheadline2">RDMBS设计范式</a></li>
@@ -29,14 +29,51 @@ comments:
 </ul>
 </li>
 <li><a href="#orgheadline9">数据抽象</a></li>
+<li><a href="#orgheadline10">关系型数据库的常见组件</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline12">2. SQL</a>
+<li><a href="#orgheadline29">2. SQL</a>
 <ul>
-<li><a href="#orgheadline11">SQL基础概念</a></li>
+<li><a href="#orgheadline12">SQL基础</a></li>
+<li><a href="#orgheadline16">数据类型</a>
+<ul>
+<li><a href="#orgheadline13">字符型</a></li>
+<li><a href="#orgheadline14">数值型</a></li>
+<li><a href="#orgheadline15">日期时间型</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline13">3. MariaDB</a></li>
+<li><a href="#orgheadline20">DDL</a>
+<ul>
+<li><a href="#orgheadline17">修饰符</a></li>
+<li><a href="#orgheadline18">数据库</a></li>
+<li><a href="#orgheadline19">表</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline25">DML</a>
+<ul>
+<li><a href="#orgheadline21">INSERT</a></li>
+<li><a href="#orgheadline22">SELECT</a></li>
+<li><a href="#orgheadline23">DELETE</a></li>
+<li><a href="#orgheadline24">UPDATE</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline28">DCL</a>
+<ul>
+<li><a href="#orgheadline26">用户账号</a></li>
+<li><a href="#orgheadline27">授权</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline35">3. MariaDB(mysql)</a>
+<ul>
+<li><a href="#orgheadline30">MariaDB特性</a></li>
+<li><a href="#orgheadline31">CentOS6下用二进制格式安装</a></li>
+<li><a href="#orgheadline32">配置文件</a></li>
+<li><a href="#orgheadline33">MariaDB的程序组成</a></li>
+<li><a href="#orgheadline34">用户账号</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -48,8 +85,8 @@ TODO
 
 
 <hr  />
-<div id="outline-container-orgheadline10" class="outline-2">
-<h2 id="orgheadline10"><span class="section-number-2">1</span> 数据库相关知识</h2>
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">1</span> 数据库相关知识</h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-orgheadline1" class="outline-3">
 <h3 id="orgheadline1">数据结构模型</h3>
@@ -170,22 +207,459 @@ TODO
 </ul>
 </div>
 </div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">关系型数据库的常见组件</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<ul class="org-ul">
+<li>数据库：database</li>
+<li>表：table
+<ul class="org-ul">
+<li>行：row</li>
+<li>列：column</li>
+</ul></li>
+<li>索引：index</li>
+<li>视图：view</li>
+<li>用户：user</li>
+<li>权限：privilege</li>
+<li>存储过程：procedure</li>
+<li>存储函数：function</li>
+<li>触发器：trigger</li>
+<li>事件调度器：event scheduler</li>
+</ul>
+</div>
+</div>
 </div>
 
-<div id="outline-container-orgheadline12" class="outline-2">
-<h2 id="orgheadline12"><span class="section-number-2">2</span> SQL</h2>
+<div id="outline-container-orgheadline29" class="outline-2">
+<h2 id="orgheadline29"><span class="section-number-2">2</span> SQL</h2>
 <div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">SQL基础概念</h3>
-<div class="outline-text-3" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">SQL基础</h3>
+<div class="outline-text-3" id="text-orgheadline12">
 <p>
 SQL(Structure Query Language)是一个结构化查询语言，通过SQL解释器执行
 </p>
+<ul class="org-ul">
+<li>DDL: Data Defination Language，如CREATE、DROP、ALTER</li>
+<li>DML: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT</li>
+<li>DCL: Data Control Language，如GRANT、REVOKE</li>
+<li><p>
+获取命令帮助
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql">HELP KEYWORD;
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">数据类型</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+</div><div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">字符型</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<ul class="org-ul">
+<li>定长字符型
+<ul class="org-ul">
+<li>CHAR(#): 不区分大小写</li>
+<li>BINARY(#): 区分大小写</li>
+</ul></li>
+<li>变长字符型: VARCHAR(#), VARBINARY(#)</li>
+<li>对象存储
+<ul class="org-ul">
+<li>TEXT: 不区分大小写
+<ul class="org-ul">
+<li>SMALLTEXT, MEDIUMTEXT, TEXT, LONGTEXT</li>
+</ul></li>
+<li>BLOB：区分字符大小写
+<ul class="org-ul">
+<li>SMALLBLOB, MEDIUMBLOB, BLOB, LONGBLOB</li>
+</ul></li>
+</ul></li>
+<li>内置类型
+<ul class="org-ul">
+<li>ENUM: 枚举值</li>
+<li>SET: 集合值</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-4">
+<h4 id="orgheadline14">数值型</h4>
+<div class="outline-text-4" id="text-orgheadline14">
+<ul class="org-ul">
+<li>精确数值型
+<ul class="org-ul">
+<li>整型
+<ul class="org-ul">
+<li>TINYINT: 1byte</li>
+<li>SMALLINT: 2bytes</li>
+<li>MEDIUMINT: 3bytes</li>
+<li>INT: 4bytes</li>
+<li>BIGINT: 8bytes</li>
+</ul></li>
+<li>十进制(精确小数): DECIMAL</li>
+</ul></li>
+<li>近似数值型
+<ul class="org-ul">
+<li>单精度浮点型: FLOAT</li>
+<li>双精度浮点型: DOUBLE</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">日期时间型</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<ul class="org-ul">
+<li>日期：DATE</li>
+<li>时间：TIME</li>
+<li>日期时间：DATETIME</li>
+<li>时间戳：TIMESTAMP</li>
+<li>年份：YEAR(2), YEAR(4)</li>
+</ul>
 </div>
 </div>
 </div>
 
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">DDL</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+</div><div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">修饰符</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+<ul class="org-ul">
+<li>所有类型适用
+<ul class="org-ul">
+<li>NOT NULL：非空约束</li>
+<li>DEFAULT VALUE: 设定默认值</li>
+<li>PRIMARY KEY: 主键</li>
+<li>UNIQUE KEY: 唯一键</li>
+</ul></li>
+<li>数值类型适用
+<ul class="org-ul">
+<li>UNSIGNED: 无符号类型</li>
+<li>AUTO_INCREMENT: 自增</li>
+</ul></li>
+</ul>
+</div>
+</div>
 
-<div id="outline-container-orgheadline13" class="outline-2">
-<h2 id="orgheadline13"><span class="section-number-2">3</span> MariaDB</h2>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">数据库</h4>
+<div class="outline-text-4" id="text-orgheadline18">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">CREATE</span> DATABASE|<span style="color: #F92672;">SCHEMA</span> <span style="color: #AE81FF;">[</span>IF <span style="color: #F92672;">NOT</span> <span style="color: #F92672;">EXISTS</span><span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'db_name'</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">OPTIONS</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#21019;&#24314;&#25968;&#25454;&#24211;</span>
+<span style="color: #F92672;">DROP</span> DATABASE|<span style="color: #F92672;">SCHEMA</span> <span style="color: #AE81FF;">[</span>IF <span style="color: #F92672;">EXISTS</span><span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'db_name'</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">OPTIONS</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#21024;&#38500;&#25968;&#25454;&#24211;</span>
+  <span style="color: #66D9EF;">CHARACTER</span> <span style="color: #F92672;">SET</span> <span style="color: #AE81FF;">[</span>=<span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'charecter set name'</span>  <span style="color: #75715E;">--&#25351;&#23450;&#23383;&#31526;&#38598;</span>
+  <span style="color: #F92672;">COLLATE</span> <span style="color: #AE81FF;">[</span>=<span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'collate name'</span>  <span style="color: #75715E;">--&#25351;&#23450;&#25490;&#24207;&#35268;&#21017;</span>
+
+SHOW DATABASES;  <span style="color: #75715E;">--&#26597;&#30475;&#25152;&#26377;&#25968;&#25454;&#24211;</span>
+SHOW <span style="color: #66D9EF;">CHARACTER</span> <span style="color: #F92672;">SET</span>;  <span style="color: #75715E;">--&#26597;&#30475;&#25903;&#25345;&#30340;&#25152;&#26377;&#23383;&#31526;&#38598;</span>
+SHOW <span style="color: #F92672;">COLLATION</span>;  <span style="color: #75715E;">--&#26597;&#30475;&#25903;&#25345;&#30340;&#25152;&#26377;&#25490;&#24207;&#35268;&#21017;</span>
+SHOW TABLES <span style="color: #AE81FF;">[</span><span style="color: #F92672;">FROM</span> db_name<span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#26597;&#30475;&#25968;&#25454;&#24211;&#20013;&#30340;&#34920;&#21015;&#34920;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">表</h4>
+<div class="outline-text-4" id="text-orgheadline19">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">CREATE</span> <span style="color: #F92672;">TABLE</span> <span style="color: #AE81FF;">[</span>IF <span style="color: #F92672;">NOT</span> <span style="color: #F92672;">EXISTS</span><span style="color: #AE81FF;">]</span> tb_name <span style="color: #AE81FF;">(</span>&#23383;&#27573;1, &#23383;&#27573;2, ...<span style="color: #AE81FF;">)</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">OPTIONS</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#21019;&#24314;&#34920;</span>
+  &#23383;&#27573;: 
+    col_name <span style="color: #F92672;">type</span> &#20462;&#39280;&#31526;
+    <span style="color: #F92672;">PRIMARY</span> <span style="color: #F92672;">KEY</span><span style="color: #AE81FF;">(</span>col1,...<span style="color: #AE81FF;">)</span>
+    INDEX<span style="color: #AE81FF;">(</span>col1, ...<span style="color: #AE81FF;">)</span>
+    <span style="color: #F92672;">UNIQUE</span> <span style="color: #F92672;">KEY</span><span style="color: #AE81FF;">(</span>col1, ...<span style="color: #AE81FF;">)</span>
+
+  <span style="color: #F92672;">OPTIONS</span>:
+    ENGINE <span style="color: #AE81FF;">[</span>=<span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'engine_name'</span>
+    COMMENT <span style="color: #AE81FF;">[</span>=<span style="color: #AE81FF;">]</span> <span style="color: #E6DB74;">'string'</span>
+    ROW_FORMAT <span style="color: #AE81FF;">[</span>=<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">{</span><span style="color: #F92672;">DEFAULT</span>|<span style="color: #F92672;">DYNAMIC</span>|FIXED|COMPRESSED|REDUNDANT|COMPACT<span style="color: #AE81FF;">}</span>
+
+<span style="color: #F92672;">ALTER</span> <span style="color: #F92672;">TABLE</span> <span style="color: #A6E22E;">tb_name</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">OPTIONS</span><span style="color: #AE81FF;">]</span>;
+  <span style="color: #F92672;">ADD</span>: &#28155;&#21152;
+    <span style="color: #F92672;">ADD</span> &#23383;&#27573; <span style="color: #AE81FF;">[</span><span style="color: #F92672;">FIRST</span>|<span style="color: #F92672;">AFTER</span> col_name<span style="color: #AE81FF;">]</span>
+  <span style="color: #F92672;">DROP</span>: &#21024;&#38500;
+  <span style="color: #F92672;">ALTER</span>|change|<span style="color: #F92672;">modify</span>: &#20462;&#25913;
+    <span style="color: #F92672;">ALTER</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">COLUMN</span><span style="color: #AE81FF;">]</span> col_name <span style="color: #AE81FF;">{</span><span style="color: #F92672;">SET</span> <span style="color: #F92672;">DEFAULT</span> literal | <span style="color: #F92672;">DROP</span> <span style="color: #F92672;">DEFAULT</span><span style="color: #AE81FF;">}</span>
+    CHANGE <span style="color: #AE81FF;">[</span><span style="color: #F92672;">COLUMN</span><span style="color: #AE81FF;">]</span> old_col_name new_col_name column_definition <span style="color: #AE81FF;">[</span><span style="color: #F92672;">FIRST</span>|<span style="color: #F92672;">AFTER</span> col_name<span style="color: #AE81FF;">]</span>
+    <span style="color: #F92672;">MODIFY</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">COLUMN</span><span style="color: #AE81FF;">]</span> col_name column_definition <span style="color: #AE81FF;">[</span><span style="color: #F92672;">FIRST</span>|<span style="color: #F92672;">AFTER</span> col_name<span style="color: #AE81FF;">]</span>
+
+<span style="color: #F92672;">DROP</span> <span style="color: #F92672;">TABLE</span> <span style="color: #AE81FF;">[</span>IF <span style="color: #F92672;">EXISTS</span><span style="color: #AE81FF;">]</span> tb_name;  <span style="color: #75715E;">--&#21024;&#38500;&#34920;</span>
+
+HELP <span style="color: #F92672;">CREATE</span> <span style="color: #F92672;">TABLE</span>;  <span style="color: #75715E;">--&#26597;&#35810;CREATE TABLE&#21629;&#20196;&#30340;&#30456;&#20851;&#21442;&#25968;&#24110;&#21161;</span>
+SHOW ENGINES;  <span style="color: #75715E;">--&#26597;&#30475;&#25152;&#26377;&#30340;&#24341;&#25806;</span>
+SHOW <span style="color: #F92672;">CREATE</span> <span style="color: #F92672;">TABLE</span> tb_name;  <span style="color: #75715E;">--&#26597;&#30475;&#34920;&#30340;&#21019;&#24314;&#21629;&#20196;</span>
+SHOW <span style="color: #F92672;">TABLE</span> STATUS <span style="color: #F92672;">LIKE</span> <span style="color: #E6DB74;">'tb_name'</span>\G  <span style="color: #75715E;">--&#31446;&#34892;&#26597;&#30475;&#34920;&#30340;&#29366;&#24577;</span>
+<span style="color: #F92672;">DESC</span> <span style="color: #AE81FF;">[</span>db_name.<span style="color: #AE81FF;">]</span>tb_name;  <span style="color: #75715E;">--&#26597;&#30475;&#25351;&#23450;&#34920;&#30340;&#32467;&#26500;</span>
+
+<span style="color: #F92672;">CREATE</span> INDEX index_name <span style="color: #F92672;">ON</span> tbl_name <span style="color: #AE81FF;">(</span>index_col_name,...<span style="color: #AE81FF;">)</span>;  <span style="color: #75715E;">--&#21019;&#24314;&#32034;&#24341;</span>
+<span style="color: #F92672;">DROP</span> INDEX index_name <span style="color: #F92672;">ON</span> tbl_name;  <span style="color: #75715E;">--&#21024;&#38500;&#32034;&#24341;</span>
+SHOW INDEXES <span style="color: #F92672;">FROM</span> <span style="color: #AE81FF;">[</span>db_name.<span style="color: #AE81FF;">]</span>tbl_name;  <span style="color: #75715E;">--&#26597;&#30475;&#34920;&#30340;&#32034;&#24341;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">DML</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+</div><div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">INSERT</h4>
+<div class="outline-text-4" id="text-orgheadline21">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">INSERT</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">INTO</span><span style="color: #AE81FF;">]</span> tbl_name <span style="color: #AE81FF;">[</span><span style="color: #66D9EF;">(</span>col_name,...<span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">{</span><span style="color: #F92672;">VALUES</span> | <span style="color: #F92672;">VALUE</span><span style="color: #AE81FF;">}</span> <span style="color: #AE81FF;">(</span>val1,...<span style="color: #AE81FF;">)</span>,<span style="color: #AE81FF;">(</span>...<span style="color: #AE81FF;">)</span>,...
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">SELECT</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">SELECT</span> &#23383;&#27573;1,&#23383;&#27573;2,... <span style="color: #F92672;">FROM</span> tbl_name <span style="color: #AE81FF;">[</span><span style="color: #F92672;">WHERE</span> clause<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">ORDER</span> <span style="color: #F92672;">BY</span> <span style="color: #E6DB74;">'col_name'</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">DESC</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">LIMIT</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">m</span>,<span style="color: #66D9EF;">]</span>n<span style="color: #AE81FF;">]</span>;
+  &#23383;&#27573;:
+    *: &#25152;&#26377;&#23383;&#27573;
+    <span style="color: #F92672;">AS</span>: &#23383;&#27573;&#21035;&#21517;&#65292;&#21487;&#20197;&#30465;&#30053;
+
+  <span style="color: #F92672;">WHERE</span> clause
+    &gt;, &lt;, &gt;=, &lt;=, ==, !=
+    <span style="color: #F92672;">BETWEEN</span> ... <span style="color: #F92672;">AND</span> ...: &#30456;&#24403;&#20110;&gt;=&#21644;&lt;=
+    <span style="color: #F92672;">LIKE</span> <span style="color: #E6DB74;">''</span>:
+        %&#65306;&#20219;&#24847;&#38271;&#24230;&#30340;&#20219;&#24847;&#23383;&#31526;
+        _&#65306;&#20219;&#24847;&#21333;&#20010;&#23383;&#31526;
+    RLIKE <span style="color: #E6DB74;">''</span>: &#27491;&#21017;&#34920;&#36798;&#24335;&#27169;&#24335;&#21305;&#37197;
+    <span style="color: #F92672;">IS</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">NOT</span><span style="color: #AE81FF;">]</span> <span style="color: #F92672;">NULL</span>
+    <span style="color: #F92672;">and</span>/<span style="color: #F92672;">or</span>/<span style="color: #F92672;">not</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">DELETE</h4>
+<div class="outline-text-4" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">DELETE</span> <span style="color: #F92672;">FROM</span> tbl_name <span style="color: #AE81FF;">[</span><span style="color: #F92672;">WHERE</span> clause<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">ORDER</span> <span style="color: #F92672;">BY</span> <span style="color: #E6DB74;">'col_name'</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">DESC</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">LIMIT</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">m</span>,<span style="color: #66D9EF;">]</span>n<span style="color: #AE81FF;">]</span>;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">UPDATE</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">UPDATE</span> tbl_name <span style="color: #F92672;">SET</span> col1=new_val1, col2=new_val2, ... <span style="color: #AE81FF;">[</span><span style="color: #F92672;">WHERE</span> clause<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">ORDER</span> <span style="color: #F92672;">BY</span> <span style="color: #E6DB74;">'col_name'</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">DESC</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">LIMIT</span> <span style="color: #66D9EF;">[</span><span style="color: #F92672;">m</span>,<span style="color: #66D9EF;">]</span>n<span style="color: #AE81FF;">]</span>;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">DCL</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+</div><div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">用户账号</h4>
+<div class="outline-text-4" id="text-orgheadline26">
+<p>
+mysql用户账号由两部分组成: 'USERNAME'@'HOST'
+</p>
+<ul class="org-ul">
+<li>USERNAME: 用户名</li>
+<li>HOST: 用于限制此用户可通过哪些主机远程连接mysqld服务，支持使用IP、网络地址、主机名、通配符
+<ul class="org-ul">
+<li>%: 匹配任意长度的任意字符，可用于表示所有主机</li>
+<li>_: 匹配任意单个字符</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">CREATE</span> <span style="color: #F92672;">USER</span> <span style="color: #E6DB74;">'username'</span>@<span style="color: #E6DB74;">'host'</span> <span style="color: #AE81FF;">[</span>IDENTIFIED <span style="color: #F92672;">BY</span> <span style="color: #E6DB74;">'password'</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#21019;&#24314;&#29992;&#25143;&#36134;&#21495;</span>
+<span style="color: #F92672;">DROP</span> <span style="color: #F92672;">USER</span> <span style="color: #E6DB74;">'username'</span>@<span style="color: #E6DB74;">'host'</span>, ...;  <span style="color: #75715E;">--&#21024;&#38500;&#29992;&#25143;</span>
+
+<span style="color: #F92672;">SELECT</span> <span style="color: #F92672;">User</span>, <span style="color: #F92672;">Host</span>, Password <span style="color: #F92672;">FROM</span> mysql.<span style="color: #F92672;">user</span>;  <span style="color: #75715E;">--&#26597;&#35810;&#26412;&#26426;&#30340;&#29992;&#25143;&#36134;&#21495;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-4">
+<h4 id="orgheadline27">授权</h4>
+<div class="outline-text-4" id="text-orgheadline27">
+<p>
+权限级别: 管理权限、数据库、表、字段、存储例程
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span style="color: #F92672;">GRANT</span> priv_type,... <span style="color: #F92672;">ON</span> <span style="color: #AE81FF;">[</span>object_type<span style="color: #AE81FF;">]</span> db_name.tb_name/<span style="color: #F92672;">routine_name</span> <span style="color: #F92672;">TO</span> <span style="color: #E6DB74;">'user'</span>@<span style="color: #E6DB74;">'host'</span> <span style="color: #AE81FF;">[</span>IDENTIFIED <span style="color: #F92672;">BY</span> <span style="color: #E6DB74;">'password'</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #F92672;">WITH</span> <span style="color: #F92672;">GRANT</span> <span style="color: #F92672;">OPTION</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#29992;&#25143;&#19981;&#23384;&#22312;&#20250;&#33258;&#21160;&#21019;&#24314;</span>
+  priv_type: <span style="color: #F92672;">ALL</span>,<span style="color: #F92672;">SELECT</span>,<span style="color: #F92672;">DELETE</span>...
+  object_type: <span style="color: #F92672;">TABLE</span><span style="color: #AE81FF;">(</span>&#40664;&#35748;<span style="color: #AE81FF;">)</span>, <span style="color: #F92672;">FUNCTION</span>, <span style="color: #F92672;">PROCEDURE</span>
+  db_name.tb_name/<span style="color: #F92672;">routine_name</span>: &#21487;&#20351;&#29992; *.* &#25351;&#23450;&#25152;&#26377;&#24211;&#30340;&#25152;&#26377;&#34920;
+  <span style="color: #F92672;">WITH</span> <span style="color: #F92672;">GRANT</span> <span style="color: #F92672;">OPTION</span>: &#29992;&#25143;&#26159;&#21542;&#21487;&#36716;&#25480;&#33258;&#24049;&#30340;&#26435;&#38480;
+
+<span style="color: #F92672;">REVOKE</span> priv_type, ... <span style="color: #F92672;">ON</span> db_name.tb_name <span style="color: #F92672;">FROM</span> <span style="color: #E6DB74;">'user'</span>@<span style="color: #E6DB74;">'host'</span>;  <span style="color: #75715E;">--&#25764;&#38144;&#25480;&#26435;</span>
+
+SHOW GRANTS <span style="color: #F92672;">FOR</span> <span style="color: #E6DB74;">'user'</span>@<span style="color: #E6DB74;">'host'</span>;  <span style="color: #75715E;">--&#26597;&#30475;&#25351;&#23450;&#30340;&#29992;&#25143;&#33719;&#24471;&#30340;&#26435;&#38480;</span>
+SHOW GRANTS <span style="color: #AE81FF;">[</span><span style="color: #F92672;">FOR</span> <span style="color: #F92672;">CURRENT_USER</span><span style="color: #AE81FF;">]</span>;  <span style="color: #75715E;">--&#40664;&#35748;&#26597;&#30475;&#24403;&#21069;&#29992;&#25143;</span>
+
+FLUSH <span style="color: #F92672;">PRIVILEGES</span>;  <span style="color: #75715E;">--&#37325;&#35835;&#25480;&#26435;&#34920;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>授权实际上是修改授权表，然后自动重读授权表</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-2">
+<h2 id="orgheadline35"><span class="section-number-2">3</span> MariaDB(mysql)</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">MariaDB特性</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+<ol class="org-ol">
+<li>更多存储引擎
+<ul class="org-ul">
+<li>插件式存储引擎：存储管理器有多种实现版本，功能和特性可能均略有差别，用户可根据需要灵活选择</li>
+<li>MyISAM &#x2013;&gt; Aria</li>
+<li>InnoDB &#x2013;&gt; XtraDB</li>
+</ul></li>
+<li>诸多扩展和新特性</li>
+<li>提供了较多测试组件</li>
+<li>truly open source</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">CentOS6下用二进制格式安装</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<ol class="org-ol">
+<li>准备数据目录</li>
+<li><p>
+配置MariaDB
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">useradd -r mysql
+tar xf mariadb-VERSION.tar.xz -C /usr/local
+ln -sv 
+cd /usr/local/mysql
+chown -R root:mysql ./*
+mkdir /mydata/data
+chown mysql:mysql /mydata/data
+<span style="color: #FD971F;">scripts/mysql_install_db --datadir</span>=/mydata/data --user=mysql
+cp supper-files/mysql.server /etc/rc.d/init.d/mysqld
+chkconfig --add mysqld
+</pre>
+</div></li>
+<li><p>
+安全初始化
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">bin/mysql_secure_installation  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21021;&#22987;&#21270;root&#23494;&#30721;</span>
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<ul class="org-ul">
+<li><p>
+配置文件格式：类ini格式，为各程序均通过单个配置文件提供配置信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">[<span style="color: #66D9EF;">prog_name</span>]
+...
+</pre>
+</div></li>
+<li><p>
+配置文件装载顺序: <i>etc/my.cnf &#x2013;&gt; /etc/mysql/my.cnf &#x2013;&gt; &#x2013;default-extra-file=/PATH/TO/CONF_FILE &#x2013;&gt; ~</i>.my.cnf
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mkdir /etc/mysql
+cp support-files/my-large.cnf /etc/mysql/my.cnf
+</pre>
+</div></li>
+<li><p>
+为配置文件添加选项
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">datadir</span> = /mydata/data
+<span style="color: #FD971F;">innodb_file_per_table</span> = on
+<span style="color: #FD971F;">skip_name_resolve</span> = on  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38450;&#27490;&#23458;&#25143;&#31471;&#30340;&#26469;&#28304;&#22320;&#22336;&#21453;&#35299;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">MariaDB的程序组成</h3>
+<div class="outline-text-3" id="text-orgheadline33">
+<dl class="org-dl">
+<dt>Client</dt><dd><ul class="org-ul">
+<li>mysql：CLI交互式客户端程序</li>
+<li>mysqldump, mysqladmin&#x2026;</li>
+</ul></dd>
+<dt>Server</dt><dd><ul class="org-ul">
+<li>mysqld_safe</li>
+<li>mysqld</li>
+<li>mysqld_multi</li>
+</ul></dd>
+<dt>服务器监听的两种socket地址</dt><dd><ul class="org-ul">
+<li>ip socket: 监听在tcp的3306端口，支持远程通信</li>
+<li>unix sock: 监听在sock文件上(/tmp/mysql.sock, /var/lib/mysql/mysql.sock)，仅支持本地通信</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">用户账号</h3>
+<div class="outline-text-3" id="text-orgheadline34">
+<ul class="org-ul">
+<li><p>
+使用客户端程序mysql来登录服务器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mysql [OPTIONS]
+  -uUSERNAME: &#29992;&#25143;&#21517;(&#40664;&#35748;&#20026;root)
+  -hHOST: &#26381;&#21153;&#22120;&#20027;&#26426;(&#40664;&#35748;&#20026;localhost)
+  -p[PASSWORD]: &#29992;&#25143;&#30340;&#23494;&#30721;(&#40664;&#35748;&#20026;&#31354;&#23494;&#30721;)
+</pre>
+</div>
+<ul class="org-ul">
+<li>命令类型
+<ul class="org-ul">
+<li><p>
+客户端命令: 本地执行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">help  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#25152;&#26377;&#23458;&#25143;&#31471;&#21629;&#20196;</span>
+status  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#26381;&#21153;&#30340;&#20449;&#24687;</span>
+</pre>
+</div></li>
+<li>服务端命令: 通过mysql协议发往服务器执行并取回结果，默认以分号结束</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
 </div>
