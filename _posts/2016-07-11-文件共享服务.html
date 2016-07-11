@@ -1,0 +1,177 @@
+---
+title: "文件共享服务"
+date: 2016-07-11
+layout: post
+categories: 
+- 网络
+tags: 
+- Linux 
+- 运维 
+- 网络
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 文件共享服务</a></li>
+<li><a href="#orgheadline9">2. ftp</a>
+<ul>
+<li><a href="#orgheadline2">ftp相关知识</a>
+<ul>
+<li><a href="#orgheadline3">连接类型</a></li>
+<li><a href="#orgheadline4">程序软件</a></li>
+<li><a href="#orgheadline5">响应码</a></li>
+<li><a href="#orgheadline6">用户认证</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">vsftpd</a></li>
+<li><a href="#orgheadline8">lftp</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 文件共享服务</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>文件共享服务用于实现NAS</li>
+<li>应用层: ftp</li>
+<li>内核: nfs</li>
+<li>跨平台: samba
+<ul class="org-ul">
+<li>该软件在Linux实现Win下的CIFS(SMB)协议</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">2</span> ftp</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">ftp相关知识</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ul class="org-ul">
+<li>ftp(File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3">连接类型</h4>
+<div class="outline-text-4" id="text-orgheadline3">
+<ul class="org-ul">
+<li>命令连接(21/tcp): 用于传输文件管理类命令，始终在线的连接</li>
+<li>数据连接: 用于传输数据，按需创建和关闭的连接
+<ul class="org-ul">
+<li>数据传输格式: 文本传输，二进制传输</li>
+<li>主动连接: 由服务器创建连接</li>
+<li>被动连接: 服务器生成一个随机端口，由客户端创建连接
+<ul class="org-ul">
+<li>服务器的防火墙要进行特殊配置来允许随机端口</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">程序软件</h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<ul class="org-ul">
+<li>Server: wu-ftpd、proftpd、pureftp、vsftpd(Very Secure)、ServU</li>
+<li>Client: ftp、lftp、wget、curl</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">响应码</h4>
+<div class="outline-text-4" id="text-orgheadline5">
+<ul class="org-ul">
+<li>1xx: 信息</li>
+<li>2xx: 成功</li>
+<li>3xx: 提示需进一步提供补充类信息</li>
+<li>4xx: 客户端错误</li>
+<li>5xx: 服务端错误</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">用户认证</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<ul class="org-ul">
+<li>虚拟用户: 使用Linux系统的nsswitch和pam进行认证
+<ul class="org-ul">
+<li>nsswitch: network server switch，名称解析框架</li>
+<li>pam: pluggable authentication module，用户认证框架</li>
+</ul></li>
+<li>系统用户(默认)</li>
+<li>匿名用户(ftp用户)</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">vsftpd</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>用户认证配置文件: /etc/pam.d/vsftpd</li>
+<li>主配置文件: /etc/vsftpd/vsftpd.conf
+<ul class="org-ul">
+<li>配置文件每行前不能有多余空白字符</li>
+</ul></li>
+<li><p>
+匿名用户(ftp用户)共享资源位置: /var/ftp
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">anonymous_enable</span>=YES
+<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_upload_enable=YES  # &#40664;&#35748;&#19981;&#21551;&#29992;&#21311;&#21517;&#29992;&#25143;&#30340;&#19978;&#20256;</span>
+<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_mkdir_write_enable=YES  # &#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21019;&#24314;&#25991;&#20214;&#22841;</span>
+<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_other_write_enable=YES  # &#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21024;&#38500;&#25991;&#20214;&#21644;&#25991;&#20214;&#22841;</span>
+</pre>
+</div></li>
+<li><p>
+系统用户默认访问资源位置为用户自己的家目录，同时可以访问其他文件夹
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">local_enable</span>=YES
+
+<span style="color: #FD971F;">write_enable</span>=YES
+<span style="color: #FD971F;">local_umask</span>=022
+
+<span style="color: #FD971F;">chroot_local_user</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38145;&#23450;&#29992;&#25143;&#19981;&#33021;&#35775;&#38382;&#23478;&#30446;&#24405;&#22806;&#30340;&#20854;&#20182;&#30446;&#24405;</span>
+<span style="color: #FD971F;">chroot_list_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#38145;&#23450;&#21015;&#34920;&#25991;&#20214;&#20013;&#30340;&#29992;&#25143;</span>
+<span style="color: #FD971F;">chroot_list_file</span>=/etc/vsftpd/chroot_list
+</pre>
+</div></li>
+<li>虚拟用户访问资源位置: 由配置文件指定家目录</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">lftp</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+用于连接ftp服务器(默认21端口)，用于代替ftp程序
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">lftp [-p port] [-u user[,password]] SERVER
+  &#23376;&#21629;&#20196;
+    get: &#33719;&#21462;&#36828;&#31243;&#30340;&#25991;&#20214;
+    mget: &#33719;&#21462;&#36828;&#31243;&#30340;&#22810;&#20010;&#25991;&#20214;
+    ls
+    help
+
+lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;lftp&#33719;&#21462;&#19968;&#20010;&#25991;&#20214;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>使用匿名账户登录ftp，用户名为ftp</li>
+</ul>
+</div>
+</div>
+</div>

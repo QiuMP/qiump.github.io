@@ -1101,13 +1101,35 @@ id [OPTION]... [USER]
   -n: 配合其他选项，显示名称而不是数字
 #+END_SRC
 *** su
-切换用户或以其他用户身份执行命令
+su(Switch User): 切换用户或以其他用户身份执行命令
 #+BEGIN_SRC conf
 su user     # 非登录式切换，即不会读取目标用户的配置文件
 su - user   # 登录式切换，会读取目标用户的配置文件，完全切换
 su [-] UserName -c 'COMMAND'  # 以其他用户的身份执行命令，不切换用户
 #+END_SRC
 - root切换至其他用户无须密码，而非root用户切换时需要密码
+*** sudo
+授权之后，能够让某用户以其他用户的身份运行某些命令，同时会记录进日志中
+#+BEGIN_SRC conf
+sudo [-u user] COMMAND 
+  -u user: 默认为root
+  -k: 重置输入用户密码
+  -l: 显示当前用户能用sudo运行的命令
+#+END_SRC
+- 配置文件: sudoers，使用 =visudo= 命令进行编辑
+  #+BEGIN_SRC sh
+  users  hosts=(runas)  [NOPASSWD:]commands,...  # 可以使用ALL来指定所有
+    users: 'username、#uid、%group_name、%#gid'
+    hosts: 'ip、hostname、netaddr'
+    commands: 'command、directory、sudoedit'
+
+  Alias_Type NAME = item1, item2, ...  # 别名可以用于上边的配置行中，也可以用在其他别名中
+    NAME: 别名名称，必须使用全大写字母
+    item: 以!开头表示排除
+    Alias_Type: User_Alias、Host_Alias、Runas_Alias、Cmnd_Alias
+
+  Cmnd_Alias PASSWD_CMND = /usr/bin/passwd [a-z]*, !/usr/bin/passwd root  # 防止用户更改root密码
+  #+END_SRC
 *** newgrp
 临时切换基本组
 #+BEGIN_SRC conf

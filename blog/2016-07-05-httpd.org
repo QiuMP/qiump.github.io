@@ -495,6 +495,7 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
    yum -y install bzip2-devel libmcrypt-devel libxml2-devel
    #+END_SRC
 2. 编译安装php
+   - 需要使用fpm或着连接特定数据库时需要启用相关的驱动模块
    #+BEGIN_SRC conf
    tar xf php-5.4.26.tar.bz2
    cd php-5.4.26
