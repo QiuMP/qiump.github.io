@@ -71,17 +71,11 @@ comments:
 <li><a href="#orgheadline28">system-config-network-tui</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline32">5. 网络客户端工具</a>
-<ul>
-<li><a href="#orgheadline30">lftp</a></li>
-<li><a href="#orgheadline31">wget</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
 <p>
-linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：lftp, wget, nmap, tcpdump的使用
+linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：wget, axel, nmap, tcpdump的使用
 </p>
 
 
@@ -648,51 +642,6 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 <p>
 一个交互式修改网络配置文件的程序, 也可以使用 <code>setup</code> 找到
 </p>
-</div>
-</div>
-</div>
-<div id="outline-container-orgheadline32" class="outline-2">
-<h2 id="orgheadline32"><span class="section-number-2">5</span> 网络客户端工具</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-orgheadline30" class="outline-3">
-<h3 id="orgheadline30">lftp</h3>
-<div class="outline-text-3" id="text-orgheadline30">
-<p>
-用于连接ftp服务器(默认21端口)，用于代替ftp程序
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">lftp [-p port] [-u user[,password]] SERVER
-  &#23376;&#21629;&#20196;
-    get: &#33719;&#21462;&#36828;&#31243;&#30340;&#25991;&#20214;
-    mget: &#33719;&#21462;&#36828;&#31243;&#30340;&#22810;&#20010;&#25991;&#20214;
-    ls
-    help
-
-lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;lftp&#33719;&#21462;&#19968;&#20010;&#25991;&#20214;</span>
-</pre>
-</div>
-<ul class="org-ul">
-<li>使用匿名账户登录ftp，用户名为anonymous</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline31" class="outline-3">
-<h3 id="orgheadline31">wget</h3>
-<div class="outline-text-3" id="text-orgheadline31">
-<p>
-非交互式网络下载器
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">wget [option]... [URL]...
-  -q: &#38745;&#40664;&#27169;&#24335;
-  -c: &#20351;&#29992;&#26029;&#28857;&#32493;&#20256;
-  -i FILE: &#20174;&#25991;&#20214;&#20013;&#33719;&#21462;&#22810;&#20010;URL&#22320;&#22336;
-  -O PATH: &#20445;&#23384;&#20301;&#32622;
-  <span style="color: #FD971F;">--limit-rates</span>=: &#25351;&#23450;&#20256;&#36755;&#36895;&#29575;
-</pre>
-</div>
 </div>
 </div>
 </div>

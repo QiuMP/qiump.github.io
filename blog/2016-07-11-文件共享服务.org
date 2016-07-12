@@ -16,6 +16,7 @@
 * ftp
 ** ftp相关知识
 - ftp(File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输
+- ftps使用SSL加密，sftp使用SSH加密，两者比较少用
 *** 连接类型
 - 命令连接(21/tcp): 用于传输文件管理类命令，始终在线的连接
 - 数据连接: 用于传输数据，按需创建和关闭的连接
@@ -38,16 +39,15 @@
   - pam: pluggable authentication module，用户认证框架
 - 系统用户(默认)
 - 匿名用户(ftp用户)
-** vsftpd
-- 用户认证配置文件: /etc/pam.d/vsftpd
+** vsftpd配置
 - 主配置文件: /etc/vsftpd/vsftpd.conf
   - 配置文件每行前不能有多余空白字符
 - 匿名用户(ftp用户)共享资源位置: /var/ftp
   #+BEGIN_SRC conf
   anonymous_enable=YES
-  #anon_upload_enable=YES  # 默认不启用匿名用户的上传
-  #anon_mkdir_write_enable=YES  # 默认匿名用户不能创建文件夹
-  #anon_other_write_enable=YES  # 默认匿名用户不能删除文件和文件夹
+  anon_upload_enable=YES  # 默认不启用匿名用户的上传
+  anon_mkdir_write_enable=YES  # 默认匿名用户不能创建文件夹
+  anon_other_write_enable=YES  # 默认匿名用户不能删除文件和文件夹
   #+END_SRC
 - 系统用户默认访问资源位置为用户自己的家目录，同时可以访问其他文件夹
   #+BEGIN_SRC conf
@@ -60,7 +60,46 @@
   chroot_list_enable=YES  # 只锁定列表文件中的用户
   chroot_list_file=/etc/vsftpd/chroot_list
   #+END_SRC
-- 虚拟用户访问资源位置: 由配置文件指定家目录
+- 虚拟用户会被统一映射到一个指定的系统账号，权限默认为匿名用户权限，虚拟用户可被赋予不同的访问权限
+  - 虚拟用户账号列表可存储为一个文件或存储在数据库(使用 =pam_mysql= 模块)中
+  - 默认用户认证配置文件: /etc/pam.d/vsftpd
+  #+BEGIN_SRC conf
+  guest_enable=YES
+  guest_username=vuser  # 指定被映射的用户名
+
+  user_config_dir=/etc/vsftpd/vusers_config  # 用户权限配置目录，该目录下的文件名为特殊权限的用户名，配置语句和匿名账号权限配置一样
+
+  pam_service_name=vsftpd  # 指定pam配置文件
+  #+END_SRC
+- 控制用户的登录
+  #+BEGIN_SRC conf
+  userlist_enable=YES  
+  userlist_deny=YES|NO  # 说明用户列表文件是黑名单还是白名单
+  userlist_file=/etc/vsftpd/user_list
+  #+END_SRC
+- 日志
+  #+BEGIN_SRC conf
+  xferlog_enable=YES
+  xferlog_std_format=YES
+  xferlog_file=/var/log/xferlog
+  #+END_SRC
+- 改变上传文件的属主
+  #+BEGIN_SRC conf
+  chown_uploads=YES
+  chown_username=whoever
+  #+END_SRC
+- 提示信息
+  #+BEGIN_SRC conf
+  ftpd_banner=...  # 登录欢迎信息
+  dirmessage_enable=...  # 进入目录时显示目录下的.message的信息
+  #+END_SRC
+- 连接限制
+  #+BEGIN_SRC conf 
+  max_clients: 最大并发连接数
+  max_per_ip: 每个IP可同时发起的并发连接数
+  anno_max_rate: 匿名用户的最大传输速率
+  local_max_rate: 本地用户的最大传输速率
+  #+END_SRC
 ** lftp
 用于连接ftp服务器(默认21端口)，用于代替ftp程序
 #+BEGIN_SRC conf
@@ -74,3 +113,51 @@ lftp [-p port] [-u user[,password]] SERVER
 lftpget URL  # 使用lftp获取一个文件
 #+END_SRC
 - 使用匿名账户登录ftp，用户名为ftp
+
+* NFS
+** NFS相关
+- NFS: Network File System，内核级别的文件共享，通过RPC进行交互
+  - 软件名: nfs-utils
+- 身份认证
+  - 可以简单基于IP来认证
+  - 也可以基于NIS(Network Information System)用户身份认证的服务器来认证，但传输是明文传输
+- RPC: Remote Procedure Call Protocol，远程过程调用
+  - 使用半结构化数据进行交互: XML、JSON、http
+** 运行主要的服务
+- RPC服务进程portmapper(111/tcp)
+  #+BEGIN_SRC conf
+  rpcinfo -p [IP]  # 查询主机上注册使用的服务
+  #+END_SRC
+- nfs服务进程nfsd(2049/tcp)，基于IP进行认证
+- nfs文件权限管理服务mounted(端口随机)，根据uid/gid来控制访问权限
+- idmap服务用于映射用户的uid/gid
+** 配置NFS
+配置文件: /etc/exports
+#+BEGIN_SRC conf
+directory  Client1(OPTIONS)  Client2(OPTIONS)
+  Client: IP、FQDN、NETWORK
+  OPTIONS: 
+    secure: 默认选项，使用1024以下的TCP/IP端口来实现NFS的连接。指定insecure可以禁用这个选项
+    rw: 允许进行读/写访问，默认为只读
+    async: 这个选项可以改进性能，但是如果没有完全关闭NFS守护进程就重新启动了NFS服务器可能会造成数据丢失
+
+    no_root_squash: 这个选项允许root用户本身挂载上来的NFS卷(默认root会被映射为匿名用户)
+    all_squash: 所有用户会映射为匿名用户来访问
+    anonuid/anongid: 将匿名UID和GID修改成特定用户和组帐号，默认为nobody
+#+END_SRC
+- 使用exportfs重新载入配置文件
+  #+BEGIN_SRC conf
+  exportfs -ar: 重新导出所有的文件系统
+  exportfs -au: 关闭导出的所有文件系统
+  exportfs -u FS: 关闭指定的导出的文件系统
+  #+END_SRC
+** 相关操作
+- 查看NFS服务端共享的文件系统
+  #+BEGIN_SRC conf
+  showmount -e IP  
+  #+END_SRC
+- 挂载NFS文件系统: 可以将其加入/etc/fstab来开机自动挂载(选项添加_netdev防止断网无法开机)
+  #+BEGIN_SRC conf
+  mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
+  #+END_SRC
+  - 特殊挂载选项: rsize是从服务器读取的字节数，wsize是写入到服务器的字节数，即设置缓冲区大小

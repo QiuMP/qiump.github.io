@@ -257,3 +257,15 @@ curl [OPTIONS] [URL...]
 
   -0/--http1.0: 使用HTTP 1.0	
 #+END_SRC
+** wget
+非交互式网络下载器
+#+BEGIN_SRC conf
+wget [option]... [URL]...
+  -q: 静默模式
+  -c: 使用断点续传
+  -i FILE: 从文件中获取多个URL地址
+  -O PATH: 保存位置
+  --limit-rates=: 指定传输速率
+#+END_SRC
+** axel
+支持断点续传和多线程下载

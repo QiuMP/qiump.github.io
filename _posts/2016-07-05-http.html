@@ -55,10 +55,12 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline26">4. 相关命令</a>
+<li><a href="#orgheadline28">4. 相关命令</a>
 <ul>
 <li><a href="#orgheadline24">协议查看或分析工具</a></li>
 <li><a href="#orgheadline25">curl</a></li>
+<li><a href="#orgheadline26">wget</a></li>
+<li><a href="#orgheadline27">axel</a></li>
 </ul>
 </li>
 </ul>
@@ -493,8 +495,8 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-2">
-<h2 id="orgheadline26"><span class="section-number-2">4</span> 相关命令</h2>
+<div id="outline-container-orgheadline28" class="outline-2">
+<h2 id="orgheadline28"><span class="section-number-2">4</span> 相关命令</h2>
 <div class="outline-text-2" id="text-4">
 </div><div id="outline-container-orgheadline24" class="outline-3">
 <h3 id="orgheadline24">协议查看或分析工具</h3>
@@ -529,6 +531,32 @@ curl是基于URL语法在命令行方式下工作的文件传输工具，它支�
   -0/--http1.0: &#20351;&#29992;HTTP 1.0
 </pre>
 </div>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">wget</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+<p>
+非交互式网络下载器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">wget [option]... [URL]...
+  -q: &#38745;&#40664;&#27169;&#24335;
+  -c: &#20351;&#29992;&#26029;&#28857;&#32493;&#20256;
+  -i FILE: &#20174;&#25991;&#20214;&#20013;&#33719;&#21462;&#22810;&#20010;URL&#22320;&#22336;
+  -O PATH: &#20445;&#23384;&#20301;&#32622;
+  <span style="color: #FD971F;">--limit-rates</span>=: &#25351;&#23450;&#20256;&#36755;&#36895;&#29575;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">axel</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+<p>
+支持断点续传和多线程下载
+</p>
 </div>
 </div>
 </div>

@@ -26,8 +26,16 @@ comments:
 <li><a href="#orgheadline6">用户认证</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline7">vsftpd</a></li>
+<li><a href="#orgheadline7">vsftpd配置</a></li>
 <li><a href="#orgheadline8">lftp</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">3. NFS</a>
+<ul>
+<li><a href="#orgheadline10">NFS相关</a></li>
+<li><a href="#orgheadline11">运行主要的服务</a></li>
+<li><a href="#orgheadline12">配置NFS</a></li>
+<li><a href="#orgheadline13">相关操作</a></li>
 </ul>
 </li>
 </ul>
@@ -57,6 +65,7 @@ comments:
 <div class="outline-text-3" id="text-orgheadline2">
 <ul class="org-ul">
 <li>ftp(File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输</li>
+<li>ftps使用SSL加密，sftp使用SSH加密，两者比较少用</li>
 </ul>
 </div>
 <div id="outline-container-orgheadline3" class="outline-4">
@@ -113,10 +122,9 @@ comments:
 </div>
 </div>
 <div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">vsftpd</h3>
+<h3 id="orgheadline7">vsftpd配置</h3>
 <div class="outline-text-3" id="text-orgheadline7">
 <ul class="org-ul">
-<li>用户认证配置文件: /etc/pam.d/vsftpd</li>
 <li>主配置文件: /etc/vsftpd/vsftpd.conf
 <ul class="org-ul">
 <li>配置文件每行前不能有多余空白字符</li>
@@ -127,9 +135,9 @@ comments:
 <div class="org-src-container">
 
 <pre class="src src-conf"><span style="color: #FD971F;">anonymous_enable</span>=YES
-<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_upload_enable=YES  # &#40664;&#35748;&#19981;&#21551;&#29992;&#21311;&#21517;&#29992;&#25143;&#30340;&#19978;&#20256;</span>
-<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_mkdir_write_enable=YES  # &#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21019;&#24314;&#25991;&#20214;&#22841;</span>
-<span style="color: #75715E;">#</span><span style="color: #75715E;">anon_other_write_enable=YES  # &#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21024;&#38500;&#25991;&#20214;&#21644;&#25991;&#20214;&#22841;</span>
+<span style="color: #FD971F;">anon_upload_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#19981;&#21551;&#29992;&#21311;&#21517;&#29992;&#25143;&#30340;&#19978;&#20256;</span>
+<span style="color: #FD971F;">anon_mkdir_write_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21019;&#24314;&#25991;&#20214;&#22841;</span>
+<span style="color: #FD971F;">anon_other_write_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21024;&#38500;&#25991;&#20214;&#21644;&#25991;&#20214;&#22841;</span>
 </pre>
 </div></li>
 <li><p>
@@ -147,7 +155,72 @@ comments:
 <span style="color: #FD971F;">chroot_list_file</span>=/etc/vsftpd/chroot_list
 </pre>
 </div></li>
-<li>虚拟用户访问资源位置: 由配置文件指定家目录</li>
+<li><p>
+虚拟用户会被统一映射到一个指定的系统账号，权限默认为匿名用户权限，虚拟用户可被赋予不同的访问权限
+</p>
+<ul class="org-ul">
+<li>虚拟用户账号列表可存储为一个文件或存储在数据库(使用 <code>pam_mysql</code> 模块)中</li>
+<li>默认用户认证配置文件: /etc/pam.d/vsftpd</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">guest_enable</span>=YES
+<span style="color: #FD971F;">guest_username</span>=vuser  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#34987;&#26144;&#23556;&#30340;&#29992;&#25143;&#21517;</span>
+
+<span style="color: #FD971F;">user_config_dir</span>=/etc/vsftpd/vusers_config  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#25143;&#26435;&#38480;&#37197;&#32622;&#30446;&#24405;&#65292;&#35813;&#30446;&#24405;&#19979;&#30340;&#25991;&#20214;&#21517;&#20026;&#29305;&#27530;&#26435;&#38480;&#30340;&#29992;&#25143;&#21517;&#65292;&#37197;&#32622;&#35821;&#21477;&#21644;&#21311;&#21517;&#36134;&#21495;&#26435;&#38480;&#37197;&#32622;&#19968;&#26679;</span>
+
+<span style="color: #FD971F;">pam_service_name</span>=vsftpd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;pam&#37197;&#32622;&#25991;&#20214;</span>
+</pre>
+</div></li>
+<li><p>
+控制用户的登录
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">userlist_enable</span>=YES  
+<span style="color: #FD971F;">userlist_deny</span>=YES|NO  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35828;&#26126;&#29992;&#25143;&#21015;&#34920;&#25991;&#20214;&#26159;&#40657;&#21517;&#21333;&#36824;&#26159;&#30333;&#21517;&#21333;</span>
+<span style="color: #FD971F;">userlist_file</span>=/etc/vsftpd/user_list
+</pre>
+</div></li>
+<li><p>
+日志
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">xferlog_enable</span>=YES
+<span style="color: #FD971F;">xferlog_std_format</span>=YES
+<span style="color: #FD971F;">xferlog_file</span>=/var/log/xferlog
+</pre>
+</div></li>
+<li><p>
+改变上传文件的属主
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">chown_uploads</span>=YES
+<span style="color: #FD971F;">chown_username</span>=whoever
+</pre>
+</div></li>
+<li><p>
+提示信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">ftpd_banner</span>=...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30331;&#24405;&#27426;&#36814;&#20449;&#24687;</span>
+<span style="color: #FD971F;">dirmessage_enable</span>=...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36827;&#20837;&#30446;&#24405;&#26102;&#26174;&#31034;&#30446;&#24405;&#19979;&#30340;.message&#30340;&#20449;&#24687;</span>
+</pre>
+</div></li>
+<li><p>
+连接限制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">max_clients: &#26368;&#22823;&#24182;&#21457;&#36830;&#25509;&#25968;
+max_per_ip: &#27599;&#20010;IP&#21487;&#21516;&#26102;&#21457;&#36215;&#30340;&#24182;&#21457;&#36830;&#25509;&#25968;
+anno_max_rate: &#21311;&#21517;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
+local_max_rate: &#26412;&#22320;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
+</pre>
+</div></li>
 </ul>
 </div>
 </div>
@@ -171,6 +244,109 @@ lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;
 </div>
 <ul class="org-ul">
 <li>使用匿名账户登录ftp，用户名为ftp</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14"><span class="section-number-2">3</span> NFS</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">NFS相关</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<ul class="org-ul">
+<li>NFS: Network File System，内核级别的文件共享，通过RPC进行交互
+<ul class="org-ul">
+<li>软件名: nfs-utils</li>
+</ul></li>
+<li>身份认证
+<ul class="org-ul">
+<li>可以简单基于IP来认证</li>
+<li>也可以基于NIS(Network Information System)用户身份认证的服务器来认证，但传输是明文传输</li>
+</ul></li>
+<li>RPC: Remote Procedure Call Protocol，远程过程调用
+<ul class="org-ul">
+<li>使用半结构化数据进行交互: XML、JSON、http</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">运行主要的服务</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<ul class="org-ul">
+<li><p>
+RPC服务进程portmapper(111/tcp)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">rpcinfo -p [IP]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#20027;&#26426;&#19978;&#27880;&#20876;&#20351;&#29992;&#30340;&#26381;&#21153;</span>
+</pre>
+</div></li>
+<li>nfs服务进程nfsd(2049/tcp)，基于IP进行认证</li>
+<li>nfs文件权限管理服务mounted(端口随机)，根据uid/gid来控制访问权限</li>
+<li>idmap服务用于映射用户的uid/gid</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">配置NFS</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+配置文件: /etc/exports
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">directory  Client1(OPTIONS)  Client2(OPTIONS)
+  Client: IP&#12289;FQDN&#12289;NETWORK
+  OPTIONS: 
+    secure: &#40664;&#35748;&#36873;&#39033;&#65292;&#20351;&#29992;1024&#20197;&#19979;&#30340;TCP/IP&#31471;&#21475;&#26469;&#23454;&#29616;NFS&#30340;&#36830;&#25509;&#12290;&#25351;&#23450;insecure&#21487;&#20197;&#31105;&#29992;&#36825;&#20010;&#36873;&#39033;
+    rw: &#20801;&#35768;&#36827;&#34892;&#35835;/&#20889;&#35775;&#38382;&#65292;&#40664;&#35748;&#20026;&#21482;&#35835;
+    async: &#36825;&#20010;&#36873;&#39033;&#21487;&#20197;&#25913;&#36827;&#24615;&#33021;&#65292;&#20294;&#26159;&#22914;&#26524;&#27809;&#26377;&#23436;&#20840;&#20851;&#38381;NFS&#23432;&#25252;&#36827;&#31243;&#23601;&#37325;&#26032;&#21551;&#21160;&#20102;NFS&#26381;&#21153;&#22120;&#21487;&#33021;&#20250;&#36896;&#25104;&#25968;&#25454;&#20002;&#22833;
+
+    no_root_squash: &#36825;&#20010;&#36873;&#39033;&#20801;&#35768;root&#29992;&#25143;&#26412;&#36523;&#25346;&#36733;&#19978;&#26469;&#30340;NFS&#21367;(&#40664;&#35748;root&#20250;&#34987;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;)
+    all_squash: &#25152;&#26377;&#29992;&#25143;&#20250;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;&#26469;&#35775;&#38382;
+    anonuid/anongid: &#23558;&#21311;&#21517;UID&#21644;GID&#20462;&#25913;&#25104;&#29305;&#23450;&#29992;&#25143;&#21644;&#32452;&#24080;&#21495;&#65292;&#40664;&#35748;&#20026;nobody
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+使用exportfs重新载入配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">exportfs -ar: &#37325;&#26032;&#23548;&#20986;&#25152;&#26377;&#30340;&#25991;&#20214;&#31995;&#32479;
+exportfs -au: &#20851;&#38381;&#23548;&#20986;&#30340;&#25152;&#26377;&#25991;&#20214;&#31995;&#32479;
+exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;&#25991;&#20214;&#31995;&#32479;
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">相关操作</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<ul class="org-ul">
+<li><p>
+查看NFS服务端共享的文件系统
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">showmount -e IP
+</pre>
+</div></li>
+<li><p>
+挂载NFS文件系统: 可以将其加入/etc/fstab来开机自动挂载(选项添加_netdev防止断网无法开机)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
+</pre>
+</div>
+<ul class="org-ul">
+<li>特殊挂载选项: rsize是从服务器读取的字节数，wsize是写入到服务器的字节数，即设置缓冲区大小</li>
+</ul></li>
 </ul>
 </div>
 </div>

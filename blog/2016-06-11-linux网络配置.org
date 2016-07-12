@@ -6,7 +6,7 @@
 #+jekyll_tags: Linux 运维 网络
 #+jekyll_published: true
 
-linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：lftp, wget, nmap, tcpdump的使用
+linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：wget, axel, nmap, tcpdump的使用
 
 
 
@@ -280,27 +280,3 @@ IP、MASK、GW、DNS相关配置文件: =/etc/sysconfig/network-scripts/ifcfg-IF
 - 网卡别名不能使用dhcp
 ** system-config-network-tui
 一个交互式修改网络配置文件的程序, 也可以使用 =setup= 找到
-* 网络客户端工具
-** lftp
-用于连接ftp服务器(默认21端口)，用于代替ftp程序
-#+BEGIN_SRC conf
-lftp [-p port] [-u user[,password]] SERVER
-  子命令
-    get: 获取远程的文件
-    mget: 获取远程的多个文件
-    ls
-    help
-
-lftpget URL  # 使用lftp获取一个文件
-#+END_SRC
-- 使用匿名账户登录ftp，用户名为anonymous
-** wget
-非交互式网络下载器
-#+BEGIN_SRC conf
-wget [option]... [URL]...
-  -q: 静默模式
-  -c: 使用断点续传
-  -i FILE: 从文件中获取多个URL地址
-  -O PATH: 保存位置
-  --limit-rates=: 指定传输速率
-#+END_SRC

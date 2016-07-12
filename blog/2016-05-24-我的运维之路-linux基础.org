@@ -1335,6 +1335,7 @@ chmod [OPTION]... --reference=RFILE FILE...
 umask  # 查看umask
 umask num  # 设置umask，仅对当前shell有效
 #+END_SRC
+*** TODO facl
 * 正则表达式
 REGEXP由一类特殊字符及文本字符所编写的模式，其中有些字符不表示字符字面意义，而表示控制或通配的功能
 ** 正则表达式的类型
