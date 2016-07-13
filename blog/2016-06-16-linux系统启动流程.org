@@ -12,6 +12,7 @@
 
 
 -----
+CentOS启动流程: POST --> BootSequence(BIOS) --> BootLoader --> Kernel (ramdisk) --> rootfs --> /sbin/init或/sbin/systemd
 * POST: 加电自检
 - 加载CPU, 设定ROM中的固定地址
 - 通过ROM(CMOS)内的程序进行自检
@@ -22,7 +23,7 @@
 ** bootloader
 - bootloader: 引导加载器
   - windows: ntloader
-  - Linux: LILO, GRUB, GRUB2
+  - Linux: LILO(安卓), GRUB, GRUB2
   - 功能: 提供一个菜单，允许用户选择要启动系统或不同的内核版本；把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核
 - MBR:
   - 前446字节: bootloader
@@ -68,7 +69,7 @@ hiddenmenu  # 隐藏菜单
 password [--md5] STRING  # 菜单编辑认证，菜单下用p来输入密码解锁
 title TITLE  # 定义菜单项“标题”, 可出现多次
     root (hd*,*)  # grub查找stage2及kernel文件所在设备分区
-    kernel /PATH/TO/VMLINUZ_FILE [PARAMETERS]  # 启动的内核
+    kernel /PATH/TO/VMLINUZ_FILE ro root=/dev/DEVICE[PARAMETERS]  # 启动的内核
     initrd /PATH/TO/INITRAMFS_FILE  # 内核匹配的ramfs文件
     password [--md5] STRING  # 启动选定的内核或操作系统时进行认证
 #+END_SRC
@@ -126,13 +127,14 @@ runlevel  # 查看上一个级别和当前级别
 who -r  # 查看当前级别
 #+END_SRC
 *** 配置文件
-在配置文件 =/etc/inittab= 中，每一行定义一种action以及对应的process
+- 配置文件包含 /etc/init/*.conf 和 /etc/inittab
+- 在配置文件 =/etc/inittab= 中，每一行定义一种action以及对应的process
 - 配置文件的内容:
-  #+BEGIN_SRC c
+  #+BEGIN_SRC conf
   id:runlevel:action:process
     action:
       wait: 切换至此级别运行一次
-      respawn：此process终止，就重新启动之
+      respawn: 此process终止，就重新启动之
   
   id:3:initdefault:  # 设置默认级别
   si::sysinit:/etc/rc.d/rc.sysinit  # 设定系统初始化方式
@@ -143,7 +145,7 @@ who -r  # 查看当前级别
   l6:6:wait:/etc/rc.d/rc 6  # 读取/etc/rc.d/rc6.d/
 
   tty1:2345:respawn:/usr/sbin/mingetty tty1  # 启动tty终端
-  tty2:2345:respawn:/usr/sbin/mingetty tty2  # mingetty会调用login程序
+  tty2:2345:respawn:/usr/sbin/mingetty tty2  # mingetty会调用login程序，登录成功会显示/etc/issue的内容
   ...
   tty6:2345:respawn:/usr/sbin/mingetty tty6
   #+END_SRC
@@ -167,11 +169,11 @@ who -r  # 查看当前级别
   - S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
   #+BEGIN_SRC sh
   # /etc/rc.d/rc的部分执行内容
-    for srv in /etc/rc.d/rc${1}.d/K*; do
+    for srv in /etc/rc.d/rc${RUNLEVEL}.d/K*; do
         $srv stop
     done
 
-    for srv in /etc/rc.d/rc${1}.d/S*; do
+    for srv in /etc/rc.d/rc${RUNLEVEL}.d/S*; do
         $srv start
     done
   #+END_SRC

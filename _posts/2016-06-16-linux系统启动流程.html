@@ -56,6 +56,9 @@ comments:
 
 
 <hr  />
+<p>
+CentOS启动流程: POST &#x2013;&gt; BootSequence(BIOS) &#x2013;&gt; BootLoader &#x2013;&gt; Kernel (ramdisk) &#x2013;&gt; rootfs &#x2013;&gt; /sbin/init或/sbin/systemd
+</p>
 <div id="outline-container-orgheadline1" class="outline-2">
 <h2 id="orgheadline1"><span class="section-number-2">1</span> POST: 加电自检</h2>
 <div class="outline-text-2" id="text-1">
@@ -81,7 +84,7 @@ comments:
 <li>bootloader: 引导加载器
 <ul class="org-ul">
 <li>windows: ntloader</li>
-<li>Linux: LILO, GRUB, GRUB2</li>
+<li>Linux: LILO(安卓), GRUB, GRUB2</li>
 <li>功能: 提供一个菜单，允许用户选择要启动系统或不同的内核版本；把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核</li>
 </ul></li>
 <li>MBR:
@@ -166,7 +169,7 @@ hiddenmenu  <span style="color: #75715E;"># </span><span style="color: #75715E;"
 password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#32534;&#36753;&#35748;&#35777;&#65292;&#33756;&#21333;&#19979;&#29992;p&#26469;&#36755;&#20837;&#23494;&#30721;&#35299;&#38145;</span>
 title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#33756;&#21333;&#39033;&#8220;&#26631;&#39064;&#8221;, &#21487;&#20986;&#29616;&#22810;&#27425;</span>
     root (hd*,*)  <span style="color: #75715E;"># </span><span style="color: #75715E;">grub&#26597;&#25214;stage2&#21450;kernel&#25991;&#20214;&#25152;&#22312;&#35774;&#22791;&#20998;&#21306;</span>
-    kernel /PATH/TO/VMLINUZ_FILE [PARAMETERS]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#20869;&#26680;</span>
+    <span style="color: #FD971F;">kernel /PATH/TO/VMLINUZ_FILE ro root</span>=/dev/DEVICE[PARAMETERS]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#20869;&#26680;</span>
     initrd /PATH/TO/INITRAMFS_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#26680;&#21305;&#37197;&#30340;ramfs&#25991;&#20214;</span>
     password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#36873;&#23450;&#30340;&#20869;&#26680;&#25110;&#25805;&#20316;&#31995;&#32479;&#26102;&#36827;&#34892;&#35748;&#35777;</span>
 </pre>
@@ -323,32 +326,31 @@ who -r  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#2
 <div id="outline-container-orgheadline12" class="outline-4">
 <h4 id="orgheadline12">配置文件</h4>
 <div class="outline-text-4" id="text-orgheadline12">
-<p>
-在配置文件 <code>/etc/inittab</code> 中，每一行定义一种action以及对应的process
-</p>
 <ul class="org-ul">
+<li>配置文件包含 /etc/init/*.conf 和 /etc/inittab</li>
+<li>在配置文件 <code>/etc/inittab</code> 中，每一行定义一种action以及对应的process</li>
 <li><p>
 配置文件的内容:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-c"><span style="color: #AE81FF;">id</span>:<span style="color: #AE81FF;">runlevel</span>:<span style="color: #AE81FF;">action</span>:<span style="color: #66D9EF;">process</span>
-  <span style="color: #FD971F;">action</span>:
+<pre class="src src-conf">id:runlevel:action:process
+  action:
     wait: &#20999;&#25442;&#33267;&#27492;&#32423;&#21035;&#36816;&#34892;&#19968;&#27425;
-    respawn&#65306;&#27492;process&#32456;&#27490;&#65292;&#23601;&#37325;&#26032;&#21551;&#21160;&#20043;
+    respawn: &#27492;process&#32456;&#27490;&#65292;&#23601;&#37325;&#26032;&#21551;&#21160;&#20043;
 
-id:<span style="color: #AE81FF;">3</span>:initdefault:  # &#35774;&#32622;&#40664;&#35748;&#32423;&#21035;
-si::sysinit:/etc/rc.d/rc.sysinit  # &#35774;&#23450;&#31995;&#32479;&#21021;&#22987;&#21270;&#26041;&#24335;
+id:3:initdefault:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#40664;&#35748;&#32423;&#21035;</span>
+si::sysinit:/etc/rc.d/rc.sysinit  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#31995;&#32479;&#21021;&#22987;&#21270;&#26041;&#24335;</span>
 
-l0:<span style="color: #AE81FF;">0</span>:wait:/etc/rc.d/rc <span style="color: #AE81FF;">0</span>  # &#35835;&#21462;/etc/rc.d/rc0.d/
-l1:<span style="color: #AE81FF;">1</span>:wait:/etc/rc.d/rc <span style="color: #AE81FF;">1</span>  # &#35835;&#21462;/etc/rc.d/rc1.d/
+l0:0:wait:/etc/rc.d/rc 0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc0.d/</span>
+l1:1:wait:/etc/rc.d/rc 1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc1.d/</span>
 ...
-l6:<span style="color: #AE81FF;">6</span>:wait:/etc/rc.d/rc <span style="color: #AE81FF;">6</span>  # &#35835;&#21462;/etc/rc.d/rc6.d/
+l6:6:wait:/etc/rc.d/rc 6  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc6.d/</span>
 
-tty1:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty1  # &#21551;&#21160;tty&#32456;&#31471;
-tty2:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty2  # mingetty&#20250;&#35843;&#29992;login&#31243;&#24207;
+tty1:2345:respawn:/usr/sbin/mingetty tty1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;tty&#32456;&#31471;</span>
+tty2:2345:respawn:/usr/sbin/mingetty tty2  <span style="color: #75715E;"># </span><span style="color: #75715E;">mingetty&#20250;&#35843;&#29992;login&#31243;&#24207;&#65292;&#30331;&#24405;&#25104;&#21151;&#20250;&#26174;&#31034;/etc/issue&#30340;&#20869;&#23481;</span>
 ...
-tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
+tty6:2345:respawn:/usr/sbin/mingetty tty6
 </pre>
 </div></li>
 </ul>
@@ -390,11 +392,11 @@ tty6:<span style="color: #AE81FF;">2345</span>:respawn:/usr/sbin/mingetty tty6
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #75715E;"># </span><span style="color: #75715E;">/etc/rc.d/rc&#30340;&#37096;&#20998;&#25191;&#34892;&#20869;&#23481;</span>
-  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">}</span>.d/K*; <span style="color: #F92672;">do</span>
+  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/K*; <span style="color: #F92672;">do</span>
       $<span style="color: #FD971F;">srv</span> stop
   <span style="color: #F92672;">done</span>
 
-  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">}</span>.d/S*; <span style="color: #F92672;">do</span>
+  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/S*; <span style="color: #F92672;">do</span>
       $<span style="color: #FD971F;">srv</span> start
   <span style="color: #F92672;">done</span>
 </pre>

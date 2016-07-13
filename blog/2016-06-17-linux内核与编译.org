@@ -150,6 +150,94 @@ cpio -id < initramfs-VERSION-release.img
   - =[ ]=: 表示不编译
   - =[M]=: 表示编译成模块
   - =[*]=: 表示编译进核心
+** 从allnoconfig开始配置最小化系统
+*** 编译内核
+以下是在 =menuconfig= 下需要设置的内核选项
+- 只编译内核文件
+  #+BEGIN_SRC conf
+  make -j 4 bzImage
+  #+END_SRC
+- 基础平台选项
+  #+BEGIN_SRC sh
+  64-bit kernel  # 编译64位内核
+  Enable loadable module support  # 动态模块装载
+    -> Module unloading  # 动态卸载
+  Processor type and features  # 设置CPU特性
+    -> Symmetric multi-processing support  # 支持多核CPU
+    -> Processor family  # 设置CPU型号
+  Bus options  
+    -> PCI support  # 启用PCI支持
+  Device Drivers  # 设备驱动
+    -> Generic Driver Options
+      -> Maintain a devtmpfs filesystem to mount at /dev
+      -> Automount devtmpfs at /dev, after the kernel mounted the rootfs
+    # 硬盘驱动: 根据lspci的驱动提示进行选项，以下以vmware虚拟机下的SCSI硬盘进行
+    -> SCSI device support
+      -> SCSI disk support  # SCSI驱动
+    -> Fusion MPT device support  # 所有选项
+    # 输入设备
+    -> Input device support
+      -> Keyboards
+      -> Mice  # 鼠标
+    # USB设备
+    -> USB support
+      -> Support for Host-side USB
+      -> xHCI HCD (USB 3.0) support
+      -> EHCI HCD (USB 2.0) support
+      -> OHCI HCD support  # USB 1.1
+      -> UHCI HCD support  # USB 1.0
+    # 网络设备
+    -> Network device support
+      -> Ethernet driver support  # 根据相应的硬件选择，可编译成模块
+  #+END_SRC
+- 文件系统选项
+  #+BEGIN_SRC sh
+  File systems  # 文件系统设定
+    -> Second extended fs support  # Ext2
+    -> Ext3 ..
+    -> Ext4 ..  
+      -> Access Control Lists  # 支持ACL
+  Executable file formats / Emulations
+    -> Kernel support for ELF binaried  # 支持ELF可执行文件
+    -> Kernel support for scripts starting with #!  # 脚本识别支持
+  #+END_SRC
+- 网络功能
+  #+BEGIN_SRC sh
+  Networking support
+    -> Networking options
+      -> TCP/IP networking
+  #+END_SRC
+*** 编译Linux工具集busybox
+- busybox包含init和各种Linux工具
+- 使用静态编译，依赖于glibc-static
+  #+BEGIN_SRC sh
+  # 在编译选项 make menuconfig 中
+  Busybox Settings
+    -> Build Options  # 选择静态编译
+  #+END_SRC
+- 如果要使用init还需要提供配置文件
+  - inittab配置文件
+  #+BEGIN_SRC sh
+  ::sysinit:/etc/rc.d/rc.sysinit
+  tty1::respawn:/bin/sh
+  ::respawn:/sbin/getty 9600 tty2 # 若系统提供了用户文件passwd、shadow，则可以使用登录
+  ::ctrlaltdel:/sbin/reboot
+  ::shutdown:/bin/umount -a -r
+  #+END_SRC
+  - rc.sysinit脚本(需要有执行权限)
+  #+BEGIN_SRC sh
+  #!/bin/sh
+  #
+  mount -t proc proc /proc
+  mount -t sysfs sysfs /sys
+  mount -o remount,rw /dev/sda2 /
+
+  mount -t devpts devpts -o mode=620 /dev/pts  # 可以使用模拟终端
+
+  mount -a  # 编辑好/etc/fstab文件
+  
+  mdev -s  # busybox下类似udev的软件
+  #+END_SRC
 ** 开始编译
 *** 完全编译
   #+BEGIN_SRC conf
@@ -162,7 +250,10 @@ cpio -id < initramfs-VERSION-release.img
   #+END_SRC
 - 只编译一个特定模块
   #+BEGIN_SRC conf
+  cd /usr/src/linux/
+
   make PATH/TO/file.ko
+  make M=PATH/TO/
   #+END_SRC
   - 编译完只需要把模块文件放进系统的 =module= 目录下即可
 *** 交叉编译
@@ -170,6 +261,11 @@ cpio -id < initramfs-VERSION-release.img
 #+BEGIN_SRC conf
 make ARCH=arch_name
 make ARCH=arch_name help  # 获取目标平台的使用帮助
+#+END_SRC
+** 安装
+#+BEGIN_SRC conf
+make modules_install
+make install
 #+END_SRC
 ** 清理编译后的文件
 #+BEGIN_SRC conf

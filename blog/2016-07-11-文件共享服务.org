@@ -6,12 +6,17 @@
 #+JEKYLL_TAGS: Linux 运维 网络
 #+JEKYLL_PUBLISHED: true
 
+介绍了Linux下常见的文件共享服务以及其配置过程，包括ftp、nfs、samba
+
+
+
+
+-----
 * 文件共享服务
 - 文件共享服务用于实现NAS
 - 应用层: ftp
 - 内核: nfs
 - 跨平台: samba
-  - 该软件在Linux实现Win下的CIFS(SMB)协议
 
 * ftp
 ** ftp相关知识
@@ -161,3 +166,65 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
   mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
   #+END_SRC
   - 特殊挂载选项: rsize是从服务器读取的字节数，wsize是写入到服务器的字节数，即设置缓冲区大小
+* samba
+** samba相关
+- samba在Linux实现CIFS(Common Internet File System)协议或smb(Service Message Block)协议，用于解决不同系统之间的文件系统共享问题
+- samba监听服务器上的端口: 137/udp, 138/udp, 139/tcp, 445/tcp
+- samba的组成部分
+  - nmbd: 实现了NetBIOS协议
+    - NetBIOS: Windows基于主机名(最长15个字符)实现互相通信的机制，通过广播来获取其他主机的名字
+  - smbd: 实现了CIFS协议
+  - winbindd+ldap: 使Linux加入Windows的AD域(Active Directory)
+** 客户端
+- samba-client用于Linux连接其他主机的共享目录
+- Linux下表示的Windows的UNC路径: //SERVER/shared_name
+- 交互式数据访问
+  #+BEGIN_SRC conf
+  smbclient -L HOST -U USERNAME
+    -L HOST: 获取主机上的共享资源
+    -U USERNAME: 使用Windows上的哪个用户进行访问
+
+  smbclient //SERVER/shared_name -U USERNAME  # 操作类似ftp
+  #+END_SRC
+- 基于挂载进行访问
+  #+BEGIN_SRC sh
+  mount -t cifs //SERVER/shared_name  /mount_point -o username=USERNAME,password=PASSWORD
+  #+END_SRC
+** 服务器
+- 服务脚本smb和nmb分别启动系统中的smbd和nmbd服务，两个服务要同时启动
+- 主配置文件: /etc/samba/smb.conf
+  - 全局设定
+    #+BEGIN_SRC conf
+    workgroup = WORKGROUP  # 指定windows下的组名
+    netbios name = MYSERVER  # 设定NetBIOS的主机名
+
+    interfaces = ...  # 监听的地址
+    hosts allow = ...  # 基于IP地址的访问控制
+    #+END_SRC
+  - 特定共享设定
+    - 用户家目录: 定义用户是否可以远程访问自己家目录
+    - 打印机共享
+    - 自定义共享
+      #+BEGIN_SRC conf
+      [shared_name]
+          path = /path/to/share_directory
+          ;comment = Comment String
+          guest ok = {yes|no}  ; 来宾用户是否可浏览
+          browseable = {yes|no}  ; 其他用户是否可浏览
+          read only = {yes|no}  ; 是否只读，同时也依赖系统文件本身权限
+          write list = +GROUP_NAME  ; 哪些用户可写
+      #+END_SRC
+  - 测试配置文件
+    #+BEGIN_SRC conf
+    testparm
+    #+END_SRC
+- samba的认证的用户是系统用户，但密码由samba自己的密码文件提供
+  #+BEGIN_SRC conf
+  smbpasswd [OPTIONS] Sys_User  
+    -a: 添加系统用户为samba用户
+    -x: 删除samba用户
+    -d: 禁用samba用户
+    -e: 启用samba用户
+  #+END_SRC
+- 网页服务端设置: samba-swat，该软件基于xinetd运行
+

@@ -64,7 +64,7 @@ type COMMAND  # 查询命令的种类
 #+BEGIN_SRC conf
 # 查询命令的位置
 which COMMAND  # 显示第一个结果
-  --skip-alias: 跳过别名
+  --skip-alias: 跳过别名，常用于脚本的获取程序名
 whereis COMMAND  # 显示所有结果
 #+END_SRC
 - shell程序搜寻可执行文件的路径定义在 =PATH= 环境变量中(自左向右)
@@ -318,6 +318,8 @@ mktemp [OPRIONS] [TEMPLATE]
   -p /PATH/SOMEWHERE: 指名临时文件目录的位置(默认为当前目录)
   TEMPLATE: filename.XXX(X会被替换成随机字符, 且至少出现三个)
 #+END_SRC
+*** sync
+手动将磁盘缓存写入磁盘中
 ** 文件查找
 在文件系统上查找符合条件的文件
 - 文件查找的类型 ::
@@ -514,6 +516,7 @@ watch 'COMMAND'
 #+BEGIN_SRC conf
 file FILE 
 #+END_SRC
+- Linux的可执行文件格式是 ELF binaries
 * 压缩与归档
 ** 常见的压缩与归档工具
 - compress/uncompress: .Z
@@ -1335,7 +1338,48 @@ chmod [OPTION]... --reference=RFILE FILE...
 umask  # 查看umask
 umask num  # 设置umask，仅对当前shell有效
 #+END_SRC
-*** TODO facl
+*** 隐藏权限
+- 设置隐藏权限
+  #+BEGIN_SRC conf
+  chattr [+-=] [OPTIONS] 文件/目录 
+    a: 只能增加数据, 不能删除和修改
+    i: 不允许对文件/目录做任何修改
+    S: 修改时同步写入磁盘
+
+    A: 锁定atime
+    d: 该文件或目录不会被dump备份
+  #+END_SRC
+- 查询隐藏权限
+  #+BEGIN_SRC conf
+  lsattr [OPTIONS] 文件/目录
+    -a: 显示隐藏文件
+    -d: 仅显示目录
+    -R: 连同子目录也显示出来
+  #+END_SRC
+*** ACL
+ACL(Access Control List)可以针对一个指定用户，一个文件或目录来进行权限设置
+- 设定ACL
+  #+BEGIN_SRC conf
+  setfacl [OPTIONS] 文件/目录
+    -m ACL参数: 设定指定的ACL参数
+    -x ACL参数: 删除指定的ACL参数(删除时无需指名权限)
+
+    -R: 递归设定ACL
+
+    -b: 删除所有的ACL设定
+    -x: 删除default的ACL设定
+  #+END_SRC
+  - ACL参数类型
+    - 针对用户: u:[USERNAME]:rw (省略用户名则等同于设置基本权限)
+    - 针对组: g:[GROUPNAME]:rw
+    - 设置有效权限(允许的最大权限): m:rwx
+    - 设置目录的继承权限(目录下新建的文件和目录会继承该权限): d:ACL参数
+
+- 获取ACL
+  #+BEGIN_SRC conf
+  getfacl 文件/目录
+  #+END_SRC
+
 * 正则表达式
 REGEXP由一类特殊字符及文本字符所编写的模式，其中有些字符不表示字符字面意义，而表示控制或通配的功能
 ** 正则表达式的类型

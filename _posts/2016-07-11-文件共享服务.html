@@ -38,10 +38,24 @@ comments:
 <li><a href="#orgheadline13">相关操作</a></li>
 </ul>
 </li>
+<li><a href="#orgheadline18">4. samba</a>
+<ul>
+<li><a href="#orgheadline15">samba相关</a></li>
+<li><a href="#orgheadline16">客户端</a></li>
+<li><a href="#orgheadline17">服务器</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
+<p>
+介绍了Linux下常见的文件共享服务以及其配置过程，包括ftp、nfs、samba
+</p>
 
+
+
+
+<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
 <h2 id="orgheadline1"><span class="section-number-2">1</span> 文件共享服务</h2>
 <div class="outline-text-2" id="text-1">
@@ -49,10 +63,7 @@ comments:
 <li>文件共享服务用于实现NAS</li>
 <li>应用层: ftp</li>
 <li>内核: nfs</li>
-<li>跨平台: samba
-<ul class="org-ul">
-<li>该软件在Linux实现Win下的CIFS(SMB)协议</li>
-</ul></li>
+<li>跨平台: samba</li>
 </ul>
 </div>
 </div>
@@ -347,6 +358,120 @@ exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;
 <ul class="org-ul">
 <li>特殊挂载选项: rsize是从服务器读取的字节数，wsize是写入到服务器的字节数，即设置缓冲区大小</li>
 </ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">4</span> samba</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">samba相关</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<ul class="org-ul">
+<li>samba在Linux实现CIFS(Common Internet File System)协议或smb(Service Message Block)协议，用于解决不同系统之间的文件系统共享问题</li>
+<li>samba监听服务器上的端口: 137/udp, 138/udp, 139/tcp, 445/tcp</li>
+<li>samba的组成部分
+<ul class="org-ul">
+<li>nmbd: 实现了NetBIOS协议
+<ul class="org-ul">
+<li>NetBIOS: Windows基于主机名(最长15个字符)实现互相通信的机制，通过广播来获取其他主机的名字</li>
+</ul></li>
+<li>smbd: 实现了CIFS协议</li>
+<li>winbindd+ldap: 使Linux加入Windows的AD域(Active Directory)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">客户端</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>samba-client用于Linux连接其他主机的共享目录</li>
+<li>Linux下表示的Windows的UNC路径: //SERVER/shared_name</li>
+<li><p>
+交互式数据访问
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">smbclient -L HOST -U USERNAME
+  -L HOST: &#33719;&#21462;&#20027;&#26426;&#19978;&#30340;&#20849;&#20139;&#36164;&#28304;
+  -U USERNAME: &#20351;&#29992;Windows&#19978;&#30340;&#21738;&#20010;&#29992;&#25143;&#36827;&#34892;&#35775;&#38382;
+
+smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25805;&#20316;&#31867;&#20284;ftp</span>
+</pre>
+</div></li>
+<li><p>
+基于挂载进行访问
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">mount -t cifs //SERVER/shared_name  /mount_point -o <span style="color: #FD971F;">username</span>=USERNAME,<span style="color: #FD971F;">password</span>=PASSWORD
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">服务器</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<ul class="org-ul">
+<li>服务脚本smb和nmb分别启动系统中的smbd和nmbd服务，两个服务要同时启动</li>
+<li>主配置文件: /etc/samba/smb.conf
+<ul class="org-ul">
+<li><p>
+全局设定
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">workgroup</span> = WORKGROUP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;windows&#19979;&#30340;&#32452;&#21517;</span>
+<span style="color: #FD971F;">netbios name</span> = MYSERVER  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;NetBIOS&#30340;&#20027;&#26426;&#21517;</span>
+
+<span style="color: #FD971F;">interfaces</span> = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#30340;&#22320;&#22336;</span>
+<span style="color: #FD971F;">hosts allow</span> = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;IP&#22320;&#22336;&#30340;&#35775;&#38382;&#25511;&#21046;</span>
+</pre>
+</div></li>
+<li>特定共享设定
+<ul class="org-ul">
+<li>用户家目录: 定义用户是否可以远程访问自己家目录</li>
+<li>打印机共享</li>
+<li><p>
+自定义共享
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">[<span style="color: #66D9EF;">shared_name</span>]
+    <span style="color: #FD971F;">path</span> = /path/to/share_directory
+    <span style="color: #FD971F;">;comment</span> = Comment String
+    <span style="color: #FD971F;">guest ok</span> = {yes|no}  ; &#26469;&#23486;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
+    <span style="color: #FD971F;">browseable</span> = {yes|no}  ; &#20854;&#20182;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
+    <span style="color: #FD971F;">read only</span> = {yes|no}  ; &#26159;&#21542;&#21482;&#35835;&#65292;&#21516;&#26102;&#20063;&#20381;&#36182;&#31995;&#32479;&#25991;&#20214;&#26412;&#36523;&#26435;&#38480;
+    <span style="color: #FD971F;">write list</span> = +GROUP_NAME  ; &#21738;&#20123;&#29992;&#25143;&#21487;&#20889;
+</pre>
+</div></li>
+</ul></li>
+<li><p>
+测试配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">testparm
+</pre>
+</div></li>
+</ul></li>
+<li><p>
+samba的认证的用户是系统用户，但密码由samba自己的密码文件提供
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">smbpasswd [OPTIONS] Sys_User  
+  -a: &#28155;&#21152;&#31995;&#32479;&#29992;&#25143;&#20026;samba&#29992;&#25143;
+  -x: &#21024;&#38500;samba&#29992;&#25143;
+  -d: &#31105;&#29992;samba&#29992;&#25143;
+  -e: &#21551;&#29992;samba&#29992;&#25143;
+</pre>
+</div></li>
+<li>网页服务端设置: samba-swat，该软件基于xinetd运行</li>
 </ul>
 </div>
 </div>

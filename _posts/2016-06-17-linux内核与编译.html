@@ -46,19 +46,26 @@ comments:
 <li><a href="#orgheadline17">展开ramdisk文件</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline27">5. Linux内核的编译</a>
+<li><a href="#orgheadline31">5. Linux内核的编译</a>
 <ul>
 <li><a href="#orgheadline19">编译的前提</a></li>
 <li><a href="#orgheadline20">配置内核选项</a></li>
-<li><a href="#orgheadline24">开始编译</a>
+<li><a href="#orgheadline23">从allnoconfig开始配置最小化系统</a>
 <ul>
-<li><a href="#orgheadline21">完全编译</a></li>
-<li><a href="#orgheadline22">部分编译</a></li>
-<li><a href="#orgheadline23">交叉编译</a></li>
+<li><a href="#orgheadline21">编译内核</a></li>
+<li><a href="#orgheadline22">编译Linux工具集busybox</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline25">清理编译后的文件</a></li>
-<li><a href="#orgheadline26">依据模板文件编译</a></li>
+<li><a href="#orgheadline27">开始编译</a>
+<ul>
+<li><a href="#orgheadline24">完全编译</a></li>
+<li><a href="#orgheadline25">部分编译</a></li>
+<li><a href="#orgheadline26">交叉编译</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline28">安装</a></li>
+<li><a href="#orgheadline29">清理编译后的文件</a></li>
+<li><a href="#orgheadline30">依据模板文件编译</a></li>
 </ul>
 </li>
 </ul>
@@ -308,8 +315,8 @@ cpio -id &lt; initramfs-VERSION-release.img
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline27" class="outline-2">
-<h2 id="orgheadline27"><span class="section-number-2">5</span> Linux内核的编译</h2>
+<div id="outline-container-orgheadline31" class="outline-2">
+<h2 id="orgheadline31"><span class="section-number-2">5</span> Linux内核的编译</h2>
 <div class="outline-text-2" id="text-5">
 </div><div id="outline-container-orgheadline19" class="outline-3">
 <h3 id="orgheadline19">编译的前提</h3>
@@ -392,12 +399,147 @@ make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">开始编译</h3>
-<div class="outline-text-3" id="text-orgheadline24">
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">从allnoconfig开始配置最小化系统</h3>
+<div class="outline-text-3" id="text-orgheadline23">
 </div><div id="outline-container-orgheadline21" class="outline-4">
-<h4 id="orgheadline21">完全编译</h4>
+<h4 id="orgheadline21">编译内核</h4>
 <div class="outline-text-4" id="text-orgheadline21">
+<p>
+以下是在 <code>menuconfig</code> 下需要设置的内核选项
+</p>
+<ul class="org-ul">
+<li><p>
+只编译内核文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">make -j 4 bzImage
+</pre>
+</div></li>
+<li><p>
+基础平台选项
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #AE81FF;">64-bit</span> kernel  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#35793;64&#20301;&#20869;&#26680;</span>
+Enable loadable module support  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21160;&#24577;&#27169;&#22359;&#35013;&#36733;</span>
+  -&gt; Module unloading  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21160;&#24577;&#21368;&#36733;</span>
+Processor type and features  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;CPU&#29305;&#24615;</span>
+  -&gt; Symmetric multi-processing support  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25903;&#25345;&#22810;&#26680;CPU</span>
+  -&gt; Processor family  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;CPU&#22411;&#21495;</span>
+Bus options  
+  -&gt; PCI support  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;PCI&#25903;&#25345;</span>
+Device Drivers  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#22791;&#39537;&#21160;</span>
+  -&gt; Generic Driver Options
+    -&gt; Maintain a devtmpfs filesystem to mount at /dev
+    -&gt; Automount devtmpfs at /dev, after the kernel mounted the rootfs
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30828;&#30424;&#39537;&#21160;: &#26681;&#25454;lspci&#30340;&#39537;&#21160;&#25552;&#31034;&#36827;&#34892;&#36873;&#39033;&#65292;&#20197;&#19979;&#20197;vmware&#34394;&#25311;&#26426;&#19979;&#30340;SCSI&#30828;&#30424;&#36827;&#34892;</span>
+  -&gt; SCSI device support
+    -&gt; SCSI disk support  <span style="color: #75715E;"># </span><span style="color: #75715E;">SCSI&#39537;&#21160;</span>
+  -&gt; Fusion MPT device support  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;&#36873;&#39033;</span>
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36755;&#20837;&#35774;&#22791;</span>
+  -&gt; Input device support
+    -&gt; Keyboards
+    -&gt; Mice  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40736;&#26631;</span>
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">USB&#35774;&#22791;</span>
+  -&gt; USB support
+    -&gt; Support for Host-side USB
+    -&gt; xHCI HCD <span style="color: #AE81FF;">(</span>USB <span style="color: #AE81FF;">3.0</span><span style="color: #AE81FF;">)</span> support
+    -&gt; EHCI HCD <span style="color: #AE81FF;">(</span>USB <span style="color: #AE81FF;">2.0</span><span style="color: #AE81FF;">)</span> support
+    -&gt; OHCI HCD support  <span style="color: #75715E;"># </span><span style="color: #75715E;">USB 1.1</span>
+    -&gt; UHCI HCD support  <span style="color: #75715E;"># </span><span style="color: #75715E;">USB 1.0</span>
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32593;&#32476;&#35774;&#22791;</span>
+  -&gt; Network device support
+    -&gt; Ethernet driver support  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26681;&#25454;&#30456;&#24212;&#30340;&#30828;&#20214;&#36873;&#25321;&#65292;&#21487;&#32534;&#35793;&#25104;&#27169;&#22359;</span>
+</pre>
+</div></li>
+<li><p>
+文件系统选项
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">File systems  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25991;&#20214;&#31995;&#32479;&#35774;&#23450;</span>
+  -&gt; Second extended fs support  <span style="color: #75715E;"># </span><span style="color: #75715E;">Ext2</span>
+  -&gt; Ext3 ..
+  -&gt; Ext4 ..  
+    -&gt; Access Control Lists  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25903;&#25345;ACL</span>
+Executable file formats / Emulations
+  -&gt; Kernel support for ELF binaried  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25903;&#25345;ELF&#21487;&#25191;&#34892;&#25991;&#20214;</span>
+  -&gt; Kernel support for scripts starting with <span style="color: #75715E;">#</span><span style="color: #75715E;">!  # &#33050;&#26412;&#35782;&#21035;&#25903;&#25345;</span>
+</pre>
+</div></li>
+<li><p>
+网络功能
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">Networking support
+  -&gt; Networking options
+    -&gt; TCP/IP networking
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">编译Linux工具集busybox</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<ul class="org-ul">
+<li>busybox包含init和各种Linux工具</li>
+<li><p>
+使用静态编译，依赖于glibc-static
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#32534;&#35793;&#36873;&#39033; make menuconfig &#20013;</span>
+Busybox Settings
+  -&gt; Build Options  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36873;&#25321;&#38745;&#24577;&#32534;&#35793;</span>
+</pre>
+</div></li>
+<li><p>
+如果要使用init还需要提供配置文件
+</p>
+<ul class="org-ul">
+<li>inittab配置文件</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">::sysinit:/etc/rc.d/rc.sysinit
+tty1::respawn:/bin/sh
+::respawn:/sbin/getty <span style="color: #AE81FF;">9600</span> tty2 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#31995;&#32479;&#25552;&#20379;&#20102;&#29992;&#25143;&#25991;&#20214;passwd&#12289;shadow&#65292;&#21017;&#21487;&#20197;&#20351;&#29992;&#30331;&#24405;</span>
+::ctrlaltdel:/sbin/reboot
+::shutdown:/bin/umount -a -r
+</pre>
+</div>
+<ul class="org-ul">
+<li>rc.sysinit脚本(需要有执行权限)</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/</span><span style="color: #F92672;">sh</span>
+<span style="color: #75715E;">#</span>
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -o remount,rw /dev/sda2 /
+
+mount -t devpts devpts -o <span style="color: #FD971F;">mode</span>=<span style="color: #AE81FF;">620</span> /dev/pts  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20351;&#29992;&#27169;&#25311;&#32456;&#31471;</span>
+
+mount -a  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#36753;&#22909;/etc/fstab&#25991;&#20214;</span>
+
+mdev -s  <span style="color: #75715E;"># </span><span style="color: #75715E;">busybox&#19979;&#31867;&#20284;udev&#30340;&#36719;&#20214;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">开始编译</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+</div><div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">完全编译</h4>
+<div class="outline-text-4" id="text-orgheadline24">
 <div class="org-src-container">
 
 <pre class="src src-conf">make [-j NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25968;&#23383;&#24314;&#35758;&#20351;&#29992;CPU&#26680;&#24515;</span>
@@ -405,9 +547,9 @@ make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-4">
-<h4 id="orgheadline22">部分编译</h4>
-<div class="outline-text-4" id="text-orgheadline22">
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">部分编译</h4>
+<div class="outline-text-4" id="text-orgheadline25">
 <ul class="org-ul">
 <li><p>
 只编译某子目录的相关代码
@@ -422,7 +564,10 @@ make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">make PATH/TO/file.ko
+<pre class="src src-conf">cd /usr/src/linux/
+
+make PATH/TO/file.ko
+<span style="color: #FD971F;">make M</span>=PATH/TO/
 </pre>
 </div>
 <ul class="org-ul">
@@ -431,9 +576,9 @@ make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline23" class="outline-4">
-<h4 id="orgheadline23">交叉编译</h4>
-<div class="outline-text-4" id="text-orgheadline23">
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">交叉编译</h4>
+<div class="outline-text-4" id="text-orgheadline26">
 <p>
 交叉编译用于编译的目标平台与当前平台不同
 </p>
@@ -446,9 +591,20 @@ make allnoconfig  <span style="color: #75715E;"># </span><span style="color: #75
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">清理编译后的文件</h3>
-<div class="outline-text-3" id="text-orgheadline25">
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">安装</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<div class="org-src-container">
+
+<pre class="src src-conf">make modules_install
+make install
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">清理编译后的文件</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <div class="org-src-container">
 
 <pre class="src src-conf">make clean  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#29702;&#22823;&#22810;&#25968;&#32534;&#35793;&#29983;&#25104;&#30340;&#25991;&#20214;&#65292;&#20294;&#20250;&#20445;&#30041;config&#25991;&#20214;&#31561;</span>
@@ -458,9 +614,9 @@ make distclean  <span style="color: #75715E;"># </span><span style="color: #7571
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">依据模板文件编译</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">依据模板文件编译</h3>
+<div class="outline-text-3" id="text-orgheadline30">
 <div class="org-src-container">
 
 <pre class="src src-conf">tar xf linux-3.10.67.tar.xz -C /usr/src  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35299;&#21387;&#20869;&#26680;</span>
