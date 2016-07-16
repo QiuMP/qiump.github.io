@@ -2,7 +2,7 @@
 #+DATE: 2016-07-05
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_CATEGORIES: 网络
 #+JEKYLL_TAGS: Linux 运维 网络
 #+JEKYLL_PUBLISHED: true
 
