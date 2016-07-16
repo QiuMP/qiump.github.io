@@ -1,0 +1,92 @@
+#+TITLE: nsswitch与pam
+#+DATE: 2016-07-16
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 安全
+#+JEKYLL_PUBLISHED: true
+
+介绍了名称解析库nsswitch、认证库pam的使用和配置，同时还记录Linux的资源控制limit的使用和配置
+
+
+
+
+------
+* nsswitch
+nsswitch: network service switch，是一个名称解析通用框架
+- 名称解析的类型: files(etc目录下对应名称的文件)、MySQL、NIS、LDAP、DNS
+- 库文件: /usr/lib64/libnss*、/lib64/libnss*
+- 配置文件: /etc/nsswitch.conf
+  #+BEGIN_SRC conf
+  database: store1 store2 ...
+
+  database: store1 [STATUS=ACTION] store2 ...  # 自定义行为
+    STATUS: success | notfound | unavail(服务不可用) | tryagain(临时出错)
+    ACTION: return | continue
+
+  host: files nis
+  #+END_SRC
+- 名称解析命令: getent
+  #+BEGIN_SRC conf
+  getent database [entry]
+  
+  getent passwd root  # 正向解析
+  getent services 22  # 反向解析
+  #+END_SRC
+* pam
+pam: pluggable authentication module，是一个认证通用框架
+- 认证的类型: files、MySQL、LDAP、NIS
+- 模块文件: /lib64/security/*
+- 配置文件: /etc/pam.d/*(每个应用单独一个配置文件)、/etc/pam.conf
+  - 配置文件每一行定义一种检查规则
+    #+BEGIN_SRC c
+    type  control  module-path module-arguments
+    #+END_SRC
+  - type: 检查功能类别
+    | auth     | 账号的认证和授权                                   |
+    | account  | 与账号管理相关的非认证功能                         |
+    | password | 用户修改密码时密码检查规则                         |
+    | session  | 用户获取到服务之前或完成之后要进行的一些附加性操作 | 
+  - control: 同一种功能的多个检查之间如何进行组合
+    - 简单机制
+      | required   | 成功则继续，失败则结果为错误，但继续执行验证 |
+      | requisite  | 成功则继续，失败则结果为错误，验证立即终止   |
+      | sufficient | 成功则通过，失败则继续                       |
+      | optional   | 结果只作为参考                               |
+      | include    | 包含指定配置文件中同一个功能的规则           | 
+    - 复杂机制: [status1=action1,status2=action2,...]
+      - status: 返回的状态
+      - action: 
+        - ok, done: 状态设置为通过，ok会继续执行验证，done则终止验证
+        - bad, die: 状态设置为不通过，bad会继续执行验证，die则终止验证
+        - ignore
+        - reset: 清除状态
+  - module-path: /lib64/security目录下的模块引用时可使用相对路径
+- 模块
+  - pam_limits.so: 模块通过读取配置文件完成用户对系统资源的使用控制
+* 系统资源控制limit
+- 配置文件: /etc/security/limits.conf、/etc/security/limits.d/*
+  #+BEGIN_SRC conf
+  domain  type  item  value
+    domain: username、@group、*(所有用户)
+  
+    type: 限制方式
+      soft: 软限制，用户可修改，不能超过硬限制
+      hard: 硬限制，用户不可超过
+      -: 二者同时限定
+  
+    item: 限制资源的类型
+      nofile: 所能够同时打开的最大文件数量
+      nproc: 所能够同时运行的最大进程数量
+      msqqueue: 使用的POSIX消息队列能够占用的最大内存空间
+      sigpending: 所能够使用的最大信号数量
+  #+END_SRC
+- 使用内建命令ulimit
+  #+BEGIN_SRC conf
+  ulimit [OPTIONS] [NUM]  # 查询或设置资源限制
+    -n: 文件数量
+    -u: 进程数量
+    
+    -H: 设置硬限制(默认为软限制)
+    -SH: 同时设置软限制和硬限制
+  #+END_SRC

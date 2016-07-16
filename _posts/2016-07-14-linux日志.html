@@ -1,0 +1,272 @@
+---
+title: "Linux日志"
+date: 2016-07-14
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">1. 日志</a>
+<ul>
+<li><a href="#orgheadline1">系统日志服务</a></li>
+<li><a href="#orgheadline4">日志分类</a>
+<ul>
+<li><a href="#orgheadline2">facility</a></li>
+<li><a href="#orgheadline3">priority</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline12">2. rsyslog</a>
+<ul>
+<li><a href="#orgheadline6">程序环境</a></li>
+<li><a href="#orgheadline7">日志的格式</a></li>
+<li><a href="#orgheadline10">配置文件</a>
+<ul>
+<li><a href="#orgheadline8">读取模块</a></li>
+<li><a href="#orgheadline9">RULES</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">连接mysql服务器</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+简单讲述了Linux的日志，以及rsyslog的相关配置
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">1</span> 日志</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>日志: 时间+事件</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">系统日志服务</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+系统日志服务: 提供给其他应用记录日志的功能
+</p>
+<ul class="org-ul">
+<li>syslog(CentOS5): syslogd(用户日志)、klogd(内核日志)</li>
+<li>rsyslog(CentOS6): syslogd(用户日志)、klogd(内核日志)
+<ul class="org-ul">
+<li>基于多线程</li>
+<li>支持UDP、TCP、SSL、TLS、RELP远程传输</li>
+<li>支持MySQL、PGSQL、Oralce实现日志存储</li>
+<li>强大的过滤器，可实现过滤日志信息中任何部分</li>
+<li>自定义输出格式</li>
+</ul></li>
+<li>ELK: Elasticsearch(日志搜索)、Logstash(日志收集)、Kibana(前端日志展示)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">日志分类</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+</div><div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2">facility</h4>
+<div class="outline-text-4" id="text-orgheadline2">
+<p>
+facility: 从功能或程序上对日志进行分类
+</p>
+<ul class="org-ul">
+<li>auth: 认证相关</li>
+<li>authpriv: 认证和授权相关</li>
+<li>cron: cron/at程序日志</li>
+<li>daemon: 守护进程的日志</li>
+<li>kern: 内核日志</li>
+<li>lpr: 打印系统日志</li>
+<li>mail: 邮件系统日志</li>
+<li>news: 新闻组相关</li>
+<li>security: 安全相关</li>
+<li>user: 与用户相关</li>
+<li>uucp: Unix to Unix copy</li>
+<li>local0-local7: 用户自定义</li>
+<li>syslog</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3">priority</h4>
+<div class="outline-text-4" id="text-orgheadline3">
+<p>
+priority: 日志的重要性级别
+</p>
+<ul class="org-ul">
+<li>级别类型: debug, info, notice, warn(warning), err(error), crit(critical), alert, emerg(panic)</li>
+<li>表示方式
+<ul class="org-ul">
+<li>*: 所有级别</li>
+<li>none: 没有级别</li>
+<li>priority: 此级别及更高级别的日志信息</li>
+<li>=priority：此级别</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">2</span> rsyslog</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">程序环境</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<ul class="org-ul">
+<li>主程序：rsyslogd</li>
+<li>配置文件：/etc/rsyslog.conf</li>
+<li>服务脚本：/etc/rc.d/init.d/rsyslog</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">日志的格式</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li><p>
+文本格式
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">&#20107;&#20214;&#20135;&#29983;&#30340;&#26085;&#26399;&#26102;&#38388;        &#20027;&#26426;    &#36827;&#31243;<span style="color: #AE81FF;">(</span>pid<span style="color: #AE81FF;">)</span>: &#20107;&#20214;&#20869;&#23481;
+</pre>
+</div></li>
+<li>二进制格式
+<ul class="org-ul">
+<li><p>
+/var/log/wtmp: 当前系统上成功登录的日志
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">last
+</pre>
+</div></li>
+<li><p>
+/var/log/btmp：当前系统上失败的登录尝试
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">lastb
+</pre>
+</div></li>
+<li>lastlog命令: 显示当前系统每一个用户最近一次的登录时间</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">读取模块</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-conf">$ModLoad imuxsock
+$ModLoad imklog
+
+$ModLoad imudp
+$UDPServerRun 514  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;(&#40664;&#35748;UDP)</span>
+$ModLoad imtcp
+$InputTCPServerRun 514  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>模块名以i开头的是输入处理，以o开头的是输出处理</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">RULES</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-conf">facility.priority  target
+  target:
+    &#25991;&#20214;&#36335;&#24452;: &#35760;&#24405;&#20110;&#25351;&#23450;&#30340;&#26085;&#24535;&#25991;&#20214;&#20013;&#65292;&#36890;&#24120;&#24212;&#35813;&#22312;/var/log&#30446;&#24405;&#19979;&#65292;&#25991;&#20214;&#36335;&#24452;&#21069;&#30340;<span style="color: #E6DB74;">"-"</span>&#34920;&#31034;&#24322;&#27493;&#20889;&#20837;
+    &#29992;&#25143;: &#23558;&#26085;&#24535;&#36890;&#30693;&#32473;&#25351;&#23450;&#29992;&#25143;
+        *: &#25152;&#26377;&#29992;&#25143;
+    &#26085;&#24535;&#26381;&#21153;&#22120;
+      @host: &#29992;UDP&#36830;&#25509;host(&#40664;&#35748;514&#31471;&#21475;)
+      @@host: &#29992;TCP&#36830;&#25509;host(&#40664;&#35748;514&#31471;&#21475;)
+    &#31649;&#36947;: |COMMAND
+
+
+*.info;mail.none;authpriv.none;cron.none  /var/log/messages  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;facility&#20294;&#25490;&#38500;mail,authpriv,cron</span>
+uucp,news.crit  /var/log/spooler  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;uucp.crit;news.crit</span>
+authpriv.*  /var/log/secure
+mail.*  -/var/log/maillog  <span style="color: #75715E;"># </span><span style="color: #75715E;">- &#20195;&#34920;&#24322;&#27493;&#20889;&#20837;</span>
+cron.*  /var/log/cron
+*.emerg  *  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34920;&#31034;&#36890;&#30693;&#32473;&#25152;&#26377;&#30331;&#24405;&#30340;&#29992;&#25143;</span>
+local7.*  /var/log/boot.log
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">连接mysql服务器</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<ol class="org-ol">
+<li>准备好MySQL服务器，创建用户，授权对Syslog数据库的全部访问权限</li>
+<li>安装rsyslog-mysql程序包</li>
+<li><p>
+创建rsyslog-mysql依赖的数据库
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">mysql -uUSERNAME -hHOST -pPASSWORD &lt; /usr/share/doc/rsyslog-mysql-VERSION/createDB.sql
+</pre>
+</div></li>
+<li><p>
+配置rsyslog使用ommysql模块
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #75715E;">#### </span><span style="color: #75715E;">MODULES ####</span>
+$ModLoad ommysql
+
+<span style="color: #75715E;">#### </span><span style="color: #75715E;">RULES ####</span>
+facility.priority    :ommysql:DBHOST,DB,DBUSER,USERPASS
+</pre>
+</div></li>
+<li>重启rsyslog服务</li>
+<li>安装loganalyzer
+<ol class="org-ol">
+<li>配置webserver, 支持php</li>
+<li><p>
+安装loganalyzer
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cp -r loganalyzer-3.6.5/src /var/www/html/loganalyzer
+cp loganalyzer-3.6.5/contrib/*.sh /var/www/html/loganalyzer
+cd /var/www/html/loganalyzer
+chmod +x *.sh
+./configure.sh
+./secure.sh
+chmod 666 config.php
+</pre>
+</div></li>
+</ol></li>
+</ol>
+</div>
+</div>
+</div>
