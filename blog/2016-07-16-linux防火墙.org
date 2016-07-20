@@ -1,4 +1,4 @@
-#+TITLE: Linux防火墙
+#+TITLE: Linux防火墙iptables
 #+DATE: 2016-07-16
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -12,5 +12,236 @@ TODO
 
 
 -----
-* 
+* 防火墙
+Firewall: 防火墙工作于主机或网络的边缘，对于进出本主机或网络的报文根据事先定义好的检查规则作匹配检测，对于能够被规则所匹配到的报文做出相应处理的组件
+- 主机防火墙: 服务器本身
+- 网络防火墙: 网络中转
+- IPS: IDS检测到入侵行为的时候通知Firewall，Firewall自动生成应对的规则
+  - HIDS(主机)、NIDS(网络)
+  - honeypot: 用于诱捕入侵者的服务器
+* iptables的组成
+- framework: netfilter，内核TCP/IP所实现的网络过滤器框架，通过在报文的经过路线(五条链)上添加 =hooks function= 实现
+- rule utils: iptables，负责对 =hooks function= 的规则进行设置，是一个规则管理的命令行工具，工作在用户空间上
+* iptables的四表五链
+** 表(table)
+iptables的表即是iptables的功能
+- filter: 过滤，防火墙
+- nat: network address translation，网络地址转换
+- mangle：拆解报文，做出修改，封装报文
+- raw：关闭nat表上启用的连接追踪机制(使用历史访问记录功能)
+** 链(chain)
+- PREROUTING: 报文刚进入主机时，判断其目标主机
+- INPUT: 报文要到达内部端口前
+- FORWARD: 路由机制内
+- OUTPUT: 报文刚从内部端口发送时
+- POSTROUTING: 报文准备发送出主机前，判断经由哪个接口发出
+** 报文的线路
+- 流入本机: PREROUTING --> INPUT
+- 本机发出: OUTPUT --> POSTROUTING
+- 通过本机转发: PREROUTING --> FORWARD --> POSTROUTING
+** 链上的表实现
+- filter：INPUT, FORWARD, OUTPUT
+- nat: PREROUTING(DNAT), OUTPUT, POSTROUTING(SNAT)
+- mangle：PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING
+- raw：PREROUTING, OUTPUT
+** 表的优先级次序
+raw --> mangle --> nat --> filter
 
+* iptables表的规则
+** 定义规则的法则
+链上规则的次序，即为检查的次序，因此
+1. 同类规则(访问同一应用)，匹配范围小的放上面
+2. 不同类规则(访问不同应用)，匹配到报文频率较大的放上面
+3. 将那些可由一条规则描述的多个规则合并为一个
+4. 设置默认策略
+** 规则的组成部分
+- 匹配条件(rule-specification): 根据协议报文特征指定
+- 处理动作(target): 可使用内建处理机制，也可自定义处理
+- 自定义链: 报文不会经过自定义链，只能在内置链上通过规则进行引用后生效
+** 规则和链有计数器
+- pkts：由规则或链所匹配到的报文的个数
+- bytes：由规则或链匹配到的所有报文大小之和
+
+* iptables命令
+#+BEGIN_SRC conf
+iptables [-t table] SUBCOMMAND CHAIN CRETERIA -j TARGET
+
+iptables [-t table] -S [chain [rulenum]]
+#+END_SRC
+** table
+filter(默认), nat, mangle, raw
+** 链管理
+#+BEGIN_SRC conf
+iptables [-t table] {-F|-L|-Z} [chain [rulenum]] [options...]
+  -F: flush，清空规则链；省略链，表示清空指定表上的所有的链
+  -Z: zero，清零，置零规则计数器
+
+iptables [-t table] -N chain
+iptables [-t table] -X [chain]
+iptables [-t table] -E old-chain-name new-chain-name
+  -N: new, 创建新的自定义规则链
+  -X: drop, 删除用户自定义的空的规则链
+  -E: rEname，重命令自定义链；被引用的自定义链，无法改名和删除
+
+iptables [-t table] -P chain target
+  -P: Policy，为指定链设置默认策略；对filter表中的链而言，默认策略通常有ACCEPT, DROP, REJECT
+#+END_SRC
+** 规则管理
+#+BEGIN_SRC conf
+iptables [-t table] -A chain rule-specification
+iptables [-t table] -D chain {rulenum|rule-specification}
+iptables [-t table] -I chain [rulenum] rule-specification
+iptables [-t table] -R chain rulenum rule-specification
+  -A: append，将新规则追加于指定链的尾部
+  -I: insert，将新规则插入至指定链的指定位置(rulenum默认为1)
+  -D: delete，删除指定链(使用匹配条件或规则编号)上的指定规则
+  -R: replace，替换指定链上的指定规则
+#+END_SRC
+** 规则查看
+#+BEGIN_SRC conf
+iptables [-t table] -L [chain [rulenum]] [options...]
+  -n: numberic，以数字格式显示地址和端口号
+  -v|-vv|-vvv: verbose，显示详细信息(pkts和bytes)
+  --line-numbers: 显示规则编号，用于删除规则
+  -x: exactly, 显示计数器计数结果的精确值，不做单位换算
+#+END_SRC
+** 匹配条件(rule-specification)
+*** 基本匹配条件
+- -s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围
+- -d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围
+- -p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议
+- -i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)
+- -o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)
+- ! 条件: 表示非
+*** 扩展匹配条件
+模块文件路径是/usr/lib64/xtables/*.so(小写字母)
+**** 隐式扩展
+对-p protocol指明的协议进行的扩展，可省略-m选项
+- -p tcp
+  - --dport PORT[-PORT]：目标端口，可以是单个端口或连续多个端口
+  - --sport PORT[-PORT]: 源端口
+  - --tcp-flags LIST1 LIST2：检查LIST1所指明的所有标志位，且这其中，LIST2所表示出的所有标记位必须为1，而余下的必须为0
+    #+BEGIN_EXAMPLE
+    SYN表示建立连接
+    FIN表示关闭连接
+    ACK表示响应
+    PSH表示有DATA数据传输
+    RST表示连接重置
+    #+END_EXAMPLE
+  - --syn: 相当于 --tcp-flags SYN,ACK,FIN,RST SYN
+- -p udp
+  - --dport
+  - --sport
+- -p icmp
+  - --icmp-type
+    #+BEGIN_EXAMPLE
+    可用数字表示报文类型，常见类型有：
+	  0：echo-reply
+	  8: echo-request
+    #+END_EXAMPLE
+**** 显式扩展
+必须使用-m选项显式指定使用的扩展，如 =-m macth_name --spec_options=
+#+BEGIN_EXAMPLE
+查询帮助:
+  CentOS 6: man iptables
+  CentOS 7: man iptables-extensions
+#+END_EXAMPLE
+1. multiport: 以离散方式定义多端口匹配(最多15个)
+   - [!] --sports port[,port|,port:port]...: 源端口
+   - [!] --dports port[,port|,port:port]...: 目标端口
+   - [!] --ports port[,port|,port:port]...: 两者同时指定
+   #+BEGIN_SRC sh
+   iptables -I INPUT -s 172.16.0.0/16 -d 172.16.100.9 -p tcp -m multiport --dports 22,80 -j ACCEPT
+   #+END_SRC
+2. iprange: 指明连续的ip地址范围
+   - [!] --src-range from[-to]：指明连续的源IP地址范围
+   - [!] --dst-range from[-to]：指明连续的目标IP地址范围
+   #+BEGIN_SRC sh
+   iptables -I INPUT -d 172.16.100.9 -p tcp -m multiport --dports 22:23,80 -m iprange --src-range 172.16.100.1-172.16.100.120 -j ACCEPT
+   #+END_SRC
+3. string: 检查报文中出现的字符串
+   - --algo {bm|kmp}: 字符串比对算法
+   - [!] --string pattern
+   #+BEGIN_SRC sh
+   iptables -A INPUT -p tcp --dport 80 -m string --algo bm --string 'GET /index.html' -j LOG
+   #+END_SRC
+4. time: 根据报文到达的时间与指定的时间范围(UTC时间)进行匹配
+   - --datestart YYYY-MM[-DD]
+   - --datestop YYYY-MM[-DD]
+   - --timestart hh:mm[:ss]
+   - --timestop hh:mm[:ss]
+   - --monthdays day[,day]
+   - --weekdays day[,day]
+   #+BEGIN_SRC sh
+   iptables -I INPUT -d 172.16.100.9 -p tcp --dport 80 -m time --timestart 14:00 --timestop 16:00 -j REJECT
+   #+END_SRC
+5. connlimit: 根据每客户端IP或地址块的并发连接数进行匹配
+   - --connlimit-above n：连接的数量大于n
+   - --connlimit-upto n: 连接的数量小于等于n
+6. limit: 基于收发报文的速率做检查(使用令牌桶过滤器)
+   - --limit rate[/second|/minute|/hour|/day]
+   - --limit-burst number: 一开始的峰值(通过空闲速率的积累)
+7. state: 根据连接追踪机制检查连接的状态
+   #+BEGIN_EXAMPLE
+   连接追踪功能相关内容
+     调整连接追踪功能所能够容纳的最大连接数量: /proc/sys/net/nf_conntrack_max
+     已经追踪到并记录下的连接: /proc/net/nf_conntrack
+     不同协议或连接类型追踪的时长: /proc/sys/net/netfilter/
+     可追踪的连接状态：
+       NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目
+       ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态
+       RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系
+       INVALIED：无法识别的连接
+   #+END_EXAMPLE
+   - --state STATE1,STATE2
+   #+BEGIN_SRC sh
+   # 只允许别人对服务器建立访问，不允许服务器对别人建立访问
+   iptables -I INPUT -d 172.16.100.9 -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
+   iptables -I OUTPUT -s 172.16.100.9 -p tcp --sport 80 -m state --state ESTABLISHED -j ACCEPT
+
+   # 允许已建立连接的访问，加快匹配效率
+   iptables -I INPUT -m state --state ESTABLISHED -j ACCEPT
+   iptables -I OUTPUT -m state --state ESTABLISHED -j ACCEPT
+
+   # 开放被动模式的ftp服务
+   modprobe nf_conntrack_ftp  # 装载ftp追踪时的专用的模块
+   iptables -A INPUT -d LocalIP -p tcp --dport 21 -m state --state NEW,ESTABLISHED -j ACCEPT  # 允许命令连接
+   iptables -A INPUT -d LocalIP -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT  # 允许随机端口的数据连接
+   iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
+   #+END_SRC
+
+*** 目标(TARGET)
+=-j TARGET=: jump至定的TARGET(位于/usr/lib64/xtables/*.so大写字母的文件)
+- ACCEPT: 接受
+- DROP: 丢弃
+- REJECT: 拒绝
+- RETURN: 返回调用链
+- REDIRECT：端口重定向
+- LOG: 记录日志
+- MARK：做防火墙标记
+- DNAT：目标地址转换
+- SNAT：源地址转换
+- MASQUERADE：地址伪装
+- 自定义链：由自定义链上的规则进行匹配检查
+
+** 保存和重载规则
+#+BEGIN_SRC conf
+iptables-save > /PATH/TO/SOMEFILE  # 保存当前规则
+iptables-restore < /PATH/FROM/SOMEFILE  # 读取文件规则
+#+END_SRC
+** 例子
+*** 仅允许自己ping通别人
+#+BEGIN_SRC conf
+# 清空规则
+iptables -F
+iptables -X
+
+# 设定默认操作
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+# 设定规则
+iptables -A INPUT -d 本机IP -p icmp --icmp-type 0 -j ACCEPT
+iptables -A OUTPUT -s 本机IP -p icmp --icmp-type 8 -j ACCEPT
+#+END_SRC
