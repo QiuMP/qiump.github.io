@@ -38,10 +38,11 @@ iptables的表即是iptables的功能
 ** 报文的线路
 - 流入本机: PREROUTING --> INPUT
 - 本机发出: OUTPUT --> POSTROUTING
-- 通过本机转发: PREROUTING --> FORWARD --> POSTROUTING
+- 通过本机转发(网络防火墙): PREROUTING --> FORWARD --> POSTROUTING
+  - 要开启内核的转发功能
 ** 链上的表实现
 - filter：INPUT, FORWARD, OUTPUT
-- nat: PREROUTING(DNAT), OUTPUT, POSTROUTING(SNAT)
+- nat: PREROUTING(DNAT), INPUT, OUTPUT, POSTROUTING(SNAT)
 - mangle：PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING
 - raw：PREROUTING, OUTPUT
 ** 表的优先级次序
@@ -105,14 +106,38 @@ iptables [-t table] -L [chain [rulenum]] [options...]
   --line-numbers: 显示规则编号，用于删除规则
   -x: exactly, 显示计数器计数结果的精确值，不做单位换算
 #+END_SRC
+** 连接跟踪表
+*** 连接跟踪的相关参数
+- 调整连接追踪功能所能够容纳最大连接数量: /proc/sys/net/ipv4/ip_conntrack_max
+- 已经追踪到并记录下的连接: /proc/net/nf_conntrack
+- 不同协议或连接类型追踪的时长: /proc/sys/net/netfilter/
+*** 可追踪的连接状态
+- NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目
+- ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态
+- RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系
+- INVALIED：无法识别的连接
+*** 更该连接跟踪表的最大容量
+修改sysctl.conf
+1) 加大 ip_conntrack_max 值
+   #+BEGIN_SRC conf
+   net.ipv4.ip_conntrack_max = 393216
+   net.ipv4.netfilter.ip_conntrack_max = 393216
+   #+END_SRC
+2) 降低 ip_conntrack timeout时间
+   #+BEGIN_SRC conf
+   net.ipv4.netfilter.ip_conntrack_tcp_timeout_established = 300
+   net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait = 120
+   net.ipv4.netfilter.ip_conntrack_tcp_timeout_close_wait = 60
+   net.ipv4.netfilter.ip_conntrack_tcp_timeout_fin_wait = 120
+   #+END_SRC
+
 ** 匹配条件(rule-specification)
 *** 基本匹配条件
-- -s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围
-- -d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围
-- -p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议
-- -i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)
-- -o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)
-- ! 条件: 表示非
+- [!] -s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围
+- [!] -d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围
+- [!] -p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议
+- [!] -i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)
+- [!] -o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)
 *** 扩展匹配条件
 模块文件路径是/usr/lib64/xtables/*.so(小写字母)
 **** 隐式扩展
@@ -127,6 +152,7 @@ iptables [-t table] -L [chain [rulenum]] [options...]
     ACK表示响应
     PSH表示有DATA数据传输
     RST表示连接重置
+    ALL与NONE
     #+END_EXAMPLE
   - --syn: 相当于 --tcp-flags SYN,ACK,FIN,RST SYN
 - -p udp
@@ -182,17 +208,6 @@ iptables [-t table] -L [chain [rulenum]] [options...]
    - --limit rate[/second|/minute|/hour|/day]
    - --limit-burst number: 一开始的峰值(通过空闲速率的积累)
 7. state: 根据连接追踪机制检查连接的状态
-   #+BEGIN_EXAMPLE
-   连接追踪功能相关内容
-     调整连接追踪功能所能够容纳的最大连接数量: /proc/sys/net/nf_conntrack_max
-     已经追踪到并记录下的连接: /proc/net/nf_conntrack
-     不同协议或连接类型追踪的时长: /proc/sys/net/netfilter/
-     可追踪的连接状态：
-       NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目
-       ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态
-       RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系
-       INVALIED：无法识别的连接
-   #+END_EXAMPLE
    - --state STATE1,STATE2
    #+BEGIN_SRC sh
    # 只允许别人对服务器建立访问，不允许服务器对别人建立访问
@@ -209,6 +224,12 @@ iptables [-t table] -L [chain [rulenum]] [options...]
    iptables -A INPUT -d LocalIP -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT  # 允许随机端口的数据连接
    iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
    #+END_SRC
+8. recent: 用于抵御DOS攻击
+#+BEGIN_SRC conf
+iptables -I INPUT -p tcp --dport 22 -m connlimit --connlimit-above 3 -j DROP
+iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --set --name SSH  # 创建一个名为SSH的列表来存储报文来源IP
+iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --update --seconds  300 --hitcount 3 --name SSH -j DROP  # SSH记录中的IP，300s内发起超过3次连接则拒绝此IP的连接
+#+END_SRC
 
 *** 目标(TARGET)
 =-j TARGET=: jump至定的TARGET(位于/usr/lib64/xtables/*.so大写字母的文件)
@@ -217,7 +238,7 @@ iptables [-t table] -L [chain [rulenum]] [options...]
 - REJECT: 拒绝
 - RETURN: 返回调用链
 - REDIRECT：端口重定向
-- LOG: 记录日志
+- LOG [--log-prefix "..."]: 记录日志
 - MARK：做防火墙标记
 - DNAT：目标地址转换
 - SNAT：源地址转换
@@ -228,7 +249,37 @@ iptables [-t table] -L [chain [rulenum]] [options...]
 #+BEGIN_SRC conf
 iptables-save > /PATH/TO/SOMEFILE  # 保存当前规则
 iptables-restore < /PATH/FROM/SOMEFILE  # 读取文件规则
+
+service iptables save  # 将规则保存在/etc/sysconfig/iptables中
+service iptables restart
 #+END_SRC
+
+** 开机载入的文件
+- 开机默认载入的规则: /etc/sysconfig/iptables
+- 开机默认载入的模块: /etc/sysconfig/iptables-config
+
+** NAT
+*** 内网与外网
+网络服务器中，外网的服务器无法定位到内网服务器，除非外网服务器将网络服务器设置为网关，因此有两种方法: 
+1. NAT(Network Address Translation): 用于隐藏本地网络主机，提高安全性在网络层(更改IP)和传输层(更改端口)实现
+2. proxy：代理服务器(网关)，在应用层(区分代理的协议)实现
+
+*** NAT类型
+- SNAT: 只修改请求报文的源地址，在POSTROUTING链的nat表中转换，其响应报文会自动根据NAT表修改目标地址
+- DNAT：只修改请求报文的目标地址(不然目标地址为本主机)，在PREROUTING链的nat表中转换，其响应报文会自动根据NAT表修改源地址
+- FULLNAT
+
+*** 配置NAT
+- 配置SNAT
+  #+BEGIN_SRC sh
+  iptables -t nat -A POSTROUTING -s LocalNet ! -d LocalNet -j SNAT --to-source ExtIP  # 外网IP固定
+  iptables -t nat -A POSTROUTING -s LocalNET ! -d LocalNet -j MASQUERADE  # 外网IP经常变化
+  #+END_SRC
+- 配置DNAT(可修改端口)
+  #+BEGIN_SRC sh
+  iptables -t nat -A PREROUTING -d ExtIP -p tcp|udp --dport PORT -j DNAT --to-destination InterSeverIP[:PORT]
+  #+END_SRC
+
 ** 例子
 *** 仅允许自己ping通别人
 #+BEGIN_SRC conf
@@ -245,3 +296,25 @@ iptables -P FORWARD DROP
 iptables -A INPUT -d 本机IP -p icmp --icmp-type 0 -j ACCEPT
 iptables -A OUTPUT -s 本机IP -p icmp --icmp-type 8 -j ACCEPT
 #+END_SRC
+*** 只允许外网主动连接内网
+#+BEGIN_SRC conf
+iptables -A FORWARD -m state --state ESTABLISHED -j ACCEPT
+iptables -A FORWARD -d 192.168.50.100 -p tcp -m multiport --dports 22,80 -m state --state NEW -j ACCEPT
+#+END_SRC
+*** 允许本地回环访问
+#+BEGIN_SRC conf
+iptables -A INPUT  -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+#+END_SRC
+*** 自定义链
+#+BEGIN_SRC conf
+iptables -N clean_in
+iptables -A clean_in -d 255.255.255.255 -p icmp -j DROP
+iptables -A clean_in -d 172.16.255.255 -p icmp -j DROP
+iptables -A clean_in -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A clean_in -p tcp --tcp-flags ALL ALL -j DROP
+iptables -A clean_in -p tcp --tcp-flags ALL NONE -j DROP
+iptables -A clean_in -d 172.16.100.7 -j RETURN  # 返回其调用链
+#+END_SRC
+* 补充
+iptables还可以实现七层访问过滤，需要用到模块layer7

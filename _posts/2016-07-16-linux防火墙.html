@@ -33,27 +33,46 @@ comments:
 <li><a href="#orgheadline11">规则和链有计数器</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline26">5. iptables命令</a>
+<li><a href="#orgheadline38">5. iptables命令</a>
 <ul>
 <li><a href="#orgheadline13">table</a></li>
 <li><a href="#orgheadline14">链管理</a></li>
 <li><a href="#orgheadline15">规则管理</a></li>
 <li><a href="#orgheadline16">规则查看</a></li>
-<li><a href="#orgheadline22">匹配条件(rule-specification)</a>
+<li><a href="#orgheadline20">连接跟踪表</a>
 <ul>
-<li><a href="#orgheadline17">基本匹配条件</a></li>
-<li><a href="#orgheadline18">扩展匹配条件</a></li>
-<li><a href="#orgheadline21">目标(TARGET)</a></li>
+<li><a href="#orgheadline17">连接跟踪的相关参数</a></li>
+<li><a href="#orgheadline18">可追踪的连接状态</a></li>
+<li><a href="#orgheadline19">更该连接跟踪表的最大容量</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline23">保存和重载规则</a></li>
-<li><a href="#orgheadline25">例子</a>
+<li><a href="#orgheadline26">匹配条件(rule-specification)</a>
 <ul>
-<li><a href="#orgheadline24">仅允许自己ping通别人</a></li>
+<li><a href="#orgheadline21">基本匹配条件</a></li>
+<li><a href="#orgheadline22">扩展匹配条件</a></li>
+<li><a href="#orgheadline25">目标(TARGET)</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline27">保存和重载规则</a></li>
+<li><a href="#orgheadline28">开机载入的文件</a></li>
+<li><a href="#orgheadline32">NAT</a>
+<ul>
+<li><a href="#orgheadline29">内网与外网</a></li>
+<li><a href="#orgheadline30">NAT类型</a></li>
+<li><a href="#orgheadline31">配置NAT</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline37">例子</a>
+<ul>
+<li><a href="#orgheadline33">仅允许自己ping通别人</a></li>
+<li><a href="#orgheadline34">只允许外网主动连接内网</a></li>
+<li><a href="#orgheadline35">允许本地回环访问</a></li>
+<li><a href="#orgheadline36">自定义链</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a href="#orgheadline39">6. 补充</a></li>
 </ul>
 </div>
 </div>
@@ -126,7 +145,10 @@ iptables的表即是iptables的功能
 <ul class="org-ul">
 <li>流入本机: PREROUTING &#x2013;&gt; INPUT</li>
 <li>本机发出: OUTPUT &#x2013;&gt; POSTROUTING</li>
-<li>通过本机转发: PREROUTING &#x2013;&gt; FORWARD &#x2013;&gt; POSTROUTING</li>
+<li>通过本机转发(网络防火墙): PREROUTING &#x2013;&gt; FORWARD &#x2013;&gt; POSTROUTING
+<ul class="org-ul">
+<li>要开启内核的转发功能</li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -135,7 +157,7 @@ iptables的表即是iptables的功能
 <div class="outline-text-3" id="text-orgheadline6">
 <ul class="org-ul">
 <li>filter：INPUT, FORWARD, OUTPUT</li>
-<li>nat: PREROUTING(DNAT), OUTPUT, POSTROUTING(SNAT)</li>
+<li>nat: PREROUTING(DNAT), INPUT, OUTPUT, POSTROUTING(SNAT)</li>
 <li>mangle：PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING</li>
 <li>raw：PREROUTING, OUTPUT</li>
 </ul>
@@ -189,8 +211,8 @@ raw &#x2013;&gt; mangle &#x2013;&gt; nat &#x2013;&gt; filter
 </div>
 </div>
 
-<div id="outline-container-orgheadline26" class="outline-2">
-<h2 id="orgheadline26"><span class="section-number-2">5</span> iptables命令</h2>
+<div id="outline-container-orgheadline38" class="outline-2">
+<h2 id="orgheadline38"><span class="section-number-2">5</span> iptables命令</h2>
 <div class="outline-text-2" id="text-5">
 <div class="org-src-container">
 
@@ -261,30 +283,85 @@ iptables [-t table] -R chain rulenum rule-specification
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-3">
-<h3 id="orgheadline22">匹配条件(rule-specification)</h3>
-<div class="outline-text-3" id="text-orgheadline22">
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">连接跟踪表</h3>
+<div class="outline-text-3" id="text-orgheadline20">
 </div><div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">基本匹配条件</h4>
+<h4 id="orgheadline17">连接跟踪的相关参数</h4>
 <div class="outline-text-4" id="text-orgheadline17">
 <ul class="org-ul">
-<li>-s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围</li>
-<li>-d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围</li>
-<li>-p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议</li>
-<li>-i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)</li>
-<li>-o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)</li>
-<li>! 条件: 表示非</li>
+<li>调整连接追踪功能所能够容纳最大连接数量: /proc/sys/net/ipv4/ip_conntrack_max</li>
+<li>已经追踪到并记录下的连接: /proc/net/nf_conntrack</li>
+<li>不同协议或连接类型追踪的时长: <i>proc/sys/net/netfilter</i></li>
 </ul>
 </div>
 </div>
 <div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">扩展匹配条件</h4>
+<h4 id="orgheadline18">可追踪的连接状态</h4>
 <div class="outline-text-4" id="text-orgheadline18">
+<ul class="org-ul">
+<li>NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目</li>
+<li>ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态</li>
+<li>RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系</li>
+<li>INVALIED：无法识别的连接</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">更该连接跟踪表的最大容量</h4>
+<div class="outline-text-4" id="text-orgheadline19">
+<p>
+修改sysctl.conf
+</p>
+<ol class="org-ol">
+<li><p>
+加大 ip_conntrack_max 值
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">net.ipv4.ip_conntrack_max</span> = 393216
+<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_max</span> = 393216
+</pre>
+</div></li>
+<li><p>
+降低 ip_conntrack timeout时间
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_established</span> = 300
+<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait</span> = 120
+<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_close_wait</span> = 60
+<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_fin_wait</span> = 120
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">匹配条件(rule-specification)</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+</div><div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">基本匹配条件</h4>
+<div class="outline-text-4" id="text-orgheadline21">
+<ul class="org-ul">
+<li>[!] -s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围</li>
+<li>[!] -d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围</li>
+<li>[!] -p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议</li>
+<li>[!] -i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)</li>
+<li>[!] -o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">扩展匹配条件</h4>
+<div class="outline-text-4" id="text-orgheadline22">
 <p>
 模块文件路径是/usr/lib64/xtables/*.so(小写字母)
 </p>
 </div>
-<ul class="org-ul"><li><a id="orgheadline19"></a>隐式扩展<br  /><div class="outline-text-5" id="text-orgheadline19">
+<ul class="org-ul"><li><a id="orgheadline23"></a>隐式扩展<br  /><div class="outline-text-5" id="text-orgheadline23">
 <p>
 对-p protocol指明的协议进行的扩展，可省略-m选项
 </p>
@@ -302,6 +379,7 @@ FIN表示关闭连接
 ACK表示响应
 PSH表示有DATA数据传输
 RST表示连接重置
+ALL与NONE
 </pre></li>
 <li>&#x2013;syn: 相当于 &#x2013;tcp-flags SYN,ACK,FIN,RST SYN</li>
 </ul></li>
@@ -323,7 +401,7 @@ RST表示连接重置
 </ul></li>
 </ul>
 </div></li>
-<li><a id="orgheadline20"></a>显式扩展<br  /><div class="outline-text-5" id="text-orgheadline20">
+<li><a id="orgheadline24"></a>显式扩展<br  /><div class="outline-text-5" id="text-orgheadline24">
 <p>
 必须使用-m选项显式指定使用的扩展，如 <code>-m macth_name --spec_options</code>
 </p>
@@ -399,17 +477,6 @@ time: 根据报文到达的时间与指定的时间范围(UTC时间)进行匹配
 <li><p>
 state: 根据连接追踪机制检查连接的状态
 </p>
-<pre class="example">
-连接追踪功能相关内容
-  调整连接追踪功能所能够容纳的最大连接数量: /proc/sys/net/nf_conntrack_max
-  已经追踪到并记录下的连接: /proc/net/nf_conntrack
-  不同协议或连接类型追踪的时长: /proc/sys/net/netfilter/
-  可追踪的连接状态：
-    NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目
-    ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态
-    RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系
-    INVALIED：无法识别的连接
-</pre>
 <ul class="org-ul">
 <li>&#x2013;state STATE1,STATE2</li>
 </ul>
@@ -430,13 +497,21 @@ iptables -A INPUT -d LocalIP -p tcp -m state --state RELATED,ESTABLISHED -j ACCE
 iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
 </pre>
 </div></li>
+<li>recent: 用于抵御DOS攻击</li>
 </ol>
+<div class="org-src-container">
+
+<pre class="src src-conf">iptables -I INPUT -p tcp --dport 22 -m connlimit --connlimit-above 3 -j DROP
+iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --set --name SSH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19968;&#20010;&#21517;&#20026;SSH&#30340;&#21015;&#34920;&#26469;&#23384;&#20648;&#25253;&#25991;&#26469;&#28304;IP</span>
+iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --update --seconds  300 --hitcount 3 --name SSH -j DROP  <span style="color: #75715E;"># </span><span style="color: #75715E;">SSH&#35760;&#24405;&#20013;&#30340;IP&#65292;300s&#20869;&#21457;&#36215;&#36229;&#36807;3&#27425;&#36830;&#25509;&#21017;&#25298;&#32477;&#27492;IP&#30340;&#36830;&#25509;</span>
+</pre>
+</div>
 </div></li></ul>
 </div>
 
-<div id="outline-container-orgheadline21" class="outline-4">
-<h4 id="orgheadline21">目标(TARGET)</h4>
-<div class="outline-text-4" id="text-orgheadline21">
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">目标(TARGET)</h4>
+<div class="outline-text-4" id="text-orgheadline25">
 <p>
 <code>-j TARGET</code>: jump至定的TARGET(位于/usr/lib64/xtables/*.so大写字母的文件)
 </p>
@@ -446,7 +521,7 @@ iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
 <li>REJECT: 拒绝</li>
 <li>RETURN: 返回调用链</li>
 <li>REDIRECT：端口重定向</li>
-<li>LOG: 记录日志</li>
+<li>LOG [&#x2013;log-prefix "&#x2026;"]: 记录日志</li>
 <li>MARK：做防火墙标记</li>
 <li>DNAT：目标地址转换</li>
 <li>SNAT：源地址转换</li>
@@ -457,23 +532,90 @@ iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
 </div>
 </div>
 
-<div id="outline-container-orgheadline23" class="outline-3">
-<h3 id="orgheadline23">保存和重载规则</h3>
-<div class="outline-text-3" id="text-orgheadline23">
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">保存和重载规则</h3>
+<div class="outline-text-3" id="text-orgheadline27">
 <div class="org-src-container">
 
 <pre class="src src-conf">iptables-save &gt; /PATH/TO/SOMEFILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20445;&#23384;&#24403;&#21069;&#35268;&#21017;</span>
 iptables-restore &lt; /PATH/FROM/SOMEFILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#35268;&#21017;</span>
+
+service iptables save  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#35268;&#21017;&#20445;&#23384;&#22312;/etc/sysconfig/iptables&#20013;</span>
+service iptables restart
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">例子</h3>
-<div class="outline-text-3" id="text-orgheadline25">
-</div><div id="outline-container-orgheadline24" class="outline-4">
-<h4 id="orgheadline24">仅允许自己ping通别人</h4>
-<div class="outline-text-4" id="text-orgheadline24">
+
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">开机载入的文件</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<ul class="org-ul">
+<li>开机默认载入的规则: /etc/sysconfig/iptables</li>
+<li>开机默认载入的模块: /etc/sysconfig/iptables-config</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">NAT</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+</div><div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29">内网与外网</h4>
+<div class="outline-text-4" id="text-orgheadline29">
+<p>
+网络服务器中，外网的服务器无法定位到内网服务器，除非外网服务器将网络服务器设置为网关，因此有两种方法: 
+</p>
+<ol class="org-ol">
+<li>NAT(Network Address Translation): 用于隐藏本地网络主机，提高安全性在网络层(更改IP)和传输层(更改端口)实现</li>
+<li>proxy：代理服务器(网关)，在应用层(区分代理的协议)实现</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline30" class="outline-4">
+<h4 id="orgheadline30">NAT类型</h4>
+<div class="outline-text-4" id="text-orgheadline30">
+<ul class="org-ul">
+<li>SNAT: 只修改请求报文的源地址，在POSTROUTING链的nat表中转换，其响应报文会自动根据NAT表修改目标地址</li>
+<li>DNAT：只修改请求报文的目标地址(不然目标地址为本主机)，在PREROUTING链的nat表中转换，其响应报文会自动根据NAT表修改源地址</li>
+<li>FULLNAT</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31">配置NAT</h4>
+<div class="outline-text-4" id="text-orgheadline31">
+<ul class="org-ul">
+<li><p>
+配置SNAT
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">iptables -t nat -A POSTROUTING -s LocalNet ! -d LocalNet -j SNAT --to-source ExtIP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22806;&#32593;IP&#22266;&#23450;</span>
+iptables -t nat -A POSTROUTING -s LocalNET ! -d LocalNet -j MASQUERADE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22806;&#32593;IP&#32463;&#24120;&#21464;&#21270;</span>
+</pre>
+</div></li>
+<li><p>
+配置DNAT(可修改端口)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">iptables -t nat -A PREROUTING -d ExtIP -p tcp|udp --dport PORT -j DNAT --to-destination InterSeverIP<span style="color: #AE81FF;">[</span>:PORT<span style="color: #AE81FF;">]</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">例子</h3>
+<div class="outline-text-3" id="text-orgheadline37">
+</div><div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">仅允许自己ping通别人</h4>
+<div class="outline-text-4" id="text-orgheadline33">
 <div class="org-src-container">
 
 <pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#35268;&#21017;</span>
@@ -492,5 +634,51 @@ iptables -A OUTPUT -s &#26412;&#26426;IP -p icmp --icmp-type 8 -j ACCEPT
 </div>
 </div>
 </div>
+<div id="outline-container-orgheadline34" class="outline-4">
+<h4 id="orgheadline34">只允许外网主动连接内网</h4>
+<div class="outline-text-4" id="text-orgheadline34">
+<div class="org-src-container">
+
+<pre class="src src-conf">iptables -A FORWARD -m state --state ESTABLISHED -j ACCEPT
+iptables -A FORWARD -d 192.168.50.100 -p tcp -m multiport --dports 22,80 -m state --state NEW -j ACCEPT
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-4">
+<h4 id="orgheadline35">允许本地回环访问</h4>
+<div class="outline-text-4" id="text-orgheadline35">
+<div class="org-src-container">
+
+<pre class="src src-conf">iptables -A INPUT  -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline36" class="outline-4">
+<h4 id="orgheadline36">自定义链</h4>
+<div class="outline-text-4" id="text-orgheadline36">
+<div class="org-src-container">
+
+<pre class="src src-conf">iptables -N clean_in
+iptables -A clean_in -d 255.255.255.255 -p icmp -j DROP
+iptables -A clean_in -d 172.16.255.255 -p icmp -j DROP
+iptables -A clean_in -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A clean_in -p tcp --tcp-flags ALL ALL -j DROP
+iptables -A clean_in -p tcp --tcp-flags ALL NONE -j DROP
+iptables -A clean_in -d 172.16.100.7 -j RETURN  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36820;&#22238;&#20854;&#35843;&#29992;&#38142;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline39" class="outline-2">
+<h2 id="orgheadline39"><span class="section-number-2">6</span> 补充</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+iptables还可以实现七层访问过滤，需要用到模块layer7
+</p>
 </div>
 </div>

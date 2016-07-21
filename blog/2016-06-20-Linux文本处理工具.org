@@ -6,7 +6,7 @@
 #+JEKYLL_TAGS: Linux 运维 文本处理
 #+JEKYLL_PUBLISHED: true
 
-介绍了Linux下常用的文本处理工具，包括head, tail, tr, wc, cut, sort, uniq，以及文本处理三剑客grep, sed, awk
+介绍了Linux下常用的文本处理工具，包括head, tail, tr, wc, cut, sort, uniq，以及文本处理三剑客grep, sed, awk，和文本操作工具diff/patch
 
 
 
@@ -268,3 +268,27 @@ gawk [options] 'program' FILE...
   - 自定义函数
     - function name(argu,...){statments}
     - 自定义函数需要放在所有代码块(包括BEGIN代码块)之前
+
+* diff/patch
+** diff
+diff用于比较两个文本文件的差异
+*** 正常格式的diff
+#+BEGIN_SRC conf
+diff file1 file2
+#+END_SRC
+显示结果中，第一行是一个提示，用来说明变动位置。它分成三个部分：前面的数字，表示file1的第n行有变化；中间的"c"表示change、"a"表示add、"d"表示delete
+*** 上下文格式的diff
+#+BEGIN_SRC conf
+diff -c f1 f2
+#+END_SRC
+结果分成四个部分。第一部分的两行，显示两个文件的基本情况：文件名和时间信息，"***"表示变动前的文件，"---"表示变动后的文件。第二部分是15个星号，将文件的基本情况与变动内容分割开。第三部分显示变动前的文件，即file1
+*** 合并格式的diff
+#+BEGIN_SRC conf
+diff -u f1 f2
+#+END_SRC
+上下文格式的合并版
+** patch
+patch用于根据diff产生的差异来对源文件进行打补丁，可对目录进行打补丁
+#+BEGIN_SRC conf
+patch [options] [originalfile] [patchfile]
+#+END_SRC

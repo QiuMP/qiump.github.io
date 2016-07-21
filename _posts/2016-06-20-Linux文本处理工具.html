@@ -24,11 +24,23 @@ comments:
 <li><a href="#orgheadline7">7. grep</a></li>
 <li><a href="#orgheadline8">8. sed</a></li>
 <li><a href="#orgheadline9">9. gawk</a></li>
+<li><a href="#orgheadline15">10. diff/patch</a>
+<ul>
+<li><a href="#orgheadline10">diff</a>
+<ul>
+<li><a href="#orgheadline11">正常格式的diff</a></li>
+<li><a href="#orgheadline12">上下文格式的diff</a></li>
+<li><a href="#orgheadline13">合并格式的diff</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">patch</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <p>
-介绍了Linux下常用的文本处理工具，包括head, tail, tr, wc, cut, sort, uniq，以及文本处理三剑客grep, sed, awk
+介绍了Linux下常用的文本处理工具，包括head, tail, tr, wc, cut, sort, uniq，以及文本处理三剑客grep, sed, awk，和文本操作工具diff/patch
 </p>
 
 
@@ -431,5 +443,70 @@ printf
 </ul></li>
 </ul></li>
 </ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><span class="section-number-2">10</span> diff/patch</h2>
+<div class="outline-text-2" id="text-10">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">diff</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<p>
+diff用于比较两个文本文件的差异
+</p>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">正常格式的diff</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-conf">diff file1 file2
+</pre>
+</div>
+<p>
+显示结果中，第一行是一个提示，用来说明变动位置。它分成三个部分：前面的数字，表示file1的第n行有变化；中间的"c"表示change、"a"表示add、"d"表示delete
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">上下文格式的diff</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<div class="org-src-container">
+
+<pre class="src src-conf">diff -c f1 f2
+</pre>
+</div>
+<p>
+结果分成四个部分。第一部分的两行，显示两个文件的基本情况：文件名和时间信息，"<b>*</b>"表示变动前的文件，"&#x2014;"表示变动后的文件。第二部分是15个星号，将文件的基本情况与变动内容分割开。第三部分显示变动前的文件，即file1
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">合并格式的diff</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<div class="org-src-container">
+
+<pre class="src src-conf">diff -u f1 f2
+</pre>
+</div>
+<p>
+上下文格式的合并版
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">patch</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+patch用于根据diff产生的差异来对源文件进行打补丁，可对目录进行打补丁
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">patch [options] [originalfile] [patchfile]
+</pre>
+</div>
+</div>
 </div>
 </div>

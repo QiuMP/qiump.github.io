@@ -13,7 +13,7 @@
 
 -----
 * DNS
-DNS: Domain Name Service，应用层协议(53/udp, 53/tcp)
+DNS: Domain Name Service，应用层协议(53/udp用于名称解析, 53/tcp用于区域传送)
 ** hosts
 /etc/hosts是本地名称解析配置文件
 #+BEGIN_SRC conf
