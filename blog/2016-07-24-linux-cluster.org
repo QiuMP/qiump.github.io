@@ -1,0 +1,171 @@
+#+TITLE: Linux Cluster
+#+DATE: 2016-07-24
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_PUBLISHED: true
+
+TODO
+
+
+
+
+-----
+* Cluster
+** 系统扩展方式
+- scale up: 向上扩展，使用性能更好的主机
+- scale out: 向外扩展，使用更多的主机
+** 集群类型
+- LB(Load Balancing)：负载均衡集群，任务分配
+  - GSLB: Global Service Load Balancing
+  - SLB: Service Load Balancing
+- HA(High Availability)：高可用集群，系统快速修复
+  - Availability=可用时间/总时间
+- HP(High Performancing)：高性能集群，并行处理、分布式
+  - 分布式应用
+  - 分布式静态资源
+  - 分布式数据和存储
+  - 分布式计算
+** 衡量系统的指标
+- 可扩展性
+  - 构建高可扩展性系统的重要原则：在系统内部尽量避免串行化和交互
+- 可用性
+- 容量: 请求处理的最大量
+- 吞吐量: 单位时间的请求处理量
+- 性能: 请求处理时间
+** 高效运维
+可用 --> 标准化 --> 自动化
+** session保持
+- session绑定：基于cookie进行绑定
+- session集群：解决所有主机的session的同步问题
+- session服务器：解决session的可用性
+** 术语
+- 调度器(负载均衡器)：director, dispatcher, balancer
+- RS: Real Server
+- Client IP: CIP
+- Director Virutal IP: VIP
+- Director IP: DIP
+- Real Server IP: RIP
+* LB集群
+** 实现方式
+- 基于软硬件划分
+  - 硬件: F5、NetScaler、A10、Array、Redware
+  - 软件: LVS、HAProxy、Nginx、ats、perlbal
+- 基于工作的协议层次划分
+  - 传输层：lvs, haproxy(mode tcp)
+  - 应用层：haproxy, nginx, ats, perlbal
+** lvs
+lvs: Linux Virtual Server，根据请求报文的目标IP和PORT将其转发至后端主机集群中的某一台主机(根据挑选算法)，支持TCP, UDP, AH, ESP, AH_ESP, SCTP等诸多协议
+*** lvs组件
+- ipvsadm: 用户空间的命令行工具，用于管理集群服务
+- ipvs: 工作内核中netfilter INPUT钩子上，报文传输线路为PREROUTING --> INPUT --> POSTROUTING
+*** lvs类型
+- lvs-nat :: 多目标的DNAT，它通过修改请求报文的目标IP地址(同时可能会修改目标端口)至某RS的RIP地址实现转发
+  1. RIP和DIP应该使用私网地址，且RS的网关要指向DIP
+  2. 请求和响应报文都要经由director转发，在极高负载的场景中，director可能会成为系统瓶颈
+  3. 支持端口映射
+  4. RS可以使用任意OS
+- lvs-dr :: direct routing(默认)，它通过修改请求报文的目标MAC地址进行转发，仅请求报文经由director，响应报文是由RS直接响应给Client
+  1. Driector使用VIP、DIP；RS使用RIP、VIP
+  2. 保证前端路由器将目标IP为VIP的请求报文发送给director，可以通过路由静态绑定、使用arptables使RS拒绝响应、直接修改RS主机内核的参数
+  3. RS的RIP可以使用私有地址；但也可以使用公网地址
+  4. RS跟Director必须在同一物理网络中
+  5. 请求报文经由Director调度，但响应报文一定不能经由Director
+  6. 不支持端口映射
+  7. RS可以大多数OS
+  8. RS通过地址为VIP的lo设备进行操作
+  9. RS的网关不能指向DIP，应指向外网路由
+- lvs-tun :: 不修改请求报文的IP首部，而是通过在原有的IP首部(CIP,VIP)之外，再封装一个IP首部(DIP,RIP)
+  1. RIP、DIP、VIP都是公网地址
+  2. RS通过地址为VIP的lo设备接受和发送报文
+  3. 请求报文必须经由director调度，但响应报文必须不能经由director
+  4. 不支持端口映射
+  5. RS的OS必须支持隧道功能
+  6. 必要时需要限制请求报文的MTU大小
+- lvs-fullnat :: director通过同时修改请求报文的目标地址和源地址进行转发，需要使用淘宝开源项目进行支持
+  1) VIP是公网地址；RIP和DIP是私网地址，二者无须在同一网络中
+  2) RS接收到的请求报文的源地址为DIP
+  3) 请求报文和响应报文都必须经由Director
+  4) 支持端口映射机制
+  5) RS可以使用任意OS
+*** lvs scheduler
+scheduler是Director通过算法来选择要调度的RS
+- 静态方法: 仅根据算法本身进行调度
+  - RR(round robin): 轮调
+  - WRR(weighted rr): 按照权重分配
+  - SH(source hash): 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制
+  - DH(destination hash): 将对同一个目标的请求始终发往同一个RS，对于新目标使用轮调分配，用于正向代理情形下的缓存服务器调度
+- 动态方法: 根据算法计算各RS的当前负载状态(Overhead)进行调度，其中Active是活动连接数，Inactive是非活动连接数
+  - LC(Least Connection): Overhead=Active*256+Inactive
+  - WLC(Weighted LC): Overhead=(Active*256+Inactive)/weight
+  - SED(Shortest Expection Delay): Overhead=(Active+1)*256/weight，解决WLC下0连接数时的分配
+  - NQ(Never Queue): SED算法的改进，优先分配给0连接数的RS
+  - LBLC(Locality-Based LC): 动态的DH算法，对于新目标使用LC分配，用于正向代理情形下的缓存服务器调度
+  - LBLCR(Locality-Based Least-Connection with Replication): 带复制功能的LBLC算法
+*** lvs架构
+1. 一个ipvs主机可以同时定义多个cluster service
+2. 一个cluster service上至少应该一个real server
+*** ipvsadm的用法
+**** 管理集群服务
+#+BEGIN_SRC conf
+ipvsadm -A service [-s scheduler]  # APPEND
+ipvsadm -D service  # DELETE
+  service:
+    tcp: -t ip:port
+    udp: -u ip:port
+    fwm: -f mark，防火墙标记
+
+  -s scheduler: 默认为WLC
+#+END_SRC
+**** 管理集群服务中的RS
+#+BEGIN_SRC conf
+ipvsadm -a service -r server-address lvs-type [-w weight]
+ipvsadm -d service -r server-address
+  server-address: RS的地址，ip[:port]
+
+  lvs-type:
+    -g: GATEWAY, lvs-dr(默认)
+    -i: IPIP, lvs-tun
+    -m: MASQUERADE, lvs-nat
+#+END_SRC
+**** 清空和查询
+#+BEGIN_SRC conf
+ipvsadm -C  # 清空所有规则
+ipvsadm -L|l [options]	
+	-n: numeric，基于数字格式显示地址和端口
+	-c: connection，显示ipvs连接
+	--stats: 统计数据
+	--rate: 速率
+	--exact: 精确值		
+#+END_SRC
+**** 保存和重载
+#+BEGIN_SRC conf
+ipvsadm -R
+ipvsadm -S [-n]
+#+END_SRC
+*** 配置lvs-dr
+- 内核参数
+  - arp_ignore: 是否响应别人的ARP广播请求
+    - 0: 检查自己的所有接口的地址
+    - 1: 检查同一接口上的地址
+  - arp_announce: 是否进行ARP通告
+    - 0: 通告自己所有接口的地址
+    - 1: 尽量避免通告不在同一接口的地址
+    - 2: 不通告不在同一接口的地址
+- director配置
+  #+BEGIN_SRC sh
+  ifconfig eno16777736:0 172.16.100.10/32 broadcast 172.16.100.10 up
+  route add -host 172.16.100.10 dev eno16777736:0
+  
+  ipvsadm -A -t 172.16.100.10:80
+  ipvsadm -a -t 172.16.100.10:80 -r 172.16.100.21 -g
+  #+END_SRC
+- RS配置
+  #+BEGIN_SRC sh
+  echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore 
+  echo 2 > /proc/sys/net/ipv4/conf/all/arp_announce 
+
+  ifconfig lo:0 172.16.100.10/32 broadcast 172.16.100.10 up
+  route add -host 172.16.100.10 dev lo:0
+  #+END_SRC

@@ -1,0 +1,544 @@
+---
+title: "Nginx"
+date: 2016-07-22
+layout: post
+categories: 
+- 网络
+tags: 
+- Linux 
+- 运维 
+- 网络
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. Nginx特性</a></li>
+<li><a href="#orgheadline2">2. 基本功能</a></li>
+<li><a href="#orgheadline3">3. 扩展功能</a></li>
+<li><a href="#orgheadline4">4. Nginx的基本架构</a></li>
+<li><a href="#orgheadline5">5. 模块类型</a></li>
+<li><a href="#orgheadline6">6. 编译安装方法</a></li>
+<li><a href="#orgheadline19">7. 配置文件</a>
+<ul>
+<li><a href="#orgheadline7">配置文件组成</a></li>
+<li><a href="#orgheadline18">配置指令</a>
+<ul>
+<li><a href="#orgheadline8">语法</a></li>
+<li><a href="#orgheadline9">变量</a></li>
+<li><a href="#orgheadline10">测试和重读配置</a></li>
+<li><a href="#orgheadline11">main配置段</a></li>
+<li><a href="#orgheadline12">events配置段</a></li>
+<li><a href="#orgheadline17">http配置段</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<pre class="example">
+Nginx: engine X
+淘宝有改进Nginx，叫Tengine
+</pre>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> Nginx特性</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>使用libevent库，即epoll</li>
+<li>模块化设计</li>
+<li>高可靠性</li>
+<li>低内存消耗: 10000个keep-alive连接在Nginx仅消耗2.5MB</li>
+<li>支持热部署: 不停机而更新配置文件、更换日志文件、更新服务器程序版本</li>
+<li>支持事件驱动、AIO、mmap</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 基本功能</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>静态资源的web服务器，能缓存打开的文件描述符，加快打开速度</li>
+<li>http、smtp、pop3协议的反向代理服务器，通过键值缓存，支持负载均衡</li>
+<li>支持FastCGI(fpm)</li>
+<li>模块化(非DSO机制)，过滤器zip，SSI及图像大小调整</li>
+<li>支持SSL</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 扩展功能</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>基于名称和IP的虚拟主机</li>
+<li>支持keepalive</li>
+<li>支持平滑升级</li>
+<li>定制访问日志，支持使用日志缓冲区提高日志存储性能</li>
+<li>支持url rewrite</li>
+<li>支持路径别名</li>
+<li>支持基于IP及用户的访问控制</li>
+<li>支持速率限制，支持并发数限制</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> Nginx的基本架构</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>一个master进程，生成一个或多个worker</li>
+<li>事件驱动：epoll(边缘触发)、kqueue(BSD)、/dev/poll(SUSE)</li>
+<li>I/O复用的消息通知：select、poll、rt signals</li>
+<li>支持sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> 模块类型</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>核心模块</li>
+<li>Standard HTTP modules</li>
+<li>Optional HTTP modules</li>
+<li>Mail modules</li>
+<li>3rd party modules</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> 编译安装方法</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+
+<pre class="src src-conf">groupadd -r nginx
+useradd -g nginx -r nginx
+<span style="color: #FD971F;">./configure --prefix</span>=/usr/local/nginx --conf-path=/etc/nginx/nginx.conf --user=nginx --group=nginx --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/lock/nginx.lock --with-http_ssl_module --with-http_stub_status_module --with-http_gzip_static_module --with-http_flv_module --with-http_mp4_module --http-client-body-temp-path=/var/tmp/nginx/client --http-proxy-temp-path=/var/tmp/nginx/proxy --http-fastcgi-temp-path=/var/tmp/nginx/fastcgi --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi
+make &amp;&amp; make install
+mkdir -pv /var/tmp/nginx/{client,fastcgi,proxy,uwsgi}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">7</span> 配置文件</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置文件组成</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li>main配置段: 全局配置段</li>
+<li>events {}: 定义event模型工作特性</li>
+<li>http {}: 定义http协议相关的配置，由ngx_http_core_module模块所引入</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">配置指令</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+</div><div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">语法</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-conf">directive value1 [value2...];
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">变量</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<ul class="org-ul">
+<li>内置变量</li>
+<li><p>
+自定义变量
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">set var_name value;
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">测试和重读配置</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-conf">nginx -t  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26816;&#26597;&#37197;&#32622;&#35821;&#27861;</span>
+nginx -s reload  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#36733;&#37197;&#32622;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">main配置段</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<ul class="org-ul">
+<li><p>
+正常运行必备的配置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">user USERNAME [GROUPNAME];  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#36816;&#34892;worker&#36827;&#31243;&#30340;&#29992;&#25143;&#21644;&#32452;</span>
+
+pid /path/to/pid_file;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;nginx&#30340;pid&#25991;&#20214;</span>
+
+worker_rlimit_nofile NUM;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#25152;&#26377;worker&#36827;&#31243;&#25152;&#33021;&#22815;&#25171;&#24320;&#30340;&#26368;&#22823;&#25991;&#20214;&#21477;&#26564;&#25968;</span>
+</pre>
+</div></li>
+<li><p>
+优化性能的配置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">worker_processes NUM;  <span style="color: #75715E;"># </span><span style="color: #75715E;">worker&#32447;&#31243;&#30340;&#20010;&#25968;(&#36890;&#24120;&#23569;&#20110;&#29289;&#29702;CPU&#26680;&#24515;&#25968;)</span>
+
+worker_cpu_affinity worker1_cpumask worker2_cpumask ...;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32465;&#23450;worker&#36827;&#31243;&#33267;&#25351;&#23450;&#30340;CPU&#19978;&#65292;&#25552;&#21319;&#32531;&#23384;&#21629;&#20013;&#29575;</span>
+worker_cpu_affinity 00000001 00000010 00000100
+
+timer_resolution t;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#26102;&#38388;&#35299;&#26512;&#31934;&#24230;&#65292;&#26085;&#24535;&#35760;&#24405;&#30340;&#26102;&#38388;&#31934;&#24230;&#65292;&#21487;&#20197;&#25552;&#39640;&#24615;&#33021;</span>
+
+worker_priority NUM;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;worker&#36827;&#31243;&#30340;nice&#20540;(-20~19)</span>
+</pre>
+</div></li>
+<li><p>
+用于调试、定位问题
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">daemon <span style="color: #AE81FF;">{</span>on|off<span style="color: #AE81FF;">}</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26159;&#21542;&#20197;&#23432;&#25252;&#36827;&#31243;&#26041;&#24335;&#21551;&#21160;nginx&#65307;&#35843;&#35797;&#26102;&#20351;&#29992;off</span>
+
+master_process <span style="color: #AE81FF;">{</span>on|off<span style="color: #AE81FF;">}</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26159;&#21542;&#20197;master/worker&#27169;&#22411;&#26469;&#36816;&#34892;nginx</span>
+
+error_log <span style="color: #AE81FF;">{</span>file|stderr|syslog:<span style="color: #FD971F;">server</span>=..|memory:size<span style="color: #AE81FF;">}</span> level;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#38169;&#35823;&#26085;&#24535;&#20301;&#32622;&#21644;&#32423;&#21035;</span>
+</pre>
+</div></li>
+<li>常需要进行调整的参数: worker_processes、worker_cpu_affinity、worker_priority</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">events配置段</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<div class="org-src-container">
+
+<pre class="src src-conf">accept_mutex {on|off};  <span style="color: #75715E;"># </span><span style="color: #75715E;">master&#35843;&#24230;&#29992;&#25143;&#35831;&#27714;&#33267;&#21508;worker&#26102;&#29992;&#30340;&#36127;&#36733;&#22343;&#34913;&#38145;&#65307;&#25171;&#24320;&#26102;&#34920;&#31034;&#33021;&#35753;&#22810;&#20010;worker&#36718;&#27969;&#22320;&#12289;&#24207;&#21015;&#21270;&#22320;&#19982;&#21709;&#24212;&#26032;&#35831;&#27714;</span>
+accept_mutex_delay TIME;
+lock_file /path/to/lock_file; 
+
+use {epoll|rgsig|select|poll};  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#20351;&#29992;&#30340;&#20107;&#20214;&#27169;&#22411;&#65292;&#24314;&#35758;&#35753;Nginx&#33258;&#21160;&#36873;&#25321;</span>
+
+worker_connections NUM;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#20010;worker&#36827;&#31243;&#25152;&#33021;&#22815;&#21709;&#24212;&#30340;&#26368;&#22823;&#24182;&#21457;&#35831;&#27714;&#25968;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>常需要进行调整的参数: worker_connections</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">http配置段</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+</div><ul class="org-ul"><li><a id="orgheadline13"></a>配置框架<br  /><div class="outline-text-5" id="text-orgheadline13">
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">http</span> {
+    <span style="color: #66D9EF;">upstream</span> {
+        ...
+    }
+
+    <span style="color: #66D9EF;">server</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34394;&#25311;&#20027;&#26426;</span>
+        listen IP:PORT;
+        <span style="color: #66D9EF;">location /URL</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31867;&#20284;&#20110;httpd&#20013;&#30340;&lt;Location&gt;</span>
+            <span style="color: #66D9EF;">if ...</span>{
+                ...
+            }
+            root <span style="color: #E6DB74;">"/path/to/somewhere"</span>;
+            ...
+        } 
+    }
+    <span style="color: #66D9EF;">server</span> {
+        ...
+    }
+}
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline14"></a>http相关配置<br  /><div class="outline-text-5" id="text-orgheadline14">
+<ol class="org-ol">
+<li><p>
+server: 定义虚拟主机
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">server</span> {
+    listen 80;
+    server_name www.qiump.com;
+    root <span style="color: #E6DB74;">"/usr/share/nginx/html"</span>
+}
+</pre>
+</div></li>
+<li><p>
+listen: 监听端口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">listen <span style="color: #AE81FF;">[</span>address:<span style="color: #AE81FF;">]</span>port <span style="color: #AE81FF;">[</span><span style="color: #FD971F;">backlog</span>=number<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span><span style="color: #FD971F;">rcvbuf</span>=size<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>ssl<span style="color: #AE81FF;">]</span>
+  <span style="color: #FD971F;">backlog</span>=number: &#25351;&#26126;TCP&#21327;&#35758;backlog&#38431;&#21015;&#30340;&#22823;&#23567;&#12290;&#40664;&#35748;&#20026;-1&#65292;&#34920;&#31034;&#19981;&#35774;&#32622;
+  <span style="color: #FD971F;">rcvbuf</span>=size&#65306;&#35774;&#23450;&#30417;&#21548;&#21477;&#26564;&#30340;SO_RCVBUF&#21442;&#25968;
+</pre>
+</div></li>
+<li><p>
+server_name: 指定匹配的主机名
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">server_name NAME [...];  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21517;&#31216;&#21487;&#20351;&#29992;&#36890;&#37197;&#31526;&#21644;&#27491;&#21017;&#34920;&#36798;&#24335;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>虚拟主机匹配顺序
+<ol class="org-ol">
+<li>先做精确匹配，如：www.qiump.com</li>
+<li>左侧通配符匹配，如：*.qiump.com</li>
+<li>右侧通配符匹配，如：www.*</li>
+<li>正则表达式匹配，如： ～^.*\.qiump\.com$</li>
+<li>default_server</li>
+</ol></li>
+</ul></li>
+<li>root: 设置web资源路径映射，用于指明请求的URL所对应的文档路径
+<ul class="org-ul">
+<li>可用于http,server,location,if中，优先级从小到大</li>
+</ul></li>
+<li><p>
+location: 允许根据用户请求的URI来匹配定义的各location，匹配到时，此请求将被相应的location块中的配置所处理，可嵌套使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">location <span style="color: #AE81FF;">[</span>=|~|~*|^~<span style="color: #AE81FF;">]</span> /URI <span style="color: #AE81FF;">{</span>...<span style="color: #AE81FF;">}</span> 
+location @name <span style="color: #AE81FF;">{</span>...<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>匹配优先级
+<ol class="org-ol">
+<li>=: 精确匹配检查</li>
+<li>^~：URI的前半部分匹配，不支持正则表达式</li>
+<li>~: 正则表达式模式匹配，区分字符大小写</li>
+<li>~*：正则表达式模式匹配，不区分字符大小写</li>
+<li>无符号: 没有符号表示进行左侧匹配</li>
+</ol></li>
+</ul></li>
+<li><p>
+alias: 用于location配置段，定义路径别名
+</p>
+<ul class="org-ul">
+<li>root表示指明路径为对应location的 "/" URL</li>
+<li>alias表示路径映射，即location中的URL是相对于alias所指明的路径而言</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">location /images/</span> {
+    root <span style="color: #E6DB74;">"/web1"</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#35775;&#38382; HOST/images/a.jpg &#30456;&#24403;&#20110; /web1/images/a.jpg</span>
+    alias <span style="color: #E6DB74;">"/web1/"</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#35775;&#38382; HOST/images/a.jpg &#30456;&#24403;&#20110; /web1/a.jpg</span>
+}
+</pre>
+</div></li>
+<li><p>
+index: 默认主页面
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">index file
+</pre>
+</div></li>
+<li><p>
+error_page: 根据http状态码重定向错误页面
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #66D9EF;">error_page</span> <span style="color: #FD971F;">code</span> <span style="color: #AE81FF;">[</span>...<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>=code<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">{</span>URI|@name<span style="color: #AE81FF;">}</span>
+  <span style="color: #AE81FF;">[</span>=code<span style="color: #AE81FF;">]</span>: &#20197;&#25351;&#23450;&#30340;&#21709;&#24212;&#30721;&#36827;&#34892;&#21709;&#24212;
+  @name: &#20351;&#29992;&#20197;@name&#23450;&#20041;&#30340;location
+</pre>
+</div></li>
+<li><p>
+基于IP的访问控制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">allow IP|all;
+deny IP|all;
+</pre>
+</div></li>
+<li><p>
+基于用户的访问控制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">auth_basic <span style="color: #E6DB74;">"message"</span>;
+auth_basic_user_file FILE;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;htpasswd&#21629;&#20196;&#26469;&#21019;&#24314;&#29992;&#25143;&#36134;&#21495;&#25991;&#20214;</span>
+</pre>
+</div></li>
+<li><p>
+https服务
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">server</span> {
+    listen  443 ssl;
+    server_name www.qiump.com;
+
+    ssl_certificate  NAME.crt;
+    ssl_certificate_key  NAME.key;
+
+    ssl_...
+}
+</pre>
+</div></li>
+<li><p>
+stub_status: 显示状态页
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">location /status</span> {
+    stub_status on;
+    allow ..;
+    deny all;
+}
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+状态页显示信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #66D9EF;">Active</span> <span style="color: #FD971F;">connections</span>: <span style="color: #AE81FF;">11921</span> 
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">&#24403;&#21069;&#25152;&#26377;&#22788;&#20110;&#25171;&#24320;&#29366;&#24577;&#30340;&#36830;&#25509;&#25968;</span>
+server accepts handled requests
+  <span style="color: #AE81FF;">11989</span> <span style="color: #AE81FF;">11989</span> <span style="color: #AE81FF;">11991</span> 
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">accept: &#24050;&#32463;&#25509;&#21463;&#30340;&#36830;&#25509;&#25968;</span>
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">handled: &#24050;&#32463;&#22788;&#29702;&#30340;&#36830;&#25509;&#25968;</span>
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">requests: &#24050;&#32463;&#22788;&#29702;&#30340;&#35831;&#27714;&#25968;&#65292;&#22312;"&#20445;&#25345;&#36830;&#25509;"&#27169;&#24335;&#19979;&#65292;&#35831;&#27714;&#25968;&#20250;&#22810;&#20110;&#36830;&#25509;&#25968;</span>
+Reading: <span style="color: #AE81FF;">0</span> Writing: <span style="color: #AE81FF;">7</span> Waiting: <span style="color: #AE81FF;">42</span>
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">Reading: &#27491;&#22788;&#20110;&#25509;&#21463;&#35831;&#27714;&#29366;&#24577;&#30340;&#36830;&#25509;&#25968;</span>
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">Writing: &#27491;&#22788;&#20110;&#22788;&#29702;&#35831;&#27714;&#25110;&#21457;&#36865;&#21709;&#24212;&#30340;&#36830;&#25509;&#25968;</span>
+  <span style="color: #75715E;">//</span><span style="color: #75715E;">Waiting: &#20445;&#25345;&#36830;&#25509;&#19979;&#22788;&#20110;&#27963;&#21160;&#29366;&#24577;&#30340;&#36830;&#25509;&#25968;</span>
+</pre>
+</div></li>
+</ul></li>
+
+<li><p>
+try_files: 按顺序检查文件是否存在，返回第一个找到的文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">try_files path1[,path2,...] URI 
+
+<span style="color: #FD971F;">try_files $uri $uri/</span> =404;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21442;&#25968;&#20197;/&#32467;&#23614;&#34920;&#31034;&#30446;&#24405;</span>
+</pre>
+</div></li>
+<li><p>
+rewrite: 使用正则表达式重写URL进行重定向，用于location中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">rewrite regex replacement [flag];
+  flag: &#26631;&#24535;&#20301;
+    &#31354;: &#32487;&#32493;&#25191;&#34892;location&#25509;&#19979;&#26469;&#30340;&#35821;&#21477;
+    break: &#19968;&#26086;&#27492;rewrite&#35268;&#21017;&#37325;&#20889;&#23436;&#25104;&#21518;&#65292;&#19981;&#20250;&#20877;&#26816;&#26597;&#35813;location&#21518;&#30340;rewrite&#35268;&#21017;&#65292;&#28982;&#21518;&#20197;&#35813;URL&#32487;&#32493;&#25191;&#34892;location&#21518;&#30340;&#20869;&#23481;
+    last: &#19968;&#26086;&#27492;rewrite&#35268;&#21017;&#37325;&#20889;&#23436;&#25104;&#21518;&#65292;&#20250;&#37325;&#26032;&#21305;&#37197;location(&#21487;&#33021;&#20250;&#36896;&#25104;&#27515;&#24490;&#29615;)
+    redirect: &#20197;302&#21709;&#24212;&#30721;(&#20020;&#26102;&#37325;&#23450;&#21521;)&#36820;&#22238;&#26032;&#30340;URL&#65292;&#22320;&#22336;&#26639;&#20250;&#26174;&#31034;&#36339;&#36716;&#21518;&#30340;&#22320;&#22336;
+    permanent: &#20197;301&#21709;&#24212;&#30721;(&#27704;&#20037;&#37325;&#23450;&#21521;)&#36820;&#22238;&#26032;&#30340;URL&#65292;&#22320;&#22336;&#26639;&#20250;&#26174;&#31034;&#36339;&#36716;&#21518;&#30340;&#22320;&#22336;
+</pre>
+</div>
+<ul class="org-ul">
+<li>Nginx的正则表达式括号的内容替换变量是$1、$2&#x2026;</li>
+</ul></li>
+<li><p>
+if: 用于location和server中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">if (condition)</span> {
+    ...
+}
+
+condition:
+  &#21464;&#37327;&#21517;: &#21464;&#37327;&#20540;&#20026;&#31354;&#25110;&#32773;&#20197;<span style="color: #E6DB74;">"0"</span>&#24320;&#22987;&#21017;&#20026;false&#65292;&#20854;&#23427;&#21017;&#20026;true
+  <span style="color: #FD971F;">&#26222;&#36890;&#27604;&#36739;: &#20351;&#29992;</span>=&#12289;!=&#26469;&#27604;&#36739;&#21464;&#37327;
+  &#27491;&#21017;&#27604;&#36739;: ~&#12289;~*&#12289;!~&#12289;!~*
+  &#27979;&#35797;&#25991;&#20214;&#23384;&#22312;&#24615;: -e&#12289;!-e
+  &#27979;&#35797;&#25351;&#23450;&#36335;&#24452;&#26159;&#21542;&#20026;&#25991;&#20214;: -f&#12289;!-f
+  &#27979;&#35797;&#25351;&#23450;&#36335;&#24452;&#26159;&#21542;&#20026;&#30446;&#24405;: -d&#12289;!-d
+  &#27979;&#35797;&#25991;&#20214;&#26159;&#21542;&#26377;&#25191;&#34892;&#26465;&#20214;: -x&#12289;!-x
+
+<span style="color: #66D9EF;">if ($http_user_agent ~* MSIE)</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26816;&#27979;&#23458;&#25143;&#31471;&#31867;&#22411;</span>
+    rewrite ^(.*)$ /msie/$1 break;
+}
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+防盗链
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">location ~* <span style="color: #E6DB74;">\.</span><span style="color: #AE81FF;">(</span>jpg|gif|jpeg|png<span style="color: #AE81FF;">)</span>$ <span style="color: #AE81FF;">{</span>
+    vaild_referer none blocked www.qiump.com;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#21512;&#27861;&#24341;&#29992;</span>
+    <span style="color: #F92672;">if</span> <span style="color: #66D9EF;">(</span>$<span style="color: #FD971F;">invalid_referer</span><span style="color: #66D9EF;">)</span> <span style="color: #66D9EF;">{</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26816;&#27979;&#23450;&#20041;&#30340;&#21512;&#27861;&#24341;&#29992;</span>
+        rewrite ^/ http://...;
+    <span style="color: #66D9EF;">}</span>
+<span style="color: #AE81FF;">}</span>
+</pre>
+</div></li>
+</ul></li>
+<li><p>
+日志格式
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">log_format log&#26684;&#24335;&#21517; log&#26684;&#24335;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;log&#26684;&#24335;&#65292;&#21487;&#20351;&#29992;Nginx&#21508;&#27169;&#22359;&#20869;&#24314;&#21464;&#37327;</span>
+access_log log&#20301;&#32622; log&#26684;&#24335;&#21517;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;log</span>
+</pre>
+</div></li>
+</ol>
+</div></li>
+<li><a id="orgheadline15"></a>网络连接相关配置<br  /><div class="outline-text-5" id="text-orgheadline15">
+<div class="org-src-container">
+
+<pre class="src src-conf">keepalive_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38271;&#36830;&#25509;&#30340;&#36229;&#26102;&#26102;&#38271;&#65292;&#40664;&#35748;75s</span>
+keepalive_requests NUM;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#19968;&#27425;&#20445;&#25345;&#36830;&#25509;&#19978;&#20801;&#35768;&#25215;&#36733;&#26368;&#22823;&#36164;&#28304;&#35831;&#27714;&#25968;</span>
+keepalive_disable [msie6|safari|none];  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#25351;&#23450;&#31867;&#22411;&#30340;&#27983;&#35272;&#22120;&#31105;&#29992;&#38271;&#36830;&#25509;</span>
+
+tcp_nodelay {on|off}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23545;&#38271;&#36830;&#25509;&#26159;&#21542;&#20351;&#29992;TCP_NODELAY&#36873;&#39033;&#65292;TCP&#24310;&#36831;&#33021;&#22815;&#21512;&#24182;&#22810;&#20010;&#35831;&#27714;&#36827;&#34892;&#22788;&#29702;&#65292;&#20294;&#20250;&#26377;&#24310;&#36831;&#26102;&#38388;</span>
+
+client_header_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;http&#35831;&#27714;&#25253;&#25991;&#39318;&#37096;&#30340;&#36229;&#26102;&#26102;&#38271;</span>
+client_body_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;http&#35831;&#27714;&#25253;&#25991;body&#37096;&#20998;&#30340;&#36229;&#26102;&#26102;&#38271;</span>
+
+send_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21457;&#36865;&#21709;&#24212;&#25253;&#25991;&#30340;&#36229;&#26102;&#26102;&#38271;</span>
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline16"></a>fastcgi的相关配置<br  /><div class="outline-text-5" id="text-orgheadline16">
+<ul class="org-ul">
+<li>LAMP使用反向代理来实现</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">location ~ \.php$</span> {
+    root ...;
+    fastcgi_pass 127.0.0.1:9000;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;fpm</span>
+    fastcgi_index index.php;
+    include fastcgi_params;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#25991;&#20214;&#23450;&#20041;&#20102;&#24120;&#35265;&#30340;&#38656;&#35201;&#20256;&#36882;&#30340;&#21508;&#31181;&#21442;&#25968;</span>
+}
+</pre>
+</div>
+</div></li></ul>
+</div>
+</div>
+</div>
