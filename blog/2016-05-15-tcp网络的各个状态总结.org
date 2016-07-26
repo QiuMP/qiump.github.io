@@ -2,7 +2,7 @@
 #+DATE: 2016-05-15
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 计算机网络
+#+JEKYLL_CATEGORIES: 网络
 #+JEKYLL_TAGS: 网络 局域网 TCP
 #+JEKYLL_PUBLISHED: true
 

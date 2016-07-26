@@ -48,6 +48,7 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
 - http应用MIME(Multipurpose Internet Mail Extesion)来传播非文本数据
   - MIME类型: major/minor，例如text/html、text/plain、image/gif
   - 资源类型决定浏览器调用对应的程序进行处理
+- Web页面一般有多个资源，而浏览器对资源的请求通常是并行的
 ** URI\URL\URN
 - URI: Uniform Resource Identifier，用于标识一个资源
 - URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
@@ -71,8 +72,23 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
   - IIS
   - tomcat, jetty
   - webshpere, weblogic
+** I/O
+*** I/O类型
+- 被调用者消息通知机制: 同步(synchronous)和异步(asynchronous)
+  - 同步：调用发出不会立即返回，但一旦返回则返回最终结果
+  - 异步：调用发出之后，被调用方立即返回消息，但返回的非最终结果；被调用者通过状态、通知机制来通知调者，或通过回调函数来处理结果
+- 调用者等待调用结果的状态: 阻塞(block)和非阻塞(nonblock)
+  - 阻塞：调用结果返回之前，调用者(调用线程)会被挂起，在得到结果之后才会返回
+  - 非阻塞：调用结果返回之前，调用不会阻塞当前线程
+*** I/O模型
+- blocking I/O
+- nonblocking I/O
+- I/O multiplexing: 复用型I/O，用于多路并行I/O，如select()、poll()
+- signal driven I/O: 资源从磁盘到内核内存不需要阻塞，完成时通知，但从内核内存到用户内存需要阻塞
+  - 通知机制: 水平触发(多次通知)、边缘触发(只通知一次)
+- asyncrhonous I/O: 资源从磁盘到内核内存和从内核内存到用户内存都不需要阻塞，完成时通知
 * http
-** http
+** http(HyperText Transfer Procotol)
 - http版本
   - HTTP/0.9：原型版本，功能简陋
   - HTTP/1.0：第一个广泛使用的版本，支持MIME
@@ -99,10 +115,10 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
    #+BEGIN_EXAMPLE
    web服务器，即存放了web资源的服务器，负责向请求者提供对方请求的静态资源，或动态运行后生成的资源；这些资源放置于本地文件系统某路径下，此路径通常称为DocRoot
    web服务器资源路径映射方式：
-       (a) docroot
-       (b) alias
-       (c) 虚拟主机docroot
-       (d) 用户家目录docroot
+       (a) DocRoot
+       (b) Alias
+       (c) 虚拟主机DocRoot
+       (d) 用户家目录DocRoot
    #+END_EXAMPLE
 5. 构建响应报文
    - 资源的MIME类型
@@ -220,7 +236,7 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
     - Set-Cookie2: 
 
 - 实体首部 ::
-  - 描述实体
+  - 描述实体(body)
     - Allow: 列出对此实体可使用的请求方法
     - Location：告诉客户端真正的实体位于何处
     - Content-Encoding:

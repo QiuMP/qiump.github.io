@@ -30,37 +30,43 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline11">2. Web相关知识</a>
+<li><a href="#orgheadline14">2. Web相关知识</a>
 <ul>
 <li><a href="#orgheadline7">Web资源</a></li>
 <li><a href="#orgheadline8">URI\URL\URN</a></li>
 <li><a href="#orgheadline9">网站访问量</a></li>
 <li><a href="#orgheadline10">应用程序</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline23">3. http</a>
+<li><a href="#orgheadline13">I/O</a>
 <ul>
-<li><a href="#orgheadline12">http</a></li>
-<li><a href="#orgheadline13">http请求处理过程</a></li>
-<li><a href="#orgheadline14">https访问过程</a></li>
-<li><a href="#orgheadline22">http事务</a>
-<ul>
-<li><a href="#orgheadline15">报文分类</a></li>
-<li><a href="#orgheadline16">method</a></li>
-<li><a href="#orgheadline17">version</a></li>
-<li><a href="#orgheadline18">status与reason-phrase</a></li>
-<li><a href="#orgheadline19">headers</a></li>
-<li><a href="#orgheadline21">entity-body</a></li>
+<li><a href="#orgheadline11">I/O类型</a></li>
+<li><a href="#orgheadline12">I/O模型</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline28">4. 相关命令</a>
+<li><a href="#orgheadline26">3. http</a>
 <ul>
-<li><a href="#orgheadline24">协议查看或分析工具</a></li>
-<li><a href="#orgheadline25">curl</a></li>
-<li><a href="#orgheadline26">wget</a></li>
-<li><a href="#orgheadline27">axel</a></li>
+<li><a href="#orgheadline15">http(HyperText Transfer Procotol)</a></li>
+<li><a href="#orgheadline16">http请求处理过程</a></li>
+<li><a href="#orgheadline17">https访问过程</a></li>
+<li><a href="#orgheadline25">http事务</a>
+<ul>
+<li><a href="#orgheadline18">报文分类</a></li>
+<li><a href="#orgheadline19">method</a></li>
+<li><a href="#orgheadline20">version</a></li>
+<li><a href="#orgheadline21">status与reason-phrase</a></li>
+<li><a href="#orgheadline22">headers</a></li>
+<li><a href="#orgheadline24">entity-body</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline31">4. 相关命令</a>
+<ul>
+<li><a href="#orgheadline27">协议查看或分析工具</a></li>
+<li><a href="#orgheadline28">curl</a></li>
+<li><a href="#orgheadline29">wget</a></li>
+<li><a href="#orgheadline30">axel</a></li>
 </ul>
 </li>
 </ul>
@@ -142,8 +148,8 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline11" class="outline-2">
-<h2 id="orgheadline11"><span class="section-number-2">2</span> Web相关知识</h2>
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14"><span class="section-number-2">2</span> Web相关知识</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline7" class="outline-3">
 <h3 id="orgheadline7">Web资源</h3>
@@ -156,6 +162,7 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
 <li>MIME类型: major/minor，例如text/html、text/plain、image/gif</li>
 <li>资源类型决定浏览器调用对应的程序进行处理</li>
 </ul></li>
+<li>Web页面一般有多个资源，而浏览器对资源的请求通常是并行的</li>
 </ul>
 </div>
 </div>
@@ -210,13 +217,49 @@ URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
 </ul>
 </div>
 </div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">I/O</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+</div><div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">I/O类型</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<ul class="org-ul">
+<li>被调用者消息通知机制: 同步(synchronous)和异步(asynchronous)
+<ul class="org-ul">
+<li>同步：调用发出不会立即返回，但一旦返回则返回最终结果</li>
+<li>异步：调用发出之后，被调用方立即返回消息，但返回的非最终结果；被调用者通过状态、通知机制来通知调者，或通过回调函数来处理结果</li>
+</ul></li>
+<li>调用者等待调用结果的状态: 阻塞(block)和非阻塞(nonblock)
+<ul class="org-ul">
+<li>阻塞：调用结果返回之前，调用者(调用线程)会被挂起，在得到结果之后才会返回</li>
+<li>非阻塞：调用结果返回之前，调用不会阻塞当前线程</li>
+</ul></li>
+</ul>
 </div>
-<div id="outline-container-orgheadline23" class="outline-2">
-<h2 id="orgheadline23"><span class="section-number-2">3</span> http</h2>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">I/O模型</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<ul class="org-ul">
+<li>blocking I/O</li>
+<li>nonblocking I/O</li>
+<li>I/O multiplexing: 复用型I/O，用于多路并行I/O，如select()、poll()</li>
+<li>signal driven I/O: 资源从磁盘到内核内存不需要阻塞，完成时通知，但从内核内存到用户内存需要阻塞
+<ul class="org-ul">
+<li>通知机制: 水平触发(多次通知)、边缘触发(只通知一次)</li>
+</ul></li>
+<li>asyncrhonous I/O: 资源从磁盘到内核内存和从内核内存到用户内存都不需要阻塞，完成时通知</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26"><span class="section-number-2">3</span> http</h2>
 <div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">http</h3>
-<div class="outline-text-3" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">http(HyperText Transfer Procotol)</h3>
+<div class="outline-text-3" id="text-orgheadline15">
 <ul class="org-ul">
 <li>http版本
 <ul class="org-ul">
@@ -233,9 +276,9 @@ URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">http请求处理过程</h3>
-<div class="outline-text-3" id="text-orgheadline13">
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">http请求处理过程</h3>
+<div class="outline-text-3" id="text-orgheadline16">
 <ol class="org-ol">
 <li>建立或处理连接：接收请求或拒绝请求</li>
 <li><p>
@@ -260,10 +303,10 @@ URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
 <pre class="example">
 web服务器，即存放了web资源的服务器，负责向请求者提供对方请求的静态资源，或动态运行后生成的资源；这些资源放置于本地文件系统某路径下，此路径通常称为DocRoot
 web服务器资源路径映射方式：
-    (a) docroot
-    (b) alias
-    (c) 虚拟主机docroot
-    (d) 用户家目录docroot
+    (a) DocRoot
+    (b) Alias
+    (c) 虚拟主机DocRoot
+    (d) 用户家目录DocRoot
 </pre></li>
 <li>构建响应报文
 <ul class="org-ul">
@@ -275,9 +318,9 @@ web服务器资源路径映射方式：
 </ol>
 </div>
 </div>
-<div id="outline-container-orgheadline14" class="outline-3">
-<h3 id="orgheadline14">https访问过程</h3>
-<div class="outline-text-3" id="text-orgheadline14">
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">https访问过程</h3>
+<div class="outline-text-3" id="text-orgheadline17">
 <ol class="org-ol">
 <li>建立443端口的TCP连接</li>
 <li>客户端发送可供选择的加密方式，并向服务器请求证书</li>
@@ -299,12 +342,12 @@ web服务器资源路径映射方式：
 </div>
 </div>
 
-<div id="outline-container-orgheadline22" class="outline-3">
-<h3 id="orgheadline22">http事务</h3>
-<div class="outline-text-3" id="text-orgheadline22">
-</div><div id="outline-container-orgheadline15" class="outline-4">
-<h4 id="orgheadline15">报文分类</h4>
-<div class="outline-text-4" id="text-orgheadline15">
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">http事务</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+</div><div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">报文分类</h4>
+<div class="outline-text-4" id="text-orgheadline18">
 <ul class="org-ul">
 <li><p>
 request报文
@@ -331,9 +374,9 @@ response报文
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-4">
-<h4 id="orgheadline16">method</h4>
-<div class="outline-text-4" id="text-orgheadline16">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">method</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 <p>
 请求方法，标明客户端希望服务器对资源执行的动作
 </p>
@@ -349,18 +392,18 @@ response报文
 </div>
 </div>
 
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">version</h4>
-<div class="outline-text-4" id="text-orgheadline17">
+<div id="outline-container-orgheadline20" class="outline-4">
+<h4 id="orgheadline20">version</h4>
+<div class="outline-text-4" id="text-orgheadline20">
 <p>
 标识http版本，如 HTTP/1.1
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">status与reason-phrase</h4>
-<div class="outline-text-4" id="text-orgheadline18">
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">status与reason-phrase</h4>
+<div class="outline-text-4" id="text-orgheadline21">
 <p>
 status标记请求处理过程中发生的情况的状态码，reason-phrase则是状态码所标记的状态的简要描述
 </p>
@@ -389,9 +432,9 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div>
 </div>
 
-<div id="outline-container-orgheadline19" class="outline-4">
-<h4 id="orgheadline19">headers</h4>
-<div class="outline-text-4" id="text-orgheadline19">
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">headers</h4>
+<div class="outline-text-4" id="text-orgheadline22">
 <p>
 每个请求或响应报文可包含任意个首部；每个首部都有首部名称，后面跟一个冒号，而后跟上一个可选空格，接着是一个值
 </p>
@@ -399,7 +442,7 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 <li>格式: 多行 <code>Name: Value</code> 组成</li>
 </ul>
 </div>
-<ul class="org-ul"><li><a id="orgheadline20"></a>首部的分类<br  /><div class="outline-text-5" id="text-orgheadline20">
+<ul class="org-ul"><li><a id="orgheadline23"></a>首部的分类<br  /><div class="outline-text-5" id="text-orgheadline23">
 <dl class="org-dl">
 <dt>通用首部</dt><dd><ul class="org-ul">
 <li>Date: 报文的创建时间</li>
@@ -464,7 +507,7 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </ul></dd>
 
 <dt>实体首部</dt><dd><ul class="org-ul">
-<li>描述实体
+<li>描述实体(body)
 <ul class="org-ul">
 <li>Allow: 列出对此实体可使用的请求方法</li>
 <li>Location：告诉客户端真正的实体位于何处</li>
@@ -485,9 +528,9 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div></li></ul>
 </div>
 
-<div id="outline-container-orgheadline21" class="outline-4">
-<h4 id="orgheadline21">entity-body</h4>
-<div class="outline-text-4" id="text-orgheadline21">
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">entity-body</h4>
+<div class="outline-text-4" id="text-orgheadline24">
 <p>
 请求时附加的数据或响应时附加的数据
 </p>
@@ -495,20 +538,20 @@ status标记请求处理过程中发生的情况的状态码，reason-phrase则�
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline28" class="outline-2">
-<h2 id="orgheadline28"><span class="section-number-2">4</span> 相关命令</h2>
+<div id="outline-container-orgheadline31" class="outline-2">
+<h2 id="orgheadline31"><span class="section-number-2">4</span> 相关命令</h2>
 <div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">协议查看或分析工具</h3>
-<div class="outline-text-3" id="text-orgheadline24">
+</div><div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">协议查看或分析工具</h3>
+<div class="outline-text-3" id="text-orgheadline27">
 <p>
 tcpdump, tshark, wireshark
 </p>
 </div>
 </div>
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">curl</h3>
-<div class="outline-text-3" id="text-orgheadline25">
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">curl</h3>
+<div class="outline-text-3" id="text-orgheadline28">
 <p>
 curl是基于URL语法在命令行方式下工作的文件传输工具，它支持FTP、FTPS、HTTP、HTTPS、GOPHER、TELNET、DICT、FILE及LDAP等协议。curl支持HTTPS认证，并且支持HTTP的POST、PUT等方法，FTP上传，kerberos认证，HTTP上传，代理服务器，cookies，用户名/密码认证，下载文件断点续传，上载文件断点续传、http代理服务器管道（proxy tunneling），甚至它还支持IPv6，socks5代理服务器,，通过http代理服务器上传文件到FTP服务器等等，功能十分强大。
 </p>
@@ -533,9 +576,9 @@ curl是基于URL语法在命令行方式下工作的文件传输工具，它支�
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">wget</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">wget</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <p>
 非交互式网络下载器
 </p>
@@ -551,9 +594,9 @@ curl是基于URL语法在命令行方式下工作的文件传输工具，它支�
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline27" class="outline-3">
-<h3 id="orgheadline27">axel</h3>
-<div class="outline-text-3" id="text-orgheadline27">
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">axel</h3>
+<div class="outline-text-3" id="text-orgheadline30">
 <p>
 支持断点续传和多线程下载
 </p>
