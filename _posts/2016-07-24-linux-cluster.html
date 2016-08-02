@@ -25,7 +25,7 @@ comments:
 <li><a href="#orgheadline6">术语</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline20">2. LB集群</a>
+<li><a href="#orgheadline23">2. LB集群</a>
 <ul>
 <li><a href="#orgheadline8">实现方式</a></li>
 <li><a href="#orgheadline9">lvs</a>
@@ -36,6 +36,9 @@ comments:
 <li><a href="#orgheadline13">lvs架构</a></li>
 <li><a href="#orgheadline18">ipvsadm的用法</a></li>
 <li><a href="#orgheadline19">配置lvs-dr</a></li>
+<li><a href="#orgheadline20">通过FWM定义集群</a></li>
+<li><a href="#orgheadline21">lvs persistence</a></li>
+<li><a href="#orgheadline22">实现调用RS的高可用</a></li>
 </ul>
 </li>
 </ul>
@@ -115,7 +118,7 @@ TODO
 <ul class="org-ul">
 <li>session绑定：基于cookie进行绑定</li>
 <li>session集群：解决所有主机的session的同步问题</li>
-<li>session服务器：解决session的可用性</li>
+<li>session服务器：解决session的可用性，可使用memcached、redis</li>
 </ul>
 </div>
 </div>
@@ -133,8 +136,8 @@ TODO
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline20" class="outline-2">
-<h2 id="orgheadline20"><span class="section-number-2">2</span> LB集群</h2>
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">2</span> LB集群</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline8" class="outline-3">
 <h3 id="orgheadline8">实现方式</h3>
@@ -223,7 +226,7 @@ scheduler是Director通过算法来选择要调度的RS
 <ul class="org-ul">
 <li>RR(round robin): 轮调</li>
 <li>WRR(weighted rr): 按照权重分配</li>
-<li>SH(source hash): 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制</li>
+<li>SH(source hash): 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制，但只适用于同个端口</li>
 <li>DH(destination hash): 将对同一个目标的请求始终发往同一个RS，对于新目标使用轮调分配，用于正向代理情形下的缓存服务器调度</li>
 </ul></li>
 <li>动态方法: 根据算法计算各RS的当前负载状态(Overhead)进行调度，其中Active是活动连接数，Inactive是非活动连接数
@@ -253,14 +256,15 @@ scheduler是Director通过算法来选择要调度的RS
 </div><ul class="org-ul"><li><a id="orgheadline14"></a>管理集群服务<br  /><div class="outline-text-5" id="text-orgheadline14">
 <div class="org-src-container">
 
-<pre class="src src-conf">ipvsadm -A service [-s scheduler]  <span style="color: #75715E;"># </span><span style="color: #75715E;">APPEND</span>
+<pre class="src src-conf">ipvsadm -A|-E service [-s scheduler] [-p SECOND] <span style="color: #75715E;"># </span><span style="color: #75715E;">APPEND</span>
 ipvsadm -D service  <span style="color: #75715E;"># </span><span style="color: #75715E;">DELETE</span>
   service:
-    tcp: -t ip:port
+    tcp: -t ip:port (port&#20026;0&#26102;&#20195;&#34920;&#25152;&#26377;&#31471;&#21475;)
     udp: -u ip:port
-    fwm: -f mark&#65292;&#38450;&#28779;&#22681;&#26631;&#35760;
+    fwm: -f mark&#65292;&#26816;&#27979;&#22312;PREROUTING&#19978;&#30340;&#26631;&#35760;&#65292;&#29992;&#20110;&#21512;&#24182;&#22810;&#20010;&#26381;&#21153;(&#31471;&#21475;)
 
   -s scheduler: &#40664;&#35748;&#20026;WLC
+  -p SCEOND: lvs persistence&#65292;&#35774;&#32622;&#25345;&#32493;&#36830;&#25509;&#26102;&#38388;
 </pre>
 </div>
 </div></li>
@@ -275,6 +279,8 @@ ipvsadm -d service -r server-address
     -g: GATEWAY, lvs-dr(&#40664;&#35748;)
     -i: IPIP, lvs-tun
     -m: MASQUERADE, lvs-nat
+
+  -w weight: &#35774;&#32622;RS&#30340;&#26435;&#37325;&#65292;&#24403;&#26435;&#37325;&#20026;0&#26102;&#19981;&#20250;&#35843;&#29992;&#35813;RS
 </pre>
 </div>
 </div></li>
@@ -294,8 +300,8 @@ ipvsadm -L|l [options]
 <li><a id="orgheadline17"></a>保存和重载<br  /><div class="outline-text-5" id="text-orgheadline17">
 <div class="org-src-container">
 
-<pre class="src src-conf">ipvsadm -R
-ipvsadm -S [-n]
+<pre class="src src-conf">ipvsadm -R &lt; FILE
+ipvsadm -S [-n] &gt; FILE
 </pre>
 </div>
 </div></li></ul>
@@ -323,8 +329,10 @@ director配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh">ifconfig eno16777736:0 <span style="color: #AE81FF;">172.16.100.10/32</span> broadcast <span style="color: #AE81FF;">172.16.100.10</span> up
-route add -host <span style="color: #AE81FF;">172.16.100.10</span> dev eno16777736:0
+<pre class="src src-sh"><span style="color: #75715E;"># </span><span style="color: #75715E;">ifconfig eno16777736:0 172.16.100.10/32 broadcast 172.16.100.10 up</span>
+ip addr add <span style="color: #AE81FF;">172.16.100.10/32</span> dev eno16777736
+<span style="color: #75715E;"># </span><span style="color: #75715E;">route add -host 172.16.100.10 dev eno16777736:0</span>
+ip route add <span style="color: #AE81FF;">172.16.100.10</span> dev eno16777736
 
 ipvsadm -A -t <span style="color: #AE81FF;">172.16.100.10:80</span>
 ipvsadm -a -t <span style="color: #AE81FF;">172.16.100.10:80</span> -r <span style="color: #AE81FF;">172.16.100.21</span> -g
@@ -343,6 +351,64 @@ route add -host <span style="color: #AE81FF;">172.16.100.10</span> dev lo:0
 </pre>
 </div></li>
 </ul>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-4">
+<h4 id="orgheadline20">通过FWM定义集群</h4>
+<div class="outline-text-4" id="text-orgheadline20">
+<ol class="org-ol">
+<li><p>
+在director上netfilter的mangle表的PREROUTING定义MARK
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">iptables -t mangle -A PREROUTING -d $vip -p $protocol --dports $port -j MARK --set-mark mark_num
+</pre>
+</div></li>
+<li><p>
+基于FWM定义集群服务
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ipvsadm -A -f mark_num -s scheduler
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">lvs persistence</h4>
+<div class="outline-text-4" id="text-orgheadline21">
+<p>
+lvs持久连接: 无论ipvs使用何种调度方法，其都能实现将来自于同一个Client的请求始终定向至第一次调度时挑选出的RS，通过维护一个持久连接表来实现(SIP RS timer)
+</p>
+<ul class="org-ul">
+<li>持久连接的实现方式
+<ul class="org-ul">
+<li>每端口持久：PPC，单服务持久调度</li>
+<li>每FWM持久：PFWMC，单FWM持久调度</li>
+<li>每客户端持久：PCC，所有端口持久调度，定义集群服务时把端口定义为0</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">实现调用RS的高可用</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<p>
+director对RS做健康状态检测，并且根据检测的结果自动完成添加或移除等管理功能
+</p>
+<ol class="org-ol">
+<li>基于协议层次检查: 层次越低，效率越高，精确度越低
+<ul class="org-ul">
+<li>ip: icmp</li>
+<li>传输层：检测端口的开放状态</li>
+<li>应用层：请求获取关键性的资源</li>
+</ul></li>
+<li>检查频度</li>
+<li>状态判断: 需要多次检测服务器来确定服务器是否失效</li>
+<li>配置一个网页故障时所显示的页面的服务器</li>
+</ol>
 </div>
 </div>
 </div>

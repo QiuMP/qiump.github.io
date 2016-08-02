@@ -36,6 +36,7 @@ comments:
 </li>
 </ul>
 </li>
+<li><a href="#orgheadline20">8. LB Cluster</a></li>
 </ul>
 </div>
 </div>
@@ -82,7 +83,7 @@ Nginx: engine X
 <ul class="org-ul">
 <li>基于名称和IP的虚拟主机</li>
 <li>支持keepalive</li>
-<li>支持平滑升级</li>
+<li>支持平滑升级，新连接用新的配置，旧连接保持旧配置</li>
 <li>定制访问日志，支持使用日志缓冲区提高日志存储性能</li>
 <li>支持url rewrite</li>
 <li>支持路径别名</li>
@@ -94,9 +95,30 @@ Nginx: engine X
 <div id="outline-container-orgheadline4" class="outline-2">
 <h2 id="orgheadline4"><span class="section-number-2">4</span> Nginx的基本架构</h2>
 <div class="outline-text-2" id="text-4">
+
+<div class="figure">
+<p><img src="nginx.png" alt="nginx.png" />
+</p>
+</div>
 <ul class="org-ul">
-<li>一个master进程，生成一个或多个worker</li>
-<li>事件驱动：epoll(边缘触发)、kqueue(BSD)、/dev/poll(SUSE)</li>
+<li>Master功能
+<ul class="org-ul">
+<li>平滑加载配置文件</li>
+<li>平滑升级</li>
+<li>创建和关闭套接字</li>
+<li>启动和维护Worker进程</li>
+</ul></li>
+<li>Worker功能
+<ul class="org-ul">
+<li>响应用户请求</li>
+<li>检索本地缓存的内容</li>
+<li>把用户请求代理至后端服务器</li>
+</ul></li>
+<li>Cache loader功能
+<ul class="org-ul">
+<li>检查缓存中的缓存对象</li>
+<li>在内存中建立检索数据库</li>
+</ul></li>
 <li>I/O复用的消息通知：select、poll、rt signals</li>
 <li>支持sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap</li>
 </ul>
@@ -489,8 +511,7 @@ condition:
     rewrite ^(.*)$ /msie/$1 break;
 }
 </pre>
-</div>
-<ul class="org-ul">
+</div></li>
 <li><p>
 防盗链
 </p>
@@ -504,7 +525,6 @@ condition:
 <span style="color: #AE81FF;">}</span>
 </pre>
 </div></li>
-</ul></li>
 <li><p>
 日志格式
 </p>
@@ -549,4 +569,7 @@ send_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #
 </div></li></ul>
 </div>
 </div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-2">
+<h2 id="orgheadline20"><span class="section-number-2">8</span> LB Cluster</h2>
 </div>

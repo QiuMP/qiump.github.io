@@ -830,7 +830,7 @@ bash -x SCRIPT  # 调试执行脚本
 - 环境变量: 生效范围为当前shell进程及其子进程数
 - 局部变量: 生效范围为当前shell进程中某代码片断(通常指函数)
 - 位置变量: $0, $1, $2, ...来表示，用于让脚本在脚本代码中调用通过命令行传递给它的参数
-- 特殊变量: $?, $*, $@, $#
+- 特殊变量: $?, $*, $@, $#, $$(UID), $!(PID)
 *** 本地与环境变量
 - 变量的赋值 ::
   #+BEGIN_SRC sh
@@ -1058,6 +1058,28 @@ test EXPRESSION
 1. 重新启动shell进程
 2. 使用source或.命令载入配置(脚本中也可用)
 
+** bash输出的字体颜色
+#+BEGIN_SRC sh
+# 字体颜色
+echo -e "\033[30m 黑色字 \033[0m" 
+echo -e "\033[31m 红色字 \033[0m" 
+echo -e "\033[32m 绿色字 \033[0m" 
+echo -e "\033[33m 黄色字 \033[0m" 
+echo -e "\033[34m 蓝色字 \033[0m" 
+echo -e "\033[35m 紫色字 \033[0m" 
+echo -e "\033[36m 天蓝字 \033[0m" 
+echo -e "\033[37m 白色字 \033[0m"
+
+# 字体背景色
+echo -e "\033[40;37m 黑底白字 \033[0m" 
+echo -e "\033[41;37m 红底白字 \033[0m" 
+echo -e "\033[42;37m 绿底白字 \033[0m" 
+echo -e "\033[43;37m 黄底白字 \033[0m" 
+echo -e "\033[44;37m 蓝底白字 \033[0m" 
+echo -e "\033[45;37m 紫底白字 \033[0m" 
+echo -e "\033[46;37m 天蓝底白字 \033[0m" 
+echo -e "\033[47;30m 白底黑字 \033[0m"
+#+END_SRC
 * 用户和组
 ** 资源分派
 1. Authentication: 认证，表明你能进入系统
@@ -1854,6 +1876,7 @@ lvremove /dev/VG_NAME/LV_NAME
 
 - 逻辑卷的扩展 ::
   #+BEGIN_SRC conf
+  umount /dev/VG_NAME/LV_NAME
   lvextend -L [+]SIZE /dev/VG_NAME/LV_NAME  # 修改逻辑卷的物理边界
   resize2fs /dev/VG_NAME/LV_NAME  # 修改逻辑卷的逻辑边界
   #+END_SRC

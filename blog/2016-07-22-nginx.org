@@ -22,7 +22,7 @@ Nginx: engine X
 - 高可靠性
 - 低内存消耗: 10000个keep-alive连接在Nginx仅消耗2.5MB
 - 支持热部署: 不停机而更新配置文件、更换日志文件、更新服务器程序版本
-- 支持事件驱动、AIO、mmap
+- 支持事件驱动、sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap
 * 基本功能
 - 静态资源的web服务器，能缓存打开的文件描述符，加快打开速度
 - http、smtp、pop3协议的反向代理服务器，通过键值缓存，支持负载均衡
@@ -32,17 +32,28 @@ Nginx: engine X
 * 扩展功能
 - 基于名称和IP的虚拟主机
 - 支持keepalive
-- 支持平滑升级
+- 支持平滑升级，新连接用新的配置，旧连接保持旧配置
 - 定制访问日志，支持使用日志缓冲区提高日志存储性能
 - 支持url rewrite
 - 支持路径别名
 - 支持基于IP及用户的访问控制
 - 支持速率限制，支持并发数限制
 * Nginx的基本架构
-- 一个master进程，生成一个或多个worker
-- 事件驱动：epoll(边缘触发)、kqueue(BSD)、/dev/poll(SUSE)
-- I/O复用的消息通知：select、poll、rt signals
-- 支持sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap
+[[file:nginx.png]]
+- Master功能
+  - 平滑加载配置文件
+  - 平滑升级
+  - 创建和关闭套接字
+  - 启动和维护Worker进程
+- Worker功能
+  - 响应用户请求
+  - 检索本地缓存的内容
+  - 把用户请求代理至后端服务器
+- Cache loader功能
+  - 检查缓存中的缓存对象
+  - 在内存中建立检索数据库
+- Cache manager功能
+  - 缓存失效和过期检查及清理
 * 模块类型
 - 核心模块
 - Standard HTTP modules
@@ -182,6 +193,7 @@ http {
 6. alias: 用于location配置段，定义路径别名
    - root表示指明路径为对应location的 "/" URL
    - alias表示路径映射，即location中的URL是相对于alias所指明的路径而言
+   - 上述对正则匹配的loaction无效
    #+BEGIN_SRC conf
    location /images/ {
        root "/web1";  # 若访问 HOST/images/a.jpg 相当于 /web1/images/a.jpg
@@ -279,19 +291,31 @@ http {
         rewrite ^(.*)$ /msie/$1 break;
     }
     #+END_SRC
-    - 防盗链
-      #+BEGIN_SRC sh
-      location ~* \.(jpg|gif|jpeg|png)$ {
-          vaild_referer none blocked www.qiump.com;  # 定义合法引用
-          if ($invalid_referer) {  # 检测定义的合法引用
-              rewrite ^/ http://...;
-          }
-      }
-      #+END_SRC
-16. 日志格式
+16. 防盗链
+    #+BEGIN_SRC sh
+    location ~* \.(jpg|gif|jpeg|png)$ {
+        vaild_referer none blocked www.qiump.com;  # 定义合法引用
+        if ($invalid_referer) {  # 检测定义的合法引用
+            rewrite ^/ http://...;
+        }
+    }
+    #+END_SRC
+17. 日志格式
     #+BEGIN_SRC conf
     log_format log格式名 log格式  # 定义log格式，可使用Nginx各模块内建变量
     access_log log位置 log格式名  # 启用log
+    open_log_file_cache ...;  # 启动日志文件缓存
+    #+END_SRC
+18. 基于gzip压缩
+    #+BEGIN_SRC conf
+    gzip on;
+    gzip_min_length 1k;
+    gzip_comp_level 6;
+    gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php;
+    #+END_SRC
+19. 添加自定义响应首部
+    #+BEGIN_SRC conf
+    add_header X-Via $server_addr;
     #+END_SRC
 **** 网络连接相关配置
 #+BEGIN_SRC conf
@@ -313,6 +337,52 @@ location ~ \.php$ {
     root ...;
     fastcgi_pass 127.0.0.1:9000;  # 使用fpm
     fastcgi_index index.php;
+    fastcgi_cache... ;  # 缓存
     include fastcgi_params;  # 该文件定义了常见的需要传递的各种参数
+}
+#+END_SRC
+**** 定义负载均衡组
+- nginx自带后端健康状态检测
+  - 当在fail_timeout的时间内，某个server连接失败了max_fails次，则nginx会认为该server不工作了
+  - 同时，在接下来的fail_timeout时间内，nginx不再将请求分发给失效的server
+
+#+BEGIN_SRC sh
+http {
+    upstream backend {
+        ip_hash;  # 使用SH算法，默认使用RR算法；但对于使用SNAT的用户会发送给同一服务器
+        least_conn;  # 使用WLC算法
+        sticky cookie ...;  # 基于cookie来进行分配，解决上述问题
+        sticky route ...;  # 客户端第一次请求时，服务器会发送一个后端路由标识给客户端，以后同个客户端访问则会访问同个服务器
+
+        server HOST/IP [weight=2] [max_fails=NUM] [fail_timeout=NUM] [OPTIONS];
+          backup: 把该服务器当做备用服务器，当其他服务器都不可用时使用
+          down: 把该服务器标记成不可用
+    }
+}
+#+END_SRC
+**** 反向代理与缓存
+#+BEGIN_SRC conf
+http {
+    proxy_cache_path path [levels=level1_num:l2_num:..] keys_zone=name:size [inactive=time] [max_size=size] ;  # 设定代理的缓存目录
+
+    server {
+	    listen
+	    server_name
+	    location /uri {
+		    proxy_pass http://192.168.3.7:80/newuri;  # 该地址继承方式类似于alias，但当location使用正则时不能加newuri，可以使用rewrite重写
+            proxy_pass http://backend;  #使用负载均衡组
+            proxy_set_header Host $host;  # 传递用户所请求的主机(网址)
+            proxy_set_header X-Real-IP $remote_addr;  # 向后端服务器传递用户IP，后端服务器可特殊定义特定的LogFormat
+            proxy_hide_header ..;  # 隐藏响应给客户端的指定首部
+            proxy_connect_timeout time;  # 服务器连接的错误判定时长
+
+            proxy_cache zone_name;  # 使用缓存
+            proxy_cache_valid [code] time;  # 定义不同响应码的缓存有效期限
+            proxy_cache_use_stale error timeout ...  # 定义代理访问失败时的操作
+            proxy_cache_bypass $cookie_nocache $arg_nocache $http_authorization;  # 设置在何种情形下nginx将不从cache取数据的
+
+            health_check ...;  # 根据访问来进行健康状态检测，建议关闭访问日志
+	    }
+    }
 }
 #+END_SRC

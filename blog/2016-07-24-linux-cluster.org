@@ -39,7 +39,7 @@ TODO
 ** session保持
 - session绑定：基于cookie进行绑定
 - session集群：解决所有主机的session的同步问题
-- session服务器：解决session的可用性
+- session服务器：解决session的可用性，可使用memcached、redis
 ** 术语
 - 调度器(负载均衡器)：director, dispatcher, balancer
 - RS: Real Server
@@ -94,7 +94,7 @@ scheduler是Director通过算法来选择要调度的RS
 - 静态方法: 仅根据算法本身进行调度
   - RR(round robin): 轮调
   - WRR(weighted rr): 按照权重分配
-  - SH(source hash): 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制
+  - SH(source hash): 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制，但只适用于同个端口
   - DH(destination hash): 将对同一个目标的请求始终发往同一个RS，对于新目标使用轮调分配，用于正向代理情形下的缓存服务器调度
 - 动态方法: 根据算法计算各RS的当前负载状态(Overhead)进行调度，其中Active是活动连接数，Inactive是非活动连接数
   - LC(Least Connection): Overhead=Active*256+Inactive
@@ -109,14 +109,15 @@ scheduler是Director通过算法来选择要调度的RS
 *** ipvsadm的用法
 **** 管理集群服务
 #+BEGIN_SRC conf
-ipvsadm -A service [-s scheduler]  # APPEND
+ipvsadm -A|-E service [-s scheduler] [-p SECOND] # APPEND
 ipvsadm -D service  # DELETE
   service:
-    tcp: -t ip:port
+    tcp: -t ip:port (port为0时代表所有端口)
     udp: -u ip:port
-    fwm: -f mark，防火墙标记
+    fwm: -f mark，检测在PREROUTING上的标记，用于合并多个服务(端口)
 
   -s scheduler: 默认为WLC
+  -p SCEOND: lvs persistence，设置持续连接时间
 #+END_SRC
 **** 管理集群服务中的RS
 #+BEGIN_SRC conf
@@ -128,6 +129,8 @@ ipvsadm -d service -r server-address
     -g: GATEWAY, lvs-dr(默认)
     -i: IPIP, lvs-tun
     -m: MASQUERADE, lvs-nat
+
+  -w weight: 设置RS的权重，当权重为0时不会调用该RS
 #+END_SRC
 **** 清空和查询
 #+BEGIN_SRC conf
@@ -141,8 +144,8 @@ ipvsadm -L|l [options]
 #+END_SRC
 **** 保存和重载
 #+BEGIN_SRC conf
-ipvsadm -R
-ipvsadm -S [-n]
+ipvsadm -R < FILE
+ipvsadm -S [-n] > FILE
 #+END_SRC
 *** 配置lvs-dr
 - 内核参数
@@ -155,8 +158,10 @@ ipvsadm -S [-n]
     - 2: 不通告不在同一接口的地址
 - director配置
   #+BEGIN_SRC sh
-  ifconfig eno16777736:0 172.16.100.10/32 broadcast 172.16.100.10 up
-  route add -host 172.16.100.10 dev eno16777736:0
+  # ifconfig eno16777736:0 172.16.100.10/32 broadcast 172.16.100.10 up
+  ip addr add 172.16.100.10/32 dev eno16777736
+  # route add -host 172.16.100.10 dev eno16777736:0
+  ip route add 172.16.100.10 dev eno16777736
   
   ipvsadm -A -t 172.16.100.10:80
   ipvsadm -a -t 172.16.100.10:80 -r 172.16.100.21 -g
@@ -169,3 +174,29 @@ ipvsadm -S [-n]
   ifconfig lo:0 172.16.100.10/32 broadcast 172.16.100.10 up
   route add -host 172.16.100.10 dev lo:0
   #+END_SRC
+*** 通过FWM定义集群
+1. 在director上netfilter的mangle表的PREROUTING定义MARK
+   #+BEGIN_SRC conf
+   iptables -t mangle -A PREROUTING -d $vip -p $protocol --dports $port -j MARK --set-mark mark_num
+   #+END_SRC
+2. 基于FWM定义集群服务
+   #+BEGIN_SRC conf
+   ipvsadm -A -f mark_num -s scheduler
+   #+END_SRC
+*** lvs persistence
+lvs持久连接: 无论ipvs使用何种调度方法，其都能实现将来自于同一个Client的请求始终定向至第一次调度时挑选出的RS，通过维护一个持久连接表来实现(SIP RS timer)
+- 持久连接的实现方式
+  - 每端口持久：PPC，单服务持久调度
+  - 每FWM持久：PFWMC，单FWM持久调度
+  - 每客户端持久：PCC，所有端口持久调度，定义集群服务时把端口定义为0
+*** 实现调用RS的高可用
+director对RS做健康状态检测，并且根据检测的结果自动完成添加或移除等管理功能
+1. 基于协议层次检查: 层次越低，效率越高，精确度越低
+   - ip: icmp
+   - 传输层：检测端口的开放状态
+   - 应用层：请求获取关键性的资源
+2. 检查频度
+3. 状态判断: 需要多次检测服务器来确定服务器是否失效
+4. 配置一个网页故障时所显示的页面的服务器
+
+

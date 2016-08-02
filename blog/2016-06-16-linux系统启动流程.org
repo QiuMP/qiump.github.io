@@ -149,6 +149,7 @@ who -r  # 查看当前级别
   ...
   tty6:2345:respawn:/usr/sbin/mingetty tty6
   #+END_SRC
+- 绝对路径名的前缀"-"代表将无视该命令的错误返回值
 *** /etc/rc.d/rc.sysinit
 系统初始化脚本
 1. 设置主机名
