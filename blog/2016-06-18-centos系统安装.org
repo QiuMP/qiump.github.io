@@ -123,7 +123,7 @@
   - halt/poweroff/reboot: 完成后的操作
   - repo: 而外指定rpm源
   - user：安装完成后为系统创建新用户
-  - url: 指明安装源
+  - url: 指明安装源(远程安装系统时需要)
 *** 创建ks文件
 - 依据某模板修改
   - CentOS安装后会默认在root目录下放置一个当前系统的ks文件

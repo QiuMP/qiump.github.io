@@ -21,22 +21,21 @@ comments:
 <li><a href="#orgheadline4">4. Nginx的基本架构</a></li>
 <li><a href="#orgheadline5">5. 模块类型</a></li>
 <li><a href="#orgheadline6">6. 编译安装方法</a></li>
-<li><a href="#orgheadline19">7. 配置文件</a>
+<li><a href="#orgheadline21">7. 配置文件</a>
 <ul>
 <li><a href="#orgheadline7">配置文件组成</a></li>
-<li><a href="#orgheadline18">配置指令</a>
+<li><a href="#orgheadline20">配置指令</a>
 <ul>
 <li><a href="#orgheadline8">语法</a></li>
 <li><a href="#orgheadline9">变量</a></li>
 <li><a href="#orgheadline10">测试和重读配置</a></li>
 <li><a href="#orgheadline11">main配置段</a></li>
 <li><a href="#orgheadline12">events配置段</a></li>
-<li><a href="#orgheadline17">http配置段</a></li>
+<li><a href="#orgheadline19">http配置段</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline20">8. LB Cluster</a></li>
 </ul>
 </div>
 </div>
@@ -61,7 +60,7 @@ Nginx: engine X
 <li>高可靠性</li>
 <li>低内存消耗: 10000个keep-alive连接在Nginx仅消耗2.5MB</li>
 <li>支持热部署: 不停机而更新配置文件、更换日志文件、更新服务器程序版本</li>
-<li>支持事件驱动、AIO、mmap</li>
+<li>支持事件驱动、sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap</li>
 </ul>
 </div>
 </div>
@@ -119,8 +118,10 @@ Nginx: engine X
 <li>检查缓存中的缓存对象</li>
 <li>在内存中建立检索数据库</li>
 </ul></li>
-<li>I/O复用的消息通知：select、poll、rt signals</li>
-<li>支持sendfile(直接从磁盘发送文件数据到网卡出口而跳过复制到用户空间)、AIO、mmap</li>
+<li>Cache manager功能
+<ul class="org-ul">
+<li>缓存失效和过期检查及清理</li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -150,8 +151,8 @@ mkdir -pv /var/tmp/nginx/{client,fastcgi,proxy,uwsgi}
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline19" class="outline-2">
-<h2 id="orgheadline19"><span class="section-number-2">7</span> 配置文件</h2>
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21"><span class="section-number-2">7</span> 配置文件</h2>
 <div class="outline-text-2" id="text-7">
 </div><div id="outline-container-orgheadline7" class="outline-3">
 <h3 id="orgheadline7">配置文件组成</h3>
@@ -163,9 +164,9 @@ mkdir -pv /var/tmp/nginx/{client,fastcgi,proxy,uwsgi}
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-3">
-<h3 id="orgheadline18">配置指令</h3>
-<div class="outline-text-3" id="text-orgheadline18">
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">配置指令</h3>
+<div class="outline-text-3" id="text-orgheadline20">
 </div><div id="outline-container-orgheadline8" class="outline-4">
 <h4 id="orgheadline8">语法</h4>
 <div class="outline-text-4" id="text-orgheadline8">
@@ -269,9 +270,9 @@ worker_connections NUM;  <span style="color: #75715E;"># </span><span style="col
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">http配置段</h4>
-<div class="outline-text-4" id="text-orgheadline17">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">http配置段</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 </div><ul class="org-ul"><li><a id="orgheadline13"></a>配置框架<br  /><div class="outline-text-5" id="text-orgheadline13">
 <div class="org-src-container">
 
@@ -368,6 +369,7 @@ alias: 用于location配置段，定义路径别名
 <ul class="org-ul">
 <li>root表示指明路径为对应location的 "/" URL</li>
 <li>alias表示路径映射，即location中的URL是相对于alias所指明的路径而言</li>
+<li>上述对正则匹配的loaction无效</li>
 </ul>
 <div class="org-src-container">
 
@@ -532,6 +534,26 @@ condition:
 
 <pre class="src src-conf">log_format log&#26684;&#24335;&#21517; log&#26684;&#24335;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;log&#26684;&#24335;&#65292;&#21487;&#20351;&#29992;Nginx&#21508;&#27169;&#22359;&#20869;&#24314;&#21464;&#37327;</span>
 access_log log&#20301;&#32622; log&#26684;&#24335;&#21517;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;log</span>
+open_log_file_cache ...;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#26085;&#24535;&#25991;&#20214;&#32531;&#23384;</span>
+</pre>
+</div></li>
+<li><p>
+基于gzip压缩
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">gzip on;
+gzip_min_length 1k;
+gzip_comp_level 6;
+gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php;
+</pre>
+</div></li>
+<li><p>
+添加自定义响应首部
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">add_header X-Via $server_addr;
 </pre>
 </div></li>
 </ol>
@@ -562,14 +584,67 @@ send_timeout TIME;  <span style="color: #75715E;"># </span><span style="color: #
     root ...;
     fastcgi_pass 127.0.0.1:9000;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;fpm</span>
     fastcgi_index index.php;
+    fastcgi_cache... ;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32531;&#23384;</span>
     include fastcgi_params;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#25991;&#20214;&#23450;&#20041;&#20102;&#24120;&#35265;&#30340;&#38656;&#35201;&#20256;&#36882;&#30340;&#21508;&#31181;&#21442;&#25968;</span>
+}
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline17"></a>定义负载均衡组<br  /><div class="outline-text-5" id="text-orgheadline17">
+<ul class="org-ul">
+<li>nginx自带后端健康状态检测
+<ul class="org-ul">
+<li>当在fail_timeout的时间内，某个server连接失败了max_fails次，则nginx会认为该server不工作了</li>
+<li>同时，在接下来的fail_timeout时间内，nginx不再将请求分发给失效的server</li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">http <span style="color: #AE81FF;">{</span>
+    upstream backend <span style="color: #66D9EF;">{</span>
+        ip_hash;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;SH&#31639;&#27861;&#65292;&#40664;&#35748;&#20351;&#29992;RR&#31639;&#27861;&#65307;&#20294;&#23545;&#20110;&#20351;&#29992;SNAT&#30340;&#29992;&#25143;&#20250;&#21457;&#36865;&#32473;&#21516;&#19968;&#26381;&#21153;&#22120;</span>
+        least_conn;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;WLC&#31639;&#27861;</span>
+        sticky cookie ...;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;cookie&#26469;&#36827;&#34892;&#20998;&#37197;&#65292;&#35299;&#20915;&#19978;&#36848;&#38382;&#39064;</span>
+        sticky route ...;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23458;&#25143;&#31471;&#31532;&#19968;&#27425;&#35831;&#27714;&#26102;&#65292;&#26381;&#21153;&#22120;&#20250;&#21457;&#36865;&#19968;&#20010;&#21518;&#31471;&#36335;&#30001;&#26631;&#35782;&#32473;&#23458;&#25143;&#31471;&#65292;&#20197;&#21518;&#21516;&#20010;&#23458;&#25143;&#31471;&#35775;&#38382;&#21017;&#20250;&#35775;&#38382;&#21516;&#20010;&#26381;&#21153;&#22120;</span>
+
+        server HOST/IP <span style="color: #A6E22E;">[</span><span style="color: #FD971F;">weight</span>=<span style="color: #AE81FF;">2</span><span style="color: #A6E22E;">]</span> <span style="color: #A6E22E;">[</span><span style="color: #FD971F;">max_fails</span>=NUM<span style="color: #A6E22E;">]</span> <span style="color: #A6E22E;">[</span><span style="color: #FD971F;">fail_timeout</span>=NUM<span style="color: #A6E22E;">]</span> <span style="color: #A6E22E;">[</span>OPTIONS<span style="color: #A6E22E;">]</span>;
+          backup: &#25226;&#35813;&#26381;&#21153;&#22120;&#24403;&#20570;&#22791;&#29992;&#26381;&#21153;&#22120;&#65292;&#24403;&#20854;&#20182;&#26381;&#21153;&#22120;&#37117;&#19981;&#21487;&#29992;&#26102;&#20351;&#29992;
+          down: &#25226;&#35813;&#26381;&#21153;&#22120;&#26631;&#35760;&#25104;&#19981;&#21487;&#29992;
+    <span style="color: #66D9EF;">}</span>
+<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline18"></a>反向代理与缓存<br  /><div class="outline-text-5" id="text-orgheadline18">
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">http</span> {
+    <span style="color: #FD971F;">proxy_cache_path path [levels</span>=level1_num:l2_num:..] keys_zone=name:size [inactive=time] [max_size=size] ;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#20195;&#29702;&#30340;&#32531;&#23384;&#30446;&#24405;</span>
+
+    <span style="color: #66D9EF;">server</span> {
+        listen
+        server_name
+        <span style="color: #66D9EF;">location /uri</span> {
+            proxy_pass http://192.168.3.7:80/newuri;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#22320;&#22336;&#32487;&#25215;&#26041;&#24335;&#31867;&#20284;&#20110;alias&#65292;&#20294;&#24403;location&#20351;&#29992;&#27491;&#21017;&#26102;&#19981;&#33021;&#21152;newuri&#65292;&#21487;&#20197;&#20351;&#29992;rewrite&#37325;&#20889;</span>
+            proxy_pass http://backend;  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#20351;&#29992;&#36127;&#36733;&#22343;&#34913;&#32452;</span>
+            proxy_set_header Host $host;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20256;&#36882;&#29992;&#25143;&#25152;&#35831;&#27714;&#30340;&#20027;&#26426;(&#32593;&#22336;)</span>
+            proxy_set_header X-Real-IP $remote_addr;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21521;&#21518;&#31471;&#26381;&#21153;&#22120;&#20256;&#36882;&#29992;&#25143;IP&#65292;&#21518;&#31471;&#26381;&#21153;&#22120;&#21487;&#29305;&#27530;&#23450;&#20041;&#29305;&#23450;&#30340;LogFormat</span>
+            proxy_hide_header ..;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38544;&#34255;&#21709;&#24212;&#32473;&#23458;&#25143;&#31471;&#30340;&#25351;&#23450;&#39318;&#37096;</span>
+            proxy_connect_timeout time;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26381;&#21153;&#22120;&#36830;&#25509;&#30340;&#38169;&#35823;&#21028;&#23450;&#26102;&#38271;</span>
+
+            proxy_cache zone_name;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#32531;&#23384;</span>
+            proxy_cache_valid [code] time;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#19981;&#21516;&#21709;&#24212;&#30721;&#30340;&#32531;&#23384;&#26377;&#25928;&#26399;&#38480;</span>
+            proxy_cache_use_stale error timeout ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#20195;&#29702;&#35775;&#38382;&#22833;&#36133;&#26102;&#30340;&#25805;&#20316;</span>
+            proxy_cache_bypass $cookie_nocache $arg_nocache $http_authorization;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#22312;&#20309;&#31181;&#24773;&#24418;&#19979;nginx&#23558;&#19981;&#20174;cache&#21462;&#25968;&#25454;&#30340;</span>
+
+            health_check ...;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26681;&#25454;&#35775;&#38382;&#26469;&#36827;&#34892;&#20581;&#24247;&#29366;&#24577;&#26816;&#27979;&#65292;&#24314;&#35758;&#20851;&#38381;&#35775;&#38382;&#26085;&#24535;</span>
+        }
+    }
 }
 </pre>
 </div>
 </div></li></ul>
 </div>
 </div>
-</div>
-<div id="outline-container-orgheadline20" class="outline-2">
-<h2 id="orgheadline20"><span class="section-number-2">8</span> LB Cluster</h2>
 </div>
