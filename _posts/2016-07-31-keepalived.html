@@ -1,0 +1,282 @@
+---
+title: "Keepalived"
+date: 2016-07-31
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 网络
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 相关概念</a></li>
+<li><a href="#orgheadline2">2. Keepalived的主要组件</a></li>
+<li><a href="#orgheadline9">3. 配置</a>
+<ul>
+<li><a href="#orgheadline3">配置文件的组成部分</a></li>
+<li><a href="#orgheadline4">配置前提</a></li>
+<li><a href="#orgheadline5">全局设置</a></li>
+<li><a href="#orgheadline6">VRRP设置</a></li>
+<li><a href="#orgheadline7">发送通知脚本</a></li>
+<li><a href="#orgheadline8">利用Keepalived设定ipvs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+TODO
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 相关概念</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>Active: 活动节点</li>
+<li>Passive: 备用节点</li>
+<li>HA Service: 由多个主机resources组成</li>
+<li>NTP: network time protocol，节点的状态确认需要同步时间</li>
+<li>VRRP：virtual route redundent protocol，Keepalived所实现的协议名
+<ul class="org-ul">
+<li>通过虚拟一个路由来对VIP进行调度</li>
+<li>MASTER/BACKUP</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> Keepalived的主要组件</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>VRRP Stack: vrrp协议在Linux主机上以守护进程方式的实现</li>
+<li>ipvs wrapper: 能够根据配置文件自动生成ipvs规则</li>
+<li>Checkers: 对各RS做健康状态检测</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">3</span> 配置</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置文件的组成部分</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<ul class="org-ul">
+<li>GLOBAL CONFIGURATION
+<ul class="org-ul">
+<li>设置邮箱</li>
+<li>设置路由ID</li>
+</ul></li>
+<li>VRRPD CONFIGURATION
+<ul class="org-ul">
+<li>vrrp instance</li>
+<li>vrrp synchonization group: 用于适应LVS-NAT</li>
+</ul></li>
+<li>LVS CONFIGURATION
+<ul class="org-ul">
+<li>virtual server</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">配置前提</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<ol class="org-ol">
+<li>本机的主机名，要与hostname(uname -n)获得的名称保持一致
+<ul class="org-ul">
+<li>各节点要能互相解析主机名: 一般建议通过hosts文件进行解析</li>
+</ul></li>
+<li><p>
+各节点时间同步
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">ntpdate IP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;&#26102;&#38388;&#26381;&#21153;&#22120;&#36827;&#34892;&#21516;&#27493;</span>
+</pre>
+</div></li>
+<li>确保iptables及selinux不会成为服务阻碍</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">全局设置</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">global_defs</span> {
+    <span style="color: #66D9EF;">notification_email</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37038;&#20214;&#25910;&#20214;&#20154;</span>
+        root@localhost
+    }
+    notification_email_from kaadmin@localhost  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37038;&#20214;&#21457;&#20214;&#20154;</span>
+    smtp_server 127.0.0.1
+    smtp_connect_timeout 30
+    router_id HOSTNAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36335;&#30001;ID</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">VRRP设置</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<ul class="org-ul">
+<li><p>
+对于Nginx类型的路由，DIP并不需要随着VIP的流动而流动，因为Nginx是通过反向代理来进行负载均衡的，报文的源地址是自己
+</p>
+<ul class="org-ul">
+<li>通过定义多个vrrp_instance和DNS解析的配合来实现高可用的负载均衡组</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">vrrp_script chk_nginx</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#33050;&#26412;&#26469;&#30417;&#25511;&#26412;&#26426;&#30340;Nginx</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">script "[[ -f /etc/keepalived/down ]] &amp;&amp; exit 1 || exit 0"  # &#21487;&#20351;&#29992;shell&#33050;&#26412;&#25991;&#20214;</span>
+    script <span style="color: #E6DB74;">"killall -0 nginx"</span>
+    interval 1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#38548;&#22810;&#23569;&#31186;&#23454;&#34892;&#19968;&#27425;</span>
+    weight -20  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33050;&#26412;&#25191;&#34892;&#22833;&#36133;&#26102;&#30340;&#25805;&#20316;&#65292;&#26435;&#37325;&#20943;20</span>
+}
+
+<span style="color: #66D9EF;">vrrp_instance VI_1</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#34394;&#25311;&#36335;&#30001;</span>
+    state {MASTER|BACKUP}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#20027;&#26426;&#22312;&#35813;&#34394;&#25311;&#36335;&#30001;&#19979;&#30340;&#23646;&#24615;</span>
+    interface eth0
+    virtual_router_id 144  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38656;&#35201;&#21807;&#19968;&#21644;&#32479;&#19968;&#65292;&#34394;&#25311;&#36335;&#30001;&#20250;&#33258;&#21160;&#20197;&#35813;ID&#29983;&#25104;&#32593;&#21345;Mac&#21518;&#20004;&#20301;</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">nopreempt  # &#21551;&#29992;&#38750;&#25250;&#21344;&#27169;&#24335;</span>
+    priority 100  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#26377;&#22810;&#20010;MASTER&#26102;&#26681;&#25454;&#20248;&#20808;&#32423;&#36827;&#34892;&#25250;&#21344;</span>
+    advert_int 1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#21578;&#33258;&#24049;&#29366;&#24577;&#30340;&#26102;&#38388;&#38388;&#38548;(&#21333;&#20301;:&#31186;)</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">vrrp_mcast_group4 224.0.1.118  # &#22810;&#25773;&#32452;&#22320;&#22336;&#65292;&#38450;&#27490;&#30456;&#20114;&#24178;&#25200;&#65292;&#27599;&#20010;&#34394;&#25311;&#36335;&#30001;&#38656;&#35201;&#19981;&#21516;</span>
+    <span style="color: #66D9EF;">authentication</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35748;&#35777;&#26041;&#27861;</span>
+        auth_type PASS  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31616;&#21333;&#23383;&#31526;&#35748;&#35777;&#65292;&#21487;&#20197;&#29992;MD5&#20294;&#25928;&#29575;&#20250;&#38477;&#20302;</span>
+        auth_pass 84ae57f7f4f6  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35748;&#35777;&#23383;&#31526;&#20018;</span>
+    }
+    <span style="color: #66D9EF;">virtual_ipaddress</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34394;&#25311;IP&#22320;&#22336;</span>
+        &lt;IPADDR&gt;/&lt;MASK&gt; [brd &lt;IPADDR&gt; dev &lt;STRING&gt; scope &lt;SCOPE&gt; label &lt;LABEL&gt;]
+        172.16.100.88/16 dev eth0 label eth0:1
+    }
+
+    <span style="color: #66D9EF;">track_script</span> {
+        chk_nginx  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32465;&#23450;&#33050;&#26412;</span>
+    }
+
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34394;&#25311;&#36335;&#30001;&#21457;&#29983;&#25913;&#21464;&#26102;&#21457;&#36865;&#36890;&#30693;&#65292;&#20063;&#21487;&#29992;&#20110;&#37325;&#21551;&#26381;&#21153;</span>
+    notify_master <span style="color: #E6DB74;">"/etc/keepalived/notify.sh master"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#21069;&#33410;&#28857;&#25104;&#20026;MASTER&#26102;</span>
+    notify_backup <span style="color: #E6DB74;">"/etc/keepalived/notify.sh backup"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#21069;&#33410;&#28857;&#25104;&#20026;BACKUP&#26102;</span>
+    notify_fault <span style="color: #E6DB74;">"/etc/keepalived/notify.sh fault"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#21069;&#33410;&#28857;&#25104;&#20026;FAULT&#26102;</span>
+}
+</pre>
+</div></li>
+<li><p>
+对于LVS-NAT来说，由于转发的报文不需要更改源地址，内部的RS通过设定Director为网关来实现，所以DIP需要随着VIP的流动而流动
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">vrrp_sync_group VG_1</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#21516;&#27493;&#32452;</span>
+    <span style="color: #66D9EF;">group</span> {
+        VI_1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;vrrp_instance&#23450;&#20041;VIP </span>
+        VI_2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;vrrp_instance&#23450;&#20041;DIP</span>
+    }
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">发送通知脚本</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/</span><span style="color: #F92672;">bash</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">Author: MageEdu <a href="mailto:linuxedu%40foxmail.com">&lt;linuxedu@foxmail.com&gt;</a></span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">description: An example of notify script</span>
+<span style="color: #75715E;"># </span>
+
+<span style="color: #FD971F;">vip</span>=<span style="color: #AE81FF;">172.16.100.88</span>
+<span style="color: #FD971F;">contact</span>=<span style="color: #E6DB74;">'root@localhost'</span>
+
+<span style="color: #A6E22E;">notify</span><span style="color: #AE81FF;">()</span> <span style="color: #AE81FF;">{</span>
+    <span style="color: #FD971F;">mailsubject</span>=<span style="color: #E6DB74;">"`hostname` to be $1: $vip floating"</span>
+    <span style="color: #FD971F;">mailbody</span>=<span style="color: #E6DB74;">"`date '+%F %H:%M:%S'`: vrrp transition, `hostname` changed to be $1"</span>
+    <span style="color: #F92672;">echo</span> $<span style="color: #FD971F;">mailbody</span> | mail -s <span style="color: #E6DB74;">"$mailsubject"</span> $<span style="color: #FD971F;">contact</span>
+<span style="color: #AE81FF;">}</span>
+
+<span style="color: #F92672;">case</span> <span style="color: #E6DB74;">"$1"</span><span style="color: #F92672;"> in</span>
+    master)
+        notify master
+        <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span>
+    ;;
+    backup)
+        notify backup
+        <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span>
+    ;;
+    fault)
+        notify fault
+        <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span>
+    ;;
+    *)
+        <span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">'Usage: `basename $0` {master|backup|fault}'</span>
+        <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+    ;;
+<span style="color: #F92672;">esac</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">利用Keepalived设定ipvs</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-conf"><span style="color: #66D9EF;">virtual_server 172.16.100.88 80</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20351;&#29992;&#38450;&#28779;&#22681;&#26631;&#35760;fwmark</span>
+    delay_loop 6  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20581;&#24247;&#29366;&#24577;&#26816;&#26597;&#30340;&#38388;&#38548;&#26102;&#38388;</span>
+    lb_algo {rr|wrr|lc|wlc|lblc|sh|dh}
+    lb_kind {NAT|DR|TUN}
+    persistence_timeout 0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25345;&#20037;&#26102;&#38388;</span>
+    nat_mask 255.255.0.0
+    protocol TCP
+    sorry_server 127.0.0.1 80  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;RS&#19979;&#32447;&#26102;&#26174;&#31034;&#30340;&#39029;&#38754;</span>
+    <span style="color: #66D9EF;">real_server 172.16.100.6 80</span> {
+        <span style="color: #75715E;"># </span><span style="color: #75715E;">notify_up ...: &#19978;&#32447;&#36890;&#30693;</span>
+        <span style="color: #75715E;"># </span><span style="color: #75715E;">notify_down ...: &#19979;&#32447;&#36890;&#30693;</span>
+        weight 1
+        <span style="color: #66D9EF;">HTTP_GET|SSL_GET</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20581;&#24247;&#29366;&#24577;&#26816;&#27979;&#26041;&#24335;</span>
+            <span style="color: #66D9EF;">url</span> {
+                path /
+                status_code 200  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32593;&#39029;&#29366;&#24577;&#26816;&#27979;</span>
+                digest ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;genhash&#23545;&#32593;&#39029;&#20869;&#23481;&#36827;&#34892;&#26657;&#39564;</span>
+            }
+            connect_timeout 3  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36830;&#25509;&#36229;&#26102;&#26102;&#38388;</span>
+            nb_get_retry 3  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#35797;&#27425;&#25968;</span>
+            delay_before_retry 3  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#35797;&#21069;&#30340;&#31561;&#24453;&#26102;&#38388;</span>
+        }
+
+        <span style="color: #66D9EF;"># </span><span style="color: #66D9EF;">TCP_CHECK</span><span style="color: #75715E;"> {  # &#20351;&#29992;TCP&#26816;&#27979;&#30446;&#26631;&#31471;&#21475;&#30340;&#26041;&#24335;</span>
+        <span style="color: #75715E;">#     </span><span style="color: #75715E;">connect_timeout 3</span>
+        <span style="color: #75715E;"># </span><span style="color: #75715E;">}</span>
+    }
+    <span style="color: #66D9EF;">real_server 172.16.100.69 80</span> {
+        weight 2
+        <span style="color: #66D9EF;">HTTP_GET</span> {
+            <span style="color: #66D9EF;">url</span> {
+              path /
+              status_code 200 
+            }
+            connect_timeout 3
+            nb_get_retry 3
+            delay_before_retry 3
+        }
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
