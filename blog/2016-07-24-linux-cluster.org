@@ -1,4 +1,4 @@
-#+TITLE: Linux Cluster
+#+TITLE: HA Cluster
 #+DATE: 2016-07-24
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
@@ -18,10 +18,16 @@ TODO
 - scale out: 向外扩展，使用更多的主机
 ** 集群类型
 - LB(Load Balancing)：负载均衡集群，任务分配
-  - GSLB: Global Service Load Balancing
-  - SLB: Service Load Balancing
+  - 基于软硬件划分
+    - 硬件: F5、NetScaler、A10、Array、Redware
+    - 软件: LVS、HAProxy、Nginx、ats、perlbal
+  - 基于工作的协议层次划分
+    - 传输层：lvs, haproxy(mode tcp)
+    - 应用层：haproxy, nginx, ats, perlbal
 - HA(High Availability)：高可用集群，系统快速修复
   - Availability=可用时间/总时间
+  - vrrp: keepalived
+  - AIS: heartbeat, OpenAIS, corosync/pacemaker, cman/rgmanager(conga)
 - HP(High Performancing)：高性能集群，并行处理、分布式
   - 分布式应用
   - 分布式静态资源
@@ -48,13 +54,6 @@ TODO
 - Director IP: DIP
 - Real Server IP: RIP
 * LB集群
-** 实现方式
-- 基于软硬件划分
-  - 硬件: F5、NetScaler、A10、Array、Redware
-  - 软件: LVS、HAProxy、Nginx、ats、perlbal
-- 基于工作的协议层次划分
-  - 传输层：lvs, haproxy(mode tcp)
-  - 应用层：haproxy, nginx, ats, perlbal
 ** lvs
 lvs: Linux Virtual Server，根据请求报文的目标IP和PORT将其转发至后端主机集群中的某一台主机(根据挑选算法)，支持TCP, UDP, AH, ESP, AH_ESP, SCTP等诸多协议
 *** lvs组件
@@ -198,5 +197,10 @@ director对RS做健康状态检测，并且根据检测的结果自动完成添�
 2. 检查频度
 3. 状态判断: 需要多次检测服务器来确定服务器是否失效
 4. 配置一个网页故障时所显示的页面的服务器
+** HAProxy
+*** 负载均衡器算法
+- 取模法: 无法适应后端服务器个数的改变
+- 一致性hash算法: 使用环形hash来计算，但可能会出现偏斜
+  - 虚拟服务器: 后端服务器在环上虚拟多个点，使命中平衡
 
 

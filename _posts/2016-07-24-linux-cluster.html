@@ -25,20 +25,19 @@ comments:
 <li><a href="#orgheadline6">术语</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline23">2. LB集群</a>
+<li><a href="#orgheadline22">2. LB集群</a>
 <ul>
-<li><a href="#orgheadline8">实现方式</a></li>
-<li><a href="#orgheadline9">lvs</a>
+<li><a href="#orgheadline8">lvs</a>
 <ul>
-<li><a href="#orgheadline10">lvs组件</a></li>
-<li><a href="#orgheadline11">lvs类型</a></li>
-<li><a href="#orgheadline12">lvs scheduler</a></li>
-<li><a href="#orgheadline13">lvs架构</a></li>
-<li><a href="#orgheadline18">ipvsadm的用法</a></li>
-<li><a href="#orgheadline19">配置lvs-dr</a></li>
-<li><a href="#orgheadline20">通过FWM定义集群</a></li>
-<li><a href="#orgheadline21">lvs persistence</a></li>
-<li><a href="#orgheadline22">实现调用RS的高可用</a></li>
+<li><a href="#orgheadline9">lvs组件</a></li>
+<li><a href="#orgheadline10">lvs类型</a></li>
+<li><a href="#orgheadline11">lvs scheduler</a></li>
+<li><a href="#orgheadline12">lvs架构</a></li>
+<li><a href="#orgheadline17">ipvsadm的用法</a></li>
+<li><a href="#orgheadline18">配置lvs-dr</a></li>
+<li><a href="#orgheadline19">通过FWM定义集群</a></li>
+<li><a href="#orgheadline20">lvs persistence</a></li>
+<li><a href="#orgheadline21">实现调用RS的高可用</a></li>
 </ul>
 </li>
 </ul>
@@ -72,12 +71,22 @@ TODO
 <ul class="org-ul">
 <li>LB(Load Balancing)：负载均衡集群，任务分配
 <ul class="org-ul">
-<li>GSLB: Global Service Load Balancing</li>
-<li>SLB: Service Load Balancing</li>
+<li>基于软硬件划分
+<ul class="org-ul">
+<li>硬件: F5、NetScaler、A10、Array、Redware</li>
+<li>软件: LVS、HAProxy、Nginx、ats、perlbal</li>
+</ul></li>
+<li>基于工作的协议层次划分
+<ul class="org-ul">
+<li>传输层：lvs, haproxy(mode tcp)</li>
+<li>应用层：haproxy, nginx, ats, perlbal</li>
+</ul></li>
 </ul></li>
 <li>HA(High Availability)：高可用集群，系统快速修复
 <ul class="org-ul">
 <li>Availability=可用时间/总时间</li>
+<li>vrrp: keepalived</li>
+<li>AIS: heartbeat, OpenAIS, corosync/pacemaker, cman/rgmanager(conga)</li>
 </ul></li>
 <li>HP(High Performancing)：高性能集群，并行处理、分布式
 <ul class="org-ul">
@@ -136,45 +145,28 @@ TODO
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline23" class="outline-2">
-<h2 id="orgheadline23"><span class="section-number-2">2</span> LB集群</h2>
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22"><span class="section-number-2">2</span> LB集群</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">实现方式</h3>
+<h3 id="orgheadline8">lvs</h3>
 <div class="outline-text-3" id="text-orgheadline8">
-<ul class="org-ul">
-<li>基于软硬件划分
-<ul class="org-ul">
-<li>硬件: F5、NetScaler、A10、Array、Redware</li>
-<li>软件: LVS、HAProxy、Nginx、ats、perlbal</li>
-</ul></li>
-<li>基于工作的协议层次划分
-<ul class="org-ul">
-<li>传输层：lvs, haproxy(mode tcp)</li>
-<li>应用层：haproxy, nginx, ats, perlbal</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">lvs</h3>
-<div class="outline-text-3" id="text-orgheadline9">
 <p>
 lvs: Linux Virtual Server，根据请求报文的目标IP和PORT将其转发至后端主机集群中的某一台主机(根据挑选算法)，支持TCP, UDP, AH, ESP, AH_ESP, SCTP等诸多协议
 </p>
 </div>
-<div id="outline-container-orgheadline10" class="outline-4">
-<h4 id="orgheadline10">lvs组件</h4>
-<div class="outline-text-4" id="text-orgheadline10">
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">lvs组件</h4>
+<div class="outline-text-4" id="text-orgheadline9">
 <ul class="org-ul">
 <li>ipvsadm: 用户空间的命令行工具，用于管理集群服务</li>
 <li>ipvs: 工作内核中netfilter INPUT钩子上，报文传输线路为PREROUTING &#x2013;&gt; INPUT &#x2013;&gt; POSTROUTING</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline11" class="outline-4">
-<h4 id="orgheadline11">lvs类型</h4>
-<div class="outline-text-4" id="text-orgheadline11">
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">lvs类型</h4>
+<div class="outline-text-4" id="text-orgheadline10">
 <dl class="org-dl">
 <dt>lvs-nat</dt><dd>多目标的DNAT，它通过修改请求报文的目标IP地址(同时可能会修改目标端口)至某RS的RIP地址实现转发
 <ol class="org-ol">
@@ -215,9 +207,9 @@ lvs: Linux Virtual Server，根据请求报文的目标IP和PORT将其转发至�
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-4">
-<h4 id="orgheadline12">lvs scheduler</h4>
-<div class="outline-text-4" id="text-orgheadline12">
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">lvs scheduler</h4>
+<div class="outline-text-4" id="text-orgheadline11">
 <p>
 scheduler是Director通过算法来选择要调度的RS
 </p>
@@ -241,19 +233,19 @@ scheduler是Director通过算法来选择要调度的RS
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-4">
-<h4 id="orgheadline13">lvs架构</h4>
-<div class="outline-text-4" id="text-orgheadline13">
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">lvs架构</h4>
+<div class="outline-text-4" id="text-orgheadline12">
 <ol class="org-ol">
 <li>一个ipvs主机可以同时定义多个cluster service</li>
 <li>一个cluster service上至少应该一个real server</li>
 </ol>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">ipvsadm的用法</h4>
-<div class="outline-text-4" id="text-orgheadline18">
-</div><ul class="org-ul"><li><a id="orgheadline14"></a>管理集群服务<br  /><div class="outline-text-5" id="text-orgheadline14">
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">ipvsadm的用法</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+</div><ul class="org-ul"><li><a id="orgheadline13"></a>管理集群服务<br  /><div class="outline-text-5" id="text-orgheadline13">
 <div class="org-src-container">
 
 <pre class="src src-conf">ipvsadm -A|-E service [-s scheduler] [-p SECOND] <span style="color: #75715E;"># </span><span style="color: #75715E;">APPEND</span>
@@ -268,7 +260,7 @@ ipvsadm -D service  <span style="color: #75715E;"># </span><span style="color: #
 </pre>
 </div>
 </div></li>
-<li><a id="orgheadline15"></a>管理集群服务中的RS<br  /><div class="outline-text-5" id="text-orgheadline15">
+<li><a id="orgheadline14"></a>管理集群服务中的RS<br  /><div class="outline-text-5" id="text-orgheadline14">
 <div class="org-src-container">
 
 <pre class="src src-conf">ipvsadm -a service -r server-address lvs-type [-w weight]
@@ -284,7 +276,7 @@ ipvsadm -d service -r server-address
 </pre>
 </div>
 </div></li>
-<li><a id="orgheadline16"></a>清空和查询<br  /><div class="outline-text-5" id="text-orgheadline16">
+<li><a id="orgheadline15"></a>清空和查询<br  /><div class="outline-text-5" id="text-orgheadline15">
 <div class="org-src-container">
 
 <pre class="src src-conf">ipvsadm -C  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#25152;&#26377;&#35268;&#21017;</span>
@@ -297,7 +289,7 @@ ipvsadm -L|l [options]
 </pre>
 </div>
 </div></li>
-<li><a id="orgheadline17"></a>保存和重载<br  /><div class="outline-text-5" id="text-orgheadline17">
+<li><a id="orgheadline16"></a>保存和重载<br  /><div class="outline-text-5" id="text-orgheadline16">
 <div class="org-src-container">
 
 <pre class="src src-conf">ipvsadm -R &lt; FILE
@@ -306,9 +298,9 @@ ipvsadm -S [-n] &gt; FILE
 </div>
 </div></li></ul>
 </div>
-<div id="outline-container-orgheadline19" class="outline-4">
-<h4 id="orgheadline19">配置lvs-dr</h4>
-<div class="outline-text-4" id="text-orgheadline19">
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">配置lvs-dr</h4>
+<div class="outline-text-4" id="text-orgheadline18">
 <ul class="org-ul">
 <li>内核参数
 <ul class="org-ul">
@@ -353,9 +345,9 @@ route add -host <span style="color: #AE81FF;">172.16.100.10</span> dev lo:0
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline20" class="outline-4">
-<h4 id="orgheadline20">通过FWM定义集群</h4>
-<div class="outline-text-4" id="text-orgheadline20">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">通过FWM定义集群</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 <ol class="org-ol">
 <li><p>
 在director上netfilter的mangle表的PREROUTING定义MARK
@@ -376,9 +368,9 @@ route add -host <span style="color: #AE81FF;">172.16.100.10</span> dev lo:0
 </ol>
 </div>
 </div>
-<div id="outline-container-orgheadline21" class="outline-4">
-<h4 id="orgheadline21">lvs persistence</h4>
-<div class="outline-text-4" id="text-orgheadline21">
+<div id="outline-container-orgheadline20" class="outline-4">
+<h4 id="orgheadline20">lvs persistence</h4>
+<div class="outline-text-4" id="text-orgheadline20">
 <p>
 lvs持久连接: 无论ipvs使用何种调度方法，其都能实现将来自于同一个Client的请求始终定向至第一次调度时挑选出的RS，通过维护一个持久连接表来实现(SIP RS timer)
 </p>
@@ -392,9 +384,9 @@ lvs持久连接: 无论ipvs使用何种调度方法，其都能实现将来自�
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-4">
-<h4 id="orgheadline22">实现调用RS的高可用</h4>
-<div class="outline-text-4" id="text-orgheadline22">
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">实现调用RS的高可用</h4>
+<div class="outline-text-4" id="text-orgheadline21">
 <p>
 director对RS做健康状态检测，并且根据检测的结果自动完成添加或移除等管理功能
 </p>
