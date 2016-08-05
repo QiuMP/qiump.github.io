@@ -1,0 +1,120 @@
+---
+title: "Corosync"
+date: 2016-08-03
+layout: post
+categories: 
+- Linux
+tags: 
+- Linux 
+- 运维 
+- 集群
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 高可用的相关概念</a></li>
+<li><a href="#orgheadline5">2. 高可用层次</a>
+<ul>
+<li><a href="#orgheadline2">Messaging Layer</a></li>
+<li><a href="#orgheadline3">Cluster Resource Manager(CRM)</a></li>
+<li><a href="#orgheadline4">Resource Agent</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+TODO
+</p>
+
+
+
+
+<hr  />
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 高可用的相关概念</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>nerwork partition: 网络分区是多个节点之间突然失去连接，分成两个集合，如交换机之间断开联系
+<ul class="org-ul">
+<li>vote system: 少数服从多数，在偶数个节点的时候可能会出现两边票数相同，这时可以使用qdisk进行仲裁</li>
+</ul></li>
+<li>节点隔离
+<ul class="org-ul">
+<li>STONITH(shoot the other node on the head): 节点级别隔离</li>
+<li>Fence: 资源级别的隔离</li>
+</ul></li>
+<li>failover domain: 故障转移域，每个服务可以和同一个备用服务器做为一个域，减少备用资源浪费
+<ul class="org-ul">
+<li>fda: node1, node3</li>
+<li>fdb: node2, node3</li>
+</ul></li>
+<li>资源的约束性: 影响节点所启动的服务资源
+<ul class="org-ul">
+<li>位置约束：资源对节点的倾向性</li>
+<li>排列约束：资源彼此间是否能运行于同一节点的倾向性</li>
+<li>顺序约束：多个资源启动顺序依赖关系</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">2</span> 高可用层次</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Messaging Layer</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+负责每个节点之间的信息交互
+</p>
+<ul class="org-ul">
+<li>heartbeat</li>
+<li>corosync</li>
+<li>cman</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">Cluster Resource Manager(CRM)</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+负责对每个节点的资源进行管理
+</p>
+<ul class="org-ul">
+<li>组合方式
+<ul class="org-ul">
+<li>heartbeat v1 (haresources)</li>
+<li>heartbeat v2 (crm)</li>
+<li>heartbeat v3 + pacemaker</li>
+<li>corosync v1 + pacemaker(plugin)</li>
+<li>corosync v2 + pacemaker(service)</li>
+<li>cman + rgmanager</li>
+</ul></li>
+<li>RHCS: Red Hat Cluster Suite
+<ul class="org-ul">
+<li>RHEL5: cman + rgmanager + conga (ricci/luci)</li>
+<li>RHEL6: corosync v1 + cman + pacemaker</li>
+<li>RHEL7: corosync v2 + pacemaker</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">Resource Agent</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+负责对节点资源进行操作
+</p>
+<ul class="org-ul">
+<li>service: /etc/ha.d/haresources.d/目录下的脚本；</li>
+<li>LSB: /etc/rc.d/init.d/目录下的脚本；</li>
+<li>OCF：Open Cluster Framework</li>
+<li>STONITH:</li>
+<li>Systemd:</li>
+</ul>
+</div>
+</div>
+</div>

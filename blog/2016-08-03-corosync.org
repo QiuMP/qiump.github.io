@@ -1,0 +1,53 @@
+#+TITLE: Corosync
+#+DATE: 2016-08-03
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux
+#+JEKYLL_TAGS: Linux 运维 集群
+#+JEKYLL_PUBLISHED: true
+
+TODO
+
+
+
+
+-----
+* 高可用的相关概念
+- nerwork partition: 网络分区是多个节点之间突然失去连接，分成两个集合，如交换机之间断开联系
+  - vote system: 少数服从多数，在偶数个节点的时候可能会出现两边票数相同，这时可以使用qdisk进行仲裁
+- 节点隔离
+  - STONITH(shoot the other node on the head): 节点级别隔离
+  - Fence: 资源级别的隔离
+- failover domain: 故障转移域，每个服务可以和同一个备用服务器做为一个域，减少备用资源浪费
+  - fda: node1, node3
+  - fdb: node2, node3
+- 资源的约束性: 影响节点所启动的服务资源
+  - 位置约束：资源对节点的倾向性
+  - 排列约束：资源彼此间是否能运行于同一节点的倾向性
+  - 顺序约束：多个资源启动顺序依赖关系
+* 高可用层次
+** Messaging Layer
+负责每个节点之间的信息交互
+- heartbeat
+- corosync
+- cman
+** Cluster Resource Manager(CRM)
+负责对每个节点的资源进行管理
+- 组合方式
+  - heartbeat v1 (haresources)
+  - heartbeat v2 (crm)
+  - heartbeat v3 + pacemaker
+  - corosync v1 + pacemaker(plugin)
+  - corosync v2 + pacemaker(service)
+  - cman + rgmanager
+- RHCS: Red Hat Cluster Suite
+  - RHEL5: cman + rgmanager + conga (ricci/luci)
+  - RHEL6: corosync v1 + cman + pacemaker
+  - RHEL7: corosync v2 + pacemaker
+** Resource Agent
+负责对节点资源进行操作
+- service: /etc/ha.d/haresources.d/目录下的脚本；
+- LSB: /etc/rc.d/init.d/目录下的脚本；
+- OCF：Open Cluster Framework
+- STONITH: 
+- Systemd: 
