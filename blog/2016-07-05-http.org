@@ -50,7 +50,6 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
   - 资源类型决定浏览器调用对应的程序进行处理
 - Web页面一般有多个资源，而浏览器对资源的请求通常是并行的
 ** URI\URL\URN
-- URI: Uniform Resource Identifier，用于标识一个资源
 - URL: Uniform Resorce Locator，用于描述某服务器某特定资源的位置
   #+BEGIN_SRC http
   <scheme>://<user>:<password>@<host>:<port>/<path>;<params>?<query>#<frag>
@@ -59,6 +58,10 @@ Socket: IPC的一种实现，允许位于不同主机（甚至同一主机）上
     #frag: 跳转到文档中的某位置
   #+END_SRC
   - URL分为相对URL和绝对URL
+- URI: Uniform Resource Identifier，用于标识一个资源
+  #+BEGIN_SRC http
+  /<path>;<params>?<query>#<frag>
+  #+END_SRC
 - URN: Uniform Resource Naming，唯一标识一个资源的标识符
 ** 网站访问量
 - PV: Page View

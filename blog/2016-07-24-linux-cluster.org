@@ -198,9 +198,215 @@ director对RS做健康状态检测，并且根据检测的结果自动完成添�
 3. 状态判断: 需要多次检测服务器来确定服务器是否失效
 4. 配置一个网页故障时所显示的页面的服务器
 ** HAProxy
+*** 代理服务器相关
+- 代理(http)
+  - 正向代理: 客户端代理
+  - 反向代理: 服务器代理
+  - 可以在报文上添加Via首部表示代理的服务器
+- 代理的作用
+  - web缓存(加速)
+  - 反向代理
+  - 内容路由(根据流量及内容类型等将请求转发至特定服务器)
+  - 转码器
+- 缓存的作用
+  - 减少冗余内容传输
+  - 节省带宽、缓解网络瓶颈
+  - 降低了对原始服务器的请求压力
+  - 降低了传输延迟
+- HAProxy的功能
+  - http协议反向代理
+  - tcp层的LB
 *** 负载均衡器算法
 - 取模法: 无法适应后端服务器个数的改变
 - 一致性hash算法: 使用环形hash来计算，但可能会出现偏斜
   - 虚拟服务器: 后端服务器在环上虚拟多个点，使命中平衡
+- ebtree: 弹性二叉树
+*** 配置
+- 配置文件: /etc/haproxy/haproxy.cfg
+**** 全局配置
+#+BEGIN_SRC conf
+global  # 全局配置
+    log 127.0.0.1 local2  # 配置日志服务器，可配置两个
+    log-send-hostname [string] # 在日志中记录该服务器的主机名
+
+    chroot /var/lib/haproxy  # 运行的目录，提高安全性
+    pidfile /var/run/haproxy.pid
+    user haproxy
+    group haproxy
+
+    daemon  # 若不加则运行在前端
+    nbproc 1  # 启动的进程数，默认为1个，多个一般用于调试
+    maxconn 4000  # 每个进程的最大连接数
+
+    spread-checks [0-50] # 分散健康状态检查的发送时间
+#+END_SRC
+**** 代理配置
+#+BEGIN_SRC conf
+defaults  # 用于为所有其它配置段提供默认参数
+
+frontend main  # 定义监听的套接字
+    bind *:80
+    use_backend
+    default_backend websrvs
+
+defaults  # 重新设定默认参数
+
+backend websrvs  # 定义后端服务器
+    balance roundrobin
+    server web1 172.16.100.68 check
+    server web2 172.16.100.69 check
+
+listen  # 同时定义前端与后端
+    ...
+#+END_SRC
+**** 代理参数
+1. balance: 指名调度算法
+   - roundrobin: 动态加权轮询，每个后端主机最多接受4128个连接
+   - static-rr: 静态加权轮询，每个后端主机支持的数量无上限
+   - leastconn: 分配给最少连接数的后端，适用于长时间的会话(如SQL、SSH等)
+   - source: 将请求的源地址进行hash运算，并由后端服务器的权重总数相除后派发至某匹配的服务器
+   - uri: 对URI(不包含主机名)的"?"之前的部分进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器
+   - uri_param: 对URI中的指定参数(";"后"?"之前的<param>)的值进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器
+   - hdr(<name>): 对HTTP首部中的参数name的值进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器
+2. hash-type: 指定算法中的hash算法类型
+   - map-based：取模法(静态)，默认配置
+   - consistent：一致性hash算法(动态)
+3. bind: 指名监听的端口，只能用于frontend, listen
+4. mode {tcp|http}: HAProxy的工作模式，默认为tcp
+5. log: 为每个实例指定log
+   #+BEGIN_SRC conf
+   log global
+   log <address> <facility> [<level> [<minlevel>]]
+   #+END_SRC
+6. maxconn: 设定指定前端的最大连接数，默认为2000
+7. default_backend: 在没有匹配的"use_backend"规则时为实例指定使用的默认后端
+8. use_backend: 条件式匹配后端
+   #+BEGIN_SRC conf
+   use_backend backend if ACL...
+   #+END_SRC
+9. server: 为backend声明一个server
+   #+BEGIN_SRC conf
+   server <name> <addr>[:port] [OPTIONS]
+     name: 用于日志和警告
+
+     OPTIONS: 
+       backup: 当其他所有服务器不可用时才启动该服务器
+       check: 健康状态检测
+         inter NUM: 检测时间间隔(单位为ms)，默认为2000
+         fall NUM: server从正常状态转换至离线状态需要成功检查的次数
+         rise NUM: server从离线状态转换至正常状态需要成功检查的次数
+         port NUM: 检测的端口
+       cookie <value>: 为server设定cookie，用于实现持久连接的功能，需要启用cookie功能
+       maxconn NUM: 此服务接受的并发连接的最大数量
+       maxqueue NUM: 请求队列的最大长度
+       observe {layer4|layer7}: 根据流量判断后端server的健康状态
+       weight: 指定权重，默认为1，最大为256，0表示不被调度
+       redir <prefix>: 重定向，所有发往此服务器的请求均以302响应
+   #+END_SRC
+10. option *chk: 设定后端的健康状态检测方式
+    #+BEGIN_SRC conf
+    option httpchk [<method> <uri> <head>]
+    option tcp-chk
+    #+END_SRC
+11. cookie: 启用基于cookie的后端服务器绑定，可以实现浏览器绑定
+    #+BEGIN_SRC conf
+    cookie <name> insert indirect [OPTIONS]
+    #+END_SRC
+12. stats: 启用状态监控页
+    #+BEGIN_SRC conf
+    listen statistics 
+      bind *:9090
+      stats enable
+      stats hide-version  # 隐藏版本号 
+      #stats scope .  # 设定作用的backend
+      stats uri /haproxyadmin?stats  # 访问路径
+      stats realm "HAPorxy\ Statistics"  # 服务器提示
+      stats auth admin:mageedu  # 定义账号和密码
+      stats admin if TRUE  # 启用管理员功能，可以对后端服务器进行操作
+    #+END_SRC
+13. errorfile: 定义错误状态码返回的页面文件，但404需要后端服务器返回
+    #+BEGIN_SRC conf
+    errorfile <code> <file>
+    #+END_SRC
+14. errorloc: 定义错误状态码返回的重定向，但404需要后端服务器返回
+    #+BEGIN_SRC conf
+    errorloc <code> <url>  # 使用302状态码进行返回
+    errorloc303 <code> <url>  # 使用303状态码进行返回
+    #+END_SRC
+15. capture: 捕获指定参数最近一次出现的第一个值，记录在日志中
+    #+BEGIN_SRC conf
+    capture request header <name> len <length>  # 捕获请求报文
+    capture response header <name> len <length>  # 捕获响应报文
+    #+END_SRC
+16. option httplog: 记录更详细的日志信息
+17. option logasap: 在HTTP请求处理记录日志，默认是HTTP请求结束后才记录日志，但无法记录传输字节数
+18. option forwardfor: 允许在发往服务器的请求首部中插入"X-Forwarded-For"首部，记录客户端地址，用于后端的日志记录
+    #+BEGIN_SRC conf
+    option forwardfor [ except <network> ] [ header <name> ] [ if-none ]
+    #+END_SRC
+19. http_request: 用于定义访问控制
+    #+BEGIN_SRC conf
+    http_request allow if ACL...
+    http_request deny  # 定义默认规则
+    #+END_SRC
+20. option http-server-close: 打开与客户端保持连接的断开功能
+21. option http-pretend-keepalive: 打开与后端的保持连接功能
+22. redirect: 重定向访问地址
+    #+BEGIN_SRC sh
+    redirect prefix https://www.qiump.com if ACL...  # 重定向主机地址和协议
+    redirect location / clear-cookie USERID= if logout  # 重定向页面和清除cookie
+    #+END_SRC
+23. reqadd/rspadd: 添加请求或响应报文首部
+    #+BEGIN_SRC conf
+    reqadd <string> [if ACL...] 
+    rspadd <string> [if ACL...] 
+    #+END_SRC
+24. timeout: 定义各种超时时长
+    #+BEGIN_SRC conf
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    #+END_SRC
+**** ACL测试条件
+#+BEGIN_SRC conf
+acl <aclname> <criterion> [-i] [operator] <value> ...
+  aclname: 定义ACL的名字，可以重复(表示合并)
+  criterion: 检查条件
+  -i: 匹配忽略大小写
+  operator: eq、ge、gt、le、lt，用于数值的比较
+  value: 可使用整数范围(1024:65535)、字符串、正则表达式、网络地址
+#+END_SRC
+- 测试条件criterion
+  1. be_sess_rate(backend) <int>: 测试backend的会话创建速率，一般用于阻止攻击行为
+     #+BEGIN_SRC conf
+     acl being_scanned be_sess_rate gt 50
+     redirect location /error_pages/denied.html if being_scanned
+     #+END_SRC
+  2. fe_sess_rate <int>: 测试frontend的会话创建速率
+     #+BEGIN_SRC conf
+     acl too_fast fe_sess_rate ge 50
+     tcp-request inspect-delay 500ms
+     tcp-request content accept if ! too_fast  # 测试速率
+     tcp-request content accept if WAIT_END  # WAIT_END表示延迟时间是否到达
+     #+END_SRC
+  3. 测试请求的路径
+     - path_beg <str>: 测试请求的路径是否以<str>指定的模式开头
+     - path_end <str>: 测试请求的路径是否以<str>指定的模式结尾
+     - path_reg <str>: 对路径进行正则匹配
+  4. 测试请求的URL
+     - url_beg <str>
+     - url_end <str>
+     - url_reg
+  5. method <str>: 测试HTTP请求报文中使用的方法
+  6. 测试请求报文的首部
+     - hdr(header) <str>: 测试请求报文中的所有首部或指定首部是否满足指定的条件
+     - hdr_beg(header) <str>
+     - hdr_end(header) <str>
+- 多个测试条件可以用逻辑操作符进行组合，如"||"、"!"，默认为"与"
+
 
 

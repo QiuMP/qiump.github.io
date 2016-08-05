@@ -1,5 +1,5 @@
 ---
-title: "Linux Cluster"
+title: "HA Cluster"
 date: 2016-07-24
 layout: post
 categories: 
@@ -25,7 +25,7 @@ comments:
 <li><a href="#orgheadline6">术语</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline22">2. LB集群</a>
+<li><a href="#orgheadline30">2. LB集群</a>
 <ul>
 <li><a href="#orgheadline8">lvs</a>
 <ul>
@@ -38,6 +38,13 @@ comments:
 <li><a href="#orgheadline19">通过FWM定义集群</a></li>
 <li><a href="#orgheadline20">lvs persistence</a></li>
 <li><a href="#orgheadline21">实现调用RS的高可用</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline29">HAProxy</a>
+<ul>
+<li><a href="#orgheadline22">代理服务器相关</a></li>
+<li><a href="#orgheadline23">负载均衡器算法</a></li>
+<li><a href="#orgheadline24">配置</a></li>
 </ul>
 </li>
 </ul>
@@ -145,8 +152,8 @@ TODO
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-2">
-<h2 id="orgheadline22"><span class="section-number-2">2</span> LB集群</h2>
+<div id="outline-container-orgheadline30" class="outline-2">
+<h2 id="orgheadline30"><span class="section-number-2">2</span> LB集群</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline8" class="outline-3">
 <h3 id="orgheadline8">lvs</h3>
@@ -402,6 +409,337 @@ director对RS做健康状态检测，并且根据检测的结果自动完成添�
 <li>配置一个网页故障时所显示的页面的服务器</li>
 </ol>
 </div>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">HAProxy</h3>
+<div class="outline-text-3" id="text-orgheadline29">
+</div><div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">代理服务器相关</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<ul class="org-ul">
+<li>代理(http)
+<ul class="org-ul">
+<li>正向代理: 客户端代理</li>
+<li>反向代理: 服务器代理</li>
+<li>可以在报文上添加Via首部表示代理的服务器</li>
+</ul></li>
+<li>代理的作用
+<ul class="org-ul">
+<li>web缓存(加速)</li>
+<li>反向代理</li>
+<li>内容路由(根据流量及内容类型等将请求转发至特定服务器)</li>
+<li>转码器</li>
+</ul></li>
+<li>缓存的作用
+<ul class="org-ul">
+<li>减少冗余内容传输</li>
+<li>节省带宽、缓解网络瓶颈</li>
+<li>降低了对原始服务器的请求压力</li>
+<li>降低了传输延迟</li>
+</ul></li>
+<li>HAProxy的功能
+<ul class="org-ul">
+<li>http协议反向代理</li>
+<li>tcp层的LB</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">负载均衡器算法</h4>
+<div class="outline-text-4" id="text-orgheadline23">
+<ul class="org-ul">
+<li>取模法: 无法适应后端服务器个数的改变</li>
+<li>一致性hash算法: 使用环形hash来计算，但可能会出现偏斜
+<ul class="org-ul">
+<li>虚拟服务器: 后端服务器在环上虚拟多个点，使命中平衡</li>
+</ul></li>
+<li>ebtree: 弹性二叉树</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">配置</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<ul class="org-ul">
+<li>配置文件: /etc/haproxy/haproxy.cfg</li>
+</ul>
+</div>
+<ul class="org-ul"><li><a id="orgheadline25"></a>全局配置<br  /><div class="outline-text-5" id="text-orgheadline25">
+<div class="org-src-container">
+
+<pre class="src src-conf">global  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20840;&#23616;&#37197;&#32622;</span>
+    log 127.0.0.1 local2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37197;&#32622;&#26085;&#24535;&#26381;&#21153;&#22120;&#65292;&#21487;&#37197;&#32622;&#20004;&#20010;</span>
+    log-send-hostname [string] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#26085;&#24535;&#20013;&#35760;&#24405;&#35813;&#26381;&#21153;&#22120;&#30340;&#20027;&#26426;&#21517;</span>
+
+    chroot /var/lib/haproxy  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36816;&#34892;&#30340;&#30446;&#24405;&#65292;&#25552;&#39640;&#23433;&#20840;&#24615;</span>
+    pidfile /var/run/haproxy.pid
+    user haproxy
+    group haproxy
+
+    daemon  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#19981;&#21152;&#21017;&#36816;&#34892;&#22312;&#21069;&#31471;</span>
+    nbproc 1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#36827;&#31243;&#25968;&#65292;&#40664;&#35748;&#20026;1&#20010;&#65292;&#22810;&#20010;&#19968;&#33324;&#29992;&#20110;&#35843;&#35797;</span>
+    maxconn 4000  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#20010;&#36827;&#31243;&#30340;&#26368;&#22823;&#36830;&#25509;&#25968;</span>
+
+    spread-checks [0-50] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20998;&#25955;&#20581;&#24247;&#29366;&#24577;&#26816;&#26597;&#30340;&#21457;&#36865;&#26102;&#38388;</span>
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline26"></a>代理配置<br  /><div class="outline-text-5" id="text-orgheadline26">
+<div class="org-src-container">
+
+<pre class="src src-conf">defaults  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#20026;&#25152;&#26377;&#20854;&#23427;&#37197;&#32622;&#27573;&#25552;&#20379;&#40664;&#35748;&#21442;&#25968;</span>
+
+frontend main  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#30417;&#21548;&#30340;&#22871;&#25509;&#23383;</span>
+    bind *:80
+    use_backend
+    default_backend websrvs
+
+defaults  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#26032;&#35774;&#23450;&#40664;&#35748;&#21442;&#25968;</span>
+
+backend websrvs  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#21518;&#31471;&#26381;&#21153;&#22120;</span>
+    balance roundrobin
+    server web1 172.16.100.68 check
+    server web2 172.16.100.69 check
+
+listen  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21516;&#26102;&#23450;&#20041;&#21069;&#31471;&#19982;&#21518;&#31471;</span>
+    ...
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline27"></a>代理参数<br  /><div class="outline-text-5" id="text-orgheadline27">
+<ol class="org-ol">
+<li>balance: 指名调度算法
+<ul class="org-ul">
+<li>roundrobin: 动态加权轮询，每个后端主机最多接受4128个连接</li>
+<li>static-rr: 静态加权轮询，每个后端主机支持的数量无上限</li>
+<li>leastconn: 分配给最少连接数的后端，适用于长时间的会话(如SQL、SSH等)</li>
+<li>source: 将请求的源地址进行hash运算，并由后端服务器的权重总数相除后派发至某匹配的服务器</li>
+<li>uri: 对URI(不包含主机名)的"?"之前的部分进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器</li>
+<li>uri_param: 对URI中的指定参数(";"后"?"之前的&lt;param&gt;)的值进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器</li>
+<li>hdr(&lt;name&gt;): 对HTTP首部中的参数name的值进行hash运算，并由服务器的总权重相除后派发至某匹配的服务器</li>
+</ul></li>
+<li>hash-type: 指定算法中的hash算法类型
+<ul class="org-ul">
+<li>map-based：取模法(静态)，默认配置</li>
+<li>consistent：一致性hash算法(动态)</li>
+</ul></li>
+<li>bind: 指名监听的端口，只能用于frontend, listen</li>
+<li>mode {tcp|http}: HAProxy的工作模式，默认为tcp</li>
+<li><p>
+log: 为每个实例指定log
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">log global
+log &lt;address&gt; &lt;facility&gt; [&lt;level&gt; [&lt;minlevel&gt;]]
+</pre>
+</div></li>
+<li>maxconn: 设定指定前端的最大连接数，默认为2000</li>
+<li>default_backend: 在没有匹配的"use_backend"规则时为实例指定使用的默认后端</li>
+<li><p>
+use_backend: 条件式匹配后端
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">use_backend backend if ACL...
+</pre>
+</div></li>
+<li><p>
+server: 为backend声明一个server
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">server &lt;name&gt; &lt;addr&gt;[:port] [OPTIONS]
+  name: &#29992;&#20110;&#26085;&#24535;&#21644;&#35686;&#21578;
+
+  OPTIONS: 
+    backup: &#24403;&#20854;&#20182;&#25152;&#26377;&#26381;&#21153;&#22120;&#19981;&#21487;&#29992;&#26102;&#25165;&#21551;&#21160;&#35813;&#26381;&#21153;&#22120;
+    check: &#20581;&#24247;&#29366;&#24577;&#26816;&#27979;
+      inter NUM: &#26816;&#27979;&#26102;&#38388;&#38388;&#38548;(&#21333;&#20301;&#20026;ms)&#65292;&#40664;&#35748;&#20026;2000
+      fall NUM: server&#20174;&#27491;&#24120;&#29366;&#24577;&#36716;&#25442;&#33267;&#31163;&#32447;&#29366;&#24577;&#38656;&#35201;&#25104;&#21151;&#26816;&#26597;&#30340;&#27425;&#25968;
+      rise NUM: server&#20174;&#31163;&#32447;&#29366;&#24577;&#36716;&#25442;&#33267;&#27491;&#24120;&#29366;&#24577;&#38656;&#35201;&#25104;&#21151;&#26816;&#26597;&#30340;&#27425;&#25968;
+      port NUM: &#26816;&#27979;&#30340;&#31471;&#21475;
+    cookie &lt;value&gt;: &#20026;server&#35774;&#23450;cookie&#65292;&#29992;&#20110;&#23454;&#29616;&#25345;&#20037;&#36830;&#25509;&#30340;&#21151;&#33021;&#65292;&#38656;&#35201;&#21551;&#29992;cookie&#21151;&#33021;
+    maxconn NUM: &#27492;&#26381;&#21153;&#25509;&#21463;&#30340;&#24182;&#21457;&#36830;&#25509;&#30340;&#26368;&#22823;&#25968;&#37327;
+    maxqueue NUM: &#35831;&#27714;&#38431;&#21015;&#30340;&#26368;&#22823;&#38271;&#24230;
+    observe {layer4|layer7}: &#26681;&#25454;&#27969;&#37327;&#21028;&#26029;&#21518;&#31471;server&#30340;&#20581;&#24247;&#29366;&#24577;
+    weight: &#25351;&#23450;&#26435;&#37325;&#65292;&#40664;&#35748;&#20026;1&#65292;&#26368;&#22823;&#20026;256&#65292;0&#34920;&#31034;&#19981;&#34987;&#35843;&#24230;
+    redir &lt;prefix&gt;: &#37325;&#23450;&#21521;&#65292;&#25152;&#26377;&#21457;&#24448;&#27492;&#26381;&#21153;&#22120;&#30340;&#35831;&#27714;&#22343;&#20197;302&#21709;&#24212;
+</pre>
+</div></li>
+<li><p>
+option *chk: 设定后端的健康状态检测方式
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">option httpchk [&lt;method&gt; &lt;uri&gt; &lt;head&gt;]
+option tcp-chk
+</pre>
+</div></li>
+<li><p>
+cookie: 启用基于cookie的后端服务器绑定，可以实现浏览器绑定
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">cookie &lt;name&gt; insert indirect [OPTIONS]
+</pre>
+</div></li>
+<li><p>
+stats: 启用状态监控页
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">listen statistics 
+  bind *:9090
+  stats enable
+  stats hide-version  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38544;&#34255;&#29256;&#26412;&#21495; </span>
+  <span style="color: #75715E;">#</span><span style="color: #75715E;">stats scope .  # &#35774;&#23450;&#20316;&#29992;&#30340;backend</span>
+  stats uri /haproxyadmin?stats  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35775;&#38382;&#36335;&#24452;</span>
+  stats realm <span style="color: #E6DB74;">"HAPorxy\ Statistics"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26381;&#21153;&#22120;&#25552;&#31034;</span>
+  stats auth admin:mageedu  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#36134;&#21495;&#21644;&#23494;&#30721;</span>
+  stats admin if TRUE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#31649;&#29702;&#21592;&#21151;&#33021;&#65292;&#21487;&#20197;&#23545;&#21518;&#31471;&#26381;&#21153;&#22120;&#36827;&#34892;&#25805;&#20316;</span>
+</pre>
+</div></li>
+<li><p>
+errorfile: 定义错误状态码返回的页面文件，但404需要后端服务器返回
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">errorfile &lt;code&gt; &lt;file&gt;
+</pre>
+</div></li>
+<li><p>
+errorloc: 定义错误状态码返回的重定向，但404需要后端服务器返回
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">errorloc &lt;code&gt; &lt;url&gt;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;302&#29366;&#24577;&#30721;&#36827;&#34892;&#36820;&#22238;</span>
+errorloc303 &lt;code&gt; &lt;url&gt;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;303&#29366;&#24577;&#30721;&#36827;&#34892;&#36820;&#22238;</span>
+</pre>
+</div></li>
+<li><p>
+capture: 捕获指定参数最近一次出现的第一个值，记录在日志中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">capture request header &lt;name&gt; len &lt;length&gt;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25429;&#33719;&#35831;&#27714;&#25253;&#25991;</span>
+capture response header &lt;name&gt; len &lt;length&gt;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25429;&#33719;&#21709;&#24212;&#25253;&#25991;</span>
+</pre>
+</div></li>
+<li>option httplog: 记录更详细的日志信息</li>
+<li>option logasap: 在HTTP请求处理记录日志，默认是HTTP请求结束后才记录日志，但无法记录传输字节数</li>
+<li><p>
+option forwardfor: 允许在发往服务器的请求首部中插入"X-Forwarded-For"首部，记录客户端地址，用于后端的日志记录
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">option forwardfor [ except &lt;network&gt; ] [ header &lt;name&gt; ] [ if-none ]
+</pre>
+</div></li>
+<li><p>
+http_request: 用于定义访问控制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">http_request allow if ACL...
+http_request deny  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#40664;&#35748;&#35268;&#21017;</span>
+</pre>
+</div></li>
+<li>option http-server-close: 打开与客户端保持连接的断开功能</li>
+<li>option http-pretend-keepalive: 打开与后端的保持连接功能</li>
+<li><p>
+redirect: 重定向访问地址
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">redirect prefix https://www.qiump.com if ACL...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#23450;&#21521;&#20027;&#26426;&#22320;&#22336;&#21644;&#21327;&#35758;</span>
+redirect location / clear-cookie <span style="color: #FD971F;">USERID</span>= if logout  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#23450;&#21521;&#39029;&#38754;&#21644;&#28165;&#38500;cookie</span>
+</pre>
+</div></li>
+<li><p>
+reqadd/rspadd: 添加请求或响应报文首部
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">reqadd &lt;string&gt; [if ACL...] 
+rspadd &lt;string&gt; [if ACL...]
+</pre>
+</div></li>
+<li><p>
+timeout: 定义各种超时时长
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">timeout http-request    10s
+timeout queue           1m
+timeout connect         10s
+timeout client          1m
+timeout server          1m
+timeout http-keep-alive 10s
+timeout check           10s
+</pre>
+</div></li>
+</ol>
+</div></li>
+<li><a id="orgheadline28"></a>ACL测试条件<br  /><div class="outline-text-5" id="text-orgheadline28">
+<div class="org-src-container">
+
+<pre class="src src-conf">acl &lt;aclname&gt; &lt;criterion&gt; [-i] [operator] &lt;value&gt; ...
+  aclname: &#23450;&#20041;ACL&#30340;&#21517;&#23383;&#65292;&#21487;&#20197;&#37325;&#22797;(&#34920;&#31034;&#21512;&#24182;)
+  criterion: &#26816;&#26597;&#26465;&#20214;
+  -i: &#21305;&#37197;&#24573;&#30053;&#22823;&#23567;&#20889;
+  operator: eq&#12289;ge&#12289;gt&#12289;le&#12289;lt&#65292;&#29992;&#20110;&#25968;&#20540;&#30340;&#27604;&#36739;
+  value: &#21487;&#20351;&#29992;&#25972;&#25968;&#33539;&#22260;(1024:65535)&#12289;&#23383;&#31526;&#20018;&#12289;&#27491;&#21017;&#34920;&#36798;&#24335;&#12289;&#32593;&#32476;&#22320;&#22336;
+</pre>
+</div>
+<ul class="org-ul">
+<li>测试条件criterion
+<ol class="org-ol">
+<li><p>
+be_sess_rate(backend) &lt;int&gt;: 测试backend的会话创建速率，一般用于阻止攻击行为
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">acl being_scanned be_sess_rate gt 50
+redirect location /error_pages/denied.html if being_scanned
+</pre>
+</div></li>
+<li><p>
+fe_sess_rate &lt;int&gt;: 测试frontend的会话创建速率
+</p>
+<div class="org-src-container">
+
+<pre class="src src-conf">acl too_fast fe_sess_rate ge 50
+tcp-request inspect-delay 500ms
+tcp-request content accept if ! too_fast  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27979;&#35797;&#36895;&#29575;</span>
+tcp-request content accept if WAIT_END  <span style="color: #75715E;"># </span><span style="color: #75715E;">WAIT_END&#34920;&#31034;&#24310;&#36831;&#26102;&#38388;&#26159;&#21542;&#21040;&#36798;</span>
+</pre>
+</div></li>
+<li>测试请求的路径
+<ul class="org-ul">
+<li>path_beg &lt;str&gt;: 测试请求的路径是否以&lt;str&gt;指定的模式开头</li>
+<li>path_end &lt;str&gt;: 测试请求的路径是否以&lt;str&gt;指定的模式结尾</li>
+<li>path_reg &lt;str&gt;: 对路径进行正则匹配</li>
+</ul></li>
+<li>测试请求的URL
+<ul class="org-ul">
+<li>url_beg &lt;str&gt;</li>
+<li>url_end &lt;str&gt;</li>
+<li>url_reg</li>
+</ul></li>
+<li>method &lt;str&gt;: 测试HTTP请求报文中使用的方法</li>
+<li>测试请求报文的首部
+<ul class="org-ul">
+<li>hdr(header) &lt;str&gt;: 测试请求报文中的所有首部或指定首部是否满足指定的条件</li>
+<li>hdr_beg(header) &lt;str&gt;</li>
+<li>hdr_end(header) &lt;str&gt;</li>
+</ul></li>
+</ol></li>
+<li>多个测试条件可以用逻辑操作符进行组合，如"||"、"!"，默认为"与"</li>
+</ul>
+</div></li></ul>
 </div>
 </div>
 </div>
