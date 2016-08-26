@@ -1,0 +1,84 @@
+#+TITLE: Linux压缩与归档
+#+DATE: 2016-05-18
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux
+#+JEKYLL_PUBLISHED: true
+
+* 常见的压缩工具
+| 压缩工具            | 后缀名 |
+|---------------------+--------|
+| compress/uncompress | .z     |
+| gzip/gunzip         | .gz    |
+| bzip2/bunzip2       | .bz2   |
+| xz/unxz             | .xz    |
+| zip/unzip           | .zip   |
+
+* 常见的归档工具
+tar, cpio, zip
+
+* gzip/gunzip
+#+BEGIN_SRC yaml
+gzip [OPTION]... FILE ...  # 默认压缩后会删除原文件
+  -d: 解压缩，相当于gunzip
+  -c: 将结果输出至标准输出, 可用于重定向
+  -NUM: 指定压缩比(默认是6)
+#+END_SRC
+#+BEGIN_SRC bash
+zcat FILE  # 不显式展开的前提下查看文本文件内容
+#+END_SRC
+
+* bzip2/bunzip2
+#+BEGIN_SRC yaml
+bzip2 [OPTION]... FILE ...
+  -k: keep, 保留原文件
+  -d: 解压缩, 相当于bunzip2
+  -NUM: 压缩比(默认为6)
+#+END_SRC
+#+BEGIN_SRC bash
+bzcat FILE  # 不显式展开的前提下查看文本文件内容
+#+END_SRC
+
+* xz/unxz
+xz的压缩比高
+#+BEGIN_SRC yaml
+xz [OPTION]... FILE ...
+  -k: keep, 保留原文件
+  -d: 解压缩, 相当于unxz
+  -NUM: 压缩比(默认为6)
+#+END_SRC
+#+BEGIN_SRC bash
+xzcat FILE  # 不显式展开的前提下查看文本文件内容
+#+END_SRC
+
+* zip/unzip
+同时支持压缩和打包
+#+BEGIN_SRC yaml
+zip [OPTION]... FILENAME DIRECTORY/*  # 压缩目录
+  -d: 用于删除里边的文件
+#+END_SRC
+#+BEGIN_SRC bash
+unzip FILENAME  # 解压
+#+END_SRC
+
+* tar
+#+BEGIN_SRC yaml
+tar [OPTION]... FILE
+-c: 创建归档文件  # 不会删除原文件
+-t: 查看归档文件列表
+-x: 展开归档文件
+
+-f FILENAME: 指定归档文件
+-C PATH: 指定展开目录(默认为当前目录)
+
+-z: gzip
+-j: bzip2
+-J: xz  # 查询和展开时可以省略
+#+END_SRC
+常用命令
+#+BEGIN_SRC bash
+tar -czf /PATH/FILE.tar.gz FILE...  # 创建归档文件
+tar -tf /PATH/FILE.tar.bz2  # 查询归档文件列表
+tar -xf /PATH/FILE.tar.xz -C /PATH  # 展开归档文件
+#+END_SRC

@@ -3,11 +3,9 @@ title: "httpd与LAMP"
 date: 2016-07-05
 layout: post
 categories: 
-- 网络
+- 服务器
 tags: 
-- Linux 
-- 运维 
-- 网络
+- Linux
 published: true
 comments: 
 ---
@@ -15,58 +13,59 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. httpd的特性</a></li>
-<li><a href="#orgheadline2">2. httpd的功能</a></li>
-<li><a href="#orgheadline27">3. httpd-2.2</a>
+<li><a href="#orgheadline1">1. apache</a></li>
+<li><a href="#orgheadline2">2. httpd的特性</a></li>
+<li><a href="#orgheadline3">3. httpd的功能</a></li>
+<li><a href="#orgheadline28">4. httpd-2.2</a>
 <ul>
-<li><a href="#orgheadline3">程序环境</a></li>
-<li><a href="#orgheadline25">配置文件</a>
+<li><a href="#orgheadline4">程序环境</a></li>
+<li><a href="#orgheadline26">配置文件</a>
 <ul>
-<li><a href="#orgheadline4">配置文件组成</a></li>
-<li><a href="#orgheadline5">测试配置文件语法</a></li>
-<li><a href="#orgheadline6">修改监听的IP和端口</a></li>
-<li><a href="#orgheadline7">持久连接</a></li>
-<li><a href="#orgheadline8">MPM</a></li>
-<li><a href="#orgheadline9">DSO</a></li>
-<li><a href="#orgheadline10">定义文档页面路径</a></li>
-<li><a href="#orgheadline15">站点访问控制</a></li>
-<li><a href="#orgheadline16">定义默认主页面</a></li>
-<li><a href="#orgheadline17">日志设定</a></li>
-<li><a href="#orgheadline18">路径别名</a></li>
-<li><a href="#orgheadline19">设定默认字符集</a></li>
-<li><a href="#orgheadline20">虚拟主机</a></li>
-<li><a href="#orgheadline21">内置的status页面</a></li>
-<li><a href="#orgheadline22">配置https</a></li>
-<li><a href="#orgheadline23">mod_deflate</a></li>
-<li><a href="#orgheadline24">配置php模块</a></li>
+<li><a href="#orgheadline5">配置文件组成</a></li>
+<li><a href="#orgheadline6">测试配置文件语法</a></li>
+<li><a href="#orgheadline7">修改监听的IP和端口</a></li>
+<li><a href="#orgheadline8">持久连接</a></li>
+<li><a href="#orgheadline9">MPM</a></li>
+<li><a href="#orgheadline10">DSO</a></li>
+<li><a href="#orgheadline11">定义文档页面路径</a></li>
+<li><a href="#orgheadline16">站点访问控制</a></li>
+<li><a href="#orgheadline17">定义默认主页面</a></li>
+<li><a href="#orgheadline18">日志设定</a></li>
+<li><a href="#orgheadline19">路径别名</a></li>
+<li><a href="#orgheadline20">设定默认字符集</a></li>
+<li><a href="#orgheadline21">虚拟主机</a></li>
+<li><a href="#orgheadline22">内置的status页面</a></li>
+<li><a href="#orgheadline23">配置https</a></li>
+<li><a href="#orgheadline24">mod_deflate</a></li>
+<li><a href="#orgheadline25">配置php模块</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline26">相关命令</a></li>
+<li><a href="#orgheadline27">相关命令</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline34">4. httpd-2.4</a>
+<li><a href="#orgheadline35">5. httpd-2.4</a>
 <ul>
-<li><a href="#orgheadline28">与http-2.2的区别</a></li>
-<li><a href="#orgheadline29">CentOS6下httpd-2.4的编译</a></li>
-<li><a href="#orgheadline33">httpd-2.4的特殊配置</a>
+<li><a href="#orgheadline29">与http-2.2的区别</a></li>
+<li><a href="#orgheadline30">CentOS6下httpd-2.4的编译</a></li>
+<li><a href="#orgheadline34">httpd-2.4的特殊配置</a>
 <ul>
-<li><a href="#orgheadline30">配置文件类型</a></li>
-<li><a href="#orgheadline31">基于IP的访问控制</a></li>
-<li><a href="#orgheadline32">配置php-fpm</a></li>
+<li><a href="#orgheadline31">配置文件类型</a></li>
+<li><a href="#orgheadline32">基于IP的访问控制</a></li>
+<li><a href="#orgheadline33">配置php-fpm</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline35">5. http压力测试工具</a></li>
-<li><a href="#orgheadline42">6. LAMP</a>
+<li><a href="#orgheadline36">6. http压力测试工具</a></li>
+<li><a href="#orgheadline43">7. LAMP</a>
 <ul>
-<li><a href="#orgheadline36">LAMP组件与工作过程</a></li>
-<li><a href="#orgheadline37">CGI</a></li>
-<li><a href="#orgheadline38">测试php与mysql</a></li>
-<li><a href="#orgheadline39">php</a>
+<li><a href="#orgheadline37">LAMP组件与工作过程</a></li>
+<li><a href="#orgheadline38">CGI</a></li>
+<li><a href="#orgheadline39">测试php与mysql</a></li>
+<li><a href="#orgheadline40">php</a>
 <ul>
-<li><a href="#orgheadline40">php的编译</a></li>
-<li><a href="#orgheadline41">Xcache的编译</a></li>
+<li><a href="#orgheadline41">php的编译</a></li>
+<li><a href="#orgheadline42">Xcache的编译</a></li>
 </ul>
 </li>
 </ul>
@@ -74,26 +73,25 @@ comments:
 </ul>
 </div>
 </div>
-<p>
-介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程，以及php的编译
-</p>
 
 
-
-
-<hr  />
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> apache</h2>
+<div class="outline-text-2" id="text-1">
 <pre class="example">
 httpd开发者创建了apache
 a patchy server = apache
 ASF: apache software foundation
 </pre>
-<div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> httpd的特性</h2>
-<div class="outline-text-2" id="text-1">
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> httpd的特性</h2>
+<div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li>高度模块化: core + modules</li>
-<li>DSO: Dynamic Shared Object，支持动态装卸载，由mod_so模块负责</li>
-<li>MPM: Multi-Processing Modules
+<li><code>高度模块化</code>: core + modules</li>
+<li><code>DSO</code>: Dynamic Shared Object，支持动态装卸载，由 <code>mod_so</code> 模块负责</li>
+<li><code>MPM</code>: Multi-Processing Modules
 <dl class="org-dl">
 <dt>prefork: 多进程模型</dt><dd>一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个</dd>
 <dt>worker: 多线程模型</dt><dd>一个主进程生成多个子进程，每个子进程负责生个多个线程，每个线程响应一个请求</dd>
@@ -102,89 +100,92 @@ ASF: apache software foundation
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline2" class="outline-2">
-<h2 id="orgheadline2"><span class="section-number-2">2</span> httpd的功能</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> httpd的功能</h2>
+<div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li>虚拟主机: IP、Port、FQDN</li>
-<li>CGI: Common Gateway Interface，通用网关接口</li>
-<li>反向代理</li>
-<li>负载均衡</li>
-<li>路径别名</li>
-<li>用户认证机制: basic、digest</li>
+<li>虚拟主机: <code>IP</code>, <code>Port</code>, <code>FQDN</code></li>
+<li><code>CGI</code>: Common Gateway Interface，通用网关接口</li>
+<li><code>反向代理</code></li>
+<li><code>负载均衡</code></li>
+<li><code>路径别名</code></li>
+<li>用户认证机制: <code>basic</code>, <code>digest</code></li>
 <li>支持第三方模块</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline27" class="outline-2">
-<h2 id="orgheadline27"><span class="section-number-2">3</span> httpd-2.2</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">程序环境</h3>
-<div class="outline-text-3" id="text-orgheadline3">
+<div id="outline-container-orgheadline28" class="outline-2">
+<h2 id="orgheadline28"><span class="section-number-2">4</span> httpd-2.2</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">程序环境</h3>
+<div class="outline-text-3" id="text-orgheadline4">
 <dl class="org-dl">
-<dt>配置文件</dt><dd><p class="verse">
-/etc/httpd/conf/httpd.conf<br  />
-/etc/httpd/conf.d/*.conf<br  />
-</p></dd>
-<dt>服务脚本</dt><dd><p class="verse">
-/etc/rc.d/init.d/httpd<br  />
-配置文件: /etc/sysconfig/httpd<br  />
-</p></dd>
-<dt>主程序文件</dt><dd><p class="verse">
-/usr/sbin/httpd: 使用prefork模型<br  />
-/usr/sbin/httpd.event<br  />
-/usr/sbin/httpd.worker<br  />
-</p></dd>
-<dt>日志文件</dt><dd><p class="verse">
-/var/log/httpd/access_log: 访问日志<br  />
-/var/log/httpd/error_log: 错误日志<br  />
-</p></dd>
-<dt>站点文档目录</dt><dd>/var/www/html</dd>
-<dt>模块文件路径</dt><dd>/usr/lib64/httpd/modules</dd>
+<dt>配置文件</dt><dd><ul class="org-ul">
+<li><code>/etc/httpd/conf/httpd.conf</code></li>
+<li><code>/etc/httpd/conf.d/*.conf</code></li>
+</ul></dd>
+<dt>服务脚本</dt><dd><ul class="org-ul">
+<li><code>/etc/rc.d/init.d/httpd</code></li>
+<li>配置文件: <code>/etc/sysconfig/httpd</code></li>
+</ul></dd>
+<dt>主程序文件</dt><dd><ul class="org-ul">
+<li><code>/usr/sbin/httpd</code>: 默认使用prefork模型</li>
+<li><code>/usr/sbin/httpd.event</code></li>
+<li><code>/usr/sbin/httpd.worker</code></li>
+</ul></dd>
+<dt>日志文件</dt><dd><ul class="org-ul">
+<li><code>/var/log/httpd/access_log</code>: 访问日志</li>
+<li><code>/var/log/httpd/error_log</code>: 错误日志</li>
+</ul></dd>
+<dt>站点默认文档目录</dt><dd><code>/var/www/html</code></dd>
+<dt>模块文件路径</dt><dd><code>/usr/lib64/httpd/modules</code></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">配置文件</h3>
-<div class="outline-text-3" id="text-orgheadline25">
-</div><div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">配置文件组成</h4>
-<div class="outline-text-4" id="text-orgheadline4">
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+</div><div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">配置文件组成</h4>
+<div class="outline-text-4" id="text-orgheadline5">
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;">### </span><span style="color: #75715E;">Section 1: Global Environment</span>
+<pre class="src src-yaml"><span style="color: #75715E;">### </span><span style="color: #75715E;">Section 1: Global Environment</span>
+<span style="color: #75715E;">...</span>
 <span style="color: #75715E;">### </span><span style="color: #75715E;">Section 2: 'Main' server configuration</span>
+<span style="color: #75715E;">...</span>
 <span style="color: #75715E;">### </span><span style="color: #75715E;">Section 3: Virtual Hosts</span>
+<span style="color: #75715E;">...</span>
 </pre>
 </div>
 <dl class="org-dl">
 <dt>配置格式</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">directive value 
-  directive: &#19981;&#21306;&#20998;&#22823;&#23567;&#20889;
-  value: &#36335;&#24452;&#21462;&#20915;&#20110;&#25991;&#20214;&#31995;&#32479;
+<pre class="src src-yaml">directive value 
+  <span style="color: #FD971F;">directive</span>: &#19981;&#21306;&#20998;&#22823;&#23567;&#20889;
+  <span style="color: #FD971F;">value</span>: &#36335;&#24452;&#21462;&#20915;&#20110;&#25991;&#20214;&#31995;&#32479;
 </pre>
 </div></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline5" class="outline-4">
-<h4 id="orgheadline5">测试配置文件语法</h4>
-<div class="outline-text-4" id="text-orgheadline5">
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">测试配置文件语法</h4>
+<div class="outline-text-4" id="text-orgheadline6">
 <div class="org-src-container">
 
-<pre class="src src-conf">httpd -t
+<pre class="src src-yaml">httpd -t
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline6" class="outline-4">
-<h4 id="orgheadline6">修改监听的IP和端口</h4>
-<div class="outline-text-4" id="text-orgheadline6">
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">修改监听的IP和端口</h4>
+<div class="outline-text-4" id="text-orgheadline7">
 <div class="org-src-container">
 
-<pre class="src src-conf">Listen [IP:]PORT
+<pre class="src src-yaml">Listen [IP:]PORT
 </pre>
 </div>
 <ul class="org-ul">
@@ -194,15 +195,15 @@ ASF: apache software foundation
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline7" class="outline-4">
-<h4 id="orgheadline7">持久连接</h4>
-<div class="outline-text-4" id="text-orgheadline7">
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">持久连接</h4>
+<div class="outline-text-4" id="text-orgheadline8">
 <p>
 Persistent Connection: 连接建立后，每个资源获取完成后不会断开连接，而是继续等待其它的请求完成
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">KeepAlive {On|Off}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#20851;&#25345;&#20037;&#36830;&#25509;</span>
+<pre class="src src-yaml">KeepAlive {On|Off}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#20851;&#25345;&#20037;&#36830;&#25509;</span>
 MaxKeepAliveRequests 100  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25345;&#20037;&#36830;&#25509;&#35831;&#27714;&#25968;&#37327;&#38480;&#21046;&#65292;&#40664;&#35748;&#20026;100&#20010;</span>
 KeepAliveTimeout 15  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25345;&#20037;&#36830;&#25509;&#26102;&#38388;&#38480;&#21046;&#65292;&#40664;&#35748;&#21333;&#20301;&#20026;&#31186;&#65292;http2.4&#25903;&#25345;&#27627;&#31186;&#32423;&#21035;</span>
 </pre>
@@ -212,9 +213,9 @@ KeepAliveTimeout 15  <span style="color: #75715E;"># </span><span style="color: 
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-4">
-<h4 id="orgheadline8">MPM</h4>
-<div class="outline-text-4" id="text-orgheadline8">
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">MPM</h4>
+<div class="outline-text-4" id="text-orgheadline9">
 <ul class="org-ul">
 <li>httpd-2.2不支持同时编译多个模块，所以只能编译时选定一个</li>
 <li><p>
@@ -222,7 +223,7 @@ rpm安装的包提供三个二进制程序文件，分别用于实现对不同MP
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ps aux | grep httpd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30830;&#35748;&#20351;&#29992;rpm&#21253;&#23433;&#35013;&#30340;httpd&#20351;&#29992;&#30340;MPM&#26426;&#21046;</span>
+<pre class="src src-yaml">ps aux | grep httpd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30830;&#35748;&#20351;&#29992;rpm&#21253;&#23433;&#35013;&#30340;httpd&#20351;&#29992;&#30340;MPM&#26426;&#21046;</span>
 </pre>
 </div>
 <ul class="org-ul">
@@ -234,7 +235,7 @@ prefork的配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;IfModule prefork.c&gt;
+<pre class="src src-yaml">&lt;IfModule prefork.c&gt;
 StartServers       8  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#36827;&#31243;&#25968;</span>
 MinSpareServers    5  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26368;&#23567;&#31354;&#38386;&#36827;&#31243;&#25968;</span>
 MaxSpareServers   20  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26368;&#22823;&#31354;&#38386;&#36827;&#31243;&#25968;</span>
@@ -249,7 +250,7 @@ worker的配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;IfModule worker.c&gt;
+<pre class="src src-yaml">&lt;IfModule worker.c&gt;
 StartServers         4
 MaxClients         300  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26368;&#22823;&#32447;&#31243;&#25968;</span>
 MinSpareThreads     25
@@ -262,19 +263,19 @@ MaxRequestsPerChild  0
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline9" class="outline-4">
-<h4 id="orgheadline9">DSO</h4>
-<div class="outline-text-4" id="text-orgheadline9">
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">DSO</h4>
+<div class="outline-text-4" id="text-orgheadline10">
 <dl class="org-dl">
 <dt>查询模块</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">httpd -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#38745;&#24577;&#32534;&#35793;&#30340;&#27169;&#22359;</span>
+<pre class="src src-yaml">httpd -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#38745;&#24577;&#32534;&#35793;&#30340;&#27169;&#22359;</span>
 httpd -M  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#38745;&#24577;&#32534;&#35793;&#21644;&#21160;&#24577;&#35013;&#36733;&#30340;&#27169;&#22359;</span>
 </pre>
 </div></dd>
 <dt>加载模块</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">LoadModule &lt;mod_name&gt; &lt;mod_path&gt;
+<pre class="src src-yaml">LoadModule &lt;mod_name&gt; &lt;mod_path&gt;
 </pre>
 </div>
 <ul class="org-ul">
@@ -283,12 +284,12 @@ httpd -M  <span style="color: #75715E;"># </span><span style="color: #75715E;">&
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-4">
-<h4 id="orgheadline10">定义文档页面路径</h4>
-<div class="outline-text-4" id="text-orgheadline10">
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">定义文档页面路径</h4>
+<div class="outline-text-4" id="text-orgheadline11">
 <div class="org-src-container">
 
-<pre class="src src-conf">DocumentRoot <span style="color: #E6DB74;">"/var/www/html"</span>
+<pre class="src src-yaml">DocumentRoot <span style="color: #E6DB74;">"/var/www/html"</span>
 </pre>
 </div>
 <ul class="org-ul">
@@ -296,10 +297,10 @@ httpd -M  <span style="color: #75715E;"># </span><span style="color: #75715E;">&
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline15" class="outline-4">
-<h4 id="orgheadline15">站点访问控制</h4>
-<div class="outline-text-4" id="text-orgheadline15">
-</div><ul class="org-ul"><li><a id="orgheadline11"></a>基于资源类型控制<br  /><div class="outline-text-5" id="text-orgheadline11">
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">站点访问控制</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+</div><ul class="org-ul"><li><a id="orgheadline12"></a>基于资源类型控制<br  /><div class="outline-text-5" id="text-orgheadline12">
 <ul class="org-ul">
 <li><p>
 基于文件系统路径
@@ -324,7 +325,7 @@ httpd -M  <span style="color: #75715E;"># </span><span style="color: #75715E;">&
 </ul></li>
 </ul>
 </div></li>
-<li><a id="orgheadline12"></a>基于IP的访问控制<br  /><div class="outline-text-5" id="text-orgheadline12">
+<li><a id="orgheadline13"></a>基于IP的访问控制<br  /><div class="outline-text-5" id="text-orgheadline13">
 <ol class="org-ol">
 <li>Options
 <ul class="org-ul">
@@ -343,7 +344,7 @@ httpd -M  <span style="color: #75715E;"># </span><span style="color: #75715E;">&
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">Order allow,deny  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#31105;&#27490;&#35775;&#38382;</span>
+<pre class="src src-yaml">Order allow,deny  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#31105;&#27490;&#35775;&#38382;</span>
 Order deny,allow  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#20801;&#35768;&#35775;&#38382;</span>
 
 Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;Allow&#21644;Deny&#21015;&#34920;</span>
@@ -354,7 +355,7 @@ Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="
 </ul></li>
 </ol>
 </div></li>
-<li><a id="orgheadline13"></a>基于用户的访问控制<br  /><div class="outline-text-5" id="text-orgheadline13">
+<li><a id="orgheadline14"></a>基于用户的访问控制<br  /><div class="outline-text-5" id="text-orgheadline14">
 <ul class="org-ul">
 <li>认证质询(WWW-Authenticate): 状态码为401，请求用户账号密码</li>
 <li>认证(Authorization): 验证用户账号密码的请求报文
@@ -372,14 +373,14 @@ Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="
 </ul></li>
 </ul>
 </div>
-<ul class="org-ul"><li><a id="orgheadline14"></a>认证过程<br  /><div class="outline-text-6" id="text-orgheadline14">
+<ul class="org-ul"><li><a id="orgheadline15"></a>认证过程<br  /><div class="outline-text-6" id="text-orgheadline15">
 <ol class="org-ol">
 <li><p>
 定义安全域
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;Directory <span style="color: #E6DB74;">"PATH"</span>&gt;
+<pre class="src src-yaml">&lt;Directory <span style="color: #E6DB74;">"PATH"</span>&gt;
     Options None
     AllowOverride None
     AuthType Basic
@@ -395,11 +396,11 @@ Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">htpasswd [options] /PATH/TO/.htpasswd username
-  -c: &#21019;&#24314;passwordfile&#65292;&#20165;&#24212;&#35813;&#22312;&#28155;&#21152;&#31532;&#19968;&#20010;&#29992;&#25143;&#26102;&#20351;&#29992;
-  -m: md5&#21152;&#23494;&#29992;&#25143;&#23494;&#30721;
-  -s: sha1&#21152;&#23494;&#29992;&#25143;&#23494;&#30721;
-  -D: &#21024;&#38500;&#25351;&#23450;&#29992;&#25143;
+<pre class="src src-yaml">htpasswd [options] /PATH/TO/.htpasswd username
+  <span style="color: #FD971F;">-c</span>: &#21019;&#24314;passwordfile&#65292;&#20165;&#24212;&#35813;&#22312;&#28155;&#21152;&#31532;&#19968;&#20010;&#29992;&#25143;&#26102;&#20351;&#29992;
+  <span style="color: #FD971F;">-m</span>: md5&#21152;&#23494;&#29992;&#25143;&#23494;&#30721;
+  <span style="color: #FD971F;">-s</span>: sha1&#21152;&#23494;&#29992;&#25143;&#23494;&#30721;
+  <span style="color: #FD971F;">-D</span>: &#21024;&#38500;&#25351;&#23450;&#29992;&#25143;
 </pre>
 </div></li>
 <li>基于组进行认证
@@ -409,7 +410,7 @@ Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;Directory <span style="color: #E6DB74;">"PATH"</span>&gt;
+<pre class="src src-yaml">&lt;Directory <span style="color: #E6DB74;">"PATH"</span>&gt;
     Options None
     AllowOverride None
     AuthType Basic
@@ -425,50 +426,50 @@ Allow/Deny from IP/NetAddr  <span style="color: #75715E;"># </span><span style="
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">GRP_NAME: user1 user2 user3 ...
-GRP_NAME: user1 user2 user3 ...
+<pre class="src src-yaml"><span style="color: #FD971F;">GRP_NAME</span>: user1 user2 user3 ...
+<span style="color: #FD971F;">GRP_NAME</span>: user1 user2 user3 ...
 </pre>
 </div></li>
 </ul></li>
 </ol>
 </div></li></ul></li></ul>
 </div>
-<div id="outline-container-orgheadline16" class="outline-4">
-<h4 id="orgheadline16">定义默认主页面</h4>
-<div class="outline-text-4" id="text-orgheadline16">
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">定义默认主页面</h4>
+<div class="outline-text-4" id="text-orgheadline17">
 <p>
 访问目录时的默认页面
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">DirecotryIndex index.html index.html.var  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33258;&#24038;&#32780;&#21491;&#25195;&#25551;</span>
+<pre class="src src-yaml">DirecotryIndex index.html index.html.var  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33258;&#24038;&#32780;&#21491;&#25195;&#25551;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">日志设定</h4>
-<div class="outline-text-4" id="text-orgheadline17">
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">日志设定</h4>
+<div class="outline-text-4" id="text-orgheadline18">
 <dl class="org-dl">
 <dt>错误日志</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">ErrorLog logs/error_log  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#23545;&#20110;ServerRoot&#32780;&#35328;&#65292;&#32780;ServerRoot&#20013;&#30340;logs&#25991;&#20214;&#22841;&#20026;/var/log&#30340;&#38142;&#25509;</span>
+<pre class="src src-yaml">ErrorLog logs/error_log  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#23545;&#20110;ServerRoot&#32780;&#35328;&#65292;&#32780;ServerRoot&#20013;&#30340;logs&#25991;&#20214;&#22841;&#20026;/var/log&#30340;&#38142;&#25509;</span>
 LogLevel {debug|info|notice|warn|error|crit|alert|emerg}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#26085;&#24535;&#32423;&#21035;&#65292;&#19968;&#33324;&#20026;warn</span>
 </pre>
 </div></dd>
 <dt>访问日志</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">CustomLog logs/access_log &#26085;&#24535;&#26684;&#24335;&#21517;
+<pre class="src src-yaml">CustomLog logs/access_log &#26085;&#24535;&#26684;&#24335;&#21517;
 LogFormat <span style="color: #E6DB74;">"%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\""</span> combined  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#26684;&#24335;</span>
-  %h: &#23458;&#25143;&#31471;IP&#22320;&#22336;
-  %l: Remote logname (from identd, if supplied). -&#34920;&#31034;&#20026;&#31354;
-  %u: Remote user, (from auth; may be bogus if return status (%s) is 401)
-  %t: &#26381;&#21153;&#22120;&#25910;&#21040;&#35831;&#27714;&#30340;&#26102;&#38388;
-  %r: request&#65292;&#35831;&#27714;&#25253;&#25991;&#30340;&#39318;&#34892;&#20449;&#24687;
-  %&gt;s: &#21709;&#24212;&#29366;&#24577;&#30721;
-  %b: &#21709;&#24212;&#25253;&#25991;&#30340;&#22823;&#23567;&#65292;&#21333;&#20301;&#26159;&#23383;&#33410;&#65292;&#19981;&#21253;&#25324;&#21709;&#24212;&#25253;&#25991;&#39318;&#37096;&#65307;
-  %{Referer}i: &#35831;&#27714;&#25253;&#25991;&#24403;&#20013;<span style="color: #E6DB74;">"referer"</span>&#39318;&#37096;&#30340;&#20540;&#65292;referer&#26159;&#24403;&#21069;&#36164;&#28304;&#30340;&#35775;&#38382;&#20837;&#21475;&#65292;&#21363;&#20174;&#21738;&#20010;&#39029;&#38754;&#20013;&#30340;&#36229;&#38142;&#25509;&#36339;&#36716;&#32780;&#26469;
-  %{User-Agent}i: &#35831;&#27714;&#25253;&#25991;&#24403;&#20013;<span style="color: #E6DB74;">"User-Agent"</span>&#39318;&#37096;&#30340;&#20540;&#65292;&#21363;&#21457;&#20986;&#35831;&#27714;&#29992;&#21040;&#30340;&#24212;&#29992;&#31243;&#24207;
+  <span style="color: #FD971F;">%h</span>: &#23458;&#25143;&#31471;IP&#22320;&#22336;
+  <span style="color: #FD971F;">%l</span>: Remote logname (from identd, if supplied). -&#34920;&#31034;&#20026;&#31354;
+  <span style="color: #FD971F;">%u</span>: Remote user, (from auth; may be bogus if return status (%s) is 401)
+  <span style="color: #FD971F;">%t</span>: &#26381;&#21153;&#22120;&#25910;&#21040;&#35831;&#27714;&#30340;&#26102;&#38388;
+  <span style="color: #FD971F;">%r</span>: request&#65292;&#35831;&#27714;&#25253;&#25991;&#30340;&#39318;&#34892;&#20449;&#24687;
+  <span style="color: #FD971F;">%&gt;s</span>: &#21709;&#24212;&#29366;&#24577;&#30721;
+  <span style="color: #FD971F;">%b</span>: &#21709;&#24212;&#25253;&#25991;&#30340;&#22823;&#23567;&#65292;&#21333;&#20301;&#26159;&#23383;&#33410;&#65292;&#19981;&#21253;&#25324;&#21709;&#24212;&#25253;&#25991;&#39318;&#37096;&#65307;
+  <span style="color: #FD971F;">%{Referer}i</span>: &#35831;&#27714;&#25253;&#25991;&#24403;&#20013;<span style="color: #E6DB74;">"referer"</span>&#39318;&#37096;&#30340;&#20540;&#65292;referer&#26159;&#24403;&#21069;&#36164;&#28304;&#30340;&#35775;&#38382;&#20837;&#21475;&#65292;&#21363;&#20174;&#21738;&#20010;&#39029;&#38754;&#20013;&#30340;&#36229;&#38142;&#25509;&#36339;&#36716;&#32780;&#26469;
+  <span style="color: #FD971F;">%{User-Agent}i</span>: &#35831;&#27714;&#25253;&#25991;&#24403;&#20013;<span style="color: #E6DB74;">"User-Agent"</span>&#39318;&#37096;&#30340;&#20540;&#65292;&#21363;&#21457;&#20986;&#35831;&#27714;&#29992;&#21040;&#30340;&#24212;&#29992;&#31243;&#24207;
 </pre>
 </div>
 <ul class="org-ul">
@@ -477,32 +478,32 @@ LogFormat <span style="color: #E6DB74;">"%h %l %u %t \"%r\" %&gt;s %b \"%{Refere
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">路径别名</h4>
-<div class="outline-text-4" id="text-orgheadline18">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">路径别名</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 <p>
 将指定URL映射到另一个路径
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">Alias /URL/ <span style="color: #E6DB74;">"/PATH/TO/"</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgheadline19" class="outline-4">
-<h4 id="orgheadline19">设定默认字符集</h4>
-<div class="outline-text-4" id="text-orgheadline19">
-<div class="org-src-container">
-
-<pre class="src src-conf">AddDefaultCharset UTF-8
+<pre class="src src-yaml">Alias /URL/ <span style="color: #E6DB74;">"/PATH/TO/"</span>
 </pre>
 </div>
 </div>
 </div>
 <div id="outline-container-orgheadline20" class="outline-4">
-<h4 id="orgheadline20">虚拟主机</h4>
+<h4 id="orgheadline20">设定默认字符集</h4>
 <div class="outline-text-4" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-yaml">AddDefaultCharset UTF-8
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21">虚拟主机</h4>
+<div class="outline-text-4" id="text-orgheadline21">
 <ul class="org-ul">
 <li>实现方案
 <ul class="org-ul">
@@ -515,7 +516,7 @@ LogFormat <span style="color: #E6DB74;">"%h %l %u %t \"%r\" %&gt;s %b \"%{Refere
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">NameVirtualHost IP:HOST  <span style="color: #75715E;"># </span><span style="color: #75715E;">httpd2.2&#20351;&#29992;&#22522;&#20110;hostname&#34394;&#25311;&#20027;&#26426;&#38656;&#35201;&#24320;&#21551;</span>
+<pre class="src src-yaml">NameVirtualHost IP:HOST  <span style="color: #75715E;"># </span><span style="color: #75715E;">httpd2.2&#20351;&#29992;&#22522;&#20110;hostname&#34394;&#25311;&#20027;&#26426;&#38656;&#35201;&#24320;&#21551;</span>
 &lt;VirtualHost <span style="color: #E6DB74;">"IP:PORT"</span>&gt;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20351;&#29992;*</span>
     SeverName hostname
     DocumentRoot <span style="color: #E6DB74;">""</span>
@@ -529,12 +530,12 @@ LogFormat <span style="color: #E6DB74;">"%h %l %u %t \"%r\" %&gt;s %b \"%{Refere
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline21" class="outline-4">
-<h4 id="orgheadline21">内置的status页面</h4>
-<div class="outline-text-4" id="text-orgheadline21">
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">内置的status页面</h4>
+<div class="outline-text-4" id="text-orgheadline22">
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;Location /server-status&gt;
+<pre class="src src-yaml">&lt;Location /server-status&gt;
     SetHandler server-status
     Order deny,allow
     Deny from all
@@ -545,16 +546,16 @@ ExtendedStatus On  <span style="color: #75715E;"># </span><span style="color: #7
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline22" class="outline-4">
-<h4 id="orgheadline22">配置https</h4>
-<div class="outline-text-4" id="text-orgheadline22">
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">配置https</h4>
+<div class="outline-text-4" id="text-orgheadline23">
 <ol class="org-ol">
 <li><p>
 安装ssl模块
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">yum -y install mod_ssl
+<pre class="src src-yaml">yum -y install mod_ssl
 </pre>
 </div></li>
 <li><p>
@@ -562,7 +563,7 @@ ExtendedStatus On  <span style="color: #75715E;"># </span><span style="color: #7
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">LoadModule ssl_module modules/mod_ssl.so
+<pre class="src src-yaml">LoadModule ssl_module modules/mod_ssl.so
 </pre>
 </div></li>
 
@@ -571,7 +572,7 @@ ExtendedStatus On  <span style="color: #75715E;"># </span><span style="color: #7
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">DocumentRoot
+<pre class="src src-yaml">DocumentRoot
 ServerName
 SSLCertificateFile  
 SSLCertificateKeyFile
@@ -588,15 +589,15 @@ SSLCertificateKeyFile
 </ol>
 </div>
 </div>
-<div id="outline-container-orgheadline23" class="outline-4">
-<h4 id="orgheadline23">mod_deflate</h4>
-<div class="outline-text-4" id="text-orgheadline23">
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">mod_deflate</h4>
+<div class="outline-text-4" id="text-orgheadline24">
 <p>
 mod_deflate模块用于压缩页面以优化传输速度，默认模块是启用的但未设置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">SetOutputFilter DEFLATE
+<pre class="src src-yaml">SetOutputFilter DEFLATE
 
 <span style="color: #75715E;"># </span><span style="color: #75715E;">mod_deflate configuration</span>
 <span style="color: #75715E;"># </span><span style="color: #75715E;">Restrict compression to these MIME types</span>
@@ -615,17 +616,17 @@ DeflateCompressionLevel 9  <span style="color: #75715E;"># </span><span style="c
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;User-agent&#26469;&#21028;&#26029;&#29992;&#25143;&#30340;&#27983;&#35272;&#22120;</span>
 BrowserMatch ^Mozilla/4 gzip-only-text/html
 BrowserMatch ^Mozilla/4\.0[678] no-gzip
-BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+BrowserMatch \bMSI[E] <span style="color: #66D9EF;">!no-gzip</span> <span style="color: #66D9EF;">!gzip-only-text/html</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline24" class="outline-4">
-<h4 id="orgheadline24">配置php模块</h4>
-<div class="outline-text-4" id="text-orgheadline24">
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">配置php模块</h4>
+<div class="outline-text-4" id="text-orgheadline25">
 <div class="org-src-container">
 
-<pre class="src src-conf">LoadModule php5_module modules/libphp5.so
+<pre class="src src-yaml">LoadModule php5_module modules/libphp5.so
 
 AddType application/x-httpd-php  .php
 AddType application/x-httpd-php-source  .phps
@@ -636,9 +637,9 @@ DirectoryIndex  index.php  index.html
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">相关命令</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline27">
 <ul class="org-ul">
 <li>htpasswd: basic认证基于文件实现时，用到的账号密码文件生成工具</li>
 <li>apachectl: httpd自带的服务控制脚本</li>
@@ -653,12 +654,12 @@ DirectoryIndex  index.php  index.html
 </div>
 </div>
 
-<div id="outline-container-orgheadline34" class="outline-2">
-<h2 id="orgheadline34"><span class="section-number-2">4</span> httpd-2.4</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">与http-2.2的区别</h3>
-<div class="outline-text-3" id="text-orgheadline28">
+<div id="outline-container-orgheadline35" class="outline-2">
+<h2 id="orgheadline35"><span class="section-number-2">5</span> httpd-2.4</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">与http-2.2的区别</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <dl class="org-dl">
 <dt>新特性</dt><dd><ol class="org-ol">
 <li>MPM支持运行DSO机制，以模块形式按需加载</li>
@@ -680,9 +681,9 @@ DirectoryIndex  index.php  index.html
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline29" class="outline-3">
-<h3 id="orgheadline29">CentOS6下httpd-2.4的编译</h3>
-<div class="outline-text-3" id="text-orgheadline29">
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">CentOS6下httpd-2.4的编译</h3>
+<div class="outline-text-3" id="text-orgheadline30">
 <ol class="org-ol">
 <li>安装开发环境，安装pcre-devel(增强正则表达式)</li>
 <li><p>
@@ -719,7 +720,7 @@ make &amp;&amp; make install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">PidFile  <span style="color: #E6DB74;">"/var/run/httpd.pid"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;pid&#30340;&#25991;&#20214;&#36335;&#24452;</span>
+<pre class="src src-yaml">PidFile  <span style="color: #E6DB74;">"/var/run/httpd.pid"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;pid&#30340;&#25991;&#20214;&#36335;&#24452;</span>
 </pre>
 </div></li>
 <li>使用apachectl启动服务或配置服务脚本
@@ -730,12 +731,12 @@ make &amp;&amp; make install
 </div>
 </div>
 
-<div id="outline-container-orgheadline33" class="outline-3">
-<h3 id="orgheadline33">httpd-2.4的特殊配置</h3>
-<div class="outline-text-3" id="text-orgheadline33">
-</div><div id="outline-container-orgheadline30" class="outline-4">
-<h4 id="orgheadline30">配置文件类型</h4>
-<div class="outline-text-4" id="text-orgheadline30">
+<div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">httpd-2.4的特殊配置</h3>
+<div class="outline-text-3" id="text-orgheadline34">
+</div><div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31">配置文件类型</h4>
+<div class="outline-text-4" id="text-orgheadline31">
 <ul class="org-ul">
 <li>主配置文件: /etc/httpd/conf/httpd.conf</li>
 <li>模块配置文件: /etc/httpd/conf.modules.d/*.conf
@@ -746,9 +747,9 @@ make &amp;&amp; make install
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline31" class="outline-4">
-<h4 id="orgheadline31">基于IP的访问控制</h4>
-<div class="outline-text-4" id="text-orgheadline31">
+<div id="outline-container-orgheadline32" class="outline-4">
+<h4 id="orgheadline32">基于IP的访问控制</h4>
+<div class="outline-text-4" id="text-orgheadline32">
 <ul class="org-ul">
 <li>允许所有主机访问: Require all granted</li>
 <li>拒绝所有主机访问(默认): Require all deny</li>
@@ -767,7 +768,7 @@ make &amp;&amp; make install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">&lt;RequireAll&gt;
+<pre class="src src-yaml">&lt;RequireAll&gt;
     Require all granted
     Require not ip 10.252.46.165
 &lt;/RequireAll&gt;
@@ -776,16 +777,16 @@ make &amp;&amp; make install
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline32" class="outline-4">
-<h4 id="orgheadline32">配置php-fpm</h4>
-<div class="outline-text-4" id="text-orgheadline32">
+<div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">配置php-fpm</h4>
+<div class="outline-text-4" id="text-orgheadline33">
 <ul class="org-ul">
 <li><p>
 主配置文件
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">LoadModule proxy_module modules/mod_proxy.so
+<pre class="src src-yaml">LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
 
 AddType application/x-httpd-php  .php
@@ -799,7 +800,7 @@ DirectoryIndex  index.php  index.html
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ProxyRequests Off
+<pre class="src src-yaml">ProxyRequests Off
 ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/PATH/TO/DOCUMENT_ROOT/$1
 </pre>
 </div></li>
@@ -808,9 +809,9 @@ ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/PATH/TO/DOCUMENT_ROOT/$1
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline35" class="outline-2">
-<h2 id="orgheadline35"><span class="section-number-2">5</span> http压力测试工具</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-orgheadline36" class="outline-2">
+<h2 id="orgheadline36"><span class="section-number-2">6</span> http压力测试工具</h2>
+<div class="outline-text-2" id="text-6">
 <ul class="org-ul">
 <li>普通测试
 <ul class="org-ul">
@@ -819,10 +820,10 @@ ab: apache benchmark，压力测试工具
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ab [OPTIONS] URL
-  -n: &#24635;&#30340;&#35831;&#27714;&#25968;
-  -c: &#27169;&#25311;&#30340;&#24182;&#21457;&#25968;
-  -k: &#20197;&#25345;&#20037;&#36830;&#25509;&#27169;&#24335;&#27979;&#35797;
+<pre class="src src-yaml">ab [OPTIONS] URL
+  <span style="color: #FD971F;">-n</span>: &#24635;&#30340;&#35831;&#27714;&#25968;
+  <span style="color: #FD971F;">-c</span>: &#27169;&#25311;&#30340;&#24182;&#21457;&#25968;
+  <span style="color: #FD971F;">-k</span>: &#20197;&#25345;&#20037;&#36830;&#25509;&#27169;&#24335;&#27979;&#35797;
 
 ulimit -n NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27979;&#35797;&#21069;&#38656;&#35201;&#23558;&#29992;&#25143;&#25171;&#24320;&#25991;&#20214;&#25968;&#30340;&#38480;&#21046;&#25918;&#22823;</span>
 </pre>
@@ -840,12 +841,12 @@ ulimit -n NUM  <span style="color: #75715E;"># </span><span style="color: #75715
 </div>
 </div>
 
-<div id="outline-container-orgheadline42" class="outline-2">
-<h2 id="orgheadline42"><span class="section-number-2">6</span> LAMP</h2>
-<div class="outline-text-2" id="text-6">
-</div><div id="outline-container-orgheadline36" class="outline-3">
-<h3 id="orgheadline36">LAMP组件与工作过程</h3>
-<div class="outline-text-3" id="text-orgheadline36">
+<div id="outline-container-orgheadline43" class="outline-2">
+<h2 id="orgheadline43"><span class="section-number-2">7</span> LAMP</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">LAMP组件与工作过程</h3>
+<div class="outline-text-3" id="text-orgheadline37">
 <ul class="org-ul">
 <li>LAMP组件
 <ul class="org-ul">
@@ -872,9 +873,9 @@ ulimit -n NUM  <span style="color: #75715E;"># </span><span style="color: #75715
 </div>
 </div>
 
-<div id="outline-container-orgheadline37" class="outline-3">
-<h3 id="orgheadline37">CGI</h3>
-<div class="outline-text-3" id="text-orgheadline37">
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">CGI</h3>
+<div class="outline-text-3" id="text-orgheadline38">
 <p>
 CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服务器与后端服务器的交互，其中Web服务器相当于客户端，后端服务器相当于服务器端
 </p>
@@ -885,9 +886,9 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </div>
 </div>
 
-<div id="outline-container-orgheadline38" class="outline-3">
-<h3 id="orgheadline38">测试php与mysql</h3>
-<div class="outline-text-3" id="text-orgheadline38">
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">测试php与mysql</h3>
+<div class="outline-text-3" id="text-orgheadline39">
 <div class="org-src-container">
 
 <pre class="src src-php"><span style="color: #F92672;">&lt;?php</span>
@@ -903,9 +904,9 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </div>
 </div>
 
-<div id="outline-container-orgheadline39" class="outline-3">
-<h3 id="orgheadline39">php</h3>
-<div class="outline-text-3" id="text-orgheadline39">
+<div id="outline-container-orgheadline40" class="outline-3">
+<h3 id="orgheadline40">php</h3>
+<div class="outline-text-3" id="text-orgheadline40">
 <ul class="org-ul">
 <li><p>
 配置文件: /etc/php.ini, /etc/php.d/*.ini
@@ -915,9 +916,9 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">[<span style="color: #66D9EF;">Foo</span>] ;Secion Header
-<span style="color: #FD971F;">directive</span> = value
-<span style="color: #FD971F;">mysql.allow_persistent</span> = on  ;&#36830;&#25509;mysql&#26159;&#21542;&#20351;&#29992;&#25345;&#20037;&#27169;&#24335;
+<pre class="src src-yaml">[Foo] ;Secion Header
+directive = value
+mysql.allow_persistent = on  ;&#36830;&#25509;mysql&#26159;&#21542;&#20351;&#29992;&#25345;&#20037;&#27169;&#24335;
 </pre>
 </div></li>
 <li>php执行过程: php文件 &#x2013;&gt; opcode &#x2013;&gt; excute</li>
@@ -925,16 +926,16 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 </ul>
 </div>
 
-<div id="outline-container-orgheadline40" class="outline-4">
-<h4 id="orgheadline40">php的编译</h4>
-<div class="outline-text-4" id="text-orgheadline40">
+<div id="outline-container-orgheadline41" class="outline-4">
+<h4 id="orgheadline41">php的编译</h4>
+<div class="outline-text-4" id="text-orgheadline41">
 <ol class="org-ol">
 <li><p>
 解决依赖关系
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">yum -y groupinstall <span style="color: #E6DB74;">"Desktop Platform Development"</span> 
+<pre class="src src-yaml">yum -y groupinstall <span style="color: #E6DB74;">"Desktop Platform Development"</span> 
 yum -y install bzip2-devel libmcrypt-devel libxml2-devel
 </pre>
 </div></li>
@@ -946,9 +947,9 @@ yum -y install bzip2-devel libmcrypt-devel libxml2-devel
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">tar xf php-5.4.26.tar.bz2
+<pre class="src src-yaml">tar xf php-5.4.26.tar.bz2
 cd php-5.4.26
-<span style="color: #FD971F;">./configure --prefix</span>=/usr/local/php --with-mysql=/usr/local/mysql --with-openssl --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml  --enable-sockets --enable-fpm --with-apxs2=/usr/local/apache/bin/apxs --with-mcrypt  --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-bz2  --enable-maintainer-zts
+./configure --prefix=/usr/local/php --with-mysql=/usr/local/mysql --with-openssl --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml  --enable-sockets --enable-fpm --with-apxs2=/usr/local/apache/bin/apxs --with-mcrypt  --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-bz2  --enable-maintainer-zts
 
 make &amp;&amp; make install
 </pre>
@@ -958,7 +959,7 @@ make &amp;&amp; make install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">cp php.ini-production /etc/php.ini
+<pre class="src src-yaml">cp php.ini-production /etc/php.ini
 </pre>
 </div></li>
 <li><p>
@@ -966,7 +967,7 @@ make &amp;&amp; make install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">cp sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
+<pre class="src src-yaml">cp sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
 chmod +x /etc/rc.d/init.d/php-fpm
 chkconfig --add php-fpm
 chkconfig php-fpm on
@@ -980,11 +981,11 @@ cp /usr/local/php5/etc/php-fpm.conf.default /etc/php-fpm.conf
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">pm.max_children</span> = 50
-<span style="color: #FD971F;">pm.start_servers</span> = 5
-<span style="color: #FD971F;">pm.min_spare_servers</span> = 2
-<span style="color: #FD971F;">pm.max_spare_servers</span> = 8
-<span style="color: #FD971F;">pid</span> = /usr/local/php5/var/run/php-fpm.pid  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19982;&#26381;&#21153;&#33050;&#26412;&#20445;&#25345;&#19968;&#33268;</span>
+<pre class="src src-yaml">pm.max_children = 50
+pm.start_servers = 5
+pm.min_spare_servers = 2
+pm.max_spare_servers = 8
+pid = /usr/local/php5/var/run/php-fpm.pid  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19982;&#26381;&#21153;&#33050;&#26412;&#20445;&#25345;&#19968;&#33268;</span>
 </pre>
 </div></li>
 </ul></li>
@@ -992,19 +993,19 @@ cp /usr/local/php5/etc/php-fpm.conf.default /etc/php-fpm.conf
 </div>
 </div>
 
-<div id="outline-container-orgheadline41" class="outline-4">
-<h4 id="orgheadline41">Xcache的编译</h4>
-<div class="outline-text-4" id="text-orgheadline41">
+<div id="outline-container-orgheadline42" class="outline-4">
+<h4 id="orgheadline42">Xcache的编译</h4>
+<div class="outline-text-4" id="text-orgheadline42">
 <ol class="org-ol">
 <li><p>
 编译安装
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">tar xf xcache-3.0.3.tar.gz
+<pre class="src src-yaml">tar xf xcache-3.0.3.tar.gz
 cd xcache-3.0.3
 /usr/local/php/bin/phpize
-<span style="color: #FD971F;">./configure --enable-xcache --with-php-config</span>=/usr/local/php/bin/php-config
+./configure --enable-xcache --with-php-config=/usr/local/php/bin/php-config
 make &amp;&amp; make install
 </pre>
 </div>
@@ -1016,7 +1017,7 @@ make &amp;&amp; make install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">mkdir /etc/php.d
+<pre class="src src-yaml">mkdir /etc/php.d
 cp xcache.ini /etc/php.d
 </pre>
 </div></li>
@@ -1025,8 +1026,8 @@ cp xcache.ini /etc/php.d
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#36753;xcache.ini&#65292;&#20540;&#20351;&#29992;&#31532;&#19968;&#27493;&#30340;&#25552;&#31034;&#32467;&#26524;</span>
-<span style="color: #FD971F;">zend_extension</span> = /usr/local/php/lib/php/extensions/no-debug-zts-20100525/xcache.so
+<pre class="src src-yaml"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#32534;&#36753;xcache.ini&#65292;&#20540;&#20351;&#29992;&#31532;&#19968;&#27493;&#30340;&#25552;&#31034;&#32467;&#26524;</span>
+zend_extension = /usr/local/php/lib/php/extensions/no-debug-zts-20100525/xcache.so
 </pre>
 </div></li>
 </ol>

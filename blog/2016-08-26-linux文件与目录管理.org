@@ -1,0 +1,350 @@
+#+TITLE: Linux文件与目录管理
+#+DATE: 2016-05-18
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux
+#+JEKYLL_PUBLISHED: true
+
+
+* FHS(FileSystem Heirache Standard)
+** rootfs
+| 目录           | 用途                                                                            |
+|----------------+---------------------------------------------------------------------------------|
+| /boot          | 引导文件存放目录，内核文件(vmlinuz)、引导加载器(bootloader, grub)都存放于此目录 |
+| /bin           | 供所有用户使用的基本命令；不能关联至独立分区，OS启动即会用到的程序              |
+| /sbin          | 管理类的基本命令；不能关联至独立分区，OS启动即会用到的程序                      |
+| /lib           | 基本共享库文件，以及内核模块文件(/lib/modules)                                  |
+| /lib64         | 专用于x86_64系统上的辅助共享库文件存放位置                                      |
+| /etc           | 配置文件目录(纯文本文件)                                                        |
+| /home/USERNAME | 普通用户家目录                                                                  |
+| /root          | 管理员的家目录                                                                  |
+| /media         | 便携式移动设备(cdrom, usb)挂载点                                                |
+| /mnt           | 临时文件系统挂载点                                                              |
+| /dev           | 设备文件及特殊文件存储位置                                                      |
+| /opt           | 第三方应用程序的安装位置                                                        |
+| /srv           | 系统上运行的服务用到的数据                                                      |
+| /tmp           | 临时文件存储位置                                                                |
+| /usr           | universal shared、read-only data                                                |
+| /var           | variable data files                                                             |
+| /proc          | 用于输出内核与进程信息相关的虚拟文件系统                                        |
+| /sys           | 用于输出当前系统上硬件设备相关信息的虚拟文件系统                                |
+| /selinux       | security enhanced Linux，selinux相关的安全策略等信息的存储位置                  |
+** /etc目录
+| 目录      | 用途                   |
+|-----------+----------------------------|
+| /etc/opt  | 安装在/opt下的软件配置文件 |
+| /etc/X11  | X Window System的配置文件  |
+| /etc/xml  |                            |
+| /etc/sgml |                            |
+** /usr目录
+| 目录         | 用途                                                                  |
+|--------------+-----------------------------------------------------------------------------|
+| /usr/bin     | 保证系统拥有完整功能而提供的应用程序                                        |
+| /usr/sbin    | 管理类命令                                                                  |
+| /usr/lib     |                                                                             |
+| /usr/lib64   |                                                                             |
+| /usr/include | C程序的头文件(header files)，描述库文件的调用接口                           |
+| /usr/share   | 结构化独立的数据，例如doc, man等                                            |
+| /usr/src     | 源代码放置位置                                                              |
+| /usr/local   | 第三方应用程序的安装位置，同样包含了bin、sbin、lib、lib64、etc、share等目录 |
+** /var目录
+| 目录       | 用途                                              |
+|------------+---------------------------------------------------|
+| /var/cache | 应用程序缓存数据目录                              |
+| /var/lib   | 应用程序状态信息数据                              |
+| /var/local | 专用于为/usr/local下的应用程序存储可变数据        |
+| /var/lock  | 锁文件                                            |
+| /var/log   | 日志目录及文件                                    |
+| /var/mail  | 存放邮件                                          |
+| /var/opt   | 专用于为/opt下的应用程序存储可变数据              |
+| /var/run   | 运行中的进程相关的数据；通常用于存储进程的pid文件 |
+| /var/spool | 应用程序数据池                                    |
+| /var/tmp   | 保存系统两次重启之间产生的临时数据                |
+
+* 应用程序的组成部分
+| 文件类型   | 相关文件夹                                                                 |
+|------------+----------------------------------------------------------------------------|
+| 二进制程序 | /bin、/sbin、/usr/bin、/usr/sbin、/usr/local/bin、/usr/local/sbin          |
+| 库文件     | /lib、/lib64、/usr/lib、/usr/lib64、/usr/local/lib、/usr/local/lib64       |
+| 配置文件   | /etc、/etc/DIRECTORY、/usr/local/etc                                       |
+| 帮助文件   | /usr/share/man、/usr/share/doc、/usr/local/share/man、/usr/local/share/doc |
+
+* 文件类型
+| 类型字符 | 文件类型                                 |
+|----------+------------------------------------------|
+| -(f)     | 普通文件(纯文本文件\二进制文件\数据文件) |
+| d        | 目录                                     |
+| l        | 连接文件，类似windows下快捷方式          |
+| b        | 块设备文件(可存储数据，随机访问)         |
+| c        | 字符设备文件(鼠标\键盘，线性)            |
+| s        | sockets                                  |
+| p        | 管道(FIFO)                               |
+
+* 文件属性
+** 文件元数据
+文件有两类数据: 元数据和数据
+- 元数据: metadata(如索引等)
+  #+BEGIN_SRC yaml
+  stat FILE  # 获取指定文件的元数据
+  #+END_SRC
+- 数据: data
+
+** 文件名
+- 文件名严格区分字符大小写
+- 文件名可使用除 =/= 以外的任意字符，但不建议使用特殊字符
+  : / 为根目录，同时也是路径分隔符
+- 文件名长度最长不能超过255个字符
+- 所有.开头的文件，均为隐藏文件
+   
+** 文件路径
+- 绝对路径: 从根目录 =/= 起始的路径
+- 相对路径: 从当前位置(working directory)起始的路径
+- 特殊路径
+  - =.=: 当前目录
+  - =..=: 当前目录的上一级目录
+  - =-=: 上一个工作目录
+#+BEGIN_SRC bash
+pwd  # printing working directory
+
+basename PATH  # 显示PATH的基名
+dirname PATH  # 显示PATH除基名以外的部分
+#+END_SRC
+- 相关的环境变量 ::
+  - PWD: 保存了当前的目录路径
+  - OLDPWD: 上一次所在目录路径
+
+** 文件时间戳
+- access time: 访问时间(atime)，读取文件内容的时间
+- modify time: 修改时间(mtime)，改变文件内容(数据)的时间
+- change time: 改变时间(ctime)，元数据发生改变(包含时间戳的改变)的时间
+#+BEGIN_SRC yaml
+touch [OPTION]... FILE...  # 改变文件时间戳或创建文件
+  -a: only atime  # touch默认把3个时间都改为当前时间
+  -m: only mtime
+  -t [[CC]YY]MMDDhhmm[.ss]: 指定时间
+
+  -c: 不自动创建空文件
+#+END_SRC
+** 文件的类型
+#+BEGIN_SRC bash
+file FILE  # 查看文件内容的类型 
+#+END_SRC
+- Linux的可执行文件格式是 ELF binaries
+
+* 目录切换与查询
+** cd
+切换工作目录
+#+BEGIN_SRC yaml
+cd  # 回到当前用户的主目录
+cd ~USERNAME  # 切换至指定用户的主目录
+cd -  # 在上一个目录和当前目录之间来回切换
+#+END_SRC
+
+** ls
+显示指定路径下的文件列表
+#+BEGIN_SRC yaml
+ls [OPTION]... [DIR]...
+  -a, --all: 显示所有文件，包括隐藏文件
+  -l: 长格式
+  -d: 显示目录自身的相关属性，通常要与-l一起使用
+  -h, --human-readable: 单位换算
+  -r, --reverse: 逆序显示
+  -R, --recursive: 递归
+
+  -Z: 显示SELinux权限
+#+END_SRC
+- 长格式说明 ::
+  [[../images/ls.gif]]
+  - -rw-r--r-- 最左侧的一位表示文件类型
+
+** tree
+列出目录的层级结构
+#+BEGIN_SRC yaml
+tree /path/to 
+  -d: 只显示目录
+  -L level: 指定显示的层级数目
+  -P pattern: 只显示由指定pattern匹配到的路径
+#+END_SRC
+
+* 文件与目录的管理
+** cp
+通过文件接口复制
+#+BEGIN_SRC yaml
+cp [OPTION]... SOURCE... DIRECTORY
+cp [OPTION]... -t DIRECTORY SOURCE...
+  -i: 交互式
+  -r, -R: 递归复制目录及内部的所有内容
+  -a: 归档，相当于-dr --preserv=all
+    -d: 不跟踪符号文件链接(默认会跟踪复制原文件)
+    --preserv[=ATTR_LIST]: 保留属性，如mode,ownership,timestamp,links,xattr,context,all
+  -p: 相当于--preserv=mode,ownership,timestamp
+  -v: 显示详细信息
+  -f: --force
+#+END_SRC
+#+BEGIN_SRC yaml
+cp SRC DEST
+  如果目标不存在: 新建DEST，并将SRC中内容填充到DEST中
+  如果目标存在: 
+    如果DEST是文件: 将SRC中的内容覆盖到DEST中(使用-i以确认)
+    如果DEST是目录: 将SRC复制到该目录下
+
+cp SRC... DEST
+  DEST必须存在，且为目录
+
+cp -r 目录SRC DEST
+  如果目标不存在: 新建DEST目录，复制SRC中所有文件至DEST中
+  如果DEST存在且为目录: 在DEST中创建与SRC同名的目录，复制SRC中的所有文件至该目录中
+#+END_SRC
+** install
+类似于cp，但同时可以更改权限和属主属组
+#+BEGIN_SRC bash
+install [OPTION]... [-T] SOURCE DEST  # 相当于cp
+install [OPTION]... SOURCE... DIRECTORY  # 相当于cp
+install [OPTION]... -t DIRECTORY SOURCE...  # 相当于cp
+install [OPTION]... -d DIRECTORY...  # 创建目录
+  -m MODE
+  -o OWNER
+  -g GROUP
+#+END_SRC
+** dd
+比较底层的复制命令，可用于文件或磁盘的复制
+#+BEGIN_SRC yaml
+dd [OPTIONS] if=/PATH/SRC of=/PATH/DEST
+  bs=NUM: block size, 复制单元的大小
+  count=NUM: 复制多少个bs
+#+END_SRC
+#+BEGIN_SRC bash
+dd if=/dev/sda of=/dev/sdb  # 复制磁盘
+dd if=/dev/sda of=/... bs=512 count=1  # 备份MBR
+dd if=/dev/zero of=/dev/sda bs=256 count=1  # 破坏MBR的bootloader
+#+END_SRC
+
+** mv
+移动文件或目录，也可以用于重命名
+#+BEGIN_SRC yaml
+mv [OPTION]... SOURCE... DIRECTORY
+mv [OPTION]... -t DIRECTORY SOURCE...
+  -i: 交互式
+  -f: 强制
+#+END_SRC
+
+** rm
+删除文件或目录
+#+BEGIN_SRC yaml
+rm [OPTION]... FILE...
+  -i: 交互式
+  -f: 强制删除
+  -r: 递归删除目录
+#+END_SRC
+
+** mkdir, rmdir
+#+BEGIN_SRC yaml
+mkdir [OPTION]... /path/to...  # 创建目录
+  -p: 当目录存在时不报错，且可自动创建所需的各目录
+  -v: 显示详细信息
+  -m MODE: 创建目录时直接指定权限
+#+END_SRC
+#+BEGIN_SRC yaml
+rmdir [OPTION]... /path/to...  # 只能删除空目录
+  -p: 层级删除空目录 
+  -v: 显示详细信息
+#+END_SRC
+
+** mktemp
+创建临时文件
+#+BEGIN_SRC yaml
+mktemp [OPRIONS] [TEMPLATE]
+  -d: 创建临时目录
+  -p /PATH/SOMEWHERE: 指名临时文件目录的位置(默认为当前目录)
+  TEMPLATE: 类似于filename.XXX(X会被替换成随机字符, 且至少出现三个)
+#+END_SRC
+
+* 文件查找
+** 文件查找的类型
+文件查找是在文件系统上查找符合条件的文件
+- 非实时的查找(数据库查找): locate
+- 实时查找: find
+
+** locate
+- locate依赖于事先构建的索引进行搜索
+  - 索引的构建是在系统较为空闲时自动进行(周期性任务)
+  - 手动更新数据库(=updatedb=)
+  - 索引构建过程需要遍历整个根文件系统，极消耗资源，小心使用
+- 工作特点
+  - 查找速度快
+  - 模糊查找: 匹配完整的路径
+  - 非实时查找
+#+BEGIN_SRC bash
+locate KEYWORD  
+updatedb  # 更新数据库
+#+END_SRC
+
+** find
+find是个实时查找工具，通过遍历指定路径下的文件系统完成文件查找
+- 工作特点
+  - 查找速度略慢
+  - 精确查找
+  - 实时查找
+#+BEGIN_SRC yaml
+find [OPTION]... [查找路径] [查找条件] [处理动作]
+  -Olevel: 指定搜索的路径深度
+
+  查找路径: 指定具体目标路径(默认为当前目录)
+  查找条件: 指定的查找标准，可以文件名、大小、类型、权限等标准进行(默认为找出指定路径下的所有文件)
+  处理动作: 对符合条件的文件做什么操作(默认输出至屏幕)
+#+END_SRC
+- 查找条件 ::
+  - 根据文件名查找
+    - =-name 文件名称=: 使用glob精确匹配文件名
+    - =-iname 文件名称=: 不区分字母大小写
+    - =-regex PATTERN=: 以PATTERN匹配整个文件路径字符串，而不仅仅是文件名称
+  - 根据属主/组查找
+    - =-user USERNAME=: 查找属主为指定用户的文件
+    - =-group GROUPNAME=: 查找属组为指定组的文件
+    - =-uid UID=: 查找属主为指定的UID号的文件
+    - =-gid GID=: 查找属组为指定的GID号的文件
+    - =-nouser=: 查找没有属主的文件
+    - =-nogroup=: 查找没有属组的文件
+  - 根据文件类型查找
+    - =-type TYPE=: TYPE可以是f/d/l/s/b/c/p
+  - 根据文件大小查找
+    - =-size [+|-]NUM[k|M|G]=
+    | 数量 | 范围         |
+    |------+--------------|
+    | NUM  | (NUM-1, NUM] |
+    | -NUM | [0, NUM-1]   |
+    | +NUM | (NUM, oo)    |
+  - 根据时间戳，即多少时间之前
+    - 以天为单位
+      - =-atime [+|-]NUM=
+      - =-mtime [+|-]NUM=
+      - =-ctime [+|-]NUM=
+    - 以分钟为单位
+      - =-amin [+|-]NUM=
+      - =-mmin [+|-]NUM=
+      - =-cmin [+|-]NUM=
+    | 数量 | 范围         |
+    |------+--------------|
+    | NUM  | [NUM, NUM+1) |
+    | -NUM | [0, NUM)     |
+    | +NUM | [NUM+1,oo]   |
+  - 根据权限查找:
+    - =-perm [/|-]MODE=
+      - =MODE=: 精确权限匹配，即MODE中所有位都必须被匹配
+      - =-MODE=: MODE中所有权限位为1的都必须被匹配
+      - =/MODE=: MODE中所有权限位为1的有一个被匹配即可
+  - 组合条件
+    - 与: =-a= (可省略)
+    - 或: =-o=
+    - 非: =-not= 、 =!=
+    - 组合条件同时也会将处理动作分开，即处理动作只作用与后半部分的结果。所以最好用括号 =\( \)= 将查找条件与处理动作分开
+- 处理动作 ::
+  - =-print=: 默认的处理动作，直接将文件名显示至屏幕
+  - =-ls=: 类似于对查找到的文件执行 =ls -l= 命令
+  - =-fls /path/to/somefile=: 查找到的所有文件的长格式信息保存至指定文件中
+  - =-delete=: 删除查找到的文件，小心操作
+  - =-exec COMMAND {} \;=: 对查找到的每个文件执行由COMMAND指定的命令
+  - =-ok COMMAND {} \;=: 对查找到的每个文件执行由COMMAND指定的命令，执行前会交互式要求用户确认
+    - ={}=: 用于引用查找到的文件名称自身
+  - 注意: find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性传递给后面的命令，有些命令不能接受过多参数，可以使用 =find | xargs COMMAND= 来解决

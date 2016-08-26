@@ -1,58 +1,53 @@
-#+TITLE: ansible
+#+TITLE: Ansible
 #+DATE: 2016-08-02
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 发布系统
 #+JEKYLL_PUBLISHED: true
 
-TODO
 
-
-
-
------
-* 运维工具
-运维工作：系统安装(物理机、虚拟机) -> 程序包安装、配置、服务启动 -> 批量操作 -> 程序发布 -> 监控
+* 运维工具的分类
+** 运维工作
+=系统安装(物理机、虚拟机)= > =程序包安装、配置、服务启动= > =批量操作= > =程序发布= > =监控=
 ** 按照功能分类
-- OS Provisioning
-  - 物理机：PXE、Cobbler
-  - 虚拟机：Image Templates
-- OS Config
-  - puppet(ruby)
-  - saltstack(python)
-  - func
-  - Ansible(python)
-- Deployment
-  - fabric
-  - Ansible
+- OS Provisioning ::
+  - 物理机: =PXE= , =Cobbler= 
+  - 虚拟机: =Image Templates=
+- OS Config ::
+  - =puppet= (ruby)
+  - =saltstack= (python)
+  - =func=
+  - =Ansible= (python)
+- Deployment ::
+  - =fabric=
+  - =Ansible=
 ** 按照过程分类
-- agent: 需要部署客户端
-  - puppet
-  - func
-- agentless: 不需要部署客户端，使用ssh
-  - ansible
-  - fabric
+- agent :: 需要部署客户端
+  - =puppet=
+  - =func=
+- agentless :: 不需要部署客户端，使用ssh进行交互
+  - =ansible=
+  - =fabric=
 * ansible的核心组件
-- ansible core
-  - core modules
-  - custom modules
-- host inventory: 定义主机列表
-- playbook: 将多个任务写入yaml文件中
-- connect plugin
+- =ansible core=: core modules、custom modules
+- =host inventory=: 定义主机列表
+- =playbook=: 将多个任务写入yaml文件中
+- =connect plugin=
 * ansible的特性
-- 基于Python语言实现，由Paramiko、PyYAML和Jinja2三个关键模块
-- agentless
+- 基于Python语言实现，依赖 =Paramiko= 、 =PyYAML= 和 =Jinja2= 三个关键模块
+- =agentless= 
 - 主从模式，使用SSH协议
 - 支持自定义模块
 - 支持Playbook
 - 模块化，调用特定的模块，完成特定的任务
 * 配置
 ** 配置文件
-- 配置文件: /etc/ansible/ansible.cfg
-- Inventory: /etc/ansible/hosts
+- 配置文件: =/etc/ansible/ansible.cfg=
+- Inventory: =/etc/ansible/hosts=
 ** Inventory
-#+BEGIN_SRC conf
+定义主机列表
+#+BEGIN_SRC yaml
 [group_name]  # 定义组名
 IP/hostname[:port] name=value name=value  # 为playbook传递自定义变量
 172.16.100.[001:100]  # 可以制定连续的模式
@@ -65,127 +60,127 @@ group_name
 name=value
 ...
 #+END_SRC
-- Inventory文件中还可以定义特殊变量来规定连接的端口、用户名、密码等设定
+: Inventory文件中还可以定义特殊变量来规定连接的端口、用户名、密码等设定
 * 模块
 ** 查询模块
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 ansible-doc -l  # 列出所有模块
 ansible-doc -s MODULE_NAME  # 查询模块帮助
 #+END_SRC
 ** 模块的使用
-#+BEGIN_SRC sh
+#+BEGIN_SRC yaml
 ansible <host-pattern> [-f forks] [-m module_name] [-a args]	
   host-pattern: 指定组名或all
   -f forks: 启动的并发线程数
   -m module_name: 要使用的模块(默认为command模块)
-  -a 'args': 模块的参数
+  -a 'args': 模块的参数，多个参数之间用空格隔开
 #+END_SRC
 ** 常见模块
-- command: 默认模块，不通过用户shell环境运行，即不支持 =$HOME= 和特殊符号如 =<= =>= =|= =&=
-  #+BEGIN_SRC conf
+- command :: 默认模块，不通过用户shell环境运行，即不支持 =$HOME= 和特殊符号如 =<=, =>=, =|=, =&=
+  #+BEGIN_SRC bash
   ansible all -a 'COMMAND'
   #+END_SRC
-- shell: 使用用户的shell环境运行，支持特殊符号和变量
-  #+BEGIN_SRC conf
+- shell :: 使用用户的shell环境运行，支持特殊符号和变量
+  #+BEGIN_SRC bash
   ansible all -m shell -a 'echo yes | passwd --stdin user'
   #+END_SRC
-- script
-  #+BEGIN_SRC conf
+- script :: 远程执行脚本
+  #+BEGIN_SRC bash
   ansible all -m script -a '/path/to/script'
   #+END_SRC
-- ping
-  #+BEGIN_SRC conf
+- ping :: 用于ping主机
+  #+BEGIN_SRC bash
   ansible all -m ping 
   #+END_SRC
-- setup: 用于显示ansible所收集的主机信息fasts，可用于playbook中
-  #+BEGIN_SRC conf
+- setup :: 用于显示ansible所收集的主机信息 =facts= ，可用于playbook中
+  #+BEGIN_SRC bash
   ansible all -m setup
   #+END_SRC
-- cron: 管理任务
-  - 任务名: name
-  - 任务属性参数: minute、hour、day、month、weekday、job、user
-  - 任务管理参数: state=present(添加)、status=absent(删除)
-- user: 添加和删除用户
-  - 用户参数: name、system(是否为系统用户)、uid、group
-  - 用户管理参数: state={present|absent}
-- group: 添加和删除组
-  - 组参数: name、system(是否为系统组)、gid
-  - 组管理参数: state={present|absent}
-- copy: 复制文件
-  - 文件属性参数: mode、owner、group
-  - 文件路径: src(本地文件路径)、content(自己指定文件的内容)、dest(远程上的目标绝对路径)
-- template: 复制文件，同时动态替换该文件中的变量
-  - 文件属性参数: mode、owner、group
-  - 文件路径: src(本地模板文件路径)、content(自己指定文件的内容)、dest(远程上的目标绝对路径)
-  - 模板文件中需要动态分配的值使用 ={{ Jinjia2 }}= 代替
-- file: 设定文件属性
-  - 文件属性参数: mode、owner、group
-  - 文件路径: path(指定目标文件)、src(指定link的源文件)
-  - 操作: state={directory|link(创建链接文件)|present|absent}
-- service
-  - 服务名: name
-  - 服务操作: state={started|stopped|restarted|reloaded}
-  - 是否开机启动: enabled={true|false}
-- yum
-  - 程序包名: name
-  - 程序包操作: state={latest|absent}
+- cron :: 添加与删除任务
+  - 任务名: =name= 
+  - 任务属性参数: =minute=, =hour=, =day=, =month=, =weekday=, =job=, =user=
+  - 任务管理参数: =state=present= (添加), =status=absent= (删除)
+- user :: 添加和删除用户
+  - 用户参数: =name=, =system= (是否为系统用户), =uid=, =group=
+  - 用户管理参数: =state={present|absent}=
+- group :: 添加和删除组
+  - 组参数: =name=, =system= (是否为系统组), =gid=
+  - 组管理参数: =state={present|absent}=
+- copy :: 复制文件
+  - 文件属性参数: =mode=, =owner=, =group=
+  - 文件路径: =src= (本地文件路径), =content= (自己指定文件的内容), =dest= (远程上的目标绝对路径)
+- template :: 复制文件，同时动态替换该文件中的变量
+  - 文件属性参数: =mode=, =owner=, =group=
+  - 文件路径: =src= (本地模板文件路径), =content= (自己指定文件的内容), =dest= (远程上的目标绝对路径)
+  - 模板文件中需要替换的变量使用 ={{ Jinjia2 }}= 代替
+- file :: 设定文件属性
+  - 文件属性参数: =mode=, =owner=, =group=
+  - 文件路径: =path= (指定目标文件), =src= (指定link的源文件)
+  - 操作: =state={directory|link(创建链接文件)|present|absent}=
+- service :: 管理服务
+  - 服务名: =name=
+  - 服务操作: =state={started|stopped|restarted|reloaded}=
+  - 是否开机启动: =enabled={true|false}=
+- yum :: 安装和卸载软件
+  - 程序包名: =name=
+  - 程序包操作: =state={latest|absent}=
 * Playbook
 ** YAML
-- 通过缩进构建结构，也可以使用{..,..}合并
-- 同一类数据称为list，以"-"开头
-- 键值对使用":"分隔
+- 通过缩进构建结构，也可以使用 ={..,..}= 合并
+- 同一类数据称为 =list= ，以 =-= 开头
+- 键值对使用 =:= 分隔
 ** 变量
-- facts: 即模块setup的返回值
-- 命令行传递: -e "name=value name=value"
-- 通过roles传递变量
-- 在Inventory中定义变量
+-  =facts=: 即模块 =setup= 的返回值
+- 命令行传递: =-e=
+- 通过 =roles= 传递变量
+- 在 =Inventory= 中定义变量
 - 在playbook中，使用 ={{ var }}= 来引用变量， ={{ }}= 中可以使用算术运算符
 ** 定义playbook
 #+BEGIN_SRC yaml
-  - hosts: group_name  # 指定组名或all
-    remote_user: root  # 指定用户名
-    vars:  # 定义变量
-      service: httpd
-    tasks:  # 在每个主机上完成第一个任务后，再开始第二个，中途发生错误时会尝试回滚
-      - name: ...  # 解释该任务的目的
-        yum: name={{ service }} state=present  # 指定模块名和参数，参数可以为空
-        remote_user: qiu  # 为某个任务特殊指定用户名
-        sudo: yes  # 以sudo执行
-        ignore_errors: True  # 可以忽略该任务的错误继续执行任务
-        notify:  # 当该任务的状态是changed时触发的触发器
-          - handlers_name 
-          - handlers_name
+- hosts: group_name  # 指定组名或all
+  remote_user: root  # 指定用户名
+  vars:  # 定义变量
+    service: httpd
+  tasks:  # 在每个主机上完成第一个任务后，再开始第二个，中途发生错误时会尝试回滚
+    - name: ...  # 解释该任务的目的
+      yum: name={{ service }} state=present  # 指定模块名和参数，参数可以为空
+      remote_user: qiu  # 为某个任务特殊指定用户名
+      sudo: yes  # 以sudo执行
+      ignore_errors: True  # 可以忽略该任务的错误继续执行任务
+      notify:  # 当该任务的状态是changed时触发的触发器，在handles中定义
+        - handlers_name 
+        - handlers_name
 
-      - name: add user  # 迭代进行
-        user: name={{ item.name }} state=present groups={{ item.groups }}  # 对item迭代进行
-        with_items:  # 迭代的item变量，若变量只有一个那变量名可省略
-          - { name: 'user1', groups: 'wheel' }
-          - { ... }
-        tags:  # 定义标签，可以每次只运行同个标签下的任务
-          - tags_name
+    - name: add user  
+      user: name={{ item.name }} state=present groups={{ item.groups }}  # 对item迭代进行
+      with_items:  # 迭代的item变量，若变量只有一个那变量名可省略
+        - { name: 'user1', groups: 'wheel' }
+        - { ... }
+      tags:  # 定义标签，可以每次只运行同个标签下的任务
+        - tags_name
 
-      - name: ...
-        shell|command: COMMAND  # 可以直接使用命令
-        when: name == ".."  # 进行条件测试，支持Jinjia2
-        tags: 
-          - always  # 特殊标签always，表示总会执行该任务
+    - name: ...
+      shell|command: COMMAND  # 可以直接使用命令
+      when: name == ".."  # 进行条件测试，支持Jinjia2
+      tags: 
+        - always  # 特殊标签always，表示总会执行该任务
 
-      handlers:  # 定义触发器，内容与tasks一样，该任务被触发时会在tasks任务全部执行完后才执行
-      - name: ...
-        module: ...
+    handlers:  # 定义触发器，内容与tasks一样，该任务被触发时会在tasks任务全部执行完后才执行
+    - name: ...
+      module: ...
 
-  - hosts:
-    ...
+- hosts:
+  ...
 #+END_SRC
 ** roles
-- roles可以将多个功能分离，用于多次利用
+=roles= 可以将多个功能分离，用于多次利用
 *** 创建roles目录
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 site.yml  # 可以引用roles的yaml
 roles/  # roles目录
   role_name/  # role的引用名称
     files/  # 存放由copy或script等模块调用的文件
-    templates/  # template模块会自动在此目录中寻找Jinja2模板文件
+    templates/  # template模块会自动在此目录中寻找Jinja2模板文件进行变量替换
     tasks/  # 至少应该包含一个名为main.yml的文件，其定义了此角色的任务列表，可使用include包含其他该目录下的文件
     handlers/  # 包含一个main.yml文件，用于定义此角色用到的各handler，可使用include包含其他该目录下的文件
     vars/  # 包含一个main.yml文件，用于定义此角色用到的变量
@@ -195,19 +190,19 @@ roles/  # roles目录
 #+BEGIN_SRC yaml
 - hosts: ...
   roles:
-    - role_name
+    - role_name  # 使用roles的简单方法
 
-    - role: role_name
+    - role: role_name  # 使用roles的高级方法
       dir: '/opt/a'  # 给role传递参数
       when: ...  # 条件式使用role
 #+END_SRC
 ** 运行playbook
-#+BEGIN_SRC sh
+#+BEGIN_SRC yaml
 ansible-playbook [OPTIONS] **.yml
   -e "name=value name=value": extra-vars
   -t "tags_name": 只运行该标签下的任务
 #+END_SRC
-- 状态
-  - ok: 成功执行，但未发生修改(即原先已经修改过)
-  - changed: 成功进行修改
-  - skipping: 表示when条件不符合
+- 状态 ::
+  - =ok=: 成功执行，但未发生修改(即原先已经修改过)
+  - =changed=: 成功进行修改
+  - =skipping=: 表示when条件不符合

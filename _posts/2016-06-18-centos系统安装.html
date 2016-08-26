@@ -1,13 +1,11 @@
 ---
-title: "CentOS系统安装"
+title: "CentOS系统的安装方式"
 date: 2016-06-18
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 运维 
-- CentOS
+- Linux
 published: true
 comments: 
 ---
@@ -34,14 +32,8 @@ comments:
 </ul>
 </div>
 </div>
-<p>
-描述CentOS光盘的安装程序安装CentOS的过程，包括其bootloader、anaconda的相关配置，以及如何使用光盘的命令行模式，描述了kickstart配置文件的编写，最后简单记录如何去制作引导光盘。
-</p>
 
 
-
-
-<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
 <h2 id="orgheadline1"><span class="section-number-2">1</span> CentOS安装程序启动过程</h2>
 <div class="outline-text-2" id="text-1">
@@ -54,12 +46,12 @@ comments:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#20809;&#30424;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;&#25937;&#25588;&#27169;&#24335;</span>
+<pre class="src src-yaml"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#20809;&#30424;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;&#25937;&#25588;&#27169;&#24335;&#22914;&#19979;</span>
 label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#34892;&#25552;&#31034;&#31526;&#19979;&#30340;&#25191;&#34892;&#21629;&#20196;</span>
   menu label ^Rescue installed system  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#19979;&#26174;&#31034;&#30340;&#20869;&#23481;</span>
-  menu default  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#30340;&#36873;&#25321;&#39033;</span>
-  kernel vmlinuz  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21152;&#36733;&#20869;&#26680;</span>
-  <span style="color: #FD971F;">append initrd</span>=initrd.img rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#26680;&#21442;&#25968;</span>
+  menu default  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#20026;&#40664;&#35748;&#30340;&#36873;&#25321;&#39033;</span>
+  kernel vmlinuz  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21152;&#36733;&#30340;&#20869;&#26680;</span>
+  append initrd=initrd.img rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#20869;&#26680;&#30340;&#21442;&#25968;</span>
 </pre>
 </div></li>
 <li><p>
@@ -67,18 +59,18 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">boot: linux text  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;linux&#26631;&#31614;&#65292;&#24182;&#20026;&#20869;&#26680;&#28155;&#21152;&#21442;&#25968;text</span>
+<pre class="src src-yaml"><span style="color: #FD971F;">boot</span>: linux text  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#37197;&#32622;&#25991;&#20214;&#20013;&#30340;linux&#26631;&#31614;&#65292;&#24182;&#20026;&#20869;&#26680;&#28155;&#21152;&#21442;&#25968;text</span>
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#21629;&#20196;&#26174;&#24335;&#25351;&#23450;&#20351;&#29992;tui&#25509;&#21475;</span>
 </pre>
 </div></li>
 </ul></li>
-<li>装载根文件系统，并启动anaconda
+<li>装载根文件系统，并启动 <code>anaconda</code>
 <ul class="org-ul">
-<li>anaconda是系统安装程序
+<li><code>anaconda</code> 是系统安装程序，有多种运行模式
 <ul class="org-ul">
-<li>tui: 基于curses的文本窗口(需要添加text参数)</li>
-<li>gui：图形窗口(默认)</li>
-<li>anaconda及其安装用到的程序包可以位于多种位置上</li>
+<li><code>tui</code>: 基于curses的文本窗口(需要添加text参数)</li>
+<li><code>gui</code>: 图形窗口(默认)</li>
+<li><code>anaconda</code> 及其安装用到的程序包可以位于多种位置上</li>
 </ul></li>
 </ul></li>
 </ol>
@@ -88,21 +80,28 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <h2 id="orgheadline2"><span class="section-number-2">2</span> 安装引导选项</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li>boot: 添加在label名后
+<li>官方文档: <b>《Installation Guide》</b></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #FD971F;">boot</span>: linux OPTIONS  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#25552;&#31034;&#31526;&#19979;&#30340;&#36873;&#39033;</span>
+</pre>
+</div>
 <ul class="org-ul">
-<li>text: 文本安装方式</li>
-<li>method: 手动指定使用的安装方法</li>
+<li><code>text</code>: 文本安装方式</li>
+<li><code>method</code>: 手动指定使用的安装方法</li>
+<li><code>rescue</code>: 启动紧急救援模式</li>
 <li>设置与网络相关的引导选项
 <ul class="org-ul">
-<li>ip=IPADDR</li>
-<li>netmask=MASK</li>
-<li>gateway=GW</li>
-<li>dns=DNS_SERVER_IP</li>
-<li>ifname=NAME:MAC_ADDR</li>
+<li><code>ip=IPADDR</code></li>
+<li><code>netmask=MASK</code></li>
+<li><code>gateway=GW</code></li>
+<li><code>dns=DNS_SERVER_IP</code></li>
+<li><code>ifname=NAME:MAC_ADDR</code></li>
 </ul></li>
 <li>与远程访问功能相关的引导选项：
 <ul class="org-ul">
-<li>vnc: 使其他电脑可以远程连接到当前主机</li>
+<li><code>vnc</code>: 使其他电脑可以远程连接到当前主机</li>
 <li>vncpassword='PASSWORD'</li>
 </ul></li>
 <li>指明kickstart文件的位置
@@ -113,12 +112,6 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <li>FTP server: <code>ks=ftp://host:port/path/to/KICKSTART_FILE</code></li>
 <li>HTTPS server: <code>ks=https://host:port/path/to/KICKSTART_FILE</code></li>
 </ul></li>
-<li>启动紧急救援模式：
-<ul class="org-ul">
-<li>rescue</li>
-</ul></li>
-</ul></li>
-<li>官方文档：《Installation Guide》</li>
 </ul>
 </div>
 </div>
@@ -133,11 +126,7 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <ul class="org-ul">
 <li>安装过程使用的语言</li>
 <li>键盘类型</li>
-<li>安装目标存储设备
-<ul class="org-ul">
-<li>Basic Storage：本地磁盘</li>
-<li>特种设备：iSCSI</li>
-</ul></li>
+<li>安装目标存储设备</li>
 <li>设定主机名</li>
 <li>配置网络接口</li>
 <li>时区</li>
@@ -156,7 +145,6 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <ul class="org-ul">
 <li>iptables</li>
 <li>selinux</li>
-<li>core dump</li>
 </ul></li>
 </ol>
 </div>
@@ -166,7 +154,7 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <div class="outline-text-3" id="text-orgheadline4">
 <ol class="org-ol">
 <li>交互式配置方式</li>
-<li>通过读取事先给定的配置文件自动完成配置: kickstart文件</li>
+<li>通过读取事先给定的配置文件自动完成配置: <code>kickstart文件</code></li>
 </ol>
 </div>
 </div>
@@ -177,23 +165,23 @@ label rescue  <span style="color: #75715E;"># </span><span style="color: #75715E
 <h4 id="orgheadline5">ks文件的分段</h4>
 <div class="outline-text-4" id="text-orgheadline5">
 <dl class="org-dl">
-<dt>命令段</dt><dd>ks文件用于指名anaconda安装前的配置</dd>
+<dt>命令段</dt><dd>ks文件用于指明anaconda安装前的配置</dd>
 <dt>程序包段</dt><dd><p>
   指明要安装的程序包组或程序包，不安装的程序包等
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">%packages  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#22987;&#26631;&#35782;&#31526;</span>
+<pre class="src src-yaml">%<span style="color: #F92672;">packages</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#22987;&#26631;&#35782;&#31526;</span>
 @group_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23433;&#35013;&#30340;&#21253;&#32452;</span>
 package  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23433;&#35013;&#30340;&#21253;</span>
 -package  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#23433;&#35013;&#30340;&#31243;&#24207;&#21253;</span>
-%end  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32467;&#26463;&#26631;&#35782;&#31526;</span>
+%<span style="color: #F92672;">end</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32467;&#26463;&#26631;&#35782;&#31526;</span>
 </pre>
 </div></dd>
 <dt>脚本段</dt><dd><ul class="org-ul">
-<li>%pre: 安装前执行的脚本</li>
-<li>%post: 安装完成后执行的脚本</li>
-<li>%end: 脚本内容结束标识符</li>
+<li><code>%pre</code>: 安装前执行的脚本</li>
+<li><code>%post</code>: 安装完成后执行的脚本</li>
+<li><code>%end</code>: 脚本内容结束标识符</li>
 </ul></dd>
 </dl>
 </div>
@@ -201,54 +189,54 @@ package  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#
 <div id="outline-container-orgheadline6" class="outline-4">
 <h4 id="orgheadline6">命令段中的命令</h4>
 <div class="outline-text-4" id="text-orgheadline6">
-<ul class="org-ul">
-<li>必备命令
-<ul class="org-ul">
-<li>install OR upgrade</li>
+<dl class="org-dl">
+<dt>必备命令</dt><dd><ul class="org-ul">
+<li><code>install</code> 或 <code>upgrade</code></li>
 <li><p>
-authconfig: 认证方式配置
+<code>authconfig</code>: 认证方式配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">authconfig --useshadow  --passalgo</span>=sha512
+<pre class="src src-bash">authconfig --useshadow --passalgo=sha512
 </pre>
 </div></li>
 <li><p>
-bootloader：bootloader的安装位置及相关配置
+<code>bootloader</code>: bootloader的安装位置及相关配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh">bootloader --location=mbr --driveorder=sda --append=<span style="color: #E6DB74;">"crashkernel=auto rhgb quiet"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;grub.cfg&#20013;&#21521;&#20869;&#26680;&#20256;&#36882;&#36873;&#39033;</span>
+<pre class="src src-bash">bootloader --location=mbr --driveorder=sda --append=<span style="color: #E6DB74;">"crashkernel=auto rhgb quiet"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;grub.cfg&#20013;&#21521;&#20869;&#26680;&#20256;&#36882;&#36873;&#39033;</span>
 </pre>
 </div></li>
-<li>keyboard: 设定键盘类型</li>
-<li>lang: 语言类型</li>
-<li>part: 创建分区，升级无需此命令</li>
-<li>rootpw: 指明root的密码</li>
-<li>timezone: 时区</li>
-</ul></li>
-<li>可选命令
-<ul class="org-ul">
-<li>text: 文本安装界面</li>
-<li>network</li>
-<li>firewall</li>
-<li>selinux</li>
-<li>halt/poweroff/reboot: 完成后的操作</li>
-<li>repo: 而外指定rpm源</li>
-<li>user：安装完成后为系统创建新用户</li>
-<li>url: 指明安装源(远程安装系统时需要)</li>
-</ul></li>
-</ul>
+<li><code>keyboard</code>: 设定键盘类型</li>
+<li><code>lang</code>: 语言类型</li>
+<li><code>part</code>: 创建分区，升级无需此命令</li>
+<li><code>rootpw</code>: 指明root的密码</li>
+<li><code>timezone</code>: 时区</li>
+</ul></dd>
+<dt>可选命令</dt><dd><ul class="org-ul">
+<li><code>text</code>: 文本安装界面</li>
+<li><code>url</code>: 指明安装源(远程安装系统时需要)</li>
+<li><code>network</code></li>
+<li><code>firewall</code></li>
+<li><code>selinux</code></li>
+<li><code>halt/poweroff/reboot</code>: 完成后的操作</li>
+<li><code>repo</code>: 而外指定rpm源</li>
+<li><code>user</code>: 安装完成后为系统创建新用户</li>
+</ul></dd>
+</dl>
 </div>
 </div>
 <div id="outline-container-orgheadline7" class="outline-4">
 <h4 id="orgheadline7">创建ks文件</h4>
 <div class="outline-text-4" id="text-orgheadline7">
 <ul class="org-ul">
-<li>依据某模板修改
-<ul class="org-ul">
-<li>CentOS安装后会默认在root目录下放置一个当前系统的ks文件</li>
-</ul></li>
+<li><p>
+依据某模板修改
+</p>
+<pre class="example">
+CentOS安装后会默认在root目录下放置一个当前系统的ks文件
+</pre></li>
 <li>使用创建工具: <code>system-config-kickstart</code></li>
 <li>检查ks文件的语法错误: <code>ksvalidator</code></li>
 </ul>
@@ -264,7 +252,7 @@ bootloader：bootloader的安装位置及相关配置
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">mkisofs -R -J -T -v --no-emul-boot --boot-load-size 4 --boot-info-table -V <span style="color: #E6DB74;">"CentOS 6.6 x86_64 boot"</span> -b isolinux/isolinux.bin -c isolinux/boot.cat -o /root/boot.iso myiso/
+<pre class="src src-bash">mkisofs -R -J -T -v --no-emul-boot --boot-load-size <span style="color: #AE81FF;">4</span> --boot-info-table -V <span style="color: #E6DB74;">"CentOS 6.6 x86_64 boot"</span> -b isolinux/isolinux.bin -c isolinux/boot.cat -o /root/boot.iso myiso/
 </pre>
 </div>
 </div>

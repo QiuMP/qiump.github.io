@@ -1,13 +1,11 @@
 ---
-title: "IP地址分类与子网掩码"
+title: "IP地址与子网掩码"
 date: 2016-05-15
 layout: post
 categories: 
-- 网络
+- 网络知识
 tags: 
-- 网络 
-- ip 
-- 子网掩码
+- TCP/IP
 published: true
 comments: 
 ---
@@ -33,14 +31,7 @@ comments:
 </ul>
 </div>
 </div>
-<p>
-总结了IP地址的分类以及其各种特殊地址，同时说明了子网掩码的作用
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline6" class="outline-2">
 <h2 id="orgheadline6"><span class="section-number-2">1</span> IP地址</h2>
 <div class="outline-text-2" id="text-1">
@@ -48,13 +39,15 @@ comments:
 <h3 id="orgheadline1">IP地址的分类</h3>
 <div class="outline-text-3" id="text-orgheadline1">
 <p>
-IP地址有三种基本类型，由网络号的第一组数字来表示。
+IP地址有五种类型，由网络号的第一组数字来表示。
 </p>
 <ul class="org-ul">
-<li>A类地址的第一组数字为1～126(第一位为0)
-<ul class="org-ul">
-<li>数字0和127不作为A类地址，数字127保留给内部回送函数，而数字0则表示该地址是本地宿主机，不能传送</li>
-</ul></li>
+<li><p>
+A类地址的第一组数字为1～126(第一位为0)
+</p>
+<pre class="example">
+数字0和127不作为A类地址，数字127保留给内部回送函数，而数字0则表示该地址是本地宿主机，不能传送
+</pre></li>
 <li>B类地址的第一组数字为128～191(前两位是10)</li>
 <li>C类地址的第一组数字为192～223(前三位是110)</li>
 <li>D类地址的第一组数字为224～239(前四位是1110)，用于进行组播</li>
@@ -105,8 +98,11 @@ TCP/IP规定，主机号全为"1"的网络地址用于广播之用，叫做广�
 <h3 id="orgheadline5">网络地址</h3>
 <div class="outline-text-3" id="text-orgheadline5">
 <p>
-TCP/IP协议规定，各位全为"0"的网络号被解释成"本"网络。
+TCP/IP协议规定，主机号全为"0"的网络地址被解释成"本"网络。
 </p>
+<pre class="example">
+0.0.0.0表示全网络
+</pre>
 </div>
 </div>
 </div>

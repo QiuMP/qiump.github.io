@@ -1,30 +1,28 @@
-#+TITLE: tcp_wrapper
+
+#+TITLE: TCP_Wrapper
 #+DATE: 2016-07-21
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 网络
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 安全
 #+JEKYLL_PUBLISHED: true
 
-简单介绍了tcp_wrapper以及其配置文件
 
-
-
-
------
 * tcp_wrapper
-tcp_wrapper对基于tcp协议开发并提供服务的应用程序，提供的一层访问控制工具
-- 基于库调用实现其功能: libwrap，即程序需要调用该库才能支持tcp_wrapper，使用ldd命令进行查询判断
+=tcp_wrapper= 对基于tcp协议开发并提供服务的应用程序，提供的一层访问控制工具
+- =tcp_wrapper= 是基于 =libwrap= 库调用实现其功能，即程序需要调用该库才能支持tcp_wrapper
+- 使用 =ldd= 命令可以判断程序是否依赖于 =libwrap= 库
 * 配置
 ** 配置文件
-- /etc/hosts.allow
-- /etc/hosts.deny
-- 先检查allow文件后检查deny文件，若都没匹配则允许
+- 配置文件组成 ::
+  - =/etc/hosts.allow=
+  - =/etc/hosts.deny=
+- 权限检查过程 ::
+  权限检查时先检查 =allow= 文件后检查 =deny= 文件，若都没匹配则允许
 ** 配置语法
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 daemon_list: client_list [:options]
-  daemon_list: 
-    应用程序的文件名称，而非服务名，可使用以逗号分隔的列表
+  daemon_list: 应用程序的文件名称，而非服务名，可使用以逗号分隔的列表
     ALL: 所有服务
 
   client_list:
@@ -34,14 +32,16 @@ daemon_list: client_list [:options]
     ALL: 所有主机
     EXCEPT: 不匹配主机
 
-vsftpd: 172.16. EXCEPT 172.16.100.0/255.255.255.0 EXCEPT 172.16.100.1  # 不包含除172.16.100.1外的172.16.100.0网段的IP
-
   options: 
     deny: 在allow文件中使用deny
     allow: 在deny文件中使用allow
     spawn: 启动额外应用程序，常用于记录日志
+#+END_SRC
+** 示例
+#+BEGIN_SRC yaml
+vsftpd: 172.16. EXCEPT 172.16.100.0/255.255.255.0 EXCEPT 172.16.100.1  # 不包含除172.16.100.1外的172.16.100.0网段的IP
 
-vsftpd: ALL :spawn /bin/echo `date` login attempt from %c to %s, %d >> /var/log/vsftpd.deny.log
+vsftpd: ALL :spawn /bin/echo `date` login attempt from %c to %s, %d >> /var/log/vsftpd.deny.log  # 使用spawn来执行记录日志
   %c: client ip
   %s: server ip
   %d: daemon name

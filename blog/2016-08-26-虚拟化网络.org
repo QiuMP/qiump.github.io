@@ -1,0 +1,125 @@
+#+TITLE: 虚拟化网络
+#+DATE: 2016-08-08
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 虚拟化
+#+JEKYLL_TAGS: Linux 虚拟化
+#+JEKYLL_PUBLISHED: true
+
+* 网络虚拟化
+** VLAN
+=Virtual LAN=: =LAN= 是能够直接通信的广播域， =VLAN= 是将广播域隔离成多个区域(最大4096， =VXLAN= 有更大的数量)，相当于在交换机上创建多个虚拟交换机
+- VLAN的实现(IEEE 802.1q) ::
+  - 基于MAC地址
+  - 基于交换机Port实现
+  - 基于IP地址实现
+  - 基于用户实现
+- 交换机接口的类型 ::
+  - 访问链接(access link): 接入服务器的接口
+  - 汇聚链接(trunc link): 统一的访问入口并通过交换机进行分发接口，一般是用于连接其他交换机或路由器的接口
+- VLAN间路由的实现方式 ::
+  - 访问链接: router为每个VLAN提供一个接口
+  - 汇聚链接: router只向交换提供一个接口
+: 如果要实现跨主机的VLAN，交换机需要支持打标签的VLAN技术，同时各服务器接口设置相同的标签即可
+** Linux的内核级隔离
+- namespace ::
+  - 文件系统隔离
+  - 网络隔离: 主要用于实现网络资源的隔离，包括网络设备、IP地址、IP路由表、防火墙、/proc/net、/sys/class/net以及套接字等
+  - IPC隔离
+  - 用户和用户组隔离
+  - PID隔离: 对名称空间内的PID重新标号，两个不同的名称空间可以使用相同的PID
+  - UTS隔离: Unix Time-sharing System，提供主机名称和域名的隔离
+- cgroups ::
+  用于完成资源配置，用于实现限制被各namespace隔离起来的资源，还可以为资源设置权重、计算使用量、完成各种所需的管理任务等
+* Linux Nerwork NameSpace
+网络名称空间可以作为路由使用，需要先在主机上打开路由转发功能
+- 使用 =netns= 管理网络名称空间，CentOS6需要升级 =iproute= 
+  #+BEGIN_SRC yaml
+  ip netns list
+  ip netns add NAME  # 创建一个网络名称空间
+  ip netns del NAME
+  ip netns exec NAME COMMAND  # 在该网络名称空间中运行命令
+  #+END_SRC
+- 创建成对的网卡，并将其一端接入网络名称空间中，一端接入桥(虚拟交换机)上
+  #+BEGIN_SRC yaml
+  ip link add FRONTEND-NAME type veth peer name BACKEND-NAME
+  ip link set FRONTEND-NAME netns NAME 
+  #+END_SRC
+- 在网络名称空间上部署DHCP
+  #+BEGIN_SRC yaml
+  ip netns exec NAME dnsmasq --dhcp-range=10.0.1.100,10.0.1.120,86400 -i INTERFACE 
+
+  udhcpc -R  # 虚拟机测试获取dhcp地址
+  #+END_SRC
+* OpenVSwitch
+: OpenVSwitch: 可以创建支持高级功能虚拟交换机，支持vlan
+** OVS的组成部分
+- =ovs-vswitchd=: OVS daemon，实现数据报文交换功能，和Linux内核兼容模块一同实现了基于流的交换技术
+- =ovsdb-server=: 轻量级的数据库服务，主要保存了整个OVS的配置信息，例如接口、交换和VLAN等等，ovs-vswithed的交换功能基于此库实现
+- =ovs-vsctl=: 用于获取或更改ovs-vswitchd的配置信息，其修改操作会保存至ovsdb-server中
+** ovs-vsctl命令
+#+BEGIN_SRC bash
+ovs-vsctl show  #ovsdb配置内容查看
+
+ovs-vsctl list-br  #显示所有已定义BRIDGE
+ovs-vsctl add-br NAME  #添加桥设备(支持VLAN)
+ovs-vsctl del-br BRIDGE  #删除桥
+
+ovs-vsctl list-ports BRIDGE  #显示指定BRIDGE上已经添加的所有PORT
+ovs-vsctl add-port BRIDGE PORT  #将PORT添加至指定的BRIDGE
+ovs-vsctl del-port [BRIDGE] PORT  #从指定BRIDGE移除指定的PORT
+#+END_SRC
+: ovs-vsctl可以使用 -- 字符来执行多个命令
+** 操作ovsdb
+- 显示ovsdb的表TBL中的REC字段
+  #+BEGIN_SRC bash
+  ovs-vsctl list TBL [REC]
+  #+END_SRC
+- 添加VLAN的标签tag，tag为空时默认为0
+  #+BEGIN_SRC bash
+  ovs-vsctl set port vif0 tag=10  # 设置表port中的vif0字段里的tag为10
+  ovs-vsctl remove port vif0 tag 10 # 删除该值
+  #+END_SRC
+** GRE
+GRE(Generic Routing Encapsulation): 通用路由封装，二次封装ip报文(ipip)，是一种隧道技术，用于模拟在不同网段的两个主机上的虚拟交换机相互直接连接
+#+BEGIN_SRC bash
+ovs-vsctl add-port br0 gre0
+ovs-vsctl set interface gre0 type=gre options:remote_ip=对面的IP
+#+END_SRC
+** 设置VXLAN
+VLAN对于标签有着4096的长度限制，VXLAN支持更大的长度，同时可以使用隧道技术
+#+BEGIN_SRC bash
+ovs-vsctl add-port br-in vx0
+ovs-vsctl set interface vx0 type=vxlan options:remote_ip=.. 
+#+END_SRC
+** kvm的网卡配置脚本
+- /etc/if-up脚本 ::
+  #+BEGIN_SRC bash
+	#!/bin/bash
+	#
+	bridge=br-in
+	if [ -n "$1" ]; then
+	    ip link set $1 up
+	    sleep 1
+	    ovs-vsctl add-port $bridge $1
+	    [ $? -eq 0 ] && exit 0 || exit 1
+	else
+	    echo "Error: no port specified."
+	    exit 2
+	fi
+  #+END_SRC
+- /etc/if-down脚本 :: OVS不会自动移除接口，需要使用脚本移除接口
+  #+BEGIN_SRC bash
+	#!/bin/bas
+	#
+	bridge=br-in
+	if [ -n "$1" ]; then
+	    ip link set $1 down
+	    sleep 1
+	    ovs-vsctl del-port $bridge $1
+	    [ $? -eq 0 ] && exit 0 || exit 1
+	else
+	    echo "Error: no port specified."
+	    exit 2
+	fi	
+  #+END_SRC

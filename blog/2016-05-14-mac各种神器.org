@@ -3,7 +3,7 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Mac
-#+JEKYLL_TAGS: Mac 提升效率神器
+#+JEKYLL_TAGS: Mac
 #+JEKYLL_PUBLISHED: true
 
 介绍了各种能提高Mac使用效率的神器

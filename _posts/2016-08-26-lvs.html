@@ -1,0 +1,309 @@
+---
+title: "LVS"
+date: 2016-07-26
+layout: post
+categories: 
+- 服务器
+tags: 
+- Linux 
+- 负载均衡
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. lvs</a></li>
+<li><a href="#orgheadline2">2. lvs组件</a></li>
+<li><a href="#orgheadline3">3. lvs类型</a></li>
+<li><a href="#orgheadline4">4. lvs scheduler</a></li>
+<li><a href="#orgheadline5">5. lvs架构</a></li>
+<li><a href="#orgheadline11">6. ipvsadm的用法</a>
+<ul>
+<li><a href="#orgheadline6">管理集群服务</a></li>
+<li><a href="#orgheadline7">管理集群服务中的RS</a></li>
+<li><a href="#orgheadline8">清空规则</a></li>
+<li><a href="#orgheadline9">查询规则</a></li>
+<li><a href="#orgheadline10">保存和重载</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">7. 配置lvs-dr</a></li>
+<li><a href="#orgheadline13">8. 通过FWM定义集群</a></li>
+<li><a href="#orgheadline14">9. lvs persistence</a></li>
+<li><a href="#orgheadline15">10. 实现调用RS的高可用</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> lvs</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+<code>lvs</code>: Linux Virtual Server，根据请求报文的目标IP和PORT将其转发至后端主机集群中的某一台主机(根据挑选算法)，支持 <code>TCP</code>, <code>UDP</code>, <code>AH</code>, <code>ESP</code>, <code>AH_ESP</code>, <code>SCTP</code> 等诸多协议
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> lvs组件</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li><code>ipvsadm</code>: 用户空间的命令行工具，用于管理集群服务 <code>ipvs</code></li>
+<li><code>ipvs</code>: 工作内核中 <code>netfilter</code> 的 <code>INPUT</code> 钩子上，此时报文传输线路为 <code>PREROUTING</code> &gt; <code>INPUT</code> &gt; <code>POSTROUTING</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> lvs类型</h2>
+<div class="outline-text-2" id="text-3">
+<dl class="org-dl">
+<dt>lvs-nat</dt><dd>多目标的DNAT，它通过修改请求报文的目标IP地址(同时可能会修改目标端口)至某RS的RIP地址实现转发
+<ul class="org-ul">
+<li>RIP和DIP应该使用私网地址，且RS的网关要指向DIP，因为需要进行NAT</li>
+<li>请求和响应报文都要经由director转发，在极高负载的场景中，director可能会成为系统瓶颈</li>
+<li>支持端口映射</li>
+<li>RS可以使用任意OS</li>
+</ul></dd>
+<dt>lvs-dr</dt><dd>direct routing(默认)，它通过修改请求报文的目标MAC地址进行转发，仅请求报文经由director，响应报文是由RS直接响应给Client
+<ul class="org-ul">
+<li>Driector使用VIP、DIP；RS使用RIP、VIP</li>
+<li>保证前端路由器将目标IP为VIP的请求报文发送给director，可以通过路由静态绑定，或者使用arptables使RS拒绝响应，也可以直接修改RS主机内核的参数</li>
+<li>RS的RIP可以使用私有地址，但也可以使用公网地址</li>
+<li>RS跟Director必须在同一物理网络中</li>
+<li>请求报文经由Director调度，但响应报文一定不能经由Director</li>
+<li>不支持端口映射</li>
+<li>RS可以是大多数OS</li>
+<li>RS通过地址为VIP的lo设备进行发送报文</li>
+<li>RS的网关不能指向DIP，应指向外网路由</li>
+</ul></dd>
+<dt>lvs-tun</dt><dd>不修改请求报文的IP首部，而是通过在原有的IP首部(CIP,VIP)之外，再封装一个IP首部(DIP,RIP)，即IPIP
+<ul class="org-ul">
+<li>RIP、DIP、VIP都是公网地址</li>
+<li>RS通过地址为VIP的lo设备接受和发送报文</li>
+<li>请求报文必须经由director调度，但响应报文一定不能经由director</li>
+<li>不支持端口映射</li>
+<li>RS的OS必须支持隧道功能</li>
+<li>必要时需要限制请求报文的MTU大小</li>
+</ul></dd>
+<dt>lvs-fullnat</dt><dd>director通过同时修改请求报文的目标地址和源地址进行转发，类似于反向代理，需要使用淘宝开源项目进行支持
+<ul class="org-ul">
+<li>VIP是公网地址；RIP和DIP是私网地址，二者无须在同一网络中</li>
+<li>RS接收到的请求报文的源地址为DIP</li>
+<li>请求报文和响应报文都必须经由Director</li>
+<li>支持端口映射机制</li>
+<li>RS可以使用任意OS</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> lvs scheduler</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+<code>scheduler</code> 是Director通过算法来选择要调度的RS
+</p>
+<dl class="org-dl">
+<dt>静态方法</dt><dd>仅根据算法本身进行调度
+<ul class="org-ul">
+<li><code>RR(round robin)</code>: 轮调</li>
+<li><code>WRR(weighted rr)</code>: 按照权重分配</li>
+<li><code>SH(source hash)</code>: 将来自于同一个IP的请求始终调度至同一RS，实现session保持的机制，但只适用于同个端口</li>
+<li><code>DH(destination hash)</code>: 将对同一个目标的请求始终发往同一个RS，对于新目标使用轮调分配，用于正向代理情形下的缓存服务器调度</li>
+</ul></dd>
+<dt>动态方法</dt><dd>根据算法计算各RS的当前负载状态(Overhead)进行调度，其中Active是活动连接数，Inactive是非活动连接数
+<ul class="org-ul">
+<li><code>LC(Least Connection)</code>: Overhead=Active*256+Inactive</li>
+<li><code>WLC(Weighted LC)</code>: Overhead=(Active*256+Inactive)/weight</li>
+<li><code>SED(Shortest Expection Delay)</code>: Overhead=(Active+1)*256/weight，解决WLC下0连接数时的分配</li>
+<li><code>NQ(Never Queue)</code>: SED算法的改进，优先分配给0连接数的RS</li>
+<li><code>LBLC(Locality-Based LC)</code>: 动态的DH算法，对于新目标使用LC分配，用于正向代理情形下的缓存服务器调度</li>
+<li><code>LBLCR(Locality-Based Least-Connection with Replication)</code>: 带复制功能的LBLC算法</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> lvs架构</h2>
+<div class="outline-text-2" id="text-5">
+<ol class="org-ol">
+<li>一个ipvs主机可以同时定义多个cluster service</li>
+<li>一个cluster service上至少应该一个real server</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">6</span> ipvsadm的用法</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">管理集群服务</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ipvsadm -A service [-s scheduler] [-p SECOND] <span style="color: #75715E;"># </span><span style="color: #75715E;">APPEND</span>
+ipvsadm -D service  <span style="color: #75715E;"># </span><span style="color: #75715E;">DELETE</span>
+  <span style="color: #FD971F;">service</span>:
+    <span style="color: #FD971F;">tcp</span>: -t ip:port (port&#20026;0&#26102;&#20195;&#34920;&#25152;&#26377;&#31471;&#21475;)
+    <span style="color: #FD971F;">udp</span>: -u ip:port
+    <span style="color: #FD971F;">fwm</span>: -f mark&#65292;&#26816;&#27979;&#22312;PREROUTING&#19978;&#30340;&#26631;&#35760;&#65292;&#29992;&#20110;&#21512;&#24182;&#22810;&#20010;&#26381;&#21153;(&#31471;&#21475;)
+
+  <span style="color: #FD971F;">-s scheduler</span>: &#40664;&#35748;&#20026;WLC
+  <span style="color: #FD971F;">-p SCEOND</span>: lvs persistence&#65292;&#35774;&#32622;&#25345;&#32493;&#36830;&#25509;&#26102;&#38388;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">管理集群服务中的RS</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ipvsadm -a service -r server-address lvs-type [-w weight]
+ipvsadm -d service -r server-address
+  <span style="color: #FD971F;">server-address</span>: RS&#30340;&#22320;&#22336;&#65292;ip[:port]
+
+  <span style="color: #FD971F;">lvs-type</span>:
+    <span style="color: #FD971F;">-g</span>: GATEWAY, lvs-dr(&#40664;&#35748;)
+    <span style="color: #FD971F;">-i</span>: IPIP, lvs-tun
+    <span style="color: #FD971F;">-m</span>: MASQUERADE, lvs-nat
+
+  <span style="color: #FD971F;">-w weight</span>: &#35774;&#32622;RS&#30340;&#26435;&#37325;&#65292;&#24403;&#26435;&#37325;&#20026;0&#26102;&#19981;&#20250;&#35843;&#29992;&#35813;RS
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">清空规则</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ipvsadm -C
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">查询规则</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ipvsadm -L|l [options]  
+  <span style="color: #FD971F;">-n</span>: numeric&#65292;&#22522;&#20110;&#25968;&#23383;&#26684;&#24335;&#26174;&#31034;&#22320;&#22336;&#21644;&#31471;&#21475;
+  <span style="color: #FD971F;">-c</span>: connection&#65292;&#26174;&#31034;ipvs&#36830;&#25509;
+  <span style="color: #FD971F;">--stats</span>: &#32479;&#35745;&#25968;&#25454;
+  <span style="color: #FD971F;">--rate</span>: &#36895;&#29575;
+  <span style="color: #FD971F;">--exact</span>: &#31934;&#30830;&#20540;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">保存和重载</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ipvsadm -R &lt; FILE
+ipvsadm -S [-n] &gt; FILE
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">7</span> 配置lvs-dr</h2>
+<div class="outline-text-2" id="text-7">
+<dl class="org-dl">
+<dt>内核参数</dt><dd><ul class="org-ul">
+<li><code>arp_ignore</code>: 是否响应别人的ARP广播请求
+<ul class="org-ul">
+<li><code>0</code>: 检查自己的所有接口的地址</li>
+<li><code>1</code>: 检查同一接口上的地址</li>
+</ul></li>
+<li><code>arp_announce</code>: 是否进行ARP通告
+<ul class="org-ul">
+<li><code>0</code>: 通告自己所有接口的地址</li>
+<li><code>1</code>: 尽量避免通告不在同一接口的地址</li>
+<li><code>2</code>: 不通告不在同一接口的地址</li>
+</ul></li>
+</ul></dd>
+<dt>director配置</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">ifconfig eno16777736:0 172.16.100.10/32 broadcast 172.16.100.10 up</span>
+ip addr add <span style="color: #AE81FF;">172.16.100.10/32</span> dev eno16777736  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37197;&#32622;VIP</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">route add -host 172.16.100.10 dev eno16777736:0</span>
+ip route add <span style="color: #AE81FF;">172.16.100.10</span> dev eno16777736
+
+ipvsadm -A -t <span style="color: #AE81FF;">172.16.100.10:80</span>
+ipvsadm -a -t <span style="color: #AE81FF;">172.16.100.10:80</span> -r <span style="color: #AE81FF;">172.16.100.21</span> -g  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;RS</span>
+</pre>
+</div></dd>
+<dt>RS配置</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> <span style="color: #AE81FF;">1</span> &gt; /proc/sys/net/ipv4/conf/all/arp_ignore 
+<span style="color: #F92672;">echo</span> <span style="color: #AE81FF;">2</span> &gt; /proc/sys/net/ipv4/conf/all/arp_announce 
+
+ifconfig lo:0 <span style="color: #AE81FF;">172.16.100.10/32</span> broadcast <span style="color: #AE81FF;">172.16.100.10</span> up  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;lo&#35774;&#22791;&#28155;&#21152;VIP</span>
+route add -host <span style="color: #AE81FF;">172.16.100.10</span> dev lo:0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#30446;&#26631;&#22320;&#22336;&#20026;vip&#30340;&#25253;&#25991;&#25351;&#23450;lo&#35774;&#22791;</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">8</span> 通过FWM定义集群</h2>
+<div class="outline-text-2" id="text-8">
+<ol class="org-ol">
+<li><p>
+在director上netfilter的mangle表的PREROUTING定义MARK
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">iptables -t mangle -A PREROUTING -d $<span style="color: #FD971F;">vip</span> -p $<span style="color: #FD971F;">protocol</span> --dports $<span style="color: #FD971F;">port</span> -j MARK --set-mark mark_num
+</pre>
+</div></li>
+<li><p>
+基于FWM(Firewall Mark)定义集群服务
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ipvsadm -A -f mark_num -s scheduler
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14"><span class="section-number-2">9</span> lvs persistence</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+lvs持久连接: 无论ipvs使用何种调度方法，其都能实现将来自于同一个Client的请求始终定向至第一次调度时挑选出的RS，这需要通过维护一个持久连接表来实现，这个表内容包含 <code>SIP</code>, <code>RS</code>, <code>time</code>
+</p>
+<dl class="org-dl">
+<dt>持久连接的实现方式</dt><dd><ul class="org-ul">
+<li><code>每端口持久</code>: PPC，单服务持久调度</li>
+<li><code>每FWM持久</code>: PFWMC，单FWM持久调度</li>
+<li><code>每客户端持久</code>: PCC，所有端口持久调度，即定义集群服务时把端口定义为0</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><span class="section-number-2">10</span> 实现调用RS的高可用</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+director可以对RS做健康状态检测，并且根据检测的结果自动完成添加或移除等管理功能，不过LVS并没有提供这一功能，需要使用 <code>keepalived</code> 实现
+</p>
+<ul class="org-ul">
+<li><p>
+基于协议层次检查: 层次越低，效率越高，精确度越低
+</p>
+<pre class="example">
+ip: icmp
+传输层: 检测端口的开放状态
+应用层: 请求获取关键性的资源
+</pre></li>
+<li>检查频度</li>
+<li>状态判断: 需要多次检测服务器来确定服务器是否失效</li>
+<li>配置一个网页故障时所显示的页面的服务器</li>
+</ul>
+</div>
+</div>

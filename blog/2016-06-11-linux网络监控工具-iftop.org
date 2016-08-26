@@ -2,8 +2,8 @@
 #+DATE: 2016-03-24
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux工具
-#+JEKYLL_TAGS: Linux 网络 监控工具
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
 介绍了网络实时流量检测工具iftop的使用

@@ -1,61 +1,69 @@
-#+TITLE: 文件共享服务
+#+TITLE: 文件共享服务NAS
 #+DATE: 2016-07-11
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 网络
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 文件系统
 #+JEKYLL_PUBLISHED: true
 
-介绍了Linux下常见的文件共享服务以及其配置过程，包括ftp、nfs、samba
+* DAS、NAS与SAN
+- DAS ::
+     DAS是一种将存储介质直接安装在服务器上或者安装在服务器外的存储方式
+- NAS :: 
+  - 用户通过TCP/IP协议访问数据，采用业界标准文件共享协议如：NFS、HTTP、CIFS实现共享　　
+  - 每个应用服务器通过网络共享协议（如：NFS、CIFS）使用同一个文件管理系统
+- SAN :: 
+  - 通过专用光纤通道交换机访问数据，采用SCSI、FC-AL接口。
+  - 文件管理系统(FS)还是分别在每一个应用服务器上
 
-
-
-
------
 * 文件共享服务
-- 文件共享服务用于实现NAS
-- 应用层: ftp
-- 内核: nfs
-- 跨平台: samba
+文件共享服务用于实现 =NAS=
+| 文件共享服务 | 特点         |
+|--------------+--------------|
+| ftp          | 在应用层实现 |
+| nfs          | 基于内核     |
+| samba        | 跨平台       |
 
 * ftp
 ** ftp相关知识
-- ftp(File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输
-- ftps使用SSL加密，sftp使用SSH加密，两者比较少用
+*** ftp
+=ftp= (File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输
+: ftps使用SSL加密，sftp使用SSH加密，但两者比较少用
 *** 连接类型
-- 命令连接(21/tcp): 用于传输文件管理类命令，始终在线的连接
-- 数据连接: 用于传输数据，按需创建和关闭的连接
-  - 数据传输格式: 文本传输，二进制传输
-  - 主动连接: 由服务器创建连接
-  - 被动连接: 服务器生成一个随机端口，由客户端创建连接
-    - 服务器的防火墙要进行特殊配置来允许随机端口
+- 命令连接(21/tcp) :: 用于传输文件管理类命令，始终在线的连接
+- 数据连接 :: 用于传输数据，按需创建和关闭的连接
+  - 数据传输格式: =文本传输=, =二进制传输= 
+  - =主动连接=: 由服务器创建连接
+  - =被动连接=: 服务器生成一个随机端口，由客户端创建连接，服务器的防火墙要进行特殊配置来允许随机端口
 *** 程序软件
-- Server: wu-ftpd、proftpd、pureftp、vsftpd(Very Secure)、ServU
-- Client: ftp、lftp、wget、curl
+- Server :: =wu-ftpd=, =proftpd=, =pureftp=, =vsftpd(Very Secure)=, =ServU=
+- Client :: =ftp=, =lftp=, =wget=, =curl=
 *** 响应码
-- 1xx: 信息
-- 2xx: 成功
-- 3xx: 提示需进一步提供补充类信息
-- 4xx: 客户端错误
-- 5xx: 服务端错误
+| 响应码 | 含义                       |
+|--------+----------------------------|
+|    1xx | 信息                       |
+|    2xx | 成功                       |
+|    3xx | 提示需进一步提供补充类信息 |
+|    4xx | 客户端错误                 |
+|    5xx | 服务端错误                 |
 *** 用户认证
-- 虚拟用户: 使用Linux系统的nsswitch和pam进行认证
-  - nsswitch: network server switch，名称解析框架
-  - pam: pluggable authentication module，用户认证框架
+- 虚拟用户: 使用Linux系统的 =nsswitch= 和 =pam= 进行认证
 - 系统用户(默认)
 - 匿名用户(ftp用户)
 ** vsftpd配置
-- 主配置文件: /etc/vsftpd/vsftpd.conf
-  - 配置文件每行前不能有多余空白字符
-- 匿名用户(ftp用户)共享资源位置: /var/ftp
-  #+BEGIN_SRC conf
-  anonymous_enable=YES
+*** 配置文件
+- 主配置文件: =/etc/vsftpd/vsftpd.conf=
+  : 配置文件每行前不能有多余空白字符
+*** 用户相关
+- 匿名用户 :: 匿名用户(ftp用户)共享资源位置: =/var/ftp=
+  #+BEGIN_SRC bash
+  anonymous_enable=YES  
   anon_upload_enable=YES  # 默认不启用匿名用户的上传
   anon_mkdir_write_enable=YES  # 默认匿名用户不能创建文件夹
   anon_other_write_enable=YES  # 默认匿名用户不能删除文件和文件夹
   #+END_SRC
-- 系统用户默认访问资源位置为用户自己的家目录，同时可以访问其他文件夹
-  #+BEGIN_SRC conf
+- 系统用户 :: 系统用户默认访问资源位置为用户自己的家目录，同时可以访问其他文件夹
+  #+BEGIN_SRC yaml
   local_enable=YES
 
   write_enable=YES
@@ -65,63 +73,59 @@
   chroot_list_enable=YES  # 只锁定列表文件中的用户
   chroot_list_file=/etc/vsftpd/chroot_list
   #+END_SRC
-- 虚拟用户会被统一映射到一个指定的系统账号，权限默认为匿名用户权限，虚拟用户可被赋予不同的访问权限
+- 虚拟用户 :: 虚拟用户会被统一映射到一个指定的系统账号，权限默认为匿名用户权限，虚拟用户可被赋予不同的访问权限
   - 虚拟用户账号列表可存储为一个文件或存储在数据库(使用 =pam_mysql= 模块)中
-  - 默认用户认证配置文件: /etc/pam.d/vsftpd
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   guest_enable=YES
   guest_username=vuser  # 指定被映射的用户名
 
   user_config_dir=/etc/vsftpd/vusers_config  # 用户权限配置目录，该目录下的文件名为特殊权限的用户名，配置语句和匿名账号权限配置一样
 
-  pam_service_name=vsftpd  # 指定pam配置文件
+  pam_service_name=vsftpd  # 指定pam配置文件，默认为/etc/pam.d/vsftpd
   #+END_SRC
-- 控制用户的登录
-  #+BEGIN_SRC conf
+- 控制用户的登录 ::
+  #+BEGIN_SRC yaml
   userlist_enable=YES  
   userlist_deny=YES|NO  # 说明用户列表文件是黑名单还是白名单
   userlist_file=/etc/vsftpd/user_list
   #+END_SRC
-- 日志
-  #+BEGIN_SRC conf
+- 改变上传文件的属主 ::
+  #+BEGIN_SRC yaml
+  chown_uploads=YES
+  chown_username=whoever
+  #+END_SRC
+*** 日志
+  #+BEGIN_SRC yaml
   xferlog_enable=YES
   xferlog_std_format=YES
   xferlog_file=/var/log/xferlog
   #+END_SRC
-- 改变上传文件的属主
-  #+BEGIN_SRC conf
-  chown_uploads=YES
-  chown_username=whoever
-  #+END_SRC
-- 提示信息
-  #+BEGIN_SRC conf
-  ftpd_banner=...  # 登录欢迎信息
-  dirmessage_enable=...  # 进入目录时显示目录下的.message的信息
-  #+END_SRC
-- 连接限制
-  #+BEGIN_SRC conf 
+*** 连接限制
+  #+BEGIN_SRC yaml 
   max_clients: 最大并发连接数
   max_per_ip: 每个IP可同时发起的并发连接数
   anno_max_rate: 匿名用户的最大传输速率
   local_max_rate: 本地用户的最大传输速率
   #+END_SRC
 ** lftp
-用于连接ftp服务器(默认21端口)，用于代替ftp程序
-#+BEGIN_SRC conf
+用于连接ftp服务器(默认21端口)，代替ftp程序
+#+BEGIN_SRC yaml
 lftp [-p port] [-u user[,password]] SERVER
-  子命令
+
+  子命令:
     get: 获取远程的文件
     mget: 获取远程的多个文件
-    ls
-    help
-
+    ls:
+    help:
+#+END_SRC
+#+BEGIN_SRC bash
 lftpget URL  # 使用lftp获取一个文件
 #+END_SRC
-- 使用匿名账户登录ftp，用户名为ftp
+: 使用匿名账户登录ftp，用户名为ftp
 
-* NFS
+* TODO NFS
 ** NFS相关
-- NFS: Network File System，内核级别的文件共享，通过RPC进行交互
+- =NFS=: Network File System，内核级别的文件共享，通过RPC进行交互
   - 软件名: nfs-utils
 - 身份认证
   - 可以简单基于IP来认证
@@ -130,7 +134,7 @@ lftpget URL  # 使用lftp获取一个文件
   - 使用半结构化数据进行交互: XML、JSON、http
 ** 运行主要的服务
 - RPC服务进程portmapper(111/tcp)
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   rpcinfo -p [IP]  # 查询主机上注册使用的服务
   #+END_SRC
 - nfs服务进程nfsd(2049/tcp)，基于IP进行认证
@@ -138,7 +142,7 @@ lftpget URL  # 使用lftp获取一个文件
 - idmap服务用于映射用户的uid/gid
 ** 配置NFS
 配置文件: /etc/exports
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 directory  Client1(OPTIONS)  Client2(OPTIONS)
   Client: IP、FQDN、NETWORK
   OPTIONS: 
@@ -151,22 +155,22 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
     anonuid/anongid: 将匿名UID和GID修改成特定用户和组帐号，默认为nobody
 #+END_SRC
 - 使用exportfs重新载入配置文件
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   exportfs -ar: 重新导出所有的文件系统
   exportfs -au: 关闭导出的所有文件系统
   exportfs -u FS: 关闭指定的导出的文件系统
   #+END_SRC
 ** 相关操作
 - 查看NFS服务端共享的文件系统
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   showmount -e IP  
   #+END_SRC
 - 挂载NFS文件系统: 可以将其加入/etc/fstab来开机自动挂载(选项添加_netdev防止断网无法开机)
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
   #+END_SRC
   - 特殊挂载选项: rsize是从服务器读取的字节数，wsize是写入到服务器的字节数，即设置缓冲区大小
-* samba
+* TODO samba
 ** samba相关
 - samba在Linux实现CIFS(Common Internet File System)协议或smb(Service Message Block)协议，用于解决不同系统之间的文件系统共享问题
 - samba监听服务器上的端口: 137/udp, 138/udp, 139/tcp, 445/tcp
@@ -179,7 +183,7 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
 - samba-client用于Linux连接其他主机的共享目录
 - Linux下表示的Windows的UNC路径: //SERVER/shared_name
 - 交互式数据访问
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   smbclient -L HOST -U USERNAME
     -L HOST: 获取主机上的共享资源
     -U USERNAME: 使用Windows上的哪个用户进行访问
@@ -194,7 +198,7 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
 - 服务脚本smb和nmb分别启动系统中的smbd和nmbd服务，两个服务要同时启动
 - 主配置文件: /etc/samba/smb.conf
   - 全局设定
-    #+BEGIN_SRC conf
+    #+BEGIN_SRC yaml
     workgroup = WORKGROUP  # 指定windows下的组名
     netbios name = MYSERVER  # 设定NetBIOS的主机名
 
@@ -205,7 +209,7 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
     - 用户家目录: 定义用户是否可以远程访问自己家目录
     - 打印机共享
     - 自定义共享
-      #+BEGIN_SRC conf
+      #+BEGIN_SRC yaml
       [shared_name]
           path = /path/to/share_directory
           ;comment = Comment String
@@ -215,11 +219,11 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
           write list = +GROUP_NAME  ; 哪些用户可写
       #+END_SRC
   - 测试配置文件
-    #+BEGIN_SRC conf
+    #+BEGIN_SRC yaml
     testparm
     #+END_SRC
 - samba的认证的用户是系统用户，但密码由samba自己的密码文件提供
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   smbpasswd [OPTIONS] Sys_User  
     -a: 添加系统用户为samba用户
     -x: 删除samba用户
@@ -227,4 +231,3 @@ directory  Client1(OPTIONS)  Client2(OPTIONS)
     -e: 启用samba用户
   #+END_SRC
 - 网页服务端设置: samba-swat，该软件基于xinetd运行
-

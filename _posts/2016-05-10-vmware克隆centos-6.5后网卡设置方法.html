@@ -3,11 +3,9 @@ title: "VMware克隆CentOS 6.5后网卡设置方法"
 date: 2016-05-10
 layout: post
 categories: 
-- 虚拟机
+- 虚拟化
 tags: 
-- VMware 
-- 虚拟机 
-- 电脑问题
+- 虚拟化
 published: true
 comments: 
 ---
@@ -36,7 +34,7 @@ comments:
 </pre>
 </div>
 <ul class="org-ul">
-<li>此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后重启</li>
+<li>此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后使用modprobe重新载入网卡驱动即可</li>
 </ul>
 
 

@@ -2,65 +2,59 @@
 #+DATE: 2016-07-31
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 集群
 #+JEKYLL_PUBLISHED: true
 
-TODO
 
-
-
-
------
 * 相关概念
-- Active: 活动节点
-- Passive: 备用节点
-- HA Service: 由多个主机resources组成
-- NTP: network time protocol，节点的状态确认需要同步时间
-- VRRP：virtual route redundent protocol，Keepalived所实现的协议名
-  - 通过虚拟一个路由来对VIP进行调度
-  - MASTER/BACKUP
+- =MASTER=: 活动节点
+- =BACKUP=: 备用节点
+- =HA Service=: 由多个主机resources组成
+- =NTP=: network time protocol，节点的状态确认需要同步时间
+- =VRRP=: virtual route redundent protocol，Keepalived所实现的协议名，通过虚拟一个路由来对VIP进行调度
 * Keepalived的主要组件
-- VRRP Stack: vrrp协议在Linux主机上以守护进程方式的实现
-- ipvs wrapper: 能够根据配置文件自动生成ipvs规则
-- Checkers: 对各RS做健康状态检测
+- =VRRP Stack=: vrrp协议在Linux主机上以守护进程方式的实现
+- =ipvs wrapper=: 能够根据配置文件自动生成ipvs规则
+- =Checkers=: 对各RS做健康状态检测
 * 配置
 ** 配置文件的组成部分
-- GLOBAL CONFIGURATION
-  - 设置邮箱
+- GLOBAL CONFIGURATION ::
+  - 设置通知邮箱
   - 设置路由ID
-- VRRPD CONFIGURATION
+- VRRPD CONFIGURATION ::
   - vrrp instance
   - vrrp synchonization group: 用于适应LVS-NAT
-- LVS CONFIGURATION
+- LVS CONFIGURATION ::
   - virtual server
 ** 配置前提
-1. 本机的主机名，要与hostname(uname -n)获得的名称保持一致
-   - 各节点要能互相解析主机名: 一般建议通过hosts文件进行解析
-2. 各节点时间同步
-   #+BEGIN_SRC conf
-   ntpdate IP  # 通过时间服务器进行同步
-   #+END_SRC
-3. 确保iptables及selinux不会成为服务阻碍
+- 本机的主机名，要与 =hostname(uname -n)= 获得的名称保持一致
+- 各节点要能互相解析主机名: 一般建议通过 =hosts= 文件进行解析
+- 各节点时间同步
+  #+BEGIN_SRC yaml
+  ntpdate IP  # 通过时间服务器进行同步
+  #+END_SRC
+- 确保iptables及selinux不会成为服务阻碍
 ** 全局设置
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 global_defs {
     notification_email {  # 邮件收件人
-	    root@localhost
+        root@localhost
     }
     notification_email_from kaadmin@localhost  # 邮件发件人
-    smtp_server 127.0.0.1
+    smtp_server 127.0.0.1  # 设置smtp服务器
     smtp_connect_timeout 30
     router_id HOSTNAME  # 路由ID
 }
 #+END_SRC
 ** VRRP设置
-- 对于Nginx类型的路由，DIP并不需要随着VIP的流动而流动，因为Nginx是通过反向代理来进行负载均衡的，报文的源地址是自己
-  - 通过定义多个vrrp_instance和DNS解析的配合来实现高可用的负载均衡组
-  #+BEGIN_SRC conf
+
+- Nginx集群和LVS-DR ::
+  对于Nginx集群和LVS-DR的路由，DIP并不需要随着VIP的流动而流动，因为Nginx是通过反向代理来进行负载均衡的，报文的源地址是自己。因此只需要对VIP进行路由即可
+  - 通过定义多个 =vrrp_instance= 和 =DNS解析= 的配合来实现高可用的负载均衡组，即使用每个director使用不同的IP，当有一个director出问题时会将其ip转移到正常的director上
+  #+BEGIN_SRC bash
   vrrp_script chk_nginx {  # 定义脚本来监控本机的Nginx
-      # script "[[ -f /etc/keepalived/down ]] && exit 1 || exit 0"  # 可使用shell脚本文件
-      script "killall -0 nginx"
+      script "killall -0 nginx"  # 检测进程是否存在，可以使用shell脚本文件
       interval 1  # 每隔多少秒实行一次
       weight -20  # 脚本执行失败时的操作，权重减20
   }
@@ -69,17 +63,17 @@ global_defs {
       state {MASTER|BACKUP}  # 定义主机在该虚拟路由下的属性
       interface eth0
       virtual_router_id 144  # 需要唯一和统一，虚拟路由会自动以该ID生成网卡Mac后两位
-      # nopreempt  # 启用非抢占模式
+      # nopreempt  # 启用非抢占模式，即当活动服务器失效时才启用备用服务器
       priority 100  # 当有多个MASTER时根据优先级进行抢占
       advert_int 1  # 通告自己状态的时间间隔(单位:秒)
-      # vrrp_mcast_group4 224.0.1.118  # 多播组地址，防止相互干扰，每个虚拟路由需要不同
+      # vrrp_mcast_group4 224.0.1.118  # 多播组地址，防止相互干扰，每个虚拟路由需要不同的地址
       authentication {  # 认证方法
           auth_type PASS  # 简单字符认证，可以用MD5但效率会降低
           auth_pass 84ae57f7f4f6  # 认证字符串
       }
       virtual_ipaddress {  # 虚拟IP地址
           <IPADDR>/<MASK> [brd <IPADDR> dev <STRING> scope <SCOPE> label <LABEL>]
-          172.16.100.88/16 dev eth0 label eth0:1
+          172.16.100.88/16 dev eth0 label eth0:1  # 对VIP进行路由
       }
 
       track_script {
@@ -92,22 +86,20 @@ global_defs {
       notify_fault "/etc/keepalived/notify.sh fault"  # 当前节点成为FAULT时
   }
   #+END_SRC
-- 对于LVS-NAT来说，由于转发的报文不需要更改源地址，内部的RS通过设定Director为网关来实现，所以DIP需要随着VIP的流动而流动
-  #+BEGIN_SRC conf
+- LVS-NAT集群 ::
+  对于LVS-NAT来说，由于转发的报文不需要更改源地址，内部的RS通过设定Director为网关来实现，所以DIP需要随着VIP的流动而流动，因此需要对VIP和DIP都定义路由
+  #+BEGIN_SRC bash
   vrrp_sync_group VG_1 {  # 定义同步组
-	  group {
+      group {
           VI_1  # 通过vrrp_instance定义VIP 
           VI_2  # 通过vrrp_instance定义DIP
       }
   }
   #+END_SRC
 ** 发送通知脚本
-#+BEGIN_SRC sh
+#+BEGIN_SRC bash
 #!/bin/bash
-# Author: MageEdu <linuxedu@foxmail.com>
-# description: An example of notify script
 # 
-
 vip=172.16.100.88
 contact='root@localhost'
 
@@ -134,21 +126,25 @@ case "$1" in
         echo 'Usage: `basename $0` {master|backup|fault}'
         exit 1
     ;;
-esac		
+esac        
 #+END_SRC
 ** 利用Keepalived设定ipvs
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 virtual_server 172.16.100.88 80 {  # 可以使用防火墙标记fwmark
     delay_loop 6  # 健康状态检查的间隔时间
+
     lb_algo {rr|wrr|lc|wlc|lblc|sh|dh}
     lb_kind {NAT|DR|TUN}
-    persistence_timeout 0  # 持久时间
-    nat_mask 255.255.0.0
+
     protocol TCP
+    nat_mask 255.255.0.0
+
+    persistence_timeout 0  # 保持时间
+
     sorry_server 127.0.0.1 80  # 所有RS下线时显示的页面
     real_server 172.16.100.6 80 {
-        # notify_up ...: 上线通知
-        # notify_down ...: 下线通知
+        # notify_up ...  # 上线通知
+        # notify_down ...  # 下线通知
         weight 1
         HTTP_GET|SSL_GET {  # 健康状态检测方式
             url {

@@ -1,0 +1,318 @@
+#+TITLE: Docker
+#+DATE: 2016-08-13
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 虚拟化
+#+JEKYLL_TAGS: Linux 虚拟化
+#+JEKYLL_PUBLISHED: true
+
+
+* NameSpace
+=NameSpace= 是在内核级别实现环境隔离的方法
+| NameSpace         | 功能                                 |
+|-------------------+--------------------------------------|
+| PID NameSpace     | PID隔离                              |
+| Network NameSpace | 网络设备、网络栈、端口等网络资源隔离 |
+| User NameSpace    | 用户和用户组资源隔离                 |
+| IPC NameSpace     | 信号量、消息队列和共享内存的隔离     |
+| UTS NameSpace     | 主机名和域名的隔离                   |
+| Mount NameSpace   | 挂载点(文件系统)隔离                 |
+: API: clone(), setns(), unshare()
+
+* CGroup
+: Linux Control Group: 内核级别上，限制和控制一个进程组群的资源
+** 功能
+- =Resource limitation=: 资源限制
+- =Prioritization=: 优先级控制
+- =Accounting=: 审计和统计，主要为计费
+- =Control=: 挂起进程，恢复进程
+** CGroups子系统
+子系统的设定挂载于 =/sys/fs/cgroug= 中
+| 名称       | 功能                                                  |
+|------------+-------------------------------------------------------|
+| blkio      | 设定块设备的IO限制                                    |
+| cpu        | 设定CPU的限制                                         |
+| cpuacct    | 报告cgroup中CPU资源使用率                             |
+| memory     | 设定内存的使用限制                                    |
+| cpuset     | 分配CPU数量和内存数量                                 |
+| devices    | 控制对设备的访问                                      |
+| freezer    | 挂起或恢复cgroup中的任务                              |
+| net_cls    | 使用classid来标记网络数据包，实现基于tc命令的流量控制 |
+| perf_event | 使用后使cgroup中的任务可以进行统一的性能测试          |
+| hugetlb    | 对HugeTLB(大内存页)系统进行限制                       |
+- 相关术语 ::
+  - =task=: 进程或线程
+  - =cgroup=: 一个独立的资源控制单位，可以包含一个或多个子系统
+  - =subsystem=: 子系统
+  - =hierarchy=: 层级
+- 查询挂载的子系统设定 ::
+  #+BEGIN_SRC bash
+  mount 
+  lssubsys -m  
+  #+END_SRC
+* 文件系统分层
+** AUFS
+=UnionFS=: 把不同的物理位置的目录按顺序叠加显示到同一个目录中，对其修改只在最上层的文件夹中生效，CentOS没有整合
+#+BEGIN_SRC bash
+mount -t aufs -o dirs=/PATH:/PATH none /PATH
+#+END_SRC
+** Device mapper
+=Device mapper= 用于在内核中支持逻辑卷管理的通用设备映射机制，类似于lvm的快照机制
+* Docker
+** Docker功能
+- 隔离应用 
+- 维护镜像
+- 创建易于分发的应用
+- 快速扩展
+
+** Docker组件
+- =docker client=: docker的客户端工具，Docker是C/S架构的
+- =docker deamon=: Docker守护进程，用户可通过docker client与其交互
+- =docker container=: docker的运行实例，容器是一个隔离环境
+- =docker link=: 网络
+- =docker volume=: 卷
+- =image=
+  - 镜像文件是只读的，一个镜像可以运行多个container
+  - 镜像文件可以通过Dockerfile文件创建，也可以从docker hub/registry下载
+- =repository=
+  - 公共仓库: Docker hub/registry 
+  - 私有仓库: Docker registry
+
+** Docker架构
+*** 镜像
+镜像包含了启动Docker容器所需要的文件系统层级及其内容，基于 =UnionFS= 采用分层结构实现，最底部两层是 =bootfs= 、 =rootfs= 
+- registry :: 保存docker镜像及镜像层次结构和元数据的服务器
+  - =repository=: 由具有某个功能的镜像的所有相关版本构成的集合
+  - =index=: 管理用户的账号、访问权限、镜像及镜像标签等等相关的索引
+- graph :: 负责管理本地所有镜像层级，以及记录其与各容器的连接关系到 =graphDB= 中，位置在 =/var/lib/docker/graph=
+- 相关的命令 ::
+  - =images=: 列出本地所有镜像文件
+  - =search=: 搜索可用的镜像文件
+  - =tag=: 给一个镜像文件打一个新的标签
+    #+BEGIN_SRC bash
+    docker tag IMAGE_ID [REGISRY_HOST:PORT/]NAME[:TAG]
+    #+END_SRC
+  - =pull=: 从registry下载镜像文件
+  - =push=: 上传镜像文件到registry
+  - =login/logout=: 登录/注销
+  - =build=: 根据Dockerfile创建镜像文件
+  - =commit=: 根据容器修改创建镜像文件
+  - =rmi=: 删除本地镜像文件
+*** 容器
+容器是独立运行的一个或一组应用，以及它们运行的环境
+- 容器运行的步骤 ::
+  1. 检查本地是否存在指定的镜像，不存在则从registry下载
+  2. 利用镜像启动容器
+  3. 分配一个文件系统，并且在只读的镜像层之外挂载一个可读写层
+  4. 从宿主机配置的网桥接口桥接一个虚拟接口给此容器
+  5. 从地址池中分配一个地址给容器
+  6. 执行用户指定的应用程序
+  7. 程序执行完成后，容器即终止
+- 相关的命令 ::
+  - =run=: 运行一个容器
+    #+BEGIN_SRC yaml
+    docker run [OPTIONS] IMAGES [COMMAND]
+      --name="NAME": 设定容器名称
+
+      -i: 开启交互式模式，即开启STDIN
+      -t: 分配一伪终端
+      -d: 后台运行容器，常与-f配合使用启动服务
+      -f: 前台运行容器中的进程
+
+      --rm: 容器关闭时会自动删除容器和卷(当该卷没有容器使用时)
+
+      --link: 定义容器间的依赖关系，启动该容器前需要先启动所依赖的容器
+
+      --net default: 设置网络模式，默认是桥接到docker0上
+      -h HOSTNAME: 设定容器的主机名
+      --dns DNS_IP: 设定DNS
+      --add-host "HOSTNAME:IP": 添加容器中的hosts记录
+
+      -p [主机IP:][主机端口号:]容器端口号: 将容器端口号映射到主机IP的端口号上，默认为所有IP的随机端口，其实就是添加iptables规则
+      -P: 映射所有--expose定义或Dockerfile的EXPOSE定义的端口到随机端口
+    #+END_SRC
+  - =start=: 启动一个停止的容器
+  - =restart=: 重启容器
+  - =stop=: 发送SIGTERM信号到一个容器
+  - =kill=: 发送SIGKILL信号到一个容器
+  - =attach=: 附加至一个运行中的容器中，即试该容器成为前台
+  - =log=: 获取一个容器的日志，即其输出的信息
+*** Registry
+- 公共Registry :: =Docker Hub=
+- 私有Registry :: 
+  - 建立私有Registry
+    1. 安装 =docker-registry=
+    2. 配置 =/etc/docker-registry.yml=
+      #+BEGIN_SRC yaml
+      sqlalchemy_index_database: ...:sqlite:////tmp/docker-registry.db  # 配置镜像索引数据库的存储位置，需要有写权限
+      #+END_SRC
+    3. 启动docker-registry服务
+    4. 可以使用nginx反代，使用ssl基于basic做用户认证
+  - 配置Docker客户端
+    1. 配置 =/etc/sysconfig/docker=
+      #+BEGIN_SRC bash
+      ADD_REGISTRY='--add-registry 172.16.100.68:5000' 
+      INSECURE_REGISTRY='--insecure-registry 172.16.100.68:5000'  # 不使用SSL
+      #+END_SRC
+    2. push镜像
+      #+BEGIN_SRC bash
+      docker tag IMAGE_ID REGISRY_HOST:PORT/NAME[:TAG]  # 打标签
+      docker push REGISRY_HOST:PORT/NAME[:TAG]  # 上传
+      #+END_SRC
+    3. pull镜像
+      #+BEGIN_SRC bash
+      docker pull REGISRY_HOST:PORT/NAME[:TAG]
+      #+END_SRC
+
+*** Data Volume
+数据卷是供一个或多个容器使用的文件或目录
+- 数据卷特性 ::
+  - 可以共享于多个容器之间
+  - 对数据卷的修改会立即生效
+  - 对数据卷的更新与镜像无关
+  - 数据卷会一直存在
+- 使用数据卷的方式 ::
+  - =-v [主机路径:]容器路径=: 将容器路径映射为主机路径，默认主机路径为 =/var/lib/docker/volumes= 下的随机名文件夹
+  - 在 =Dockerfile= 中使用 =VOLUME= 指令定义
+  - =--volumes-from=容器名=: 授权一个容器访问另一个容器的Volume
+- 相关命令使用 ::
+  - 删除卷
+    #+BEGIN_SRC yaml
+    docker rm -v CONTAINER_NAME  # 删除容器的同时删除其卷
+    #+END_SRC
+  - 备份
+    #+BEGIN_SRC bash
+    docker run --rm --volumes-from 容器名 -v $(pwd):/backup busybox:latest tar cvf /backup/data.tar /data  # 将容器的卷/data备份到当前目录的data.tar文件
+    #+END_SRC
+
+** 容器的网络模型
+*** Closed container
+- 创建选项: =--net none=
+- 仅有一个网络接口: =loopback= 
+- 不参与网络通信，仅适用于无须网络通信的应用场景，例如备份、程序调试等
+*** Bridged container
+- 创建选项: =--net bridge=
+- 容器有两个网络接口:  =loopback=, =以太网接口= (桥接到主机的桥上，默认为docker0)
+- 如果想要改变默认的桥，则需要在运行docker服务时，使用 =-b= 选项指明要使用的桥
+*** Joined container
+- 创建选项: =--net container:容器名=
+- 共享网络名称空间，共用一个网络接口，用于监控和管理其他容器的网络
+*** Open container
+- 创建选项: =--net host=
+- 容器使用Host的网络名称空间
+** 容器的资源限制
+使用run命令的选项来限制资源
+- =-m=: 限制内存
+- =--cpuset-cpus=: 指定运行在哪些cpu上
+- =--shm-size=: 限制共享内存，即 =/dev/shm=
+** Docker监控命令
+- =ps=: 查询容器的相关信息
+  #+BEGIN_SRC yaml
+  docker ps  # 查询正在运行的容器
+  docker ps -a  # 查询所有容器
+  #+END_SRC
+- =images=: 查看当前主机的镜像信息
+- =stats=: 查询容器状态的统计信息，实时监控容器的运行状态
+- =inspect=: 查看镜像或容器的底层详细信息
+- =top=: 查看正在运行的指定容器中的进程运行状态
+- =port=: 查看当前的端口映射
+: 其他用于监控容器的镜像: google/cadvisor
+** 容器的导入和导出
+#+BEGIN_SRC yaml
+docker export  # 将容器的文件系统导出为一个tar文件
+docker import  # 将一个tar文件中打包为镜像
+#+END_SRC
+** 镜像的保存及装载
+#+BEGIN_SRC bash
+docker save -o /PATH/TO/SOMEFILE.TAR NAME[:TAG]  # 将一个镜像保存为一个tar文件
+docker load -i /PATH/FROM/SOMEFILE.TAR
+#+END_SRC
+* Dockerfile
+: Dockerfile是由一系列用于根据基础镜像构建新的镜像文件的专用指令序列组成文件，用于构建新的镜像
+** 相关术语
+- 指令: 选定基础镜像、安装必要的程序、复制配置文件和数据文件、自动运行的服务以及要暴露的端口等，指令一般使用 *大写*
+- 换行: 使用 =\= 来将一条命令分成两行
+- 注释: 以 =#= 开头的行，必须单独位于一行中
+** 指令
+- FROM指令 :: 必须是第一个非注释行，用于指定所用到的基础镜像
+  #+BEGIN_SRC yaml
+  FROM image[:tag][@digest]
+    image: 指定镜像文件
+    tag: 指定标签
+    digest: 对比校验码
+  #+END_SRC
+- MAINTAINER指令 :: 用于提供信息的指令，如作者信息，一般放在FROM之后
+  #+BEGIN_SRC yaml
+  MAINTAINER QiuMP <qiumupo@qq.com>
+  #+END_SRC
+- COPY指令 :: 用于从主机复制文件至正在创建的镜像文件中，其UID和GID均为0
+  #+BEGIN_SRC yaml
+  COPY src... dest  
+  COPY ["src",...,"dest"]  # 路径中有空格
+    src: 要复制的源文件或目录，可以使用通配符，只能指定与build同目录的文件
+    dest: 镜像文件系统的绝对路径，或相对于WORKDIR的相对路径，若是目录则需要以/结尾
+  #+END_SRC
+- ADD指令 :: 类似于COPY指令，额外还支持展开本地TAR文件，以及URL路径(下载后文件权限为600)
+  #+BEGIN_SRC yaml
+  ADD SRC... DEST  
+  ADD ["SRC",...,"DEST"]  # 路径中有空格时使用该格式
+  #+END_SRC
+- ENV指令 :: 定义环境变量，Dockerfile调用格式为 =$variable_name= 或 =${variable_name}=
+  #+BEGIN_SRC yaml
+  ENV KEY="VALUE" ...  # 可定义多个变量
+  #+END_SRC
+  - ENV定义的环境变量在镜像运行的整个过程中一直存在，可以使用 =inspect= 命令查看
+  - 可以在 =docker run= 启动此镜像时,使用 =--env= 选项来修改指定变量的值
+- USER指令 :: 指定运行镜像时或运行Dockerfile文件中的任何RUN/CMD/ENTRYPOINT指令指定的程序时的用户名或UID
+  #+BEGIN_SRC bash
+  USER uid[:gid]  # uid用户必须存在
+  USER username[:groupname]
+  #+END_SRC
+- WORKDIR指令 :: 用于为Dockerfile中所有的 =RUN/CMD/ENTRYPOINT/COPY/ADD= 指令指定工作目录
+  #+BEGIN_SRC yaml
+  WORKDIR /var/log
+  WORKDIR $VAR
+  #+END_SRC
+  : WORDIR可出现多次，也可使用相对路径，此时表示相对于前一个WORKDIR指令指定的路径
+- VOLUME指令 :: 在容器中创建一个挂载点目录映射到主机路径，默认主机路径为 =/var/lib/docker/volumes=
+  #+BEGIN_SRC yaml
+  VOLUME mount_point
+  VOLUME ["mount_point",...]
+  #+END_SRC
+  : 如果mount_point路径下事先有文件存在，容器会在卷挂载完成后将此前的文件复制到新挂载的卷中
+- RUN指令 :: 用于指定 =docker build= 过程中要运行的命令,而不是docker run此dockerfile构建成的镜像时运行的命令
+  #+BEGIN_SRC yaml
+  RUN command  # 启动一个shell来运行此命令
+  RUN ["execute","param1","param2",...]
+  RUN ["/bin/bash","-c",...]  # 相当于 RUN command
+  #+END_SRC
+  #+BEGIN_SRC yaml
+  RUN yum install ... && yum clean all
+  #+END_SRC
+- CMD指令 :: 指定在 =docker run= 时运行的默认命令或参数，会被docker run的命令行参数所覆盖
+  #+BEGIN_SRC yaml
+  CMD command  # 启动一个shell来运行此命令
+  CMD ["execute","param1","param2",...]
+  CMD ["param1","param2",...]  # 为ENTRYPOINT提供默认参数
+  #+END_SRC
+  : 如果dockerfile中存在多个CMD指令，仅最后一个生效
+- ENTRYPOINT指令 :: 类似于CMD指令，但不会被docker run的命令行参数所覆盖，这些命令行参数会作为参数送给 =ENTRYPOINT= 指令指定的程序
+  #+BEGIN_SRC yaml
+  ENTRYPOINT command  # 启动一个shell来运行此命令
+  ENTRYPOINT ["execute","param1","param2",...]
+  #+END_SRC
+  : docker run的选项 --entrypoint 可以覆盖该指令
+- EXPOSE指令 :: 用于为容器指定要暴露的端口
+  #+BEGIN_SRC yaml
+  EXPOSE port
+  EXPOSE port/protocol  # 指定tcp或udp
+  #+END_SRC
+- ONBUILD指令 :: 当前dockerfile构建出的镜像被用作基础镜像去构建其它镜像时，ONBUILD指令指定的操作才会被执行
+  #+BEGIN_SRC yaml
+  ONBUILD ADD my.cnf /etc/mysql/my.cnf
+  #+END_SRC
+  : ONBUILD不能自我嵌套，且不能使用FROM和MAINTAINER指令
+**  构建镜像
+#+BEGIN_SRC bash
+docker build -f PATH/Dockerfile -t NAME:tag PATH  # PATH指定存在Dockerfile的文件夹，Dockerfile默认为该文件夹下的Dockerfile文件
+#+END_SRC

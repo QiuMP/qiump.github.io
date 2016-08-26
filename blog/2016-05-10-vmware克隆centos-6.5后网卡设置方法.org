@@ -2,8 +2,8 @@
 #+DATE: 2016-05-10
 #+SETUPFILE: ~/mydrive/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 虚拟机
-#+JEKYLL_TAGS: VMware 虚拟机 电脑问题
+#+JEKYLL_CATEGORIES: 虚拟化
+#+JEKYLL_TAGS: 虚拟化
 #+JEKYLL_PUBLISHED: true
 
 解决VMware克隆Centos系统后网卡无法启动的问题
@@ -22,7 +22,7 @@ SUBSYSTEM=="net", ACTION=="add",DRIVERS=="?*", ATTR{address}=="00:0c:29:16:f4:f0
 # PCI device0x1022:0x2000 (pcnet32) 
 SUBSYSTEM=="net", ACTION=="add",DRIVERS=="?*", ATTR{address}=="00:0c:29:52:45:97",ATTR{type}=="1", KERNEL=="eth*", NAME="eth1"
 #+END_SRC
-- 此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后重启
+- 此时需要注释掉克隆系统的eth0后将本系统网卡的名字eth1改为eth0，然后使用modprobe重新载入网卡驱动即可
 
 
 

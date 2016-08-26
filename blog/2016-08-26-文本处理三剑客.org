@@ -1,0 +1,203 @@
+#+TITLE: 文本处理三剑客
+#+DATE: 2016-06-06
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 文本处理
+#+JEKYLL_TAGS: Linux Bash
+#+JEKYLL_PUBLISHED: true
+
+* grep
+ grep是一个文本过滤工具，根据用户指定的“模式pattern”对目标文本逐行进行匹配检查，打印匹配到的行
+- grep工具有三种: 
+  - =grep= 支持基础正则表达式
+  - =egrep= 相当于 =grep -E= ，用于扩展正则表达式
+  - =fgrep= 不支持正则表达时，但匹配速度快
+#+BEGIN_SRC yaml
+grep [OPTIONS] PATTERN [FILE...]
+  -E: 使用扩展正则表达式ERE
+
+  -v: 显示不能够被pattern匹配到的行
+  -i: ignore 忽略字符大小写
+  -o: only 仅显示匹配到的字符串
+  -q: quite 静默模式，不输出任何信息(后边可以检查$?来检查是否匹配到)
+  
+  -r: 同时搜索目录的子目录
+
+  -A num: after, 匹配的行同时显示其后num行
+  -B num: before, 匹配的行同时显示其前num行
+  -C num: context, 匹配的行同时显示其前后num行
+
+  --color=auto: 对匹配到的文本着色显示
+#+END_SRC
+* sed
+sed: Stream EDitor，是一个行编辑器
+- sed有两个缓存空间: 模式空间和保持空间
+- sed每次读取文件的一行到模式空间中处理，结束时将模式空间的内容输出至屏幕
+#+BEGIN_SRC yaml
+sed [option]... 'script' inputfile...
+  -r: 支持使用扩展正则表达式
+
+  -n: 不输出模式空间中的内容至屏幕，即使用p来显示内容
+  -e: 多点编辑
+
+  -f /PATH/TO/SCRIPT_FILE: 从指定文件中读取编辑脚本
+  -i: 原文件编辑
+   
+  script: 地址+命令，多条命令用;隔开，命令可以使用{}括起多条命令
+#+END_SRC
+- 地址定界 ::
+  - 不给地址: 对全文进行处理
+  - 单地址: 
+    - =#=: 指定的行
+    - =/pattern/=: 被此处模式所能够匹配到的每一行
+  - 地址范围: 
+    - =#,#=
+    - =#,+#=
+    - =/pat1/,/pat2/=
+    - =#,/pat1/=
+  - =first~step=: 步进
+  - =!=: 取反条件，放在地址范围之后
+- 编辑命令 ::
+  - =!=: 取反条件，放在编辑命令之前
+  - =d=: 删除
+  - =p=: 显示模式空间中的内容(一般配合 =-n= 使用)
+  - =a \text=: 在行后面追加新行(支持使用\n实现多行追加)
+  - =i \text=: 在行前面插入文本(支持使用\n实现多行插入)
+  - =c \text=: 替换行(同时替换地址范围所有行)为单行或多行文本
+  - =w /path/to/somefile=: 保存模式空间匹配到的行至指定文件中
+  - =r /path/from/somefile=: 读取指定文件的文本流至模式空间中匹配到的行的行后
+  - ===: 为模式空间中的行打印行号
+  - =l=: 打印行中的特殊字符
+  - =y/inchars/outchars/=: 转换命令，对inchars中的字符替换成outchars对应的字符
+  - =s///NUM=: 查找替换第NUM个(默认为1)匹配
+    - 替换内容中使用 =&= 来代表所匹配的内容
+    - 替换标记
+      - =g=: 行内全局替换
+      - =p=: 显示替换成功的行
+      - =w= /PATH/TO/SOMEFILE: 将替换成功的结果保存至指定文件中
+- 高级编辑命令 ::
+  - =h=: 把模式空间中的内容覆盖至保持空间中
+  - =H=: 把模式空间中的内容追加至保持空间中
+  - =g=: 从保持空间取出数据覆盖至模式空间
+  - =G=: 从保持空间取出内容追加至模式空间
+  - =x=: 把模式空间中的内容与保持空间中的内容进行互换
+  - =n=: 输出模式空间的内容，读取匹配到的行的下一行至模式空间
+  - =N=: 追加匹配到的行的下一行至模式空间，若到没有下一行可读，则立即停止程序
+  - =d=: 删除模式空间中的所有行
+  - =D=: 删除模式空间中的第一行，即删除到第一个换行符
+- 改变流 ::
+  - =D=: D命令删除第一行后会强制sed返回脚本顶部，而不读取新的行
+  - =b [label]=: 跳转到label标签的位置，若省略则跳转到脚本结尾
+    - 标签的位置通过 =:label= 来指定
+    #+BEGIN_SRC bash
+    :start
+    s/,//1p
+    /,/b start  # 使用地址模式避免死循环
+    #+END_SRC
+  - =t [label]=: 检查最近一次替换是否成功，成功则跳转到标签位置或脚本结尾，失败则继续执行脚本
+  - =T [label]=: 检查最近一次替换是否失败，失败则跳转到标签位置或脚本结尾，成功则继续执行脚本
+
+* gawk(F)
+
+gawk是一个文本报告生成器，用于格式化文本输出，Linux下的awk命令是gawk的链接文件
+- gawk每次读取文件的一行到模式空间中处理，根据字段分隔符进行切割
+#+BEGIN_SRC yaml
+gawk [options] 'program' FILE...
+  -F: 指明输入时用到的字段分隔符(默认为空白字符，不同于cut)，可以用 [%:] 指定多个分隔符
+  -f FILE: 从FILE中读取program
+  -v var=value: 自定义变量
+
+  program: PATTERN{ACTION}
+#+END_SRC
+- 字段 ::
+  - =$0=: 当前处理的内容
+  - =$1=, =$2=,...: 第n个字段
+- 变量(引用变量时不需要用$) ::
+  - 内建变量 ::
+    - =FS=: input field seperator，输入时的字段分隔符，默认为空白字符
+    - =OFS=: output field seperator，输出时的字段分隔符，默认为空白字符
+    - =RS=: input record seperator，输入时的行分隔符
+    - =ORS=: output record seperator，输出时的行分隔符
+    - =NF=: number of field，当前行字段数量
+      : $NF 为最后一个字段的内容
+    - =NR=: number of record, 当前已处理的行数
+    - =FNR=: 当前文件已处理的行数
+    - =FILENAME=: 当前文件名
+    - =ARGC=: 命令行参数的个数
+    - =ARGV[n]=: 保存命令行所给定的各参数的数组
+  - 自定变量 ::
+    - 使用 =-v var=value=
+    - 在program中直接定义
+- 数组 ::
+  - awk支持关联数组: =array["yes"]=
+  - 在引用时，如果某数组元素事先不存在，awk会自动创建此元素，并将其值初始化为"空串"
+  - 判断数组中是否存在某键值，使用 =index in array=
+- 操作符 ::
+  - 算数操作符: =+=, =-=, =*=, =/=, =**=, =%=
+  - 赋值操作符: ===, =+==, =-+=, =*==, =/==, =%==, =^==, =++=, =--=
+    - 空字符串计算时会被视作 0
+  - 比较操作符: =>=, =>==, =<=, =<==, =!==, ====
+  - 模式匹配符:
+    - =$NF~/bash$/=: 匹配正则表达式，最后一个字段是否以bash结尾
+    - =!~=: 是否不匹配
+  - 逻辑操作符: =&&=, =||=, =!=
+  - 三元操作符: =CONDITION? if-true-expression: if-false-expression=
+  - 函数调用: =FNAME(argu1,argu2...)=
+- PATTERN ::
+  1. =empty=: 空模式，匹配每一行
+  2. =/regular/=: 仅处理能够被此处的模式匹配到的行
+  3. =!/regular/=: 仅处理不能够被此处的模式匹配到的行
+  4. =/pat1/,/pat2/=: 从pat1匹配的行到pat2匹配的行
+  5. =关系表达式=: 结果为真时(非0值或非空字符)才会被处理，若有多个判断则用括号括起来
+  6. =BEGIN=: 仅在开始处理文件中的文本之前执行一次，可在里边定义分隔符
+  7. =END=: 仅在文本处理完成之后执行一次
+- 输出 ::
+  - print
+    #+BEGIN_SRC bash
+    print item1, item2, ...
+    #+END_SRC
+    - 分隔符要使用逗号，若使用空格则会被连接起来显示
+    - 输出的item可以是字符串(用双引号括起)、数值，也可以是当前记录的字段、变量或awk的表达式(不能用双引号括起来)
+    - 如果省略item, 相当于 =print $0=
+    - print会自动换行
+  - printf
+    #+BEGIN_SRC yaml
+    printf FORMAT, item1, ...
+      格式符:
+        %c: 显示字符的ASCII码
+        %d, %i: 显示十进制整数
+        %e, %E: 科学计数法数值显示
+        %f: 显示为浮点数
+        %g, %G: 以科学计数法或浮点形式显示数值
+        %s: 显示字符串
+        %u: 无符号整数
+        %%: 显示%自身
+      修饰符:
+        *[.*]: 第一个数字控制显示的宽度，第二个*表示小数点后的精度，例如 %3.1f
+        -: 左对齐
+        +: 显示数值的符号
+    #+END_SRC
+- 控制语句 ::
+  - =if(condition) {statments}=
+  - =if(condition) {statments} else {statements}=
+  - =switch(expression) {case VALUE1 or /REGEXP/: statement; ...; default: statement}=
+  - =while(conditon) {statments}=
+  - =do {statements} while(condition)=
+  - =for(expr1;expr2;expr3) {statements}=
+  - =for(var in array) {statements}=: var会遍历array的每个索引
+  - =break [n]=
+  - =continue [n]=
+  - =delete array[index]=: 删除数组中的指定元素
+  - =delete array=
+  - =netx=: 提前结束对本行的处理而直接进入下一行
+  - =exit [n]=: 马上执行END块后结束awk，如果已经在END块中则退出状态码为n
+- 函数 ::
+  - 常用内置函数 ::
+    - =rand()=: 返回0到1之间的一个随机数
+    - =length([s])=: 返回指定字符串的长度
+    - =sub(r,s,[t])=: 以r表示的模式来查找t所表示的字符中的匹配的内容，并将其第一次出现替换为s所表示的内容
+    - =gsub(r,s,[t])=: 以r表示的模式来查找t所表示的字符中的匹配的内容，并将其所有出现均替换为s所表示的内容
+    - =split(s,a[,r])=: 以r为分隔符切割字符s，并将切割后的结果保存至a所表示的数组中
+  - 自定义函数 ::
+    - =function name(argu,...){statments}=
+    - 自定义函数需要放在所有代码块(包括BEGIN代码块)之前

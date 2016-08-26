@@ -2,27 +2,21 @@
 #+DATE: 2016-06-15
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 任务计划
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-简单介绍了电子邮件的使用，以及Linux定时任务和周期任务的设定，包括at, batch, cron等
-
-
-
-
------
 * 电子邮件
 ** 电子邮件服务的协议
-- smtp: simple mail transmission protocol, 用于传送邮件
-- pop3: Post Office Protocol, 用于接收邮件
-- imap4：Internet Mail Access Protocol, 用于接收邮件
+- =smtp=: simple mail transmission protocol, 用于传送邮件
+- =pop3=: Post Office Protocol, 用于接收邮件
+- =imap4=: Internet Mail Access Protocol, 用于接收邮件
 ** MUA
 MUA: Mail User Agent
 - 本机用户的邮件在 =/var/spool/mail= 的子目录里
-- mail: send and receive Internet mail
-#+BEGIN_SRC conf
-mailx [-s 'SUBJECT'] username[@hostname]  # 发送邮件
+- =mail=: send and receive Internet mail
+#+BEGIN_SRC bash
+mailx [-s '主题'] username[@hostname]  # 发送邮件
   邮件生成方式
     (1) 直接给出，Ctrl+d
     (2) 输入重定向
@@ -30,36 +24,39 @@ mailx [-s 'SUBJECT'] username[@hostname]  # 发送邮件
 
 mailx  # 打开自己的邮筒
 #+END_SRC
+
 * Linux任务计划
 ** at
-- 任务的输出和结果会以邮件的形式通知给相关用户
-#+BEGIN_SRC sh
+at用于定时执行任务，任务的输出和结果会以邮件的形式通知给相关用户
+#+BEGIN_SRC yaml
 at [option] TIME  # 定义任务，Ctrl+D提交
   -q QUEUE: 指定任务队列(默认为a)
   -l: 列出指定队列中等待运行的作业，相当于atq
   -d: 删除指定的作业，相当于atrm
   -c NUM: 查看具体作业任务
-  -f /path/from/somefile：从指定的文件中读取任务
+  -f /path/from/somefile: 从指定的文件中读取任务
 
   TIME
-	HH:MM [YYYY-mm-dd]
-	noon, midnight, teatime
-	tomorrow
-	now+NUM{minutes|hours|days|weeks}
+    HH:MM [YYYY-mm-dd]
+    noon, midnight, teatime
+    tomorrow
+    now+NUM{minutes|hours|days|weeks}
 #+END_SRC
 ** batch
-让系统自行选择空闲时间去执行此处指定的任务
+让系统自行选择空闲时间去执行此处指定的任务，即太忙的时候不会执行batch后的命令
+#+BEGIN_SRC bash
+batch COMMAND
+#+END_SRC
 ** cron
-cron用于周期性运行某任务
-- 任务的输出和结果会以邮件的形式通知给相关用户
+cron用于周期性运行某任务，任务的输出和结果会以邮件的形式通知给相关用户
 *** 相关程序包
-- cronie: 主程序包，提供了crond守护进程及相关辅助工具
-- cronie-anacron：cronie的补充程序，用于监控cronie任务执行状况，如cronie中的任务在过去该运行的时间点未能正常运行，则anacron会随后启动一次此任务
-- crontabs：包含CentOS提供系统维护任务
+- =cronie=: 主程序包，提供了crond守护进程及相关辅助工具
+- =cronie-anacron=: cronie的补充程序，用于监控cronie任务执行状况，如cronie中的任务在过去该运行的时间点未能正常运行，则anacron会随后启动一次此任务
+- =crontabs=: 包含CentOS提供系统维护任务
 *** 设置周期性任务
 **** 系统cron任务
 通过编辑 =/etc/crontab= 实现
-#+BEGIN_SRC sh
+#+BEGIN_SRC bash
 min hour day month week user-name COMMAND  # crontab文件格式
  10 21 * * * qiu /bin/echo "yes"  # 每天10:21以 qiu 的身份执行 echo "yes"
  0 */3 * * * root /bin/echo  # 每三小时执行一次
@@ -67,16 +64,16 @@ min hour day month week user-name COMMAND  # crontab文件格式
 #+END_SRC
 - 时间表示
   1. 有效范围里的特定值 
-  2. 整个有效范围: *
-  3. 离散值: 1,2,3
-  4. 连续值: 1-3,4
-  5. 在时间范围内定义步长，即能整除就运行: 范围/NUM
-- cron条目中，使用 % 需要进行转义，不过在单引号中不用转义
+  2. 整个有效范围: =*=
+  3. 离散值: =1,2,3=
+  4. 连续值: =1-3,4=
+  5. 在时间范围内定义步长，即能整除就运行: =范围/NUM=
+- cron条目中，使用 =%= 需要进行转义，不过在单引号中不用转义
 **** 用户cron
 通过 =crontab= 来定义
-- 每个用户都有专用的cron任务文件：/var/spool/cron/USERNAME
+- 每个用户都有专用的cron任务文件: =/var/spool/cron/USERNAME=
 - 用户的cron条目不需要指定用户名
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 crontab [-u user] [-l | -r | -e] [-i] 
   -l: 列出所有任务
   -e: 编辑任务
@@ -88,8 +85,8 @@ crontab [-u user] [-l | -r | -e] [-i]
 **** 设置特殊时间任务
 - cron本身无法直接设置秒级任务以及某些特殊时间循环的任务，比如7分种运行一次任务
 - 利用 =sleep= 命令来设置秒级别任务和特殊时间循环的任务
-#+BEGIN_SRC sh
+#+BEGIN_SRC bash
  * * * * * for min in 0 1 2; do echo "hi"; sleep 20; done
 
-sleep NUM[s|m|h|d]...  # 默认为睡眠NUM秒
+sleep NUM[s|m|h|d]...  # 默认单位为秒
 #+END_SRC

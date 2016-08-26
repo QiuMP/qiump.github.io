@@ -1,0 +1,257 @@
+---
+title: "虚拟化网络"
+date: 2016-08-08
+layout: post
+categories: 
+- 虚拟化
+tags: 
+- Linux 
+- 虚拟化
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline3">1. 网络虚拟化</a>
+<ul>
+<li><a href="#orgheadline1">VLAN</a></li>
+<li><a href="#orgheadline2">Linux的内核级隔离</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline4">2. Linux Nerwork NameSpace</a></li>
+<li><a href="#orgheadline11">3. OpenVSwitch</a>
+<ul>
+<li><a href="#orgheadline5">OVS的组成部分</a></li>
+<li><a href="#orgheadline6">ovs-vsctl命令</a></li>
+<li><a href="#orgheadline7">操作ovsdb</a></li>
+<li><a href="#orgheadline8">GRE</a></li>
+<li><a href="#orgheadline9">设置VXLAN</a></li>
+<li><a href="#orgheadline10">kvm的网卡配置脚本</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">1</span> 网络虚拟化</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">VLAN</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+<code>Virtual LAN</code>: <code>LAN</code> 是能够直接通信的广播域， <code>VLAN</code> 是将广播域隔离成多个区域(最大4096， <code>VXLAN</code> 有更大的数量)，相当于在交换机上创建多个虚拟交换机
+</p>
+<dl class="org-dl">
+<dt>VLAN的实现(IEEE 802.1q)</dt><dd><ul class="org-ul">
+<li>基于MAC地址</li>
+<li>基于交换机Port实现</li>
+<li>基于IP地址实现</li>
+<li>基于用户实现</li>
+</ul></dd>
+<dt>交换机接口的类型</dt><dd><ul class="org-ul">
+<li>访问链接(access link): 接入服务器的接口</li>
+<li>汇聚链接(trunc link): 统一的访问入口并通过交换机进行分发接口，一般是用于连接其他交换机或路由器的接口</li>
+</ul></dd>
+<dt>VLAN间路由的实现方式</dt><dd><ul class="org-ul">
+<li>访问链接: router为每个VLAN提供一个接口</li>
+<li>汇聚链接: router只向交换提供一个接口</li>
+</ul></dd>
+</dl>
+<pre class="example">
+如果要实现跨主机的VLAN，交换机需要支持打标签的VLAN技术，同时各服务器接口设置相同的标签即可
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Linux的内核级隔离</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<dl class="org-dl">
+<dt>namespace</dt><dd><ul class="org-ul">
+<li>文件系统隔离</li>
+<li>网络隔离: 主要用于实现网络资源的隔离，包括网络设备、IP地址、IP路由表、防火墙、/proc/net、/sys/class/net以及套接字等</li>
+<li>IPC隔离</li>
+<li>用户和用户组隔离</li>
+<li>PID隔离: 对名称空间内的PID重新标号，两个不同的名称空间可以使用相同的PID</li>
+<li>UTS隔离: Unix Time-sharing System，提供主机名称和域名的隔离</li>
+</ul></dd>
+<dt>cgroups</dt><dd>用于完成资源配置，用于实现限制被各namespace隔离起来的资源，还可以为资源设置权重、计算使用量、完成各种所需的管理任务等</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">2</span> Linux Nerwork NameSpace</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+网络名称空间可以作为路由使用，需要先在主机上打开路由转发功能
+</p>
+<ul class="org-ul">
+<li><p>
+使用 <code>netns</code> 管理网络名称空间，CentOS6需要升级 <code>iproute</code> 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ip netns list
+ip netns add NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19968;&#20010;&#32593;&#32476;&#21517;&#31216;&#31354;&#38388;</span>
+ip netns del NAME
+ip netns exec NAME COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#35813;&#32593;&#32476;&#21517;&#31216;&#31354;&#38388;&#20013;&#36816;&#34892;&#21629;&#20196;</span>
+</pre>
+</div></li>
+<li><p>
+创建成对的网卡，并将其一端接入网络名称空间中，一端接入桥(虚拟交换机)上
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ip link add FRONTEND-NAME type veth peer name BACKEND-NAME
+ip link set FRONTEND-NAME netns NAME
+</pre>
+</div></li>
+<li><p>
+在网络名称空间上部署DHCP
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ip netns exec NAME dnsmasq --dhcp-range=10.0.1.100,10.0.1.120,86400 -i INTERFACE 
+
+udhcpc -R  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34394;&#25311;&#26426;&#27979;&#35797;&#33719;&#21462;dhcp&#22320;&#22336;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">3</span> OpenVSwitch</h2>
+<div class="outline-text-2" id="text-3">
+<pre class="example">
+OpenVSwitch: 可以创建支持高级功能虚拟交换机，支持vlan
+</pre>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">OVS的组成部分</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<ul class="org-ul">
+<li><code>ovs-vswitchd</code>: OVS daemon，实现数据报文交换功能，和Linux内核兼容模块一同实现了基于流的交换技术</li>
+<li><code>ovsdb-server</code>: 轻量级的数据库服务，主要保存了整个OVS的配置信息，例如接口、交换和VLAN等等，ovs-vswithed的交换功能基于此库实现</li>
+<li><code>ovs-vsctl</code>: 用于获取或更改ovs-vswitchd的配置信息，其修改操作会保存至ovsdb-server中</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">ovs-vsctl命令</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-bash">ovs-vsctl show  <span style="color: #75715E;">#</span><span style="color: #75715E;">ovsdb&#37197;&#32622;&#20869;&#23481;&#26597;&#30475;</span>
+
+ovs-vsctl list-br  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#24050;&#23450;&#20041;BRIDGE</span>
+ovs-vsctl add-br NAME  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#28155;&#21152;&#26725;&#35774;&#22791;(&#25903;&#25345;VLAN)</span>
+ovs-vsctl del-br BRIDGE  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#21024;&#38500;&#26725;</span>
+
+ovs-vsctl list-ports BRIDGE  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#26174;&#31034;&#25351;&#23450;BRIDGE&#19978;&#24050;&#32463;&#28155;&#21152;&#30340;&#25152;&#26377;PORT</span>
+ovs-vsctl add-port BRIDGE PORT  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#23558;PORT&#28155;&#21152;&#33267;&#25351;&#23450;&#30340;BRIDGE</span>
+ovs-vsctl del-port <span style="color: #AE81FF;">[</span>BRIDGE<span style="color: #AE81FF;">]</span> PORT  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#20174;&#25351;&#23450;BRIDGE&#31227;&#38500;&#25351;&#23450;&#30340;PORT</span>
+</pre>
+</div>
+<pre class="example">
+ovs-vsctl可以使用 -- 字符来执行多个命令
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">操作ovsdb</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li><p>
+显示ovsdb的表TBL中的REC字段
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ovs-vsctl list TBL <span style="color: #AE81FF;">[</span>REC<span style="color: #AE81FF;">]</span>
+</pre>
+</div></li>
+<li><p>
+添加VLAN的标签tag，tag为空时默认为0
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ovs-vsctl set port vif0 <span style="color: #FD971F;">tag</span>=<span style="color: #AE81FF;">10</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#34920;port&#20013;&#30340;vif0&#23383;&#27573;&#37324;&#30340;tag&#20026;10</span>
+ovs-vsctl remove port vif0 tag <span style="color: #AE81FF;">10</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#35813;&#20540;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">GRE</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+GRE(Generic Routing Encapsulation): 通用路由封装，二次封装ip报文(ipip)，是一种隧道技术，用于模拟在不同网段的两个主机上的虚拟交换机相互直接连接
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ovs-vsctl add-port br0 gre0
+ovs-vsctl set interface gre0 <span style="color: #FD971F;">type</span>=gre options:<span style="color: #FD971F;">remote_ip</span>=&#23545;&#38754;&#30340;IP
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">设置VXLAN</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+VLAN对于标签有着4096的长度限制，VXLAN支持更大的长度，同时可以使用隧道技术
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ovs-vsctl add-port br-in vx0
+ovs-vsctl set interface vx0 <span style="color: #FD971F;">type</span>=vxlan options:<span style="color: #FD971F;">remote_ip</span>=..
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">kvm的网卡配置脚本</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<dl class="org-dl">
+<dt>/etc/if-up脚本</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/</span><span style="color: #F92672;">bash</span>
+<span style="color: #75715E;">#</span>
+<span style="color: #FD971F;">bridge</span>=br-in
+<span style="color: #F92672;">if</span> <span style="color: #AE81FF;">[</span> -n <span style="color: #E6DB74;">"$1"</span> <span style="color: #AE81FF;">]</span>; <span style="color: #F92672;">then</span>
+    ip link set $<span style="color: #AE81FF;">1</span> up
+    sleep <span style="color: #AE81FF;">1</span>
+    ovs-vsctl add-port $<span style="color: #FD971F;">bridge</span> $<span style="color: #AE81FF;">1</span>
+    <span style="color: #AE81FF;">[</span> $<span style="color: #FD971F;">?</span> -eq <span style="color: #AE81FF;">0</span> <span style="color: #AE81FF;">]</span> &amp;&amp; <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span> || <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+<span style="color: #F92672;">else</span>
+    <span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"Error: no port specified."</span>
+    <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">2</span>
+<span style="color: #F92672;">fi</span>
+</pre>
+</div></dd>
+<dt>/etc/if-down脚本</dt><dd><p>
+OVS不会自动移除接口，需要使用脚本移除接口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/</span><span style="color: #F92672;">bas</span>
+<span style="color: #75715E;">#</span>
+<span style="color: #FD971F;">bridge</span>=br-in
+<span style="color: #F92672;">if</span> <span style="color: #AE81FF;">[</span> -n <span style="color: #E6DB74;">"$1"</span> <span style="color: #AE81FF;">]</span>; <span style="color: #F92672;">then</span>
+    ip link set $<span style="color: #AE81FF;">1</span> down
+    sleep <span style="color: #AE81FF;">1</span>
+    ovs-vsctl del-port $<span style="color: #FD971F;">bridge</span> $<span style="color: #AE81FF;">1</span>
+    <span style="color: #AE81FF;">[</span> $<span style="color: #FD971F;">?</span> -eq <span style="color: #AE81FF;">0</span> <span style="color: #AE81FF;">]</span> &amp;&amp; <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span> || <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+<span style="color: #F92672;">else</span>
+    <span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"Error: no port specified."</span>
+    <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">2</span>
+<span style="color: #F92672;">fi</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+</div>

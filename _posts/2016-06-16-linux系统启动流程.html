@@ -3,11 +3,9 @@ title: "Linux系统启动流程"
 date: 2016-06-16
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 运维 
-- 系统
+- Linux
 published: true
 comments: 
 ---
@@ -15,108 +13,113 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. POST: 加电自检</a></li>
-<li><a href="#orgheadline9">2. Boot Sequence</a>
+<li><a href="#orgheadline1">1. CentOS启动流程</a></li>
+<li><a href="#orgheadline2">2. POST: 加电自检</a></li>
+<li><a href="#orgheadline3">3. Boot Sequence</a></li>
+<li><a href="#orgheadline11">4. bootloader</a>
 <ul>
-<li><a href="#orgheadline2">bootloader</a></li>
-<li><a href="#orgheadline8">grub legacy</a>
+<li><a href="#orgheadline4">bootloader的类型和功能</a></li>
+<li><a href="#orgheadline10">grub legacy</a>
 <ul>
-<li><a href="#orgheadline3">grub的启动阶段</a></li>
-<li><a href="#orgheadline4">grub命令行</a></li>
-<li><a href="#orgheadline5">配置文件</a></li>
-<li><a href="#orgheadline6">进入单用户模式</a></li>
-<li><a href="#orgheadline7">安装grub</a></li>
+<li><a href="#orgheadline5">grub的启动过程</a></li>
+<li><a href="#orgheadline6">grub命令行</a></li>
+<li><a href="#orgheadline7">配置文件</a></li>
+<li><a href="#orgheadline8">进入单用户模式</a></li>
+<li><a href="#orgheadline9">安装grub</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline18">3. kernel</a>
+<li><a href="#orgheadline12">5. 系统初始化</a></li>
+<li><a href="#orgheadline19">6. init(CentOS 6)</a>
 <ul>
-<li><a href="#orgheadline10">系统初始化</a></li>
-<li><a href="#orgheadline17">init(CentOS 6)</a>
-<ul>
-<li><a href="#orgheadline11">运行级别</a></li>
-<li><a href="#orgheadline12">配置文件</a></li>
-<li><a href="#orgheadline13">/etc/rc.d/rc.sysinit</a></li>
-<li><a href="#orgheadline14">服务</a></li>
-<li><a href="#orgheadline15">chkconfig</a></li>
-<li><a href="#orgheadline16">xinetd</a></li>
-</ul>
-</li>
+<li><a href="#orgheadline13">运行级别</a></li>
+<li><a href="#orgheadline14">配置文件</a></li>
+<li><a href="#orgheadline15">/etc/rc.d/rc.sysinit</a></li>
+<li><a href="#orgheadline16">开机服务管理</a></li>
+<li><a href="#orgheadline17">chkconfig</a></li>
+<li><a href="#orgheadline18">xinetd</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-描述了Linux系统的启动过程，以及各种相关程序的使用，例如grub的配置与命令、init的作用与控制、systemd的使用等
-</p>
 
 
-
-
-<hr  />
-<p>
-CentOS启动流程: POST &#x2013;&gt; BootSequence(BIOS) &#x2013;&gt; BootLoader &#x2013;&gt; Kernel (ramdisk) &#x2013;&gt; rootfs &#x2013;&gt; /sbin/init或/sbin/systemd
-</p>
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> POST: 加电自检</h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> CentOS启动流程</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>加载CPU, 设定ROM中的固定地址</li>
-<li>通过ROM(CMOS)内的程序进行自检</li>
-<li>加载BIOS: Basic Input and Output System</li>
-<li>整个计算机的地址空间是ROM+RAM组成的</li>
-</ul>
+<p>
+<code>POST</code> &gt; <code>BootSequence(BIOS)</code> &gt; <code>BootLoader</code> &gt; <code>Kernel (ramdisk)</code> &gt; <code>rootfs</code> &gt; <code>/sbin/init</code> 或 <code>/sbin/systemd</code>
+</p>
 </div>
 </div>
-<div id="outline-container-orgheadline9" class="outline-2">
-<h2 id="orgheadline9"><span class="section-number-2">2</span> Boot Sequence</h2>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> POST: 加电自检</h2>
 <div class="outline-text-2" id="text-2">
+<ol class="org-ol">
+<li>加载CPU，设定ROM中的固定地址</li>
+<li>通过ROM(CMOS)内的程序进行自检</li>
+<li>加载BIOS(Basic Input and Output System)</li>
+</ol>
+<pre class="example">
+整个计算机的地址空间是ROM+RAM组成的
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> Boot Sequence</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
 </p>
 </div>
-<div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">bootloader</h3>
-<div class="outline-text-3" id="text-orgheadline2">
-<ul class="org-ul">
-<li>bootloader: 引导加载器
-<ul class="org-ul">
-<li>windows: ntloader</li>
-<li>Linux: LILO(安卓), GRUB, GRUB2</li>
-<li>功能: 提供一个菜单，允许用户选择要启动系统或不同的内核版本；把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核</li>
-</ul></li>
-<li>MBR:
-<ul class="org-ul">
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">4</span> bootloader</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">bootloader的类型和功能</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+bootloader是引导设备上的一个引导加载器
+</p>
+<dl class="org-dl">
+<dt>常见的bootloader</dt><dd><ul class="org-ul">
+<li>windows: <code>ntloader</code></li>
+<li>Linux: <code>LILO</code> (安卓), <code>GRUB</code>, <code>GRUB2</code></li>
+</ul></dd>
+<dt>bootloader的功能</dt><dd><ul class="org-ul">
+<li>提供一个菜单，允许用户选择要启动系统或不同的内核版本</li>
+<li>把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核</li>
+</ul></dd>
+<dt>MBR的组成部分</dt><dd><ul class="org-ul">
 <li>前446字节: bootloader</li>
 <li>64字节: 硬盘分区表(fat)</li>
 <li>2: 55AA</li>
-</ul></li>
-</ul>
+</ul></dd>
+</dl>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">grub legacy</h3>
-<div class="outline-text-3" id="text-orgheadline8">
-</div><div id="outline-container-orgheadline3" class="outline-4">
-<h4 id="orgheadline3">grub的启动阶段</h4>
-<div class="outline-text-4" id="text-orgheadline3">
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">grub legacy</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">grub的启动过程</h4>
+<div class="outline-text-4" id="text-orgheadline5">
 <ul class="org-ul">
-<li>stage1: mbr</li>
-<li>stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统</li>
-<li>stage2：读取磁盘分区(/boot/grub)上的程序
+<li><code>stage1</code>: mbr</li>
+<li><code>stage1_5</code>: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统</li>
+<li><code>stage2</code>: bootloader读取磁盘分区(/boot/grub)上的程序
 <ol class="org-ol">
 <li>提供菜单、并提供交互式接口
 <ul class="org-ul">
-<li>e: 编辑模式，用于编辑菜单；</li>
-<li>c: 命令模式，交互式接口；</li>
+<li><code>e</code>: 编辑模式，用于编辑菜单</li>
+<li><code>c</code>: 命令模式，交互式接口</li>
 </ul></li>
-<li>加载用户选择的内核或操作系统
-<ul class="org-ul">
-<li>允许传递参数给内核</li>
-<li>可隐藏此菜单</li>
-</ul></li>
+<li>加载用户选择的内核或操作系统，允许传递参数给内核</li>
 <li>为菜单提供了保护机制
 <ul class="org-ul">
 <li>为编辑菜单进行认证</li>
@@ -126,52 +129,49 @@ CentOS启动流程: POST &#x2013;&gt; BootSequence(BIOS) &#x2013;&gt; BootLoader
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">grub命令行</h4>
-<div class="outline-text-4" id="text-orgheadline4">
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">grub命令行</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<pre class="example">
+设备名表示法: (hd#, #)
+  hd#: 磁盘编号，从0开始编号
+  #: 分区编号，从0开始编号
+  只能识别基本分区
+</pre>
 <ul class="org-ul">
-<li>设备名(hd#, #)
-<ul class="org-ul">
-<li>hd#: 磁盘编号，从0开始编号</li>
-<li>#: 分区编号，从0开始编号</li>
-<li>只能识别基本分区</li>
-</ul></li>
-<li>常用命令
-<ul class="org-ul">
-<li>help: 获取命令帮助</li>
-<li>help KEYWORD: 详细帮助信息</li>
-<li>find (hd#,#)/PATH/TO/SOMEFILE：查询文件存在性</li>
-<li>root (hd#,#): 设定根设备</li>
-<li>kernel /PATH/TO/KERNEL_FILE [OPTIONS]: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
+<li><code>help</code>: 获取命令帮助</li>
+<li><code>help KEYWORD</code>: 详细帮助信息</li>
+<li><code>find (hd#,#)/PATH/TO/SOMEFILE</code>: 查询文件存在性</li>
+<li><code>root (hd#,#)</code>: 设定根设备</li>
+<li><code>kernel /PATH/TO/KERNEL_FILE [OPTIONS]</code>: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
 <ul class="org-ul">
 <li>例如: <code>kernel /vmlinuz-VERSION-RELEASE ro root=/dev/DEVICE</code></li>
-<li>init=/path/to/init: 该参数能设定开机运行的第一个程序</li>
+<li><code>init=/path/to/init</code>: 该参数能设定开机运行的第一个程序</li>
 </ul></li>
-<li>initrd /PATH/TO/INITRAMFS_FILE: 设定为选定的内核提供额外文件的ramdisk</li>
-<li>boot: 引导启动选定的内核</li>
-</ul></li>
+<li><code>initrd /PATH/TO/INITRAMFS_FILE</code>: 设定为选定的内核提供额外文件的ramdisk</li>
+<li><code>boot</code>: 引导启动选定的内核</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline5" class="outline-4">
-<h4 id="orgheadline5">配置文件</h4>
-<div class="outline-text-4" id="text-orgheadline5">
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">配置文件</h4>
+<div class="outline-text-4" id="text-orgheadline7">
 <p>
 grub配置文件是 <code>/boot/grub/grub.conf</code> ，而 <code>/etc/grub.conf</code> 是指向该文件的链接
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">default</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#40664;&#35748;&#21551;&#21160;&#30340;&#33756;&#21333;&#39033;&#65292;&#33756;&#21333;&#39033;(title)&#32534;&#21495;&#20174;0&#24320;&#22987;</span>
+<pre class="src src-bash"><span style="color: #FD971F;">default</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#40664;&#35748;&#21551;&#21160;&#30340;&#33756;&#21333;&#39033;&#65292;&#33756;&#21333;&#39033;(title)&#32534;&#21495;&#20174;0&#24320;&#22987;</span>
 <span style="color: #FD971F;">timeout</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#33756;&#21333;&#39033;&#31561;&#24453;&#36873;&#39033;&#36873;&#25321;&#30340;&#26102;&#38271;</span>
-<span style="color: #FD971F;">splashimage</span>=(hd*,*)/PATH/TO/XPM_PIC_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#26126;&#33756;&#21333;&#32972;&#26223;&#22270;&#29255;&#25991;&#20214;&#36335;&#24452;</span>
+<span style="color: #FD971F;">splashimage</span>=<span style="color: #AE81FF;">(</span>hd*,*<span style="color: #AE81FF;">)</span>/PATH/TO/XPM_PIC_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#26126;&#33756;&#21333;&#32972;&#26223;&#22270;&#29255;&#25991;&#20214;&#36335;&#24452;</span>
 hiddenmenu  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38544;&#34255;&#33756;&#21333;</span>
-password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#32534;&#36753;&#35748;&#35777;&#65292;&#33756;&#21333;&#19979;&#29992;p&#26469;&#36755;&#20837;&#23494;&#30721;&#35299;&#38145;</span>
+password <span style="color: #AE81FF;">[</span>--md5<span style="color: #AE81FF;">]</span> STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33756;&#21333;&#32534;&#36753;&#35748;&#35777;&#65292;&#33756;&#21333;&#19979;&#29992;p&#26469;&#36755;&#20837;&#23494;&#30721;&#35299;&#38145;</span>
 title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#33756;&#21333;&#39033;&#8220;&#26631;&#39064;&#8221;, &#21487;&#20986;&#29616;&#22810;&#27425;</span>
-    root (hd*,*)  <span style="color: #75715E;"># </span><span style="color: #75715E;">grub&#26597;&#25214;stage2&#21450;kernel&#25991;&#20214;&#25152;&#22312;&#35774;&#22791;&#20998;&#21306;</span>
-    <span style="color: #FD971F;">kernel /PATH/TO/VMLINUZ_FILE ro root</span>=/dev/DEVICE[PARAMETERS]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#20869;&#26680;</span>
+    root <span style="color: #AE81FF;">(</span>hd*,*<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">grub&#26597;&#25214;stage2&#21450;kernel&#25991;&#20214;&#25152;&#22312;&#35774;&#22791;&#20998;&#21306;</span>
+    kernel /PATH/TO/VMLINUZ_FILE ro <span style="color: #FD971F;">root</span>=/dev/DEVICE<span style="color: #AE81FF;">[</span>PARAMETERS<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#30340;&#20869;&#26680;</span>
     initrd /PATH/TO/INITRAMFS_FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20869;&#26680;&#21305;&#37197;&#30340;ramfs&#25991;&#20214;</span>
-    password [--md5] STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#36873;&#23450;&#30340;&#20869;&#26680;&#25110;&#25805;&#20316;&#31995;&#32479;&#26102;&#36827;&#34892;&#35748;&#35777;</span>
+    password <span style="color: #AE81FF;">[</span>--md5<span style="color: #AE81FF;">]</span> STRING  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#36873;&#23450;&#30340;&#20869;&#26680;&#25110;&#25805;&#20316;&#31995;&#32479;&#26102;&#36827;&#34892;&#35748;&#35777;</span>
 </pre>
 </div>
 
@@ -182,27 +182,27 @@ title TITLE  <span style="color: #75715E;"># </span><span style="color: #75715E;
 </div>
 </div>
 
-<div id="outline-container-orgheadline6" class="outline-4">
-<h4 id="orgheadline6">进入单用户模式</h4>
-<div class="outline-text-4" id="text-orgheadline6">
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">进入单用户模式</h4>
+<div class="outline-text-4" id="text-orgheadline8">
 <ol class="org-ol">
-<li>编辑grub菜单(选定要编辑的title，而后使用e命令)</li>
-<li>在选定的kernel后附加 1, s, S或single都可以</li>
-<li>在kernel所在行，键入b命令</li>
+<li>编辑grub菜单(选定要编辑的title，而后使用 <code>e</code> 命令)</li>
+<li>在选定的kernel后附加 <code>single</code></li>
+<li>在kernel所在行，键入 <code>b</code> 命令</li>
 </ol>
 </div>
 </div>
 
-<div id="outline-container-orgheadline7" class="outline-4">
-<h4 id="orgheadline7">安装grub</h4>
-<div class="outline-text-4" id="text-orgheadline7">
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">安装grub</h4>
+<div class="outline-text-4" id="text-orgheadline9">
 <ul class="org-ul">
 <li><p>
 grub-install
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh">grub-install --root-directory=ROOT /dev/DISK
+<pre class="src src-bash">grub-install --root-directory=ROOT /dev/DISK
 <span style="color: #75715E;"># </span><span style="color: #75715E;">ROOT&#26159;boot&#25346;&#36733;&#30340;&#30446;&#24405;</span>
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24314;&#31435;&#21518;grub.conf&#38656;&#35201;&#33258;&#24049;&#21019;&#24314;</span>
 </pre>
@@ -212,7 +212,7 @@ grub命令行
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh">grub&gt; root <span style="color: #AE81FF;">(</span>hd*,*<span style="color: #AE81FF;">)</span>
+<pre class="src src-bash">grub&gt; root <span style="color: #AE81FF;">(</span>hd*,*<span style="color: #AE81FF;">)</span>
 grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE81FF;">)</span>
 </pre>
 </div></li>
@@ -222,47 +222,44 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-2">
-<h2 id="orgheadline18"><span class="section-number-2">3</span> kernel</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">系统初始化</h3>
-<div class="outline-text-3" id="text-orgheadline10">
-<ul class="org-ul">
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">5</span> 系统初始化</h2>
+<div class="outline-text-2" id="text-5">
+<ol class="org-ol">
 <li>探测可识别到的所有硬件设备</li>
-<li>加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
+<li>加载硬件驱动程序(有可能会借助于ramdisk加载驱动)
 <ul class="org-ul">
-<li>ramdisk: ramfs文件系统(防止进行缓存)
+<li><code>ramdisk</code>: ramfs文件系统(防止进行缓存)
 <ul class="org-ul">
-<li>initrd(CentOS 5), 用mkinitrd生成</li>
-<li>initramfs(CentOS 6), 用dracut生成</li>
+<li><code>initrd</code> (CentOS 5): 用mkinitrd生成</li>
+<li><code>initramfs</code> (CentOS 6): 用dracut生成</li>
 </ul></li>
 </ul></li>
 <li>以只读方式挂载根文件系统(rootfs)</li>
 <li>运行用户空间的第一个应用程序
 <ul class="org-ul">
-<li>SysV: init(CentOS 5)
+<li><code>SysV</code>: init(CentOS 5)
 <ul class="org-ul">
-<li>配置文件: /etc/inittab</li>
+<li>配置文件: <code>/etc/inittab</code></li>
 </ul></li>
-<li>Upstart: init(CentOS 6)
+<li><code>Upstart</code>: init(CentOS 6)
 <ul class="org-ul">
-<li>配置文件: /etc/inittab, /etc/init/*.conf</li>
+<li>配置文件: <code>/etc/inittab</code>, <code>/etc/init/*.conf</code></li>
 </ul></li>
-<li>Systemd: systemd(CentOS 7)
+<li><code>Systemd</code>: systemd(CentOS 7)
 <ul class="org-ul">
-<li>配置文件: /usr/lib/systemd/system, /etc/systemd/system</li>
+<li>配置文件: <code>/usr/lib/systemd/system</code>, <code>/etc/systemd/system</code></li>
 </ul></li>
 </ul></li>
-</ul>
+</ol>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-3">
-<h3 id="orgheadline17">init(CentOS 6)</h3>
-<div class="outline-text-3" id="text-orgheadline17">
-</div><div id="outline-container-orgheadline11" class="outline-4">
-<h4 id="orgheadline11">运行级别</h4>
-<div class="outline-text-4" id="text-orgheadline11">
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">6</span> init(CentOS 6)</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">运行级别</h3>
+<div class="outline-text-3" id="text-orgheadline13">
 <p>
 为了系统的运行或维护等应用目的而设定
 </p>
@@ -274,6 +271,12 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 
 <col  class="org-left" />
 </colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">级别</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
 <tbody>
 <tr>
 <td class="org-right">0</td>
@@ -316,62 +319,67 @@ grub&gt; setup <span style="color: #AE81FF;">(</span>hd*<span style="color: #AE8
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">init NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#24403;&#21069;&#32423;&#21035;</span>
+<pre class="src src-bash">init NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#24403;&#21069;&#32423;&#21035;</span>
 runlevel  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#19978;&#19968;&#20010;&#32423;&#21035;&#21644;&#24403;&#21069;&#32423;&#21035;</span>
 who -r  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#32423;&#21035;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-4">
-<h4 id="orgheadline12">配置文件</h4>
-<div class="outline-text-4" id="text-orgheadline12">
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+配置文件包含 <code>/etc/init/*.conf</code> 和 <code>/etc/inittab</code>
+</p>
 <ul class="org-ul">
-<li>配置文件包含 /etc/init/*.conf 和 /etc/inittab</li>
-<li>在配置文件 <code>/etc/inittab</code> 中，每一行定义一种action以及对应的process</li>
+<li>在配置文件 <code>/etc/inittab</code> 中，每一行定义一种 <code>action</code> 以及对应的 <code>process</code></li>
 <li><p>
 配置文件的内容:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">id:runlevel:action:process
-  action:
-    wait: &#20999;&#25442;&#33267;&#27492;&#32423;&#21035;&#36816;&#34892;&#19968;&#27425;
-    respawn: &#27492;process&#32456;&#27490;&#65292;&#23601;&#37325;&#26032;&#21551;&#21160;&#20043;
+<pre class="src src-yaml">id:runlevel:action:process
+  <span style="color: #FD971F;">action</span>:
+    <span style="color: #FD971F;">wait</span>: &#20999;&#25442;&#33267;&#27492;&#32423;&#21035;&#26102;&#36816;&#34892;&#19968;&#27425;
+    <span style="color: #FD971F;">respawn</span>: &#33509;&#27492;process&#32456;&#27490;&#65292;&#23601;&#37325;&#26032;&#21551;&#21160;&#20043;
+</pre>
+</div>
+<div class="org-src-container">
 
-id:3:initdefault:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#40664;&#35748;&#32423;&#21035;</span>
+<pre class="src src-bash">id:3:initdefault:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#40664;&#35748;&#32423;&#21035;</span>
 si::sysinit:/etc/rc.d/rc.sysinit  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#31995;&#32479;&#21021;&#22987;&#21270;&#26041;&#24335;</span>
 
-l0:0:wait:/etc/rc.d/rc 0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc0.d/</span>
-l1:1:wait:/etc/rc.d/rc 1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc1.d/</span>
+l0:0:wait:/etc/rc.d/rc <span style="color: #AE81FF;">0</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc0.d/</span>
+l1:1:wait:/etc/rc.d/rc <span style="color: #AE81FF;">1</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc1.d/</span>
 ...
-l6:6:wait:/etc/rc.d/rc 6  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc6.d/</span>
+l6:6:wait:/etc/rc.d/rc <span style="color: #AE81FF;">6</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;/etc/rc.d/rc6.d/</span>
 
-tty1:2345:respawn:/usr/sbin/mingetty tty1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;tty&#32456;&#31471;</span>
-tty2:2345:respawn:/usr/sbin/mingetty tty2  <span style="color: #75715E;"># </span><span style="color: #75715E;">mingetty&#20250;&#35843;&#29992;login&#31243;&#24207;&#65292;&#30331;&#24405;&#25104;&#21151;&#20250;&#26174;&#31034;/etc/issue&#30340;&#20869;&#23481;</span>
+tty1:2345:respawn:-/usr/sbin/mingetty tty1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;tty&#32456;&#31471;</span>
+tty2:2345:respawn:-/usr/sbin/mingetty tty2  <span style="color: #75715E;"># </span><span style="color: #75715E;">mingetty&#20250;&#35843;&#29992;login&#31243;&#24207;&#65292;&#30331;&#24405;&#25104;&#21151;&#20250;&#26174;&#31034;/etc/issue&#30340;&#20869;&#23481;</span>
 ...
-tty6:2345:respawn:/usr/sbin/mingetty tty6
+tty6:2345:respawn:-/usr/sbin/mingetty tty6
 </pre>
 </div></li>
-<li>绝对路径名的前缀"-"代表将无视该命令的错误返回值</li>
+<li><code>process</code> 的前缀 <code>-</code> 代表将无视该命令的错误返回值</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-4">
-<h4 id="orgheadline13">/etc/rc.d/rc.sysinit</h4>
-<div class="outline-text-4" id="text-orgheadline13">
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">/etc/rc.d/rc.sysinit</h3>
+<div class="outline-text-3" id="text-orgheadline15">
 <p>
-系统初始化脚本
+<code>/etc/rc.d/rc.sysinit</code> 是系统初始化脚本，基本过程如下
 </p>
 <ol class="org-ol">
 <li>设置主机名</li>
 <li>设置欢迎信息</li>
 <li>激活udev和selinux</li>
-<li>挂载/etc/fstab文件中定义的文件系统</li>
+<li>挂载 <code>/etc/fstab</code> 文件中定义的文件系统</li>
 <li>检测根文件系统，并以读写方式重新挂载根文件系统</li>
 <li>读取硬件时钟设置系统时钟</li>
 <li>激活swap设备</li>
-<li>根据/etc/sysctl.conf文件设置内核参数</li>
+<li>根据 <code>/etc/sysctl.conf</code> 文件设置内核参数</li>
 <li>激活lvm及software raid设备</li>
 <li>加载额外设备的驱动程序</li>
 <li>清理操作</li>
@@ -379,39 +387,42 @@ tty6:2345:respawn:/usr/sbin/mingetty tty6
 </div>
 </div>
 
-<div id="outline-container-orgheadline14" class="outline-4">
-<h4 id="orgheadline14">服务</h4>
-<div class="outline-text-4" id="text-orgheadline14">
-<ul class="org-ul">
-<li><p>
-<i>etc/rc.d/rc{0-6}.d</i>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">开机服务管理</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<p>
+<code>/etc/rc.d/rc</code> 配置文件负责管理 <code>/etc/rc.d/rc{0-6}.d/</code> 目录下的服务脚本
 </p>
 <ul class="org-ul">
-<li>K##*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务</li>
-<li>S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务</li>
-</ul>
+<li>服务脚本名称的含义
+<ul class="org-ul">
+<li><code>K##*</code>: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务</li>
+<li><code>S##*</code>: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务</li>
+</ul></li>
+<li><p>
+<code>/etc/rc.d/rc</code> 的部分执行内容
+</p>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #75715E;"># </span><span style="color: #75715E;">/etc/rc.d/rc&#30340;&#37096;&#20998;&#25191;&#34892;&#20869;&#23481;</span>
-  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/K*; <span style="color: #F92672;">do</span>
-      $<span style="color: #FD971F;">srv</span> stop
-  <span style="color: #F92672;">done</span>
+<pre class="src src-bash"><span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/K*; <span style="color: #F92672;">do</span>
+    $<span style="color: #FD971F;">srv</span> stop
+<span style="color: #F92672;">done</span>
 
-  <span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/S*; <span style="color: #F92672;">do</span>
-      $<span style="color: #FD971F;">srv</span> start
-  <span style="color: #F92672;">done</span>
+<span style="color: #F92672;">for</span> srv<span style="color: #F92672;"> in</span> /etc/rc.d/rc$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">RUNLEVEL</span><span style="color: #AE81FF;">}</span>.d/S*; <span style="color: #F92672;">do</span>
+    $<span style="color: #FD971F;">srv</span> start
+<span style="color: #F92672;">done</span>
 </pre>
 </div></li>
 
-<li>正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中</li>
+<li>正常级别下，最后启动的服务 <code>S99local</code> 指向了 <code>/etc/rc.d/rc.local</code> 脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline15" class="outline-4">
-<h4 id="orgheadline15">chkconfig</h4>
-<div class="outline-text-4" id="text-orgheadline15">
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">chkconfig</h3>
+<div class="outline-text-3" id="text-orgheadline17">
 <p>
-服务管理工具
+<code>chkconfig</code> 是一个服务管理工具
 </p>
 <dl class="org-dl">
 <dt>查询</dt><dd><ul class="org-ul">
@@ -419,48 +430,54 @@ tty6:2345:respawn:/usr/sbin/mingetty tty6
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh">chkconfig --list <span style="color: #AE81FF;">[</span>NAME<span style="color: #AE81FF;">]</span>  
-  NAME: &#26597;&#30475;&#25351;&#23450;&#26381;&#21153;&#30340;&#29366;&#24577;
+<pre class="src src-yaml">chkconfig --list [NAME]  
+  <span style="color: #FD971F;">NAME</span>: &#26597;&#30475;&#25351;&#23450;&#26381;&#21153;&#30340;&#29366;&#24577;
 </pre>
 </div></dd>
 <dt>添加</dt><dd><ul class="org-ul">
-<li>将SysV的服务脚本放置于/etc/rc.d/init.d或/etc/init.d中</li>
-<li>服务的启动关闭设置取决于脚本中的chkconfig设置</li>
-</ul>
+<li><p>
+将SysV的服务脚本放置于 <code>/etc/rc.d/init.d</code> 或 <code>/etc/init.d</code> 中，然后添加
+</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">chkconfig --add NAME 
-<span style="color: #75715E;"># </span><span style="color: #75715E;">&#33050;&#26412;&#20013;&#30340;chkconfig&#35774;&#32622;</span>
-chkconfig: NNN aa bb
-  NNN: &#25351;&#23450;&#22312;&#21738;&#20010;&#32423;&#21035;&#19979;&#26159;S&#29366;&#24577;&#65292;&#27809;&#25351;&#23450;&#30340;&#20026;K&#29366;&#24577;
-  aa: S&#29366;&#24577;&#19979;&#30340;&#25968;&#23383;
-  bb: K&#29366;&#24577;&#19979;&#30340;&#25968;&#23383;
+<pre class="src src-bash">chkconfig --add NAME
 </pre>
-</div></dd>
-<dt>修改</dt><dd><ul class="org-ul">
-<li>修改制定的连接类型</li>
-</ul>
+</div></li>
+<li><p>
+服务的启动关闭设置取决于脚本中的chkconfig设置
+</p>
 <div class="org-src-container">
 
-<pre class="src src-sh">chkconfig <span style="color: #AE81FF;">[</span>--level levels<span style="color: #AE81FF;">]</span> name &lt;on|off|reset&gt;
-  --level NNN: &#25351;&#23450;&#35201;&#35774;&#32622;&#30340;&#32423;&#21035;<span style="color: #AE81FF;">(</span>&#40664;&#35748;&#20026;2345<span style="color: #AE81FF;">)</span>
+<pre class="src src-yaml"><span style="color: #FD971F;">chkconfig</span>: NNN aa bb  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26381;&#21153;&#33050;&#26412;&#20013;&#30340;chkconfig&#35774;&#32622;</span>
+  <span style="color: #FD971F;">NNN</span>: &#25351;&#23450;&#22312;&#21738;&#20010;&#32423;&#21035;&#19979;&#26159;S&#29366;&#24577;&#65292;&#27809;&#25351;&#23450;&#30340;&#20026;K&#29366;&#24577;
+  <span style="color: #FD971F;">aa</span>: S&#29366;&#24577;&#19979;&#30340;&#25968;&#23383;
+  <span style="color: #FD971F;">bb</span>: K&#29366;&#24577;&#19979;&#30340;&#25968;&#23383;
+</pre>
+</div></li>
+</ul></dd>
+<dt>修改</dt><dd><p>
+  修改指定的服务级别启动设置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chkconfig [--level levels] name &lt;on|off|reset&gt;
+  <span style="color: #FD971F;">--level NNN</span>: &#25351;&#23450;&#35201;&#35774;&#32622;&#30340;&#32423;&#21035;(&#40664;&#35748;&#20026;2345)
 </pre>
 </div></dd>
 <dt>删除</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">chkconfig --del NAME
+<pre class="src src-bash">chkconfig --del NAME
 </pre>
 </div></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-4">
-<h4 id="orgheadline16">xinetd</h4>
-<div class="outline-text-4" id="text-orgheadline16">
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">xinetd</h3>
+<div class="outline-text-3" id="text-orgheadline18">
 <p>
-xinetd是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理
+<code>xinetd</code> 是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理
 </p>
-</div>
 </div>
 </div>
 </div>

@@ -3,11 +3,9 @@ title: "DHCP和PXE"
 date: 2016-08-02
 layout: post
 categories: 
-- 网络
+- 服务器
 tags: 
-- Linux 
-- 运维 
-- 网络
+- Linux
 published: true
 comments: 
 ---
@@ -21,7 +19,7 @@ comments:
 <li><a href="#orgheadline2">DHCP续租步骤</a></li>
 <li><a href="#orgheadline5">DHCP服务</a>
 <ul>
-<li><a href="#orgheadline3">DHCP服务端</a></li>
+<li><a href="#orgheadline3">DHCP服务器端</a></li>
 <li><a href="#orgheadline4">DHCP客户端</a></li>
 </ul>
 </li>
@@ -38,19 +36,12 @@ comments:
 </ul>
 </div>
 </div>
-<p>
-TODO
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline7" class="outline-2">
 <h2 id="orgheadline7"><span class="section-number-2">1</span> DHCP</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-DHCP: Dynamic Host Configuration Protocol
+<code>DHCP</code>: Dynamic Host Configuration Protocol，用于动态分配IP地址
 </p>
 </div>
 <div id="outline-container-orgheadline1" class="outline-3">
@@ -59,7 +50,7 @@ DHCP: Dynamic Host Configuration Protocol
 <ol class="org-ol">
 <li>Client: dhcp discover(广播)</li>
 <li>Server: dhcp offer(IP/netmask, gw)</li>
-<li>Client：dhcp request</li>
+<li>Client: dhcp request</li>
 <li>Server: dhcp ack</li>
 </ol>
 </div>
@@ -77,30 +68,34 @@ DHCP: Dynamic Host Configuration Protocol
 <h3 id="orgheadline5">DHCP服务</h3>
 <div class="outline-text-3" id="text-orgheadline5">
 </div><div id="outline-container-orgheadline3" class="outline-4">
-<h4 id="orgheadline3">DHCP服务端</h4>
+<h4 id="orgheadline3">DHCP服务器端</h4>
 <div class="outline-text-4" id="text-orgheadline3">
 <ul class="org-ul">
-<li>/usr/sbin/dhcpd: ipv4的DHCP
+<li><code>/usr/sbin/dhcpd</code>: ipv4的DHCP
 <ul class="org-ul">
 <li>配置文件: /etc/dhcp/dhcpd.conf</li>
 <li>地址分配记录文件: /var/lib/dhcpd/dhcpd.leases</li>
 </ul></li>
-<li>/usr/sbin/dhcp6: ipv6的DHCP
+<li><code>/usr/sbin/dhcp6</code>: ipv6的DHCP
 <ul class="org-ul">
 <li>配置文件: /etc/dhcp/dhcpd6.conf</li>
 </ul></li>
-<li>/usr/sbin/dhcrelay</li>
-<li>监听端口: 67/udp</li>
+<li><code>/usr/sbin/dhcrelay</code></li>
 </ul>
+<pre class="example">
+服务器端的监听端口为67/udp
+</pre>
 </div>
 </div>
 <div id="outline-container-orgheadline4" class="outline-4">
 <h4 id="orgheadline4">DHCP客户端</h4>
 <div class="outline-text-4" id="text-orgheadline4">
 <ul class="org-ul">
-<li>/usr/sbin/dhclient</li>
-<li>监听端口: 68/udp</li>
+<li><code>/usr/sbin/dhclient</code></li>
 </ul>
+<pre class="example">
+客户端的监听端口为68/udp
+</pre>
 </div>
 </div>
 </div>
@@ -109,36 +104,37 @@ DHCP: Dynamic Host Configuration Protocol
 <div class="outline-text-3" id="text-orgheadline6">
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">option&#29992;&#20110;&#23450;&#20041;&#20256;&#36755;&#32473;&#23458;&#25143;&#31471;&#30340;&#25968;&#25454;&#65292;&#21487;&#22312;subnet&#20013;&#29305;&#27530;&#23450;&#20041;</span>
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">option&#29992;&#20110;&#23450;&#20041;&#20256;&#36755;&#32473;&#23458;&#25143;&#31471;&#30340;&#25968;&#25454;&#65292;&#21487;&#22312;subnet&#20013;&#29305;&#27530;&#23450;&#20041;</span>
 option domain-name <span style="color: #E6DB74;">"magedu.com"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#25628;&#32034;&#22495;</span>
 option domain-name-servers <span style="color: #E6DB74;">"DNS_IP"</span>, <span style="color: #E6DB74;">"DNS_IP"</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;DNS</span>
 
-default-lease-time 600;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#22320;&#22336;&#31199;&#32422;&#26102;&#38388;</span>
-max-lease-time 7200;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26368;&#22823;&#22320;&#22336;&#31199;&#32422;&#26102;&#38388;</span>
+default-lease-time <span style="color: #AE81FF;">600</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#22320;&#22336;&#31199;&#32422;&#26102;&#38388;</span>
+max-lease-time <span style="color: #AE81FF;">7200</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26368;&#22823;&#22320;&#22336;&#31199;&#32422;&#26102;&#38388;</span>
 
 log-facility local7;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#26085;&#24535;&#31867;&#22411;</span>
 
-<span style="color: #66D9EF;">subnet 172.16.0.0 netmask 255.255.0.0</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#19968;&#20010;&#23376;&#32593;</span>
-    range 172.16.100.151 172.16.100.170;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#22320;&#22336;&#27744;</span>
-    option routers 172.16.100.1;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32593;&#20851;</span>
+subnet <span style="color: #AE81FF;">172.16.0.0</span> netmask <span style="color: #AE81FF;">255.255.0.0</span> <span style="color: #AE81FF;">{</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#19968;&#20010;&#23376;&#32593;</span>
+    range <span style="color: #AE81FF;">172.16.100.151</span> <span style="color: #AE81FF;">172.16.100.170</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#22320;&#22336;&#27744;</span>
+    option routers <span style="color: #AE81FF;">172.16.100.1</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32593;&#20851;</span>
 
     filename <span style="color: #E6DB74;">"pxelinux.0"</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;PXE&#24341;&#23548;&#25991;&#20214;&#21517;&#31216;</span>
-    next-server 172.16.100.67;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25552;&#20379;PXE&#24341;&#23548;&#25991;&#20214;&#30340;&#26381;&#21153;&#22120;IP&#22320;&#22336;</span>
-}
+    next-server <span style="color: #AE81FF;">172.16.100.67</span>;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25552;&#20379;PXE&#24341;&#23548;&#25991;&#20214;&#30340;&#26381;&#21153;&#22120;IP&#22320;&#22336;</span>
+<span style="color: #AE81FF;">}</span>
 
-<span style="color: #66D9EF;">host</span> {  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#22266;&#23450;&#22320;&#22336;</span>
+host <span style="color: #AE81FF;">{</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#22266;&#23450;&#22320;&#22336;</span>
     ...
-}
+<span style="color: #AE81FF;">}</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
+
 <div id="outline-container-orgheadline11" class="outline-2">
 <h2 id="orgheadline11"><span class="section-number-2">2</span> PXE</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-PXE：preboot execute environment，可用于网卡启动和安装系统
+<code>PXE</code>: preboot execute environment，可用于网卡启动和安装系统
 </p>
 </div>
 
@@ -146,9 +142,9 @@ PXE：preboot execute environment，可用于网卡启动和安装系统
 <h3 id="orgheadline8">PXE的准备</h3>
 <div class="outline-text-3" id="text-orgheadline8">
 <ul class="org-ul">
-<li>DHCP: 配置好filename和next-server</li>
-<li>tftp</li>
-<li>file server(yum repository)</li>
+<li><code>DHCP</code>: 配置好filename和next-server即可</li>
+<li><code>tftp</code></li>
+<li><code>file server</code>: 可以为http服务器，作为yum repository</li>
 </ul>
 </div>
 </div>
@@ -156,18 +152,15 @@ PXE：preboot execute environment，可用于网卡启动和安装系统
 <div id="outline-container-orgheadline9" class="outline-3">
 <h3 id="orgheadline9">tftp服务器配置</h3>
 <div class="outline-text-3" id="text-orgheadline9">
-<ul class="org-ul">
-<li><p>
-配置tftp
-</p>
-<div class="org-src-container">
+<dl class="org-dl">
+<dt>配置tftp</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">yum -y install syslinux tftp-server
+<pre class="src src-bash">yum -y install syslinux tftp-server
 
 cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/
-cp /media/cdrom/images/pxelinux/{vmlinuz,initrd.img} /var/lib/tftpboot/
+cp /media/cdrom/images/pxelinux/<span style="color: #AE81FF;">{</span>vmlinuz,initrd.img<span style="color: #AE81FF;">}</span> /var/lib/tftpboot/
 <span style="color: #75715E;"># </span><span style="color: #75715E;">cp /media/cdrom/isolinux/{boot.cfg,vesamenu.c32,splash.png} /var/lib/tftpboot/</span>
-cp /usr/share/syslinux/{chain.c32,mboot.c32,menu.c32,memdisk} /var/lib/tftpboot/
+cp /usr/share/syslinux/<span style="color: #AE81FF;">{</span>chain.c32,mboot.c32,menu.c32,memdisk<span style="color: #AE81FF;">}</span> /var/lib/tftpboot/
 
 mkdir /var/lib/tftpboot/pxelinux.cfg/
 <span style="color: #75715E;"># </span><span style="color: #75715E;">cp /media/cdrom/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default</span>
@@ -176,34 +169,32 @@ touch /var/lib/tftpboot/pxelinux.cfg/default
 
 systemctl start tftp.service
 </pre>
-</div></li>
+</div></dd>
 
-<li><p>
-自定义创建的default文件
-</p>
-<div class="org-src-container">
+<dt>default文件</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">default menu.c32
-prompt 0
-timeout 30
-MENU TITLE CentOS 7 PXE Menu 
+<pre class="src src-bash">default menu.c32
+prompt <span style="color: #AE81FF;">0</span>
+timeout <span style="color: #AE81FF;">30</span>
+MENU TITLE CentOS <span style="color: #AE81FF;">7</span> PXE Menu 
 
 LABEL linux
-  MENU LABEL Install CentOS 7 x86_64
+  MENU LABEL Install CentOS <span style="color: #AE81FF;">7</span> x86_64
   KERNEL vmlinuz
-  <span style="color: #FD971F;">APPEND initrd</span>=initrd.img inst.repo=http://172.16.100.67/centos7 ks=http://172.16.100.67/centos7.cfg
+  APPEND <span style="color: #FD971F;">initrd</span>=initrd.img inst.repo=http://172.16.100.67/centos7 <span style="color: #FD971F;">ks</span>=http://172.16.100.67/centos7.cfg
 </pre>
-</div></li>
-</ul>
+</div></dd>
+</dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline10" class="outline-3">
 <h3 id="orgheadline10">file server配置</h3>
 <div class="outline-text-3" id="text-orgheadline10">
-<p>
-将光盘挂载至httpd目录下，同时复制KS文件到httpd目录下，改变其url地址指向光盘挂载的文件夹
-</p>
+<ul class="org-ul">
+<li>将光盘挂载至httpd目录下</li>
+<li>复制 <code>KS文件</code> 到httpd目录下，改变其url地址指向光盘挂载的文件夹</li>
+</ul>
 </div>
 </div>
 </div>

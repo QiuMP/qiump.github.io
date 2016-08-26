@@ -1,13 +1,11 @@
 ---
-title: "Linux网络配置"
+title: "Linux网络管理"
 date: 2016-06-11
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 运维 
-- 网络
+- Linux
 published: true
 comments: 
 ---
@@ -26,7 +24,7 @@ comments:
 <li><a href="#orgheadline4">网络接口识别与命名相关的配置文件</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline8">2. 当前主机的主机名</a>
+<li><a href="#orgheadline8">2. 主机名Hostname</a>
 <ul>
 <li><a href="#orgheadline6">命令设置</a></li>
 <li><a href="#orgheadline7">配置文件设置</a></li>
@@ -34,14 +32,14 @@ comments:
 </li>
 <li><a href="#orgheadline23">3. 网络配置命令</a>
 <ul>
-<li><a href="#orgheadline12">ifcfg工具</a>
+<li><a href="#orgheadline12">ifcfg工具包</a>
 <ul>
 <li><a href="#orgheadline9">ifconfig</a></li>
 <li><a href="#orgheadline10">route</a></li>
 <li><a href="#orgheadline11">netstat</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline15">ip工具</a>
+<li><a href="#orgheadline15">ip工具包</a>
 <ul>
 <li><a href="#orgheadline13">ip</a></li>
 <li><a href="#orgheadline14">ss</a></li>
@@ -62,26 +60,20 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline29">4. 网络配置文件</a>
+<li><a href="#orgheadline30">4. 网络配置文件</a>
 <ul>
-<li><a href="#orgheadline24">DNS服务器的指定</a></li>
-<li><a href="#orgheadline25">IP配置文件</a></li>
-<li><a href="#orgheadline26">路由器配置</a></li>
-<li><a href="#orgheadline27">给网卡配置多地址</a></li>
-<li><a href="#orgheadline28">system-config-network-tui</a></li>
+<li><a href="#orgheadline24">重载配置文件</a></li>
+<li><a href="#orgheadline25">DNS服务器的指定</a></li>
+<li><a href="#orgheadline26">IP配置文件</a></li>
+<li><a href="#orgheadline27">路由器配置</a></li>
+<li><a href="#orgheadline28">给网卡配置多地址</a></li>
+<li><a href="#orgheadline29">system-config-network-tui</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-linux网络设备相关信息，还有网络配置的过程，以及各种配置的工具: ifconfig, route, netstat, ip等，同时还简单介绍了网络常用工具：wget, axel, nmap, tcpdump的使用
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline5" class="outline-2">
 <h2 id="orgheadline5"><span class="section-number-2">1</span> 网络接口</h2>
 <div class="outline-text-2" id="text-1">
@@ -95,8 +87,8 @@ linux网络设备相关信息，还有网络配置的过程，以及各种配置
 CentOS6是根据网卡的mac地址来顺序命名
 </p>
 <ul class="org-ul">
-<li>以太网: eth[0,1,2&#x2026;]</li>
-<li>ppp: ppp[0,1,2&#x2026;]</li>
+<li>以太网: <code>eth[0,1,2...]</code></li>
+<li>ppp: <code>ppp[0,1,2...]</code></li>
 </ul>
 </div>
 </div>
@@ -112,28 +104,28 @@ CentOS6是根据网卡的mac地址来顺序命名
 <li>上述均不可用时，则使用传统命名机制</li>
 </ol></dd>
 <dt>设备类型</dt><dd><ul class="org-ul">
-<li>en: ethernet</li>
-<li>wl: wlan</li>
-<li>ww: wwan</li>
+<li><code>en</code>: ethernet</li>
+<li><code>wl</code>: wlan</li>
+<li><code>ww</code>: wwan</li>
 </ul></dd>
 <dt>名称类型</dt><dd><ul class="org-ul">
-<li>o&lt;index&gt;: 集成设备的设备索引号</li>
-<li>s&lt;slot&gt;: 扩展槽的索引号</li>
-<li>p&lt;bus&gt;s&lt;slot&gt;: 总线插槽</li>
-<li>x&lt;MAC&gt;: 基于MAC地址的命名</li>
+<li><code>o&lt;index&gt;</code>: 集成设备的设备索引号</li>
+<li><code>s&lt;slot&gt;</code>: 扩展槽的索引号</li>
+<li><code>p&lt;bus&gt;s&lt;slot&gt;</code>: 总线插槽</li>
+<li><code>x&lt;MAC&gt;</code>: 基于MAC地址的命名</li>
 </ul></dd>
 <dt>命名过程</dt><dd><ol class="org-ol">
 <li>udev: <code>/usr/lib/udev/rules.d/60-net.rules</code></li>
 <li>biosdevname: <code>/usr/lib/udev/rules.d/71-biosdevname.rules</code></li>
 <li>通过检测网络接口设备: <code>/usr/lib/udev/rules.d/75-net-description.rules</code></li>
 </ol></dd>
-<dt>回归传统命名方式</dt><dd><ol class="org-ol">
+<dt>回归CentOS6命名的方法</dt><dd><ol class="org-ol">
 <li><p>
-编辑/etc/default/grub配置文件
+编辑 <code>/etc/default/grub</code> 配置文件
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">GRUB_CMDLINE_LINUX</span>=<span style="color: #E6DB74;">"net.ifnames=0 rhgb quiet"</span>
+<pre class="src src-bash"><span style="color: #FD971F;">GRUB_CMDLINE_LINUX</span>=<span style="color: #E6DB74;">"net.ifnames=0 rhgb quiet"</span>
 </pre>
 </div></li>
 <li><p>
@@ -141,7 +133,7 @@ CentOS6是根据网卡的mac地址来顺序命名
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">grub2-mkconfig -o /etc/grub2.cfg
+<pre class="src src-bash">grub2-mkconfig -o /etc/grub2.cfg
 </pre>
 </div></li>
 <li>重启系统</li>
@@ -155,32 +147,34 @@ CentOS6是根据网卡的mac地址来顺序命名
 <h3 id="orgheadline4">网络接口识别与命名相关的配置文件</h3>
 <div class="outline-text-3" id="text-orgheadline4">
 <p>
-该配置文件在: <code>/etc/udev/rules.d/70-persistent-net.rules</code>
+配置文件: <code>/etc/udev/rules.d/70-persistent-net.rules</code>
 </p>
 <ul class="org-ul">
-<li>若要立即生效需要重新载入网卡驱动</li>
-<li>通过该配置文件可以知道网卡设备的驱动名</li>
-</ul>
+<li><p>
+若要立即生效需要重新载入网卡驱动
+</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">modprobe -r &#39537;&#21160;   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21368;&#36733;&#39537;&#21160;</span>
+<pre class="src src-bash">modprobe -r &#39537;&#21160;   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21368;&#36733;&#39537;&#21160;</span>
 modprobe &#39537;&#21160;   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35013;&#36733;&#39537;&#21160;</span>
 </pre>
-</div>
+</div></li>
+<li>通过该配置文件可以知道网卡设备的驱动名</li>
+</ul>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline8" class="outline-2">
-<h2 id="orgheadline8"><span class="section-number-2">2</span> 当前主机的主机名</h2>
+<h2 id="orgheadline8"><span class="section-number-2">2</span> 主机名Hostname</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline6" class="outline-3">
 <h3 id="orgheadline6">命令设置</h3>
 <div class="outline-text-3" id="text-orgheadline6">
 <div class="org-src-container">
 
-<pre class="src src-conf">hostname [HOSTNAME]
-hostnamectl set-hostname [HOSTNAME]
+<pre class="src src-bash">hostname <span style="color: #AE81FF;">[</span>HOSTNAME<span style="color: #AE81FF;">]</span>
+hostnamectl set-hostname <span style="color: #AE81FF;">[</span>HOSTNAME<span style="color: #AE81FF;">]</span>
 hostnamectl status  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#26174;&#31034;&#24403;&#21069;&#20027;&#26426;&#30340;&#35814;&#32454;&#20449;&#24687;</span>
 </pre>
 </div>
@@ -199,15 +193,16 @@ hostnamectl status  <span style="color: #75715E;"># </span><span style="color: #
 </div>
 </div>
 </div>
+
 <div id="outline-container-orgheadline23" class="outline-2">
 <h2 id="orgheadline23"><span class="section-number-2">3</span> 网络配置命令</h2>
 <div class="outline-text-2" id="text-3">
-<ul class="org-ul">
-<li>使用命令配置一般只对当前有效</li>
-</ul>
+<p>
+使用命令配置一般只对当前有效，重启会失效，若要永久生效需要修改配置文件
+</p>
 </div>
 <div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">ifcfg工具</h3>
+<h3 id="orgheadline12">ifcfg工具包</h3>
 <div class="outline-text-3" id="text-orgheadline12">
 </div><div id="outline-container-orgheadline9" class="outline-4">
 <h4 id="orgheadline9">ifconfig</h4>
@@ -217,17 +212,21 @@ hostnamectl status  <span style="color: #75715E;"># </span><span style="color: #
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ifconfig [-a] [IFACE]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#27963;&#21160;&#30340;&#32593;&#21345;&#35774;&#22791;&#20449;&#24687;</span>
+<pre class="src src-bash">ifconfig <span style="color: #AE81FF;">[</span>-a<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>IFACE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#27963;&#21160;&#30340;&#32593;&#21345;&#35774;&#22791;&#20449;&#24687;</span>
   -a: &#21516;&#26102;&#26174;&#31034;&#38750;&#27963;&#21160;&#30340;&#35774;&#22791;
+</pre>
+</div>
+<div class="org-src-container">
 
-ifconfig IFACE [up|down]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#25110;&#20851;&#38381;&#35774;&#22791;</span>
+<pre class="src src-bash">ifconfig IFACE <span style="color: #AE81FF;">[</span>up|down<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#25110;&#20851;&#38381;&#35774;&#22791;</span>
 ifup IFACE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#35774;&#22791;</span>
 ifdown IFACE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#38381;&#35774;&#22791;</span>
 
-ifconfig IFACE IP/MASK [up]  
+ifconfig IFACE IP/MASK <span style="color: #AE81FF;">[</span>up<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#35774;&#22791;&#30340;ip</span>
 ifconfig IFACE IP netmask MASK  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#35774;&#22791;&#30340;ip</span>
 ifconfig IFACE:ALIAS IP/MASK up  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32473;&#32593;&#21345;&#37197;&#32622;&#22810;&#22320;&#22336;</span>
-ifconfig IFACE [-]promisc  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#25110;&#31105;&#29992;&#28151;&#26434;&#27169;&#24335;(&#29992;&#20110;&#32593;&#32476;&#30417;&#25511;)</span>
+
+ifconfig IFACE <span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">]</span>promisc  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#25110;&#31105;&#29992;&#28151;&#26434;&#27169;&#24335;(&#29992;&#20110;&#32593;&#32476;&#30417;&#25511;&#12289;&#36335;&#30001;&#35774;&#32622;)&#65292;&#25509;&#25910;&#25152;&#26377;&#25253;&#25991;</span>
 </pre>
 </div>
 </div>
@@ -241,25 +240,25 @@ ifconfig IFACE [-]promisc  <span style="color: #75715E;"># </span><span style="c
 <dl class="org-dl">
 <dt>查看</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">route -n  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;IP&#20195;&#26367;&#21035;&#31216;&#26174;&#31034;</span>
+<pre class="src src-bash">route -n  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;IP&#20195;&#26367;&#21035;&#31216;&#26174;&#31034;</span>
 </pre>
 </div>
 <ul class="org-ul">
-<li>Flags:
+<li>Flags
 <ul class="org-ul">
-<li>U: up, 表示启用</li>
-<li>G: 表示有网关</li>
-<li>H: 表示主机路由</li>
+<li><code>U</code>: up, 表示启用</li>
+<li><code>G</code>: 表示有网关</li>
+<li><code>H</code>: 表示主机路由</li>
 </ul></li>
 </ul></dd>
 <dt>添加</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">route add [-net|-host] IP/MASK [netmask Nm] [gw Gw] [[dev] If]
-  -net IP/MASK: &#25351;&#23450;&#32593;&#32476;&#36335;&#30001;
-  -host IP/32: &#25351;&#23450;&#20027;&#26426;&#36335;&#30001;(&#21487;&#20197;&#19981;&#29992;&#20889;&#23376;&#32593;&#25513;&#30721;)
-  netmask Nm: &#25351;&#23450;&#23376;&#32593;&#25513;&#30721;
-  gw Gw: &#25351;&#23450;&#32593;&#20851;
-  dev If: &#25351;&#23450;&#35774;&#23450;&#30340;&#35774;&#22791;
+<pre class="src src-yaml">route add [-net|-host] IP/MASK [netmask Nm] [gw Gw] [[dev] If]
+  <span style="color: #FD971F;">-net IP/MASK</span>: &#25351;&#23450;&#32593;&#32476;&#36335;&#30001;
+  <span style="color: #FD971F;">-host IP/32</span>: &#25351;&#23450;&#20027;&#26426;&#36335;&#30001;(&#21487;&#20197;&#19981;&#29992;&#20889;&#23376;&#32593;&#25513;&#30721;)
+  <span style="color: #FD971F;">netmask Nm</span>: &#25351;&#23450;&#23376;&#32593;&#25513;&#30721;
+  <span style="color: #FD971F;">gw Gw</span>: &#25351;&#23450;&#32593;&#20851;
+  <span style="color: #FD971F;">dev If</span>: &#25351;&#23450;&#35774;&#23450;&#30340;&#35774;&#22791;
 
 route add default gw 172.16.0.1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#40664;&#35748;&#32593;&#20851;</span>
 route add -net 0.0.0.0 netmask 0.0.0.0 gw 172.16.0.1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#40664;&#35748;&#32593;&#20851;</span>
@@ -267,7 +266,7 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 172.16.0.1  <span style="color: #75715
 </div></dd>
 <dt>删除</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">route del [-net|-host] IP/MASK [gw Gw] [netmask Nm] [[dev] If]
+<pre class="src src-yaml">route del [-net|-host] IP/MASK [gw Gw] [netmask Nm] [[dev] If]
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#35201;&#25351;&#23450;&#30340;&#20449;&#24687;&#27809;&#26377;&#37325;&#22797;&#21017;&#20854;&#20182;&#20449;&#24687;&#21487;&#20197;&#30465;&#30053;</span>
 </pre>
 </div></dd>
@@ -283,32 +282,32 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 172.16.0.1  <span style="color: #75715
 <dl class="org-dl">
 <dt>显示网络连接</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">netstat [OPTIONS]
-  -t: tcp&#21327;&#35758;&#30456;&#20851;
-  -u: udp&#21327;&#35758;&#30456;&#20851;
-  -w: raw socket&#30456;&#20851;
-  -a: &#25152;&#26377;&#29366;&#24577;
+<pre class="src src-yaml">netstat [OPTIONS]
+  <span style="color: #FD971F;">-t</span>: tcp&#21327;&#35758;&#30456;&#20851;
+  <span style="color: #FD971F;">-u</span>: udp&#21327;&#35758;&#30456;&#20851;
+  <span style="color: #FD971F;">-w</span>: raw socket&#30456;&#20851;
+  <span style="color: #FD971F;">-a</span>: &#25152;&#26377;&#29366;&#24577;
 
-  -l|--listening: &#22788;&#20110;&#30417;&#21548;&#29366;&#24577;
+  <span style="color: #FD971F;">-l|--listening</span>: &#21482;&#26174;&#31034;&#30417;&#21548;&#29366;&#24577;&#30340;&#31471;&#21475;
 
-  -n: &#20197;&#25968;&#23383;&#26174;&#31034;IP&#21644;&#31471;&#21475;&#65307;
-  -e|--extend: &#25193;&#23637;&#26684;&#24335;
-  -p: &#26174;&#31034;&#30456;&#20851;&#36827;&#31243;&#21450;PID
+  <span style="color: #FD971F;">-n</span>: &#20197;&#25968;&#23383;&#26174;&#31034;IP&#21644;&#31471;&#21475;&#65307;
+  <span style="color: #FD971F;">-e|--extend</span>: &#25193;&#23637;&#26684;&#24335;
+  <span style="color: #FD971F;">-p</span>: &#26174;&#31034;&#30456;&#20851;&#36827;&#31243;&#21450;PID
 </pre>
 </div></dd>
 
 <dt>显示路由表</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">netstat -r [OPTIONS]
-  -r: &#26174;&#31034;&#20869;&#26680;&#36335;&#30001;&#34920;
-  -n: &#25968;&#23383;&#26684;&#24335;
+<pre class="src src-yaml">netstat -r [OPTIONS]
+  <span style="color: #FD971F;">-r</span>: &#26174;&#31034;&#20869;&#26680;&#36335;&#30001;&#34920;
+  <span style="color: #FD971F;">-n</span>: &#25968;&#23383;&#26684;&#24335;
 </pre>
 </div></dd>
 
 <dt>显示接口统计数据</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">netstat -i  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#25509;&#21475;</span>
-netstat -I[IFACE]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25351;&#23450;&#25509;&#21475;</span>
+<pre class="src src-bash">netstat -i  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#25509;&#21475;</span>
+netstat -I<span style="color: #AE81FF;">[</span>IFACE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25351;&#23450;&#25509;&#21475;</span>
 </pre>
 </div></dd>
 </dl>
@@ -316,7 +315,7 @@ netstat -I[IFACE]  <span style="color: #75715E;"># </span><span style="color: #7
 </div>
 </div>
 <div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15">ip工具</h3>
+<h3 id="orgheadline15">ip工具包</h3>
 <div class="outline-text-3" id="text-orgheadline15">
 </div><div id="outline-container-orgheadline13" class="outline-4">
 <h4 id="orgheadline13">ip</h4>
@@ -324,24 +323,19 @@ netstat -I[IFACE]  <span style="color: #75715E;"># </span><span style="color: #7
 <p>
 用于配置网络的各种属性
 </p>
-<ul class="org-ul">
-<li>一个网卡可以有多个地址</li>
-</ul>
-<div class="org-src-container">
-
-<pre class="src src-sh">ip OBJECT help  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#23376;&#21629;&#20196;&#30340;&#24110;&#21161;</span>
-</pre>
-</div>
-
-
 <dl class="org-dl">
+<dt>获取帮助</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">ip COMMAND help  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#23376;&#21629;&#20196;&#30340;&#24110;&#21161;</span>
+</pre>
+</div></dd>
 <dt>ip link</dt><dd><p>
 配置网络设备
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ip link show [dev IFACE]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#29289;&#29702;&#35774;&#22791;&#30340;&#21508;&#31181;&#20449;&#24687;&#65292;&#20363;&#22914;MTU&#12289;MAC&#31561;</span>
-ip link set dev IFACE [up|down]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#21644;&#31105;&#29992;&#35774;&#22791;</span>
+<pre class="src src-bash">ip link show <span style="color: #AE81FF;">[</span>dev IFACE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#29289;&#29702;&#35774;&#22791;&#30340;&#21508;&#31181;&#20449;&#24687;&#65292;&#20363;&#22914;MTU&#12289;MAC&#31561;</span>
+ip link set dev IFACE <span style="color: #AE81FF;">[</span>up|down<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#21644;&#31105;&#29992;&#35774;&#22791;</span>
 </pre>
 </div></dd>
 <dt>ip addr</dt><dd><p>
@@ -349,20 +343,26 @@ ip link set dev IFACE [up|down]  <span style="color: #75715E;"># </span><span st
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ip addr {add|del} IFADDR dev STRING [OTHER] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22914;&#26524;&#21407;&#26469;&#24050;&#32463;&#26377;&#22320;&#22336;&#21017;&#28155;&#21152;&#36741;&#21161;&#22320;&#22336;</span>
-  label LABEL: &#28155;&#21152;&#22320;&#22336;&#26102;&#25351;&#26126;&#32593;&#21345;&#21035;&#21517;(&#21363;&#34394;&#25311;&#22788;&#21478;&#19968;&#20010;&#32593;&#21345;&#35774;&#22791;)
-  scope {global|link|host}: &#25351;&#26126;&#20316;&#29992;&#22495;
-    global: &#20840;&#23616;&#21487;&#29992;(&#22320;&#22336;&#23646;&#20110;&#20869;&#26680;, &#34920;&#31034;&#20219;&#20309;&#32593;&#21345;&#38388;&#21487;&#20197;&#30456;&#20114;&#35775;&#38382;)
-    link: &#20165;&#38142;&#25509;&#21487;&#29992;(&#21482;&#33021;&#35774;&#22791;&#33258;&#24049;&#20351;&#29992;)
-    host: &#26412;&#26426;&#21487;&#29992;
-  broadcast ADDRESS: &#25351;&#26126;&#24191;&#25773;&#22320;&#22336;
+<pre class="src src-yaml">ip addr {add|del} IFADDR dev STRING [OPTIONS] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22914;&#26524;&#21407;&#26469;&#24050;&#32463;&#26377;&#22320;&#22336;&#21017;&#28155;&#21152;&#36741;&#21161;&#22320;&#22336;</span>
+  <span style="color: #FD971F;">label LABEL</span>: &#28155;&#21152;&#22320;&#22336;&#26102;&#25351;&#26126;&#32593;&#21345;&#21035;&#21517;(&#21363;&#34394;&#25311;&#22788;&#21478;&#19968;&#20010;&#32593;&#21345;&#35774;&#22791;)
+  <span style="color: #FD971F;">scope global|link|host</span>: &#25351;&#26126;&#20316;&#29992;&#22495;
+    <span style="color: #FD971F;">global</span>: &#20840;&#23616;&#21487;&#29992;(&#22320;&#22336;&#23646;&#20110;&#20869;&#26680;, &#34920;&#31034;&#20219;&#20309;&#32593;&#21345;&#38388;&#21487;&#20197;&#30456;&#20114;&#35775;&#38382;)
+    <span style="color: #FD971F;">link</span>: &#20165;&#38142;&#25509;&#21487;&#29992;(&#21482;&#33021;&#35774;&#22791;&#33258;&#24049;&#20351;&#29992;)
+    <span style="color: #FD971F;">host</span>: &#26412;&#26426;&#21487;&#29992;
+  <span style="color: #FD971F;">broadcast ADDRESS</span>: &#25351;&#26126;&#24191;&#25773;&#22320;&#22336;
+</pre>
+</div>
+<div class="org-src-container">
 
-ip addr show  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#32593;&#21345;&#22320;&#22336;&#20449;&#24687;</span>
-  dev DEVICE: &#40664;&#35748;&#26174;&#31034;&#25152;&#26377;&#32593;&#21345;&#22320;&#22336;
-  label PATTERN: &#25351;&#23450;&#21035;&#21517;
-  primary|secondary: &#21482;&#26174;&#31034;&#20027;&#22320;&#22336;&#25110;&#36741;&#21161;&#22320;&#22336;
+<pre class="src src-yaml">ip addr show  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#32593;&#21345;&#22320;&#22336;&#20449;&#24687;</span>
+  <span style="color: #FD971F;">dev DEVICE</span>: &#40664;&#35748;&#26174;&#31034;&#25152;&#26377;&#32593;&#21345;&#22320;&#22336;
+  <span style="color: #FD971F;">label PATTERN</span>: &#25351;&#23450;&#21035;&#21517;
+  <span style="color: #FD971F;">primary|secondary</span>: &#21482;&#26174;&#31034;&#20027;&#22320;&#22336;&#25110;&#36741;&#21161;&#22320;&#22336;
+</pre>
+</div>
+<div class="org-src-container">
 
-ip addr flush [dev DEVICE] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#32593;&#21345;&#22320;&#22336;</span>
+<pre class="src src-bash">ip addr flush <span style="color: #AE81FF;">[</span>dev DEVICE<span style="color: #AE81FF;">]</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#32593;&#21345;&#22320;&#22336;</span>
 </pre>
 </div></dd>
 <dt>ip route</dt><dd><p>
@@ -370,16 +370,26 @@ ip addr flush [dev DEVICE] <span style="color: #75715E;"># </span><span style="c
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ip route add TARGET via GW dev IFACE [src SOURCE_IP]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#36335;&#30001;</span>
-  src SOURCE_IP: &#21046;&#23450;&#28304;&#22320;&#22336;
+<pre class="src src-yaml">ip route add DEST_IP via GW dev IFACE [src SOURCE_IP]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#36335;&#30001;</span>
+  <span style="color: #FD971F;">src SOURCE_IP</span>: &#25351;&#23450;&#28304;&#22320;&#22336;
 ip route add default via GW dev IFACE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#40664;&#35748;&#32593;&#20851;</span>
+</pre>
+</div>
+<div class="org-src-container">
 
-ip route del TARGET [dev IFACE]
+<pre class="src src-bash">ip route del DEST_IP <span style="color: #AE81FF;">[</span>dev IFACE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#36335;&#30001;</span>
+</pre>
+</div>
+<div class="org-src-container">
 
-ip route show|list  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#36335;&#30001;&#34920;</span>
-ip route flush  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#36335;&#30001;&#34920;</span>
-  dev IFACE
-  via GW: &#25351;&#23450;&#32593;&#20851;&#23545;&#35937;
+<pre class="src src-bash">ip route show|list  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#36335;&#30001;&#34920;</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ip route flush [OPTIONS] <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#36335;&#30001;&#34920;</span>
+  <span style="color: #FD971F;">dev IFACE</span>: &#25351;&#23450;&#35774;&#22791;
+  <span style="color: #FD971F;">via GW</span>: &#25351;&#23450;&#32593;&#20851;&#23545;&#35937;
 </pre>
 </div></dd>
 </dl>
@@ -389,29 +399,27 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
 <h4 id="orgheadline14">ss</h4>
 <div class="outline-text-4" id="text-orgheadline14">
 <p>
-管理套接字，速度比netstat快
+管理套接字，运行速度比netstat快
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ss [OPTIONS] [FILTER]
-  -t: tcp&#21327;&#35758;&#30456;&#20851;
-  -u: udp&#21327;&#35758;&#30456;&#20851;
-  -w: raw&#22871;&#25509;&#23383;&#30456;&#20851;
-  -x: unix sock&#30456;&#20851;
-  -a: &#25152;&#26377;
+<pre class="src src-yaml">ss [OPTIONS] [FILTER]
+  <span style="color: #FD971F;">-t</span>: tcp&#21327;&#35758;&#30456;&#20851;
+  <span style="color: #FD971F;">-u</span>: udp&#21327;&#35758;&#30456;&#20851;
+  <span style="color: #FD971F;">-w</span>: raw&#22871;&#25509;&#23383;&#30456;&#20851;
+  <span style="color: #FD971F;">-x</span>: unix sock&#30456;&#20851;
+  <span style="color: #FD971F;">-a</span>: &#25152;&#26377;
 
-  -l: listen&#29366;&#24577;&#30340;&#36830;&#25509;
+  <span style="color: #FD971F;">-l</span>: &#21482;&#26174;&#31034;LISTEN&#29366;&#24577;&#30340;&#36830;&#25509;
 
-  -n: &#25968;&#23383;&#26684;&#24335;
-  -p: &#30456;&#20851;&#30340;&#31243;&#24207;&#21450;PID
-  -e: &#25193;&#23637;&#30340;&#20449;&#24687;
+  <span style="color: #FD971F;">-n</span>: &#25968;&#23383;&#26684;&#24335;
+  <span style="color: #FD971F;">-p</span>: &#30456;&#20851;&#30340;&#31243;&#24207;&#21450;PID
+  <span style="color: #FD971F;">-e</span>: &#25193;&#23637;&#30340;&#20449;&#24687;
+  <span style="color: #FD971F;">-m</span>: &#20869;&#23384;&#29992;&#37327;
+  <span style="color: #FD971F;">-o</span>: &#35745;&#26102;&#22120;&#20449;&#24687;
 
-  -m: &#20869;&#23384;&#29992;&#37327;
-  -o: &#35745;&#26102;&#22120;&#20449;&#24687;
-
-  state TCP-STATE: &#26174;&#31034;&#25351;&#23450;&#29366;&#24577;&#30340;&#31471;&#21475;
-  EXPRESSION: &#21487;&#20197;&#25351;&#23450;&#26356;&#22810;&#30340;&#36807;&#28388;&#26465;&#20214;
-    <span style="color: #E6DB74;">'( dport = :ssh or sport = :ssh)'</span>: &#25351;&#23450;&#28304;&#31471;&#21475;&#21644;&#30446;&#30340;&#31471;&#21475;
+  <span style="color: #FD971F;">state TCP-STATE</span>: &#26174;&#31034;&#25351;&#23450;&#29366;&#24577;&#30340;&#31471;&#21475;
+  <span style="color: #FD971F;">EXPRESSION</span>: &#21487;&#20197;&#25351;&#23450;&#26356;&#22810;&#30340;&#36807;&#28388;&#26465;&#20214;&#65292;&#22914;<span style="color: #E6DB74;">'( dport = :ssh or sport = :ssh)'</span>
 </pre>
 </div>
 </div>
@@ -428,13 +436,13 @@ ip route flush  <span style="color: #75715E;"># </span><span style="color: #7571
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">nmcli [OPTIONS] OBJECT {COMMAND|help}
-  device: &#26597;&#35810;&#21644;&#31649;&#29702;&#32593;&#32476;&#25509;&#21475;
-  connection: &#35774;&#32622;&#32593;&#32476;&#36830;&#25509;
+<pre class="src src-yaml">nmcli [OPTIONS] OBJECT {COMMAND|help}
+  <span style="color: #FD971F;">device</span>: &#26597;&#35810;&#21644;&#31649;&#29702;&#32593;&#32476;&#25509;&#21475;
+  <span style="color: #FD971F;">connection</span>: &#35774;&#32622;&#32593;&#32476;&#36830;&#25509;
 
 nmcli device show eth0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25509;&#21475;&#30340;setting.property&#21015;&#34920;</span>
 nmcli connection modify IFACE [+|-]setting.property value  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#25509;&#21475;&#23646;&#24615;&#65292;&#35774;&#32622;&#21518;&#38656;&#35201;&#37325;&#21551;&#25509;&#21475;</span>
-  setting.property: ipv4.{addresses|gateway|dns|method}
+  <span style="color: #FD971F;">setting.property</span>: ipv4.{addresses|gateway|dns|method}
 nmcli connection {up|down} IFACE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31105;&#29992;&#21644;&#21551;&#29992;&#25509;&#21475;</span>
 </pre>
 </div>
@@ -463,57 +471,63 @@ nmcli connection {up|down} IFACE  <span style="color: #75715E;"># </span><span s
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline29" class="outline-2">
-<h2 id="orgheadline29"><span class="section-number-2">4</span> 网络配置文件</h2>
+<div id="outline-container-orgheadline30" class="outline-2">
+<h2 id="orgheadline30"><span class="section-number-2">4</span> 网络配置文件</h2>
 <div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">重载配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline24">
 <ul class="org-ul">
 <li>修改配置文件可以永久有效</li>
-<li>配置要立即生效需要重启网卡:</li>
-</ul>
-<div class="org-src-container">
-
-<pre class="src src-conf">service network restart
-</pre>
-</div>
-</div>
-<div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">DNS服务器的指定</h3>
-<div class="outline-text-3" id="text-orgheadline24">
-<p>
-修改 <code>/etc/resolv.conf</code> 即可
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">nameserver DNS_SERVER_IP1
-nameserver DNS_SERVER_IP2
-nameserver DNS_SERVER_IP3
-</pre>
-</div>
-<ul class="org-ul">
 <li><p>
-DNS正向解析: FQDN(完全限定域名) -&gt; IP
+配置要立即生效需要重启网卡
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">dig -t A FQDN
-host -t A FQDN
-</pre>
-</div></li>
-<li><p>
-DNS反向解析: IP -&gt; FQDN(完全限定域名)
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">dig -x IP
-host -t PTR IP
+<pre class="src src-bash">service network restart
 </pre>
 </div></li>
 </ul>
 </div>
 </div>
 <div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">IP配置文件</h3>
+<h3 id="orgheadline25">DNS服务器的指定</h3>
 <div class="outline-text-3" id="text-orgheadline25">
+<p>
+修改 <code>/etc/resolv.conf</code> 即可
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">nameserver DNS_SERVER_IP1
+nameserver DNS_SERVER_IP2
+nameserver DNS_SERVER_IP3
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+DNS正向解析: <code>FQDN</code> (完全限定域名) -&gt; <code>IP</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">dig -t A FQDN
+host -t A FQDN
+</pre>
+</div></li>
+<li><p>
+DNS反向解析: <code>IP</code> -&gt; <code>FQDN</code> (完全限定域名)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">dig -x IP
+host -t PTR IP
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">IP配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline26">
 <p>
 IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifcfg-IFACE</code>
 </p>
@@ -525,6 +539,12 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 
 <col  class="org-left" />
 </colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">变量名</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
 <tbody>
 <tr>
 <td class="org-left">DEVICE</td>
@@ -562,11 +582,6 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 </tr>
 
 <tr>
-<td class="org-left">&#xa0;</td>
-<td class="org-left">&#xa0;</td>
-</tr>
-
-<tr>
 <td class="org-left">IPADDR</td>
 <td class="org-left">指明IP地址</td>
 </tr>
@@ -577,8 +592,8 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 </tr>
 
 <tr>
-<td class="org-left">GATEWAY: 默认网关</td>
-<td class="org-left">&#xa0;</td>
+<td class="org-left">GATEWAY</td>
+<td class="org-left">默认网关</td>
 </tr>
 
 <tr>
@@ -589,11 +604,6 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 <tr>
 <td class="org-left">DNS2</td>
 <td class="org-left">第二个DNS服务器指向</td>
-</tr>
-
-<tr>
-<td class="org-left">&#xa0;</td>
-<td class="org-left">&#xa0;</td>
 </tr>
 
 <tr>
@@ -614,20 +624,22 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 </table>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">路由器配置</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">路由器配置</h3>
+<div class="outline-text-3" id="text-orgheadline27">
 <p>
 修改 <code>/etc/sysconfig/network-scripts/route-IFACE</code> 来设置路由表
 </p>
-<ul class="org-ul">
-<li>该文件每行的格式是: <code>IPADDR/MASK via GW</code></li>
-</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml">IPADDR/MASK via GW  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#34892;&#30340;&#26684;&#24335;</span>
+</pre>
 </div>
 </div>
-<div id="outline-container-orgheadline27" class="outline-3">
-<h3 id="orgheadline27">给网卡配置多地址</h3>
-<div class="outline-text-3" id="text-orgheadline27">
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">给网卡配置多地址</h3>
+<div class="outline-text-3" id="text-orgheadline28">
 <p>
 添加配置文件 <code>/etc/sysconfig/network-scripts/ifcfg-IFACE:ALIAS</code>
 </p>
@@ -636,9 +648,9 @@ IP、MASK、GW、DNS相关配置文件: <code>/etc/sysconfig/network-scripts/ifc
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">system-config-network-tui</h3>
-<div class="outline-text-3" id="text-orgheadline28">
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">system-config-network-tui</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <p>
 一个交互式修改网络配置文件的程序, 也可以使用 <code>setup</code> 找到
 </p>

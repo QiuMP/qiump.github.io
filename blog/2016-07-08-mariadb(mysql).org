@@ -1,250 +1,272 @@
-#+TITLE: MariaDB(MySQL)数据库
+#+TITLE: MariaDB与MySQL
 #+DATE: 2016-07-08
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 数据库
-#+JEKYLL_TAGS: 运维 数据库 MySQL
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 数据库
 #+JEKYLL_PUBLISHED: true
 
-记录了数据库的相关知识，包括设计范式、事务、常见组件等，同时记录了SQL语言的用法，包括DDL、DML、DCL，最后简单介绍了MariaDB的配置和使用(TODO)
-
-
-
-
------
 * 数据库相关知识
 ** 数据结构模型
-- 层次模型: 树状结构
-- 网状结构
-- 关系模型
-  - 将数据组织成二维关系: row,column
-  - 关系模型的分类
-    - 关系模型
-    - 实体-关系模型
-    - 基于对象的关系模型
-    - 半结构化的关系模型
-- 数据库管理系统: DBMS
-  - 关系型数据库管理系统: RDBMS
+- =层次模型=: 树状结构
+- =网状结构=
+- =关系模型=: 将数据组织成二维关系
+  : 关系模型的分类:
+  :   关系模型
+  :   实体-关系模型
+  :   基于对象的关系模型
+  :   半结构化的关系模型
+** 数据库管理系统
+- 数据库管理系统: =DBMS= 
+- 关系型数据库管理系统: =RDBMS= 
 ** RDMBS设计范式
 设计关系数据库时，遵从不同的规范要求，设计出合理的关系型数据库，这些不同的规范要求被称为不同的范式，各种范式呈递次规范，越高的范式数据库冗余越小。
-1) 第一范式(1NF)
-   所谓第一范式(1NF)是指在关系模型中，对域添加的一个规范要求，所有的域都应该是原子性的，即数据库表的每一列都是不可分割的原子数据项，而不能是集合，数组，记录等非原子数据项。即实体中的某个属性有多个值时，必须拆分为不同的属性。在符合第一范式(1NF)表中的每个域值只能是实体的一个属性或一个属性的一部分。简而言之，第一范式就是无重复的域。
-2) 第二范式(2NF)
-   第二范式(2NF)要求实体的属性完全依赖于主关键字。所谓完全依赖是指不能存在仅依赖主关键字一部分的属性，如果存在，那么这个属性和主关键字的这一部分应该分离出来形成一个新的实体，新实体与原实体之间是一对多的关系。为实现区分通常需要为表加上一个列，以存储各个实例的唯一标识。简而言之，第二范式就是在第一范式的基础上属性完全依赖于主键。
-3) 第三范式(3NF)
-   第三范式(3NF)是第二范式(2NF)的一个子集，即满足第三范式(3NF)必须满足第二范式(2NF)。简而言之，第三范式(3NF)要求一个关系中不包含已在其它关系已包含的非主关键字信息。简而言之，第三范式就是属性不依赖于其它非主属性，也就是在满足2NF的基础上，任何非主属性不得传递依赖于主属性。
+- 第一范式(1NF) ::
+  所谓第一范式(1NF)是指在关系模型中，对域添加的一个规范要求，所有的域都应该是原子性的，即数据库表的每一列都是不可分割的原子数据项，而不能是集合，数组，记录等非原子数据项。即实体中的某个属性有多个值时，必须拆分为不同的属性。在符合第一范式(1NF)表中的每个域值只能是实体的一个属性或一个属性的一部分。简而言之，第一范式就是无重复的域。
+- 第二范式(2NF) ::
+  第二范式(2NF)要求实体的属性完全依赖于主关键字。所谓完全依赖是指不能存在仅依赖主关键字一部分的属性，如果存在，那么这个属性和主关键字的这一部分应该分离出来形成一个新的实体，新实体与原实体之间是一对多的关系。为实现区分通常需要为表加上一个列，以存储各个实例的唯一标识。简而言之，第二范式就是在第一范式的基础上属性完全依赖于主键。
+- 第三范式(3NF) ::
+  第三范式(3NF)是第二范式(2NF)的一个子集，即满足第三范式(3NF)必须满足第二范式(2NF)。简而言之，第三范式(3NF)要求一个关系中不包含已在其它关系已包含的非主关键字信息。简而言之，第三范式就是属性不依赖于其它非主属性，也就是在满足2NF的基础上，任何非主属性不得传递依赖于主属性。
 ** 事务
-事务（Transaction）是并发控制的单位，是用户定义的一个操作序列。这些操作要么都做，要么都不做，是一个不可分割的工作单位。
-- 事务的特性
-  - A: 原子性，整个事务是一个整体
-  - C：一致性，一个状态转换到另一个状态
-  - I: 隔离性，一个事务的执行不能被其他事务干扰
-  - D：持久性，一个事务一旦提交，它对数据库中数据的改变就应该是永久性的
+事务 =Transaction= 是并发控制的单位，是用户定义的一个操作序列。这些操作要么都做，要么都不做，是一个不可分割的工作单位。
+- 事务的特性 ::
+  - =A=: 原子性，整个事务是一个整体
+  - =C=: 一致性，一个状态转换到另一个状态
+  - =I=: 隔离性，一个事务的执行不能被其他事务干扰
+  - =D=: 持久性，一个事务一旦提交，它对数据库中数据的改变就应该是永久性的
 ** 数据存储协议
-数据存储协议是一个C/S架构的应用层协议
-- Server: 监听于套拼字，接收并处理客户端的应用请求
-- Client
+数据存储协议是一个 =C/S架构= 的应用层协议
+- Server :: 监听于套拼字，接收并处理客户端的应用请求
+- Client ::
   - 程序接口: CLI、GUI
   - 应用编程接口: ODBC(Open DataBase Connection)
 ** 数据基础概念
 *** 约束
-约束(constraint): 向数据表提供的数据要遵守的限制
-- 主键：一个或多个字段的组合，填入的数据必须能在本表中唯一标识本行，NOT NULL，且一个表只能存在一个
-- 唯一键：一个或多个字段的组合，填入的数据必须能在本表中唯一标识本行，允许为NULL
-- 外键：一个表中的某字段可填入数据取决于另一个表的主键已有的数据
-- 检查性：数据的表达式限制
+=constraint=: 向数据表提供的数据要遵守的限制
+- =主键=: 一个或多个字段的组合，填入的数据必须能在本表中唯一标识本行，NOT NULL，且一个表只能存在一个主键
+- =唯一键=: 一个或多个字段的组合，填入的数据必须能在本表中唯一标识本行，允许为NULL
+- =外键=: 一个表中的某字段可填入数据取决于另一个表的主键已有的数据
+- =检查约束=: 数据的表达式限制
 *** 索引
-索引：将表中的一个或多个字段中的数据复制一份另存，并且此些需要按特定次序排序存储
+=索引=: 将表中的一个或多个字段中的数据复制一份另存，并且按特定次序进行排序存储
 *** 关系运算
-- 选择：挑选出符合条件的行
-- 投影：挑选出需要的字段
-- 连接：根据条件连接多个表
+- =选择=: 挑选出符合条件的行
+- =投影=: 挑选出需要的字段
+- =连接=: 根据条件连接多个表
 ** 数据抽象
-- 物理层：决定数据的存储格式，即RDBMS在磁盘上如何组织文件
-- 逻辑层：描述DB存储什么数据，以及数据间存在什么样的关系
-- 视图层：描述DB中的部分数据
+- =物理层=: 决定数据的存储格式，即RDBMS在磁盘上如何组织文件
+- =逻辑层=: 描述DB存储什么数据，以及数据间存在什么样的关系
+- =视图层=: 描述DB中的部分数据
 ** 关系型数据库的常见组件
-- 数据库：database
-- 表：table
-  - 行：row
-  - 列：column
-- 索引：index
-- 视图：view
-- 用户：user
-- 权限：privilege
-- 存储过程：procedure
-- 存储函数：function
-- 触发器：trigger
-- 事件调度器：event scheduler
+| 数据库     | database        |
+| 表         | table           |
+| 索引       | index           |
+| 视图       | view            |
+| 用户       | user            |
+| 权限       | privilege       |
+| 存储过程   | procedure       |
+| 存储函数   | function        |
+| 触发器     | trigger         |
+| 事件调度器 | event scheduler |
 
 * SQL
 ** SQL基础
-SQL(Structure Query Language)是一个结构化查询语言，通过SQL解释器执行
-- DDL: Data Defination Language，如CREATE、DROP、ALTER
-- DML: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT
-- DCL: Data Control Language，如GRANT、REVOKE
-- 获取命令帮助
-  #+BEGIN_SRC sql
-  HELP KEYWORD;
-  #+END_SRC
+=SQL(Structure Query Language)= 是一个结构化查询语言，通过SQL解释器执行
+- =DDL=: Data Defination Language，如CREATE、DROP、ALTER
+- =DML=: Data Manipulation Language，如INSERT、DELETE、UPDATE、SELECT
+- =DCL=: Data Control Language，如GRANT、REVOKE
+#+BEGIN_SRC sql
+HELP KEYWORD;  --获取命令的帮助
+#+END_SRC
 ** 数据类型
 *** 字符型
-- 定长字符型
-  - CHAR(#): 不区分大小写
-  - BINARY(#): 区分大小写
-- 变长字符型: VARCHAR(#), VARBINARY(#)
-- 对象存储
-  - TEXT: 不区分大小写
-    - SMALLTEXT, MEDIUMTEXT, TEXT, LONGTEXT
-  - BLOB：区分字符大小写
-    - SMALLBLOB, MEDIUMBLOB, BLOB, LONGBLOB
-- 内置类型
-  - ENUM: 枚举值
-  - SET: 集合值
+- 定长字符型 ::
+  - =CHAR(#)=: 不区分大小写
+  - =BINARY(#)=: 区分大小写
+- 变长字符型 :: 
+  - =VARCHAR(#)=: 不区分大小写
+  - =VARBINARY(#)=: 区分大小写
+- 对象存储 ::
+  - =TEXT=: 不区分大小写， =SMALLTEXT=, =MEDIUMTEXT=, =TEXT=, =LONGTEXT=
+  - =BLOB=: 区分字符大小写， =SMALLBLOB=, =MEDIUMBLOB=, =BLOB=, =LONGBLOB=
+- 内置类型 ::
+  - =ENUM=: 枚举值
+  - =SET=: 集合值
 
 *** 数值型
-- 精确数值型
-  - 整型
-    - TINYINT: 1byte
-    - SMALLINT: 2bytes
-    - MEDIUMINT: 3bytes
-    - INT: 4bytes
-    - BIGINT: 8bytes
-  - 十进制(精确小数): DECIMAL
-- 近似数值型
-  - 单精度浮点型: FLOAT
-  - 双精度浮点型: DOUBLE
+- 精确数值型 ::
+  - 整型 ::
+    | 类型      | 长度   |
+    |-----------+--------|
+    | TINYINT   | 1byte  |
+    | SMALLINT  | 2bytes |
+    | MEDIUMINT | 3bytes |
+    | INT       | 4bytes |
+    | BIGINT    | 8bytes |
+  - 十进制(精确小数) :: =DECIMAL=
+- 近似数值型 ::
+  - 单精度浮点型: =FLOAT=
+  - 双精度浮点型: =DOUBLE=
 
 *** 日期时间型
-- 日期：DATE
-- 时间：TIME
-- 日期时间：DATETIME
-- 时间戳：TIMESTAMP
-- 年份：YEAR(2), YEAR(4)
+- 日期: =DATE= 
+- 时间: =TIME= 
+- 日期时间: =DATETIME= 
+- 时间戳: =TIMESTAMP= 
+- 年份: =YEAR(2)=, =YEAR(4)=
 
+** SQL通配符
+- =%=: 匹配任意长度的任意字符，可用于表示所有主机
+- =_=: 匹配任意单个字符
 ** DDL
 *** 修饰符
-- 所有类型适用
-  - NOT NULL：非空约束
-  - DEFAULT VALUE: 设定默认值
-  - PRIMARY KEY: 主键
-  - UNIQUE KEY: 唯一键
-- 数值类型适用
-  - UNSIGNED: 无符号类型
-  - AUTO_INCREMENT: 自增
+- 所有类型适用 ::
+  - =NOT NULL=: 非空约束
+  - =DEFAULT VALUE=: 设定默认值
+  - =PRIMARY KEY=: 主键
+  - =UNIQUE KEY=: 唯一键
+- 数值类型适用 ::
+  - =UNSIGNED=: 无符号类型
+  - =AUTO_INCREMENT=: 自增
     
 *** 数据库
-#+BEGIN_SRC sql
-CREATE DATABASE|SCHEMA [IF NOT EXISTS] 'db_name' [OPTIONS];  --创建数据库
-DROP DATABASE|SCHEMA [IF EXISTS] 'db_name' [OPTIONS];  --删除数据库
-  CHARACTER SET [=] 'charecter set name'  --指定字符集
-  COLLATE [=] 'collate name'  --指定排序规则
+- 创建数据库 ::
+  #+BEGIN_SRC sql
+  CREATE DATABASE [IF NOT EXISTS] 'db_name' [OPTIONS];  --创建数据库
+    CHARACTER SET [=] 'charecter set name'  --指定字符集
+    COLLATE [=] 'collate name'  --指定排序规则
 
-SHOW DATABASES;  --查看所有数据库
-SHOW CHARACTER SET;  --查看支持的所有字符集
-SHOW COLLATION;  --查看支持的所有排序规则
-SHOW TABLES [FROM db_name];  --查看数据库中的表列表
-#+END_SRC
+  SHOW CHARACTER SET;  --查看支持的所有字符集
+  SHOW COLLATION;  --查看支持的所有排序规则
+  #+END_SRC
+- 删除数据库 :: 
+  #+BEGIN_SRC sql
+  DROP DATABASE [IF EXISTS] 'db_name' [OPTIONS];  --删除数据库
+  #+END_SRC
+- 数据库查询 :: 
+  #+BEGIN_SRC sql
+  SHOW DATABASES;  --查看所有数据库
+  SHOW TABLES [FROM db_name];  --查看数据库中的表列表
+  #+END_SRC
 *** 表
-#+BEGIN_SRC sql
-CREATE TABLE [IF NOT EXISTS] tb_name (字段1, 字段2, ...) [OPTIONS];  --创建表
-  字段: 
-    col_name type 修饰符
-    PRIMARY KEY(col1,...)
-    INDEX(col1, ...)
-    UNIQUE KEY(col1, ...)
+- 创建表 ::
+  #+BEGIN_SRC sql
+  CREATE TABLE [IF NOT EXISTS] tb_name (字段1, 字段2, ...) [OPTIONS];  --创建表
+    字段表示方法: 
+      col_name type 修饰符  --修饰符在前边有总结
+      PRIMARY KEY(col1,...)
+      INDEX(col1, ...)
+      UNIQUE KEY(col1, ...)
 
-  OPTIONS:
-    ENGINE [=] 'engine_name'
-    COMMENT [=] 'string'
-    ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}
+    OPTIONS:
+      ENGINE [=] 'engine_name'
+      COMMENT [=] 'string'
+      ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}
 
-ALTER TABLE tb_name [OPTIONS];
-  ADD: 添加
-    ADD 字段 [FIRST|AFTER col_name]
-  DROP: 删除
-  ALTER|change|modify: 修改
-    ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
-    CHANGE [COLUMN] old_col_name new_col_name column_definition [FIRST|AFTER col_name]
-    MODIFY [COLUMN] col_name column_definition [FIRST|AFTER col_name]
+  HELP CREATE TABLE;  --查询CREATE TABLE命令的相关参数帮助
+  SHOW ENGINES;  --查看所有的引擎
+  #+END_SRC
+- 修改表 :: 
+  #+BEGIN_SRC sql
+  ALTER TABLE tb_name [OPTIONS];
+    ADD: 添加
+      ADD 字段 [FIRST|AFTER col_name]
 
-DROP TABLE [IF EXISTS] tb_name;  --删除表
+    DROP: 删除
 
-HELP CREATE TABLE;  --查询CREATE TABLE命令的相关参数帮助
-SHOW ENGINES;  --查看所有的引擎
-SHOW CREATE TABLE tb_name;  --查看表的创建命令
-SHOW TABLE STATUS LIKE 'tb_name'\G  --竖行查看表的状态
-DESC [db_name.]tb_name;  --查看指定表的结构
-
-CREATE INDEX index_name ON tbl_name (index_col_name,...);  --创建索引
-DROP INDEX index_name ON tbl_name;  --删除索引
-SHOW INDEXES FROM [db_name.]tbl_name;  --查看表的索引
-#+END_SRC
+    ALTER|CHANGE|MODIFY: 修改
+      ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
+      CHANGE [COLUMN] old_col_name new_col_name column_definition [FIRST|AFTER col_name]
+      MODIFY [COLUMN] col_name column_definition [FIRST|AFTER col_name]
+  #+END_SRC
+- 删除表 :: 
+  #+BEGIN_SRC sql
+  DROP TABLE [IF EXISTS] tb_name;  --删除表
+  #+END_SRC
+- 索引相关 :: 
+  #+BEGIN_SRC sql
+  CREATE INDEX index_name ON tbl_name (index_col_name,...);  --创建索引
+  DROP INDEX index_name ON tbl_name;  --删除索引
+  SHOW INDEXES FROM [db_name.]tbl_name;  --查看表的索引
+  #+END_SRC
+- 表查询 :: 
+  #+BEGIN_SRC sql
+  SHOW CREATE TABLE tb_name;  --查看表的创建命令
+  SHOW TABLE STATUS LIKE 'tb_name'\G  --竖行查看表的状态
+  DESC [db_name.]tb_name;  --查看指定表的结构
+  #+END_SRC
 ** DML
 *** INSERT
 #+BEGIN_SRC sql
-INSERT [INTO] tbl_name [(col_name,...)] {VALUES | VALUE} (val1,...),(...),...
+INSERT [INTO] tbl_name [(col_name,...)] VALUE (val1,...);
+INSERT [INTO] tbl_name [(col_name,...)] VALUES (val1,...),(...),...;
 #+END_SRC
 *** SELECT
+显示匹配的行
 #+BEGIN_SRC sql
-SELECT 字段1,字段2,... FROM tbl_name [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
-  字段:
+SELECT 字段 FROM tbl_name [WHERE 条件] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
+  字段表示:
     *: 所有字段
-    AS: 字段别名，可以省略
+    字段名 AS 别名: 定义字段别名，可以省略AS
   
-  WHERE clause
+  WHERE 条件:
     >, <, >=, <=, ==, !=
     BETWEEN ... AND ...: 相当于>=和<=
-    LIKE '':
-	    %：任意长度的任意字符
-	    _：任意单个字符
+    LIKE 'pattern': SQL通配符模式匹配
     RLIKE '': 正则表达式模式匹配
     IS [NOT] NULL
-    and/or/not
+    AND/OR/NOT
+
+  DESC: 使用降序排列，默认使用升序
+
+  LIMIT [m,]n: 取出m行到n行
 #+END_SRC
 *** DELETE
+删除匹配的行
 #+BEGIN_SRC sql
 DELETE FROM tbl_name [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
 #+END_SRC
 *** UPDATE
+修改匹配的行
 #+BEGIN_SRC sql 
 UPDATE tbl_name SET col1=new_val1, col2=new_val2, ... [WHERE clause] [ORDER BY 'col_name' [DESC]] [LIMIT [m,]n];
 #+END_SRC
 ** DCL
 *** 用户账号
-mysql用户账号由两部分组成: 'USERNAME'@'HOST'
-- USERNAME: 用户名
-- HOST: 用于限制此用户可通过哪些主机远程连接mysqld服务，支持使用IP、网络地址、主机名、通配符
-  - %: 匹配任意长度的任意字符，可用于表示所有主机
-  - _: 匹配任意单个字符
+mysql用户账号由两部分组成: =USERNAME@HOST=
+- =USERNAME=: 用户名
+- =HOST=: 用于限制此用户可通过哪些主机远程连接mysqld服务，支持使用IP、网络地址、主机名、通配符
 #+BEGIN_SRC sql
 CREATE USER 'username'@'host' [IDENTIFIED BY 'password'];  --创建用户账号
 DROP USER 'username'@'host', ...;  --删除用户
 
 SELECT User, Host, Password FROM mysql.user;  --查询本机的用户账号
-#+END_SRC
-- 可直接修改user表来修改用户，但要之后要重读授权表
-*** 授权
-权限级别: 管理权限、数据库、表、字段、存储例程
-#+BEGIN_SRC sql
-GRANT priv_type,... ON [object_type] db_name.tb_name/routine_name TO 'user'@'host' [IDENTIFIED BY 'password'] [WITH GRANT OPTION];  --用户不存在会自动创建
-  priv_type: ALL,SELECT,DELETE...
-  object_type: TABLE(默认), FUNCTION, PROCEDURE
-  db_name.tb_name/routine_name: 可使用 *.* 指定所有库的所有表
-  WITH GRANT OPTION: 用户是否可转授自己的权限
-
-REVOKE priv_type, ... ON db_name.tb_name FROM 'user'@'host';  --撤销授权
-
-SHOW GRANTS FOR 'user'@'host';  --查看指定的用户获得的权限
-SHOW GRANTS [FOR CURRENT_USER];  --默认查看当前用户
-
+--可直接修改mysql.user表来修改用户，但要之后要重读授权表
 FLUSH PRIVILEGES;  --重读授权表
 #+END_SRC
-- 授权实际上是修改授权表，然后自动重读授权表
+*** 授权
+权限级别: 管理权限、数据库、表、字段、存储例程
+- 授予权限 ::
+  授权实际上是修改授权表后，自动重读授权表
+  #+BEGIN_SRC sql
+  GRANT priv_type,... ON [object_type] db_name.tb_name/routine_name TO 'user'@'host' [IDENTIFIED BY 'password'] [WITH GRANT OPTION];  --用户不存在会自动创建
+    priv_type: ALL,SELECT,DELETE...
+    object_type: TABLE(默认), FUNCTION, PROCEDURE
+    db_name.tb_name/routine_name: 可使用 *.* 指定所有库的所有表
+    WITH GRANT OPTION: 用户是否可转授自己的权限
+  #+END_SRC
+- 删除权限 :: 
+  #+BEGIN_SRC sql
+  REVOKE priv_type, ... ON db_name.tb_name FROM 'user'@'host';  --撤销授权
+  #+END_SRC
+- 查询权限 :: 
+  #+BEGIN_SRC sql
+  SHOW GRANTS [FOR 'user'@'host'];  --查看指定的用户获得的权限，默认查看当前用户
+  #+END_SRC
 * TODO MariaDB(mysql)
 ** MariaDB特性
 1. 更多存储引擎
-   - 插件式存储引擎：存储管理器有多种实现版本，功能和特性可能均略有差别，用户可根据需要灵活选择
+   - 插件式存储引擎: 存储管理器有多种实现版本，功能和特性可能均略有差别，用户可根据需要灵活选择
    - MyISAM --> Aria
    - InnoDB --> XtraDB
 2. 诸多扩展和新特性
@@ -290,7 +312,7 @@ FLUSH PRIVILEGES;  --重读授权表
    #+END_SRC
 8. 修改PATH环境变量
 ** 配置文件
-- 配置文件格式：类ini格式，为各程序均通过单个配置文件提供配置信息
+- 配置文件格式: 类ini格式，为各程序均通过单个配置文件提供配置信息
   #+BEGIN_SRC conf
   [prog_name]
   ...
@@ -305,7 +327,7 @@ FLUSH PRIVILEGES;  --重读授权表
   #+END_SRC
 ** MariaDB的程序组成
 - Client ::
-  - mysql：CLI交互式客户端程序
+  - mysql: CLI交互式客户端程序
   - mysqldump, mysqladmin...
 - Server :: 
   - mysqld_safe
@@ -329,4 +351,3 @@ FLUSH PRIVILEGES;  --重读授权表
       status  # 显示当前服务的信息
       #+END_SRC
     - 服务端命令: 通过mysql协议发往服务器执行并取回结果，默认以分号结束
-

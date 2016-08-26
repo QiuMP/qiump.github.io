@@ -2,109 +2,106 @@
 #+DATE: 2016-06-23
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-记录了DNS的相关内容，包括DNS的解析、DNS的服务器、DNS的资源记录RR，同时简单介绍了如何使用bind来建立DNS服务器，包括主DNS服务器、从DNS服务器、缓存DNS服务器、转发DNS服务器。以及介绍了DNS相关命令的使用，例如dig、host、nslookup，和DNS服务器管理工具rndc、DNS服务器压力测试工具queryperf
 
-
-
-
------
-* DNS
+* DNS相关知识
 DNS: Domain Name Service，应用层协议(53/udp用于名称解析, 53/tcp用于区域传送)
 ** hosts
-/etc/hosts是本地名称解析配置文件
-#+BEGIN_SRC conf
-1.1.1.1 www.qiump.com
-1.2.2.2 www.apple.com
+=/etc/hosts= 是本地名称解析配置文件
+#+BEGIN_SRC c
+1.1.1.1  www.qiump.com
+1.2.2.2  www.apple.com
 #+END_SRC
 ** 顶级域
-Top Level Domain(tld): com, edu, mil, gov, net, org, int
+=Top Level Domain(tld)=: com, edu, mil, gov, net, org, int
 - 顶级域分为三类: 组织域、国家域、反向域
 ** 名称服务器
-名称服务器(NS)是域内负责解析本域内的名称的主机
-- 根服务器: 13组服务器
-- 子域授权：每个域的名称服务器，都是通过其上级名称服务器在解析库进行授权
+=名称服务器(NS)= 是域内负责解析本域内的名称的主机
+- =根服务器=: 13组服务器
+- =子域授权=: 每个域的名称服务器，都是通过其上级名称服务器在解析库进行授权
 ** DNS解析
-- FQDN: Full Qualified Domain Name，每个网址最后都有个 =.= 表示根，只是浏览器上会省略
-- 正向区域: FQDN -> IP
-- 反向区域: IP -> FQDN
-- 正反向解析是两个不同的名称空间，是两棵不同的解析树，各需要一个解析库来分别负责本地域名的正向和反向解析
+- =FQDN=: Full Qualified Domain Name，每个网址最后都有个 =.= 表示根，只是浏览器上会被省略
+- =正向区域=: =FQDN= > =IP=
+- =反向区域=: =IP= > =FQDN=
+- 正反向解析是两个不同的名称空间，是两棵不同的解析树，各自需要一个解析库来分别负责
 ** DNS服务器的类型
-- 主DNS服务器: 维护所负责解析的域内解析库服务器，解析库由管理员维护
-  - "通知"机制: 当主DNS服务器内容发生改变时会通知从DNS服务器
-- 从DNS服务器: 从主DNS服务器或其它的从DNS服务器那里复制（区域传递）一份解析库
-  - 序列号：解析库的版本号；前提：主服务器解析库内容发生变化，其序列递增
-  - 刷新时间间隔：从服务器从主服务器请求同步解析库的时间间隔
-  - 重试时间间隔：从服务器从主服务器请求同步解析库失败时，再次尝试的时间间隔
-  - 过期时长：从服务器始终联系不到主服务器时，多久多后放弃从服务器角度，停止提供服务
-  - 区域传送: 全量传送，增量传送
-- 缓存DNS服务器: 使用hash进行缓存
-- 转发器
+- 主DNS服务器 :: 维护所负责解析的域内解析库服务器，解析库由管理员维护
+  - =通知机制=: 当主DNS服务器内容发生改变时会通知从DNS服务器
+- 从DNS服务器 :: 从主DNS服务器或其它的从DNS服务器那里复制（区域传递）一份解析库
+  - =序列号=: 解析库的版本号；主服务器解析库内容发生变化时，其序列递增
+  - =刷新时间间隔=: 从服务器从主服务器请求同步解析库的时间间隔
+  - =重试时间间隔=: 从服务器从主服务器请求同步解析库失败时，再次尝试的时间间隔
+  - =过期时长=: 从服务器始终联系不到主服务器时，多久多后放弃从服务器角度，停止提供服务
+  - =区域传送=: 全量传送、增量传送
+- 缓存DNS服务器 :: 使用hash进行缓存
+- 转发器 ::
 ** 一次查询请求的流程
-- 过程: Client -> hosts文件 -> Local Cache -> DNS Server -> Server Cache -> iteration
-- 一般将需求递归给DNS服务器，DNS服务器从根服务器开始进行迭代查询
+过程: =Client= > =hosts文件= > =Local Cache= > =DNS Server= > =Server Cache= > =iteration=
+- 最坏情况下会将需求递归给DNS服务器，DNS服务器从根服务器开始进行迭代查询
 - 特殊查询结果
-  - 否定答案：请求的条目不存在等原因导致无法返回结果，同样也会缓存
-  - 非权威答案：由缓存查询而来
+  - =否定答案=: 请求的条目不存在等原因导致无法返回结果，同样也会被缓存
+  - =非权威答案=: 由缓存查询而来
 ** 资源记录RR
-- 区域解析库由众多资源记录RR(Resource Record)组成
+=区域解析库= 由众多 =资源记录RR(Resource Record)= 组成
 *** 记录类型
-- SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，而必须为解析库的第一条记录
-- A：internet Address，作用，FQDN --> IP
-- AAAA: FQDN --> IPv6
-- PTR: PoinTeR，IP --> FQDN
-- NS: Name Server，专用于标明当前区域的DNS服务器
-- CNAME：Canonical Name，别名记录
-- MX:　Mail eXchanger，邮件交换器
+| 类型  | 全名               | 作用                                                                          |
+|-------+--------------------+-------------------------------------------------------------------------------|
+| SOA   | Start Of Authority | 起始授权记录；一个区域解析库有且仅能有一个SOA记录，而必须为解析库的第一条记录 |
+| A     | internet Address   | FQDN --> IP                                                                   |
+| AAAA  |                    | FQDN --> IPv6                                                                 |
+| PTR   | PoinTeR            | IP --> FQDN                                                                   |
+| NS    | Name Server        | 专用于标明当前区域的DNS服务器                                                 |
+| CNAME | Canonical Name     | 别名记录                                                                      |
+| MX    | 　Mail eXchanger   | 邮件交换器                                                                    |
 *** 资源记录的格式
 **** 语法
-#+BEGIN_SRC sh
+#+BEGIN_SRC yaml
 name [TTL] IN RR_type value
   TTL: RR缓存时间
 #+END_SRC
-1. TTL可从全局继承
-2. @可用于引用当前区域的名字
-3. 相邻的两个资源记录的name相同时，后续的可省略
+1. =TTL= 可从全局继承
+2. =@= 表示当前区域的名字
+3. 相邻的两个资源记录的 =name= 相同时，后续的可省略
 **** SOA
-- name: 当前区域的名字，例如 =qiump.com.=
-- value: 由多部分组成
-  1. 当前区域的主DNS服务器的FQDN，也可以使用当前区域的名字
-  2. 当前区域管理员的邮箱地址，但地址中不能使用@符号，使用.替换
-  3. 主从服务协调属性的定义以及否定的答案的统一的TTL
-#+BEGIN_SRC dns
+- =name=: 当前区域的名字，例如 =qiump.com.=
+- =value=: 由多部分组成
+  - 当前区域的主DNS服务器的 =FQDN= ，也可以使用当前区域的名字
+  - 当前区域管理员的邮箱地址，地址中使用 =.= 替换 =@= 
+  - 主从服务协调属性的定义以及否定答案的 =TTL=
+#+BEGIN_SRC c
 qiump.com.  86400  IN  SOA  @  qiumupo.qq.com.  (
     20160627 ;序列号
     2H  ;刷新时间
     10M  ;重试时间
-    1W  ;过期时间
-    1D  ;否定答案
+    1W  ;有效答案过期时间
+    1D  ;否定答案过期时间
 )
 #+END_SRC
 **** NS
-- name: 区域的名字
-- value: 区域的某DNS服务器的名字
-#+BEGIN_SRC dns
+- =name=: 区域的名字
+- =value=: 区域的某DNS服务器的名字
+#+BEGIN_SRC c
 qiump.com.	 IN  NS  ns1.qiump.com.  ;当前区域
 qiump.com.	 IN  NS  ns2.qiump.com.
 y.qiump.com. IN  NS  ns.y.qiump.com.  ;子区域授权
 #+END_SRC
-- 任何一个NS记录后面的value，都应该在后续有一个A记录
+- 任何一个 =NS= 记录后面的value，都应该在后续有一个 =A= 记录
 **** MX
-- name: 当前区域的名字
-- value: 当前区域的某邮件服务器(smtp服务器)的主机名
+- =name=: 当前区域的名字
+- =value=: 当前区域的某邮件服务器(smtp服务器)的主机名
   - 每个记录的value之前应该有一个数字(0-99)，表示此服务器的优先级，数字越小优先级越高
-#+BEGIN_SRC dns
+#+BEGIN_SRC c
 qiump.com.	 IN  MX  10  mx1.qiump.com.
              IN  MX  20  mx2.qiump.com.
 #+END_SRC
-- 任何一个MX记录后面的value，都应该在后续有一个A记录
+- 任何一个 =MX= 记录后面的value，都应该在后续有一个 =A= 记录
 **** A
-- name: 某主机的FQDN
-- value: 主机名对应的主机的IPv4地址
-#+BEGIN_SRC dns
+- =name=: 某主机的FQDN
+- =value=: 主机名对应的主机的IPv4地址
+#+BEGIN_SRC c
 www.qiump.com.  IN  A  1.1.1.1
 www.qiump.com.  IN  A  1.1.1.2
 qiump.com.  IN  A  1.1.1.1
@@ -114,92 +111,99 @@ qiump.com.  IN  A  1.1.1.1
 - 同一个name可以有多个不同的value，服务器会轮询解析
 - 同一个value也可以有多个不能的name
 **** AAAA
-- name: FQDN
-- value: IPv6
+- =name=: FQDN
+- =value=: IPv6
 **** CNAME
-name: 别名的FQDN
-value: 原名字的FQDN
+- =name=: 别名的FQDN
+- =value=: 原名字的FQDN
 **** PTR
-- name: 特定格式的IP地址，要把IP地址反过来写，同时加上后缀 =in-addr.arpa.=
-- value: FQDN
-#+BEGIN_SRC dns
+- =name=: 特定格式的IP地址，要把IP地址反过来写，同时加上后缀 =.in-addr.arpa.=
+- =value=: FQDN
+#+BEGIN_SRC c
 2.1.1.1.in-addr.arpa.  IN  PTR  www.qiump.com.
 2  IN  PTR  www.qiump.com.  ;网络地址及后缀可省略
 #+END_SRC
 * BIND
-BIND：Bekerley Internat Name Domain
+BIND: Bekerley Internat Name Domain
 ** 程序包
-- bind
-- bind-libs
-- bind-utils: dig, host, nslookup, nsupdate
-- bind-chroot: /var/named/chroot
-- 程序名: named
+- =bind=
+- =bind-libs=
+- =bind-utils=: dig, host, nslookup, nsupdate
+- =bind-chroot=: /var/named/chroot
+- 程序名: =named= 
 ** bind组成
-- 服务脚本：/etc/rc.d/init.d/named
-- 主配置文件：/etc/named.conf, /etc/named.rfc1912.zones, /etc/rndc.key
-- 解析库文件：/var/named/ZONE_NAME.zone
-  - 必须要有根区域.文件: named.ca
-  - 应该有两个(或ipv6)实现localhost和本地回环地址的解析库
-- 日志文件: /var/log/named.log
+- 服务脚本: =/etc/rc.d/init.d/named=
+- 主配置文件: =/etc/named.conf=, =/etc/named.rfc1912.zones=, =/etc/rndc.key=
+- 解析库文件: =/var/named/ZONE_NAME.zone=
+  - 必须要有根区域 =.= 文件: =named.ca=
+  - 应该有两个(或ipv6)实现 =localhost= 和 =本地回环地址= 的解析库
+- 日志文件: =/var/log/named.log=
 ** 主配置文件
-- 全局配置：options {}
-  - listen-on: 用于配置监听的端口和IP
+- 全局配置: =options {...}=
+  - =listen-on [IP:]Port=: 用于配置监听的端口和IP
   - =allow-query { any; };=: 允许任何主机查询
-- 日志子系统配置：logging {}
-- 区域定义：zone "ZONE_NAME" IN {}
-  - type {master|slave|hint|forward}
-    - master: 主服务器
-    - slave: 从服务器
-    - hint: 设置根服务器
-    - forward: 设置转发规则
+- 日志子系统配置: =logging {...}=
+- 区域定义: =zone "ZONE_NAME" IN {...}=
+  - =type {master|slave|hint|forward}=: 区域类型
+    : master: 主服务器
+    : slave: 从服务器
+    : hint: 设置根服务器
+    : forward: 设置转发服务器
 ** 缓存名称服务器
-- 直接监听外部地址即可
-- dnssec: 用于防止dns污染，测试时一般关闭
+- 直接监听外部地址即为缓存名称服务器
+- =dnssec=: 用于防止dns污染，测试时一般关闭
 ** 主DNS服务器
 1. 在主配置文件中定义区域(一般在 =named.rfc1912.zones= 中定义)
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC c
    zone "ZONE_NAME" IN {
        type master;
 	   file "ZONE_NAME.zone";
    };
    #+END_SRC
 2. 定义区域解析库文件
-   - 定义在 /var/named/ZONE_NAME.zone
-   - 文件属组应为named，权限为640
+   - 定义在 =/var/named/ZONE_NAME.zone= (文件属组应为named，权限为640)
    - 正向解析
-     #+BEGIN_SRC zone
+     #+BEGIN_SRC c
      $TTL 86400  ;定义默认的TTL
      $ORIGIN qiump.com.  ;为后缀不是.的地址补全后缀
-     @	IN	SOA	ns1.qiump.com.	admin.qiump.com (
-       20160627 ;序列号
-       2H  ;刷新时间
-       10M  ;重试时间
-       1W  ;过期时间
-       1D  ;否定答案
-       )
-   		  IN	NS	ns1
-   		  IN	NS	ns2  
-   		  IN	MX 10	mx
-     ns1	IN	A	172.16.100.10  ;指向自己
-     ns2	IN	A	172.16.100.11  ;指向从服务器，用于保证解析库的同步
-     mx	IN	A	172.16.100.12
-     www	IN	A	172.16.100.11
-     www	IN	A	172.16.100.12
-     ftp	IN	CNAME	www
-     *	IN	A	172.16.100.13  ;匹配用户输错的网址
+
+     @   IN  SOA   ns1.qiump.com. admin.qiump.com (
+         20160627  ;序列号
+         2H  ;刷新时间
+         10M  ;重试时间
+         1W  ;过期时间
+         1D  ;否定答案过期时间
+         )
+
+         IN  NS    ns1
+         IN  NS    ns2  
+         IN  MX    10 mx
+
+     ns1 IN  A     172.16.100.10  ;指向自己
+     ns2 IN  A     172.16.100.11  ;指向从服务器，用于保证解析库的同步
+     mx  IN  A     172.16.100.12
+
+     www IN  A     172.16.100.11
+     www IN  A     172.16.100.12
+     ftp IN  CNAME www
+
+     *   IN  A     172.16.100.13  ;匹配用户输错的网址
      #+END_SRC
-   - 反向解析: 文件名一般使用 IP.zone
+   - 反向解析: 文件名一般使用 =IP.zone=
      #+BEGIN_SRC zone
      $TTL 86400  ;定义默认的TTL
      $ORIGIN 100.16.172.in-addr.arpa.  ;定义反向区域的名字
+
      @	IN	SOA	ns1.qiump.com. admin.magedu.com. (
          2015042201
          1H
          5M
          7D
          1D )
+
        	IN	NS	ns1.qiump.com.
 	    IN	NS	ns2.qiump.com.
+
      11	IN	PTR	ns1.qiump.com.
      11	IN	PTR	www.qiump.com.
      12	IN	PTR	mx1.qiump.com.
@@ -207,7 +211,7 @@ BIND：Bekerley Internat Name Domain
      13	IN	PTR	mx2.qiump.com.	
      #+END_SRC
 3. 检查配置文件
-   #+BEGIN_SRC sh
+   #+BEGIN_SRC bash
    named-checkconf
    named-checkconf "qiump.com" /var/named/qiump.com.zone
    #+END_SRC
@@ -215,8 +219,8 @@ BIND：Bekerley Internat Name Domain
 - 主DNS服务器应该限制可以作区域传送的从服务器
 - 主从服务器时间应该同步，可通过ntp进行
 - 从服务器的bind版本应该大于或等于主服务器
-- 在主配置文件中定义要同步的区域
-  #+BEGIN_SRC C
+- 在从服务器的主配置文件中定义要同步的区域和相应的主服务器
+  #+BEGIN_SRC c
   zone "ZONE_NAME" IN {
 	  type slave;
 	  masters { MASTER_IP; };
@@ -225,83 +229,85 @@ BIND：Bekerley Internat Name Domain
   #+END_SRC
 ** 转发服务器
 - 被转发的服务器需要能够为请求者做递归，否则，转发请求不予进行
-- 全部转发: 凡是对非本机所有负责解析的区域的请求，统统转发给指定的服务器
+- =全部转发=: 凡是对非本机所有负责解析的区域的请求，统统转发给指定的服务器
   #+BEGIN_SRC c
   Options {
 	  forward {first|only};    // only则表示转发失败时自己不处理
-	  fowwarders;
+	  forwarders { FORWARDER_IP; ... };
   };
   #+END_SRC
-- 区域转发: 仅转发对特定的区域的请求至某服务器
+- =区域转发=: 仅转发对特定的区域的请求至某服务器
   #+BEGIN_SRC c
   zone "ZONE_NAME" IN {
 	  type forward;
 	  forward {first|only};
-	  forwarders;
+	  forwarders { FORWARDER_IP; ... };
   };
   #+END_SRC
-- 关闭dnssec功能
-#+BEGIN_SRC conf
-dnssec-enable no;
-dnssec-validation no;
-#+END_SRC
+-  转发功能需要关闭 =dnssec= 功能
+  #+BEGIN_SRC c
+  dnssec-enable no;
+  dnssec-validation no;
+  #+END_SRC
 ** 安全相关配置
 *** acl
-acl用于把一个或多个地址归并为一个集合，使用统一的名称调用
+=acl= 用于把一个或多个地址归并为一个集合，使用统一的名称调用
 #+BEGIN_SRC C
 acl acl_name {
     ip;
     net/prelen;
 };
 #+END_SRC
-- bind中有四个内置的acl
-  - none: 没有一个主机
-  - any: 任意主机
-  - local: 本机
-  - localnet: 本机的IP同掩码运算后得到的网络地址
+: bind中有四个内置的acl
+:   none: 空列表
+:   any: 任意主机
+:   local: 本机
+:   localnet: 本机的IP同掩码运算后得到的网络地址
 *** 访问控制
-访问控制指定可以放在全局设置中，也可以放在特定zone中
-- allow-query {}: 允许查询的主机
-- allow-transfer {}: 允许区域传送的主机
-- allow-recursion {}: 允许递归的主机
-- allow-update {}: 允许更新区域数据库中的内容，一般关闭(使用none)
+访问控制语句可以放在全局设置中，也可以放在特定zone中
+- =allow-query {...}=: 允许查询的主机
+- =allow-transfer {...}=: 允许区域传送的主机
+- =allow-recursion {...}=: 允许递归的主机
+- =allow-update {...}=: 允许更新区域数据库中的内容，一般关闭(使用 =none= )
 ** view
-- view用于为不同的客户端提供不同的zone解析
-  - 一个bind服务器可定义多个view，每个view中可定义一个或多个zone
-  - 多个view内可能需要对同一个区域进行解析，但使用不同的区域解析库文件
+ =view= 用于为不同的客户端提供不同的zone解析
 #+BEGIN_SRC c
 view VIEW_NAME {
     match-clients {  };  //用于定义匹配的客户端
 };
 #+END_SRC
+- 一个bind服务器可定义多个view，每个view中可定义一个或多个zone
+- 多个view内可能需要对同一个区域进行解析，可以分别使用不同的区域解析库文件
 - 一旦启用了view，所有的zone都只能定义在view中
 - 仅有必要在匹配到允许递归请求的客户所在view中定义根区域
 - 客户端请求到达时，是自上而下检查每个view所服务的客户端列表
-- 智能DNS: 可用于CDN(Content Delivery Network)的中缓存服务器地址的分配
-* 相关命令
+- =智能DNS=: 可用于CDN(Content Delivery Network)的中缓存服务器地址的分配
+* DNS相关命令
 ** dig
-dig用于查询DNS系统，并不会查询hosts文件
-#+BEGIN_SRC conf
+=dig= 用于查询DNS系统，且不会查询hosts文件
+#+BEGIN_SRC yaml
 dig [-t type] name [@SERVER] [query options]  # 正向解析
   type: 查询的RR类型
   SERVER: 指定使用的DNS服务器
 
   +[no]trace: 跟踪解析过程
-  +[no]recurse: 进行递归解析，不递归则返回父域内容
-
+  +[no]recurse: 进行递归解析，不递归则直接返回父域内容
+#+END_SRC
+#+BEGIN_SRC bash
 dig -x IP [@SERVER]  # 反向解析
-
+#+END_SRC
+#+BEGIN_SRC bash
 dig -t axfr ZONE_NAME [@SERVER]  # 请求DNS服务器全量传送
 #+END_SRC
-- dig的输出可直接生成zone文件
+: dig的输出可直接重定向成zone文件
 ** host
 简单的DNS查询
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 host [-t type] name [SERVER]
 #+END_SRC
 ** nslookup
 交互式DNS查询
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 nslookup [-option] [name | -] [server]
   交互式命令:
     server IP: 指定DNS服务器
@@ -309,8 +315,8 @@ nslookup [-option] [name | -] [server]
     NAME: 指定要查询的名称
 #+END_SRC
 ** rndc
-remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接，用于提供辅助性的管理功能
-#+BEGIN_SRC conf
+=remote name domain controller=: 默认与bind安装在同一主机，且只能通过127.0.0.1:953来连接，用于提供辅助性的管理功能
+#+BEGIN_SRC yaml
 rndc COMMAND
   status: 查询当前电脑的DNS状态
   reload: 重载主配置文件和区域解析库文件
@@ -320,12 +326,14 @@ rndc COMMAND
   reconfig: 重载主配置文件
   querylog: 开启或关闭查询日志，一般关闭
   trace [LEVEL]: 指定Debug级别，默认提高1级
+
 rndc-confgen [-r /dev/urandom] # 用于生成rndc配置文件
   # 当random随机池不够用时会阻塞
 #+END_SRC
+
 ** queryperf
 用于测试DNS服务器的性能
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 queryperf -d FILE -s SERVER
   -d FILE: 指定用于查询的地址列表
 #+END_SRC

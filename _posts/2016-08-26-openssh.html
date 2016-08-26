@@ -1,0 +1,183 @@
+---
+title: "OpenSSH"
+date: 2016-06-29
+layout: post
+categories: 
+- Bash
+tags: 
+- Linux 
+- ssh
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. ssh和telnet</a></li>
+<li><a href="#orgheadline8">2. OpenSSH</a>
+<ul>
+<li><a href="#orgheadline5">客户端</a>
+<ul>
+<li><a href="#orgheadline2">ssh</a></li>
+<li><a href="#orgheadline3">scp</a></li>
+<li><a href="#orgheadline4">sftp</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">服务器端</a>
+<ul>
+<li><a href="#orgheadline6">sshd</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline9">3. ssh服务的注意事项</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> ssh和telnet</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li><code>ssh</code>: secure shell，是一种协议(22/tcp)，用于安全的远程登录
+<ul class="org-ul">
+<li><code>ssh v1</code>: 基于CRC-32做MAC，不安全，会被man-in-middle攻击</li>
+<li><code>ssh v2</code>: 双方主机协商选择安全的MAC方式，基于DH算法做密钥交换，基于RSA或DSA算法实现身份认证</li>
+<li>ssh用于用户登录认证的方式: 基于password、基于key</li>
+</ul></li>
+<li><p>
+<code>telnet</code> 是另一种协议(23/tcp)，简单但不安全；文本格式传输的连接都可以使用telnet进行连接，例如80端口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">telnet HOST PORT
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">2</span> OpenSSH</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+<code>OpenSSH</code> 是ssh协议的开源实现， <code>dropbear</code> 则是另一个开源实现
+</p>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">客户端</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2">ssh</h4>
+<div class="outline-text-4" id="text-orgheadline2">
+<dl class="org-dl">
+<dt>配置文件</dt><dd><p>
+  <code>/etc/ssh/ssh_config</code>: 配置文件可以为不同客户端设定不同配置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">Host NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#21517;&#31216;</span>
+    HostName &#20027;&#26426;&#21517;
+    User &#30331;&#24405;&#29992;&#25143;&#21517;
+    port <span style="color: #AE81FF;">22</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;ssh&#31471;&#21475;&#21495;</span>
+</pre>
+</div></dd>
+<dt>ssh命令</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">ssh [user@]host [COMMAND]  <span style="color: #75715E;"># </span><span style="color: #75715E;">user&#40664;&#35748;&#26159;&#24403;&#21069;&#31995;&#32479;&#19978;&#30331;&#24405;&#30340;&#29992;&#25143;&#21517;</span>
+  <span style="color: #FD971F;">-p port</span>: &#35774;&#32622;&#36828;&#31243;&#26381;&#21153;&#22120;&#30417;&#21548;&#30340;&#31471;&#21475;
+  <span style="color: #FD971F;">COMMAND</span>: &#19981;&#30331;&#24405;&#36828;&#31243;&#20027;&#26426;&#20165;&#25191;&#34892;COMMAND&#21629;&#20196;
+  <span style="color: #FD971F;">-X</span>: &#25903;&#25345;x11&#36716;&#21457;&#65292;&#21363;&#36828;&#31243;&#36816;&#34892;&#22270;&#24418;&#30028;&#38754;&#31243;&#24207;
+  <span style="color: #FD971F;">-Y</span>: &#25903;&#25345;&#23433;&#20840;&#30340;x11&#36716;&#21457;
+</pre>
+</div></dd>
+<dt>配置密钥认证</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">ssh-keygen -t rsa <span style="color: #AE81FF;">[</span>-P <span style="color: #E6DB74;">''</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-f <span style="color: #E6DB74;">"~/.ssh/id_rsa"</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#23458;&#25143;&#31471;&#29983;&#25104;&#23494;&#38053;&#23545;</span>
+ssh-copy-id <span style="color: #AE81FF;">[</span>-i <span style="color: #E6DB74;">"~/.ssh/id_rsa.pub"</span><span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>user@<span style="color: #AE81FF;">]</span>host  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#20844;&#38053;&#20256;&#36755;&#33267;&#26381;&#21153;&#22120;&#30340;.ssh/authorized_keys&#20013;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>服务器的 <code>.ssh/authorized_keys</code> 权限必须是600</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3">scp</h4>
+<div class="outline-text-4" id="text-orgheadline3">
+<p>
+<code>scp</code> 可用于发送文件到服务器或获取服务器的文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">scp [options] SRC...  DEST
+  <span style="color: #FD971F;">-P port</span>: &#25351;&#23450;&#31471;&#21475;
+  [user@]host:/PATH/FILE: &#25351;&#23450;&#26381;&#21153;&#22120;&#31471;&#30340;&#25991;&#20214;&#25110;&#30446;&#24405;
+
+  <span style="color: #FD971F;">-r</span>: &#36882;&#24402;&#22797;&#21046;
+  <span style="color: #FD971F;">-p</span>: &#20445;&#25345;&#21407;&#25991;&#20214;&#30340;&#23646;&#24615;&#20449;&#24687;
+
+  <span style="color: #FD971F;">-q</span>: quiet
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">sftp</h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<p>
+类似于ftp客户端，但基于ssh
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">服务器端</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">sshd</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<ul class="org-ul">
+<li><p>
+配置文件: <code>/etc/ssh/sshd_config</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">Port <span style="color: #AE81FF;">22</span>
+ListenAddress ip  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19968;&#33324;&#21482;&#20801;&#35768;&#20351;&#29992;&#20869;&#32593;&#30331;&#24405;</span>
+PermitRootLogin no
+PasswordAuthentication no  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#20801;&#35768;&#20351;&#29992;&#23494;&#38053;&#35748;&#35777;</span>
+UseDNS no  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#38381;DNS&#21453;&#21521;&#35299;&#26512;</span>
+
+AllowUsers user1 user2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#25143;&#30333;&#21517;&#21333;</span>
+AllowGroups user1 user2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32452;&#30333;&#21517;&#21333;</span>
+</pre>
+</div></li>
+<li><code>Kerberos</code> 可以使用其他服务器进行统一认证</li>
+<li>ssh登录的请求日志存放在 <code>/var/log/secure</code> 中</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">3</span> ssh服务的注意事项</h2>
+<div class="outline-text-2" id="text-3">
+<ol class="org-ol">
+<li>不要使用默认端口</li>
+<li>禁止使用protocol 1</li>
+<li>限制可登录用户</li>
+<li>设定空闲会话超时时长</li>
+<li>利用防火墙设置ssh访问策略</li>
+<li>仅监听特定的IP地址</li>
+<li>基于口令认证时，使用强密码策略</li>
+<li>使用基于密钥的认证</li>
+<li>禁止使用空密码</li>
+<li>禁止root用户直接登录</li>
+<li>限制ssh的访问频度和并发在线数</li>
+<li>做好日志，经常分析</li>
+</ol>
+</div>
+</div>

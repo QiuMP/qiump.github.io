@@ -3,11 +3,9 @@ title: "Linux进程及作业管理"
 date: 2016-06-14
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 进程管理 
-- 运维
+- Linux
 published: true
 comments: 
 ---
@@ -15,61 +13,56 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline7">1. 进程相关知识</a>
+<li><a href="#orgheadline9">1. 进程相关知识</a>
 <ul>
 <li><a href="#orgheadline1">内核与进程</a></li>
 <li><a href="#orgheadline2">进程的创建</a></li>
 <li><a href="#orgheadline3">进程内存</a></li>
 <li><a href="#orgheadline4">进程间通信</a></li>
 <li><a href="#orgheadline5">进程类型</a></li>
-<li><a href="#orgheadline6">进程状态</a></li>
+<li><a href="#orgheadline6">进程的优先级</a></li>
+<li><a href="#orgheadline7">进程状态</a></li>
+<li><a href="#orgheadline8">进程相关信息</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline23">2. 进程管理工具</a>
+<li><a href="#orgheadline24">2. 进程查询</a>
 <ul>
-<li><a href="#orgheadline8">pstree</a></li>
-<li><a href="#orgheadline9">ps</a></li>
-<li><a href="#orgheadline10">pgrep与pkill</a></li>
-<li><a href="#orgheadline11">pidof</a></li>
-<li><a href="#orgheadline12">top</a></li>
-<li><a href="#orgheadline13">htop</a></li>
-<li><a href="#orgheadline14">glances</a></li>
-<li><a href="#orgheadline15">vmstat</a></li>
-<li><a href="#orgheadline16">dstat</a></li>
-<li><a href="#orgheadline17">pmap</a></li>
-<li><a href="#orgheadline18">kill</a></li>
-<li><a href="#orgheadline19"><span class="todo TODO">TODO</span> sar</a></li>
-<li><a href="#orgheadline20"><span class="todo TODO">TODO</span> tsar</a></li>
-<li><a href="#orgheadline21"><span class="todo TODO">TODO</span> iostat</a></li>
-<li><a href="#orgheadline22"><span class="todo TODO">TODO</span> iftop</a></li>
+<li><a href="#orgheadline10">pstree</a></li>
+<li><a href="#orgheadline11">ps</a></li>
+<li><a href="#orgheadline12">pgrep与pkill</a></li>
+<li><a href="#orgheadline13">pidof</a></li>
+<li><a href="#orgheadline14">top</a></li>
+<li><a href="#orgheadline15">htop</a></li>
+<li><a href="#orgheadline16">glances</a></li>
+<li><a href="#orgheadline17">vmstat</a></li>
+<li><a href="#orgheadline18">dstat</a></li>
+<li><a href="#orgheadline19">pmap</a></li>
+<li><a href="#orgheadline20"><span class="todo TODO">TODO</span> sar</a></li>
+<li><a href="#orgheadline21"><span class="todo TODO">TODO</span> tsar</a></li>
+<li><a href="#orgheadline22"><span class="todo TODO">TODO</span> iostat</a></li>
+<li><a href="#orgheadline23"><span class="todo TODO">TODO</span> iftop</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline27">3. Linux的作业控制</a>
+<li><a href="#orgheadline27">3. 进程管理</a>
 <ul>
-<li><a href="#orgheadline24">作业的分类</a></li>
-<li><a href="#orgheadline25">创建作业</a></li>
-<li><a href="#orgheadline26">相关控制命令</a></li>
+<li><a href="#orgheadline25">进程优先级调整</a></li>
+<li><a href="#orgheadline26">kill与killall</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline30">4. 进程优先级调整</a>
+<li><a href="#orgheadline31">4. Linux的作业控制</a>
 <ul>
-<li><a href="#orgheadline28">进程的优先级</a></li>
-<li><a href="#orgheadline29">相关命令</a></li>
+<li><a href="#orgheadline28">作业的分类</a></li>
+<li><a href="#orgheadline29">创建作业</a></li>
+<li><a href="#orgheadline30">相关控制命令</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-简单地介绍了Linux进程的相关知识，以及进行进程管理的各种工具，比如pstree, ps, pgrep, pkill, pidof, top, htop, glances, vmstat, dstat, pmap, kill, sar, tsar, iostat, iftop等，同时简单记录了Linux下的前台和后台的作业控制，还有进程优先级的调整
-</p>
 
 
-
-
-<hr  />
-<div id="outline-container-orgheadline7" class="outline-2">
-<h2 id="orgheadline7"><span class="section-number-2">1</span> 进程相关知识</h2>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">1</span> 进程相关知识</h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-orgheadline1" class="outline-3">
 <h3 id="orgheadline1">内核与进程</h3>
@@ -78,8 +71,8 @@ comments:
 <dt>内核的作用</dt><dd>进程管理、文件系统、网络功能、内存管理、驱动程序、安全功能</dd>
 <dt>Process</dt><dd>运行中的程序的一个副本
 <ul class="org-ul">
-<li>Linux内核使用一个结构来存储进程信息: task_struct</li>
-<li>多个任务的task_struct连成链表: task list</li>
+<li>Linux内核使用一个结构来存储进程信息: <code>task_struct</code></li>
+<li>多个任务的 <code>task_struct</code> 连成链表 <code>task list</code></li>
 </ul></dd>
 </dl>
 </div>
@@ -88,7 +81,7 @@ comments:
 <h3 id="orgheadline2">进程的创建</h3>
 <div class="outline-text-3" id="text-orgheadline2">
 <p>
-进程都是由父进程创建的，利用 <code>fork()</code> 、 <code>clone()</code>
+进程都是由父进程创建的，利用 <code>fork()</code>, <code>clone()</code>
 </p>
 <ul class="org-ul">
 <li>系统的第一个进程init是所有进程的继承者</li>
@@ -99,10 +92,10 @@ comments:
 <h3 id="orgheadline3">进程内存</h3>
 <div class="outline-text-3" id="text-orgheadline3">
 <ul class="org-ul">
-<li>内存被分割为大量4KB的Page frame，用于存储Page数据</li>
-<li>每个进程被分配一定量的Page frame，可能不连续，但在进程看来是连续的</li>
-<li>MMU: Memory Management Unit，主要管理内存映射关系</li>
-<li>对于一次IO访问，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。</li>
+<li>内存被分割为大量4KB的 <code>Page frame</code> ，用于存储Page数据</li>
+<li>每个进程被分配一定量的 <code>Page frame</code> ，可能不连续，但在进程看来是连续的</li>
+<li><code>MMU</code>: Memory Management Unit，主要管理内存映射关系</li>
+<li>对于一次IO访问，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间，分两步进行</li>
 </ul>
 </div>
 </div>
@@ -113,8 +106,8 @@ comments:
 IPC: Inter Process Communication
 </p>
 <ul class="org-ul">
-<li>同一主机上: signal, shared memory(shm), semerphor</li>
-<li>不同主机上: RPC, socket</li>
+<li>同一主机上: <code>signal</code>, <code>shared memory(shm), semerphor</code></li>
+<li>不同主机上: <code>RPC</code>, <code>socket</code></li>
 </ul>
 </div>
 </div>
@@ -122,7 +115,7 @@ IPC: Inter Process Communication
 <h3 id="orgheadline5">进程类型</h3>
 <div class="outline-text-3" id="text-orgheadline5">
 <ul class="org-ul">
-<li>启动方式分类 
+<li>根据启动方式
 <ul class="org-ul">
 <li>守护进程: 跟终端无关的进程，在系统引导过程中启动的进程</li>
 <li>前台进程: 跟终端相关，通过终端启动的进程，可以被转换为守护进程</li>
@@ -136,39 +129,101 @@ IPC: Inter Process Communication
 </div>
 </div>
 <div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6">进程状态</h3>
+<h3 id="orgheadline6">进程的优先级</h3>
 <div class="outline-text-3" id="text-orgheadline6">
 <ul class="org-ul">
-<li>运行态R: running</li>
-<li>睡眠态: sleeping
+<li>优先级范围是0~139
 <ul class="org-ul">
-<li>可中断S: interruptable, 可以立即被唤醒执行</li>
-<li>不可中断D: uninterruptable, 无法立即被唤醒执行</li>
+<li>1-99: 实时优先级, 数字越大，优先级越高</li>
+<li>100-139: 静态优先级, 数字越小，优先级越高
+<ul class="org-ul">
+<li>nice值: [-20,19]</li>
 </ul></li>
-<li>停止态T: stopped，暂停于内存中，但不会被调度，除非手动启动</li>
-<li>僵死态Z: zombie，子进程的父进程被终止</li>
+</ul></li>
+<li>相同优先级的程序排一队，内核每次顺序执行140个优先级的队列排头程序</li>
+<li>进程默认启动时的nice值为0, 优先级为120</li>
+<li>普通用户只能调高nice值</li>
 </ul>
 </div>
 </div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">进程状态</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">进程状态</th>
+<th scope="col" class="org-left">符号</th>
+<th scope="col" class="org-left">详细</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">running</td>
+<td class="org-left">R</td>
+<td class="org-left">运行中</td>
+</tr>
+
+<tr>
+<td class="org-left">interruptable</td>
+<td class="org-left">S</td>
+<td class="org-left">可以被立即唤醒运行</td>
+</tr>
+
+<tr>
+<td class="org-left">uninterruptable</td>
+<td class="org-left">D</td>
+<td class="org-left">无法被立即唤醒运行，也无法正常kill</td>
+</tr>
+
+<tr>
+<td class="org-left">stopped</td>
+<td class="org-left">T</td>
+<td class="org-left">暂停于内存中，但不会被调度，除非手动启动</td>
+</tr>
+
+<tr>
+<td class="org-left">zombie</td>
+<td class="org-left">Z</td>
+<td class="org-left">子进程的父进程被终止</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="outline-container-orgheadline23" class="outline-2">
-<h2 id="orgheadline23"><span class="section-number-2">2</span> 进程管理工具</h2>
-<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">进程相关信息</h3>
+<div class="outline-text-3" id="text-orgheadline8">
 <p>
 Linux系统各进程的相关信息均保存在 <code>/proc/PID</code> 目录下的各文件中
 </p>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">pstree</h3>
-<div class="outline-text-3" id="text-orgheadline8">
+</div>
+</div>
+
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">2</span> 进程查询</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">pstree</h3>
+<div class="outline-text-3" id="text-orgheadline10">
 <p>
 用于显示进程树
 </p>
 </div>
 </div>
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">ps</h3>
-<div class="outline-text-3" id="text-orgheadline9">
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">ps</h3>
+<div class="outline-text-3" id="text-orgheadline11">
 <p>
 进程状态查看工具
 </p>
@@ -176,219 +231,221 @@ Linux系统各进程的相关信息均保存在 <code>/proc/PID</code> 目录下
 <li>ps选项支持两种风格，分别是标准风格和BSD风格</li>
 <li>线程相关信息
 <ul class="org-ul">
-<li>VSZ/VIRT: Virtual memory SiZe，虚拟内存集</li>
-<li>RSS/RES: ReSident Size, 常驻内存集</li>
-<li>SHR: 共享内存集</li>
-<li>STAT: 进程状态
+<li><code>VSZ/VIRT</code>: Virtual memory SiZe，虚拟内存集</li>
+<li><code>RSS/RES</code>: ReSident Size, 常驻内存集</li>
+<li><code>SHR</code>: 共享内存集</li>
+<li><code>STAT</code>: 进程状态
 <ul class="org-ul">
-<li>R/S/D/T/Z: 进程状态</li>
-<li>+: 前台进程</li>
-<li>l: 多线程进程</li>
-<li>N: 低优先级进程</li>
-<li>&lt;: 高优先级进程</li>
-<li>s: session leader会话创建者，终止时其会话成员也会被终止</li>
+<li><code>R/S/D/T/Z</code>: 进程状态</li>
+<li><code>+</code>: 前台进程</li>
+<li><code>l</code>: 多线程进程</li>
+<li><code>N</code>: 低优先级进程</li>
+<li><code>&lt;</code>: 高优先级进程</li>
+<li><code>s</code>: session leader会话创建者，终止时其会话成员也会被终止</li>
 </ul></li>
-<li>Time: 运行时的累计时长</li>
-<li>COMMAND: 其中[NAME]是内核线程</li>
-<li>RTPRIO: 实时优先级</li>
-<li>PRI: priority, 优先级</li>
-<li>NI: nice值</li>
-<li>PSR: processor, 运行在哪个CPU上</li>
+<li><code>Time</code>: 运行时的累计时长</li>
+<li><code>COMMAND</code>: 其中[NAME]是内核线程</li>
+<li><code>RTPRIO</code>: 实时优先级</li>
+<li><code>PRI</code>: priority, 优先级</li>
+<li><code>NI</code>: nice值</li>
+<li><code>PSR</code>: processor, 运行在哪个CPU上</li>
 </ul></li>
 </ul>
 
 <div class="org-src-container">
 
-<pre class="src src-conf">ps aux  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#31995;&#32479;&#25152;&#26377;&#36827;&#31243;</span>
-  u: &#20197;&#29992;&#25143;&#20026;&#20013;&#24515;&#32452;&#32455;&#36827;&#31243;&#29366;&#24577;&#20449;&#24687;&#26174;&#31034;
-  a: &#19982;&#32456;&#31471;&#30456;&#20851;&#30340;&#36827;&#31243;
-  x: &#19982;&#32456;&#31471;&#26080;&#20851;&#30340;&#36827;&#31243;
+<pre class="src src-yaml">ps aux  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#31995;&#32479;&#25152;&#26377;&#36827;&#31243;</span>
+  <span style="color: #FD971F;">u</span>: &#20197;&#29992;&#25143;&#20026;&#20013;&#24515;&#32452;&#32455;&#36827;&#31243;&#29366;&#24577;&#20449;&#24687;&#26174;&#31034;
+  <span style="color: #FD971F;">a</span>: &#19982;&#32456;&#31471;&#30456;&#20851;&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">x</span>: &#19982;&#32456;&#31471;&#26080;&#20851;&#30340;&#36827;&#31243;
+
 ps -eFH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20197;&#36827;&#31243;&#23618;&#32423;&#26684;&#24335;&#26174;&#31034;&#36827;&#31243;&#30456;&#20851;&#20449;&#24687;</span>
-  -e: &#26174;&#31034;&#25152;&#26377;&#36827;&#31243;&#65292;&#30456;&#24403;&#20110;ax
-  -F: &#26174;&#31034;&#23436;&#25972;&#26684;&#24335;&#31243;&#24207;&#20449;&#24687;
-  -H: &#23618;&#32423;&#26684;&#24335;&#26174;&#31034;&#36827;&#31243;
+  <span style="color: #FD971F;">-e</span>: &#26174;&#31034;&#25152;&#26377;&#36827;&#31243;&#65292;&#30456;&#24403;&#20110;ax
+  <span style="color: #FD971F;">-F</span>: &#26174;&#31034;&#23436;&#25972;&#26684;&#24335;&#31243;&#24207;&#20449;&#24687;
+  <span style="color: #FD971F;">-H</span>: &#23618;&#32423;&#26684;&#24335;&#26174;&#31034;&#36827;&#31243;
+
 ps axZ  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;SELinux&#30456;&#20851;</span>
-  Z: &#26174;&#31034;SELinux&#30340;&#23433;&#20840;&#26631;&#31614;
+  <span style="color: #FD971F;">Z</span>: &#26174;&#31034;SELinux&#30340;&#23433;&#20840;&#26631;&#31614;
+
+ps axo pid,comm,ni  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#36827;&#31243;&#30340;nice</span>
+
 ps -U USER  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#26576;&#29992;&#25143;&#36816;&#34892;&#30340;&#36827;&#31243;</span>
-ps -eo ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33258;&#23450;&#20041;&#26174;&#31034;&#21015;&#34920;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">pgrep与pkill</h3>
-<div class="outline-text-3" id="text-orgheadline10">
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">pgrep与pkill</h3>
+<div class="outline-text-3" id="text-orgheadline12">
 <p>
 可使用正则表达式的进程管理工具
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">pgrep [options] pattern
+<pre class="src src-yaml">pgrep [options] pattern
 pkill [options] pattern
-  -l: &#26174;&#31034;&#36827;&#31243;&#21517;
-  -a: &#26174;&#31034;COMMAND
+  <span style="color: #FD971F;">-l</span>: &#26174;&#31034;&#36827;&#31243;&#21517;
+  <span style="color: #FD971F;">-a</span>: &#26174;&#31034;COMMAND
 
-  -u uid: effective user
-  -U uid: real user
-  -t terminal: &#19982;&#25351;&#23450;&#32456;&#31471;&#30456;&#20851;&#30340;&#36827;&#31243;
-  -P pid: &#26174;&#31034;&#20854;&#29238;&#36827;&#31243;&#20026;&#27492;&#22788;&#25351;&#23450;&#30340;&#36827;&#31243;&#30340;&#36827;&#31243;&#21015;&#34920;
+  <span style="color: #FD971F;">-u uid</span>: effective user
+  <span style="color: #FD971F;">-U uid</span>: real user
+  <span style="color: #FD971F;">-t terminal</span>: &#19982;&#25351;&#23450;&#32456;&#31471;&#30456;&#20851;&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">-P pid</span>: &#26174;&#31034;&#20854;&#29238;&#36827;&#31243;&#20026;&#27492;&#22788;&#25351;&#23450;&#30340;&#36827;&#31243;&#30340;&#36827;&#31243;&#21015;&#34920;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">pidof</h3>
-<div class="outline-text-3" id="text-orgheadline11">
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">pidof</h3>
+<div class="outline-text-3" id="text-orgheadline13">
 <p>
 根据进程名获取PID
 </p>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">top</h3>
-<div class="outline-text-3" id="text-orgheadline12">
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">top</h3>
+<div class="outline-text-3" id="text-orgheadline14">
 <p>
 交互式管理所有进程
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">top [OPTIONS]
-  -d NUM: &#25351;&#23450;&#21047;&#26032;&#26102;&#38388;&#38388;&#38548;
-  -b: &#20197;&#25209;&#27425;&#36755;&#20986;&#24418;&#24335;
-  -n NUM: &#26174;&#31034;&#25209;&#27425;&#30340;&#27425;&#25968;
+<pre class="src src-yaml">top [OPTIONS]
+  <span style="color: #FD971F;">-d NUM</span>: &#25351;&#23450;&#21047;&#26032;&#26102;&#38388;&#38388;&#38548;
+
+  <span style="color: #FD971F;">-b</span>: &#20197;&#25209;&#27425;&#36755;&#20986;&#24418;&#24335;
+  <span style="color: #FD971F;">-n NUM</span>: &#26174;&#31034;&#25209;&#27425;&#30340;&#27425;&#25968;
 
   &#20869;&#32622;&#21629;&#20196;
-    P: &#20197;&#21344;&#25454;&#30340;CPU&#30334;&#20998;&#27604;&#25490;&#24207;
-    M: &#20197;&#21344;&#25454;&#20869;&#23384;&#30334;&#20998;&#27604;&#25490;&#24207;
-    T: &#20197;&#32047;&#31215;&#21344;&#25454;CPU&#26102;&#38271;&#25490;&#24207;
+    <span style="color: #FD971F;">P</span>: &#20197;&#21344;&#25454;&#30340;CPU&#30334;&#20998;&#27604;&#25490;&#24207;
+    <span style="color: #FD971F;">M</span>: &#20197;&#21344;&#25454;&#20869;&#23384;&#30334;&#20998;&#27604;&#25490;&#24207;
+    <span style="color: #FD971F;">T</span>: &#20197;&#32047;&#31215;&#21344;&#25454;CPU&#26102;&#38271;&#25490;&#24207;
 
-    l: &#20999;&#25442;uptime&#20449;&#24687;
-    t: &#20999;&#25442;tasks&#21644;cpu&#20449;&#24687;
-      1: &#20999;&#25442;cpu&#30340;&#26174;&#31034;&#24418;&#24335;
-    m: &#20999;&#25442;memory&#20449;&#24687;
+    <span style="color: #FD971F;">l</span>: &#20999;&#25442;uptime&#20449;&#24687;
+    <span style="color: #FD971F;">t</span>: &#20999;&#25442;tasks&#21644;cpu&#20449;&#24687;
+      <span style="color: #FD971F;">1</span>: &#20999;&#25442;cpu&#30340;&#26174;&#31034;&#24418;&#24335;
+    <span style="color: #FD971F;">m</span>: &#20999;&#25442;memory&#20449;&#24687;
 
-    s: &#20462;&#25913;&#21047;&#26032;&#26102;&#38388;&#38388;&#38548;
-    k: &#32456;&#27490;&#25351;&#23450;&#36827;&#31243;
-    q: &#36864;&#20986;&#21629;&#20196;
-</pre>
-</div>
-<ul class="org-ul">
-<li>load average: 1分钟、5分钟、15分钟的平均负载</li>
-<li>cpu分段
-<ul class="org-ul">
-<li>us: 用户模式使用</li>
-<li>sy: 内核模式使用</li>
-<li>ni: nice值</li>
-<li>id: idle，空闲比例</li>
-<li>wa: 等待IO运行的时间</li>
-<li>hi: 硬件中断处理时间</li>
-<li>si: 软切换，即模式切换占用的时间</li>
-<li>st: 虚拟化使用时间</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">htop</h3>
-<div class="outline-text-3" id="text-orgheadline13">
-<p>
-top的升级版
-</p>
-<div class="org-src-container">
+    <span style="color: #FD971F;">s</span>: &#20462;&#25913;&#21047;&#26032;&#26102;&#38388;&#38388;&#38548;
+    <span style="color: #FD971F;">k</span>: &#32456;&#27490;&#25351;&#23450;&#36827;&#31243;
+    <span style="color: #FD971F;">q</span>: &#36864;&#20986;&#21629;&#20196;
 
-<pre class="src src-conf">htop [OPTIONS]
-  -d NUM: &#25351;&#23450;&#24310;&#36831;&#26102;&#38388;
-  -u UserName: &#20165;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;
-  -s NAME: &#20197;&#25351;&#23450;&#23383;&#27573;&#36827;&#34892;&#25490;&#24207;
-
-  &#20869;&#32622;&#21629;&#20196;
-  h: &#24110;&#21161;
-  s: &#36319;&#36394;&#36873;&#23450;&#36827;&#31243;&#30340;&#31995;&#32479;&#35843;&#29992;
-  l: &#26174;&#31034;&#36873;&#23450;&#36827;&#31243;&#25171;&#24320;&#30340;&#25991;&#20214;&#21015;&#34920;
-  a: &#23558;&#36873;&#23450;&#30340;&#36827;&#31243;&#32465;&#23450;&#33267;&#26576;&#25351;&#23450;CPU&#26680;&#24515;
-  t: &#26174;&#31034;&#36827;&#31243;&#26641;
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgheadline14" class="outline-3">
-<h3 id="orgheadline14">glances</h3>
-<div class="outline-text-3" id="text-orgheadline14">
-<p>
-远程监控工具
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">glances [OPTIONS]
-    -t NUM: &#35774;&#32622;&#26102;&#38388;&#38388;&#38548;
-  &#21551;&#21160;&#26381;&#21153;
-    -s -B IPADDR: &#25351;&#23450;IP&#19982;&#31471;&#21475;
-  &#36828;&#31243;&#30417;&#25511;
-    -c server:
-    -p port:
-    -P password:
-    --password:
-  &#36755;&#20986;&#25991;&#20214;
-    -f FILE: &#35774;&#32622;&#36755;&#20986;&#25991;&#20214;&#30340;&#20301;&#32622;
-    -o {HTML|CSV}: &#36755;&#20986;&#26684;&#24335;
+  &#26174;&#31034;&#30340;&#20449;&#24687;
+    <span style="color: #FD971F;">load average</span>: 1&#20998;&#38047;&#12289;5&#20998;&#38047;&#12289;15&#20998;&#38047;&#30340;&#24179;&#22343;&#36127;&#36733;
+    <span style="color: #FD971F;">us</span>: &#29992;&#25143;&#27169;&#24335;&#20351;&#29992;
+    <span style="color: #FD971F;">sy</span>: &#20869;&#26680;&#27169;&#24335;&#20351;&#29992;
+    <span style="color: #FD971F;">ni</span>: nice&#20540;
+    <span style="color: #FD971F;">id</span>: idle&#65292;&#31354;&#38386;&#27604;&#20363;
+    <span style="color: #FD971F;">wa</span>: &#31561;&#24453;IO&#36816;&#34892;&#30340;&#26102;&#38388;
+    <span style="color: #FD971F;">hi</span>: &#30828;&#20214;&#20013;&#26029;&#22788;&#29702;&#26102;&#38388;
+    <span style="color: #FD971F;">si</span>: &#36719;&#20999;&#25442;&#65292;&#21363;&#27169;&#24335;&#20999;&#25442;&#21344;&#29992;&#30340;&#26102;&#38388;
+    <span style="color: #FD971F;">st</span>: &#34394;&#25311;&#21270;&#20351;&#29992;&#26102;&#38388;
 </pre>
 </div>
 </div>
 </div>
 <div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15">vmstat</h3>
+<h3 id="orgheadline15">htop</h3>
 <div class="outline-text-3" id="text-orgheadline15">
 <p>
-管理虚拟内存信息
+top的升级版
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">vmstat [options] [delay [count]]  
-  -s: &#26174;&#31034;&#20869;&#23384;&#30340;&#32479;&#35745;&#25968;&#25454;
-  delay: &#27599;&#22810;&#23569;&#31186;&#21047;&#26032;&#19968;&#27425;
-  count: &#21047;&#26032;&#22810;&#23569;&#27425;
+<pre class="src src-yaml">htop [OPTIONS]
+  <span style="color: #FD971F;">-d NUM</span>: &#25351;&#23450;&#24310;&#36831;&#26102;&#38388;
+  <span style="color: #FD971F;">-u UserName</span>: &#20165;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">-s NAME</span>: &#20197;&#25351;&#23450;&#23383;&#27573;&#36827;&#34892;&#25490;&#24207;
 
-  &#26174;&#31034;&#30340;&#20449;&#24687;
-    procs
-      r: &#31561;&#24453;&#36816;&#34892;&#30340;&#36827;&#31243;&#30340;&#20010;&#25968;
-      b: &#22788;&#20110;&#19981;&#21487;&#20013;&#26029;&#30561;&#30496;&#24577;&#30340;&#36827;&#31243;&#20010;&#25968;(&#34987;&#38459;&#22622;&#30340;&#38431;&#21015;&#30340;&#38271;&#24230;)
-    memory
-      swpd: &#20132;&#25442;&#20869;&#23384;&#30340;&#20351;&#29992;&#24635;&#37327;
-      free: &#31354;&#38386;&#29289;&#29702;&#20869;&#23384;&#24635;&#37327;
-      buffer: &#29992;&#20110;buffer&#30340;&#20869;&#23384;&#24635;&#37327;
-      cache: &#29992;&#20110;cache&#30340;&#20869;&#23384;&#24635;&#37327;
-    swap
-      si: &#25968;&#25454;&#36827;&#20837;swap&#20013;&#30340;&#25968;&#25454;&#36895;&#29575;(kb/s)
-      so: &#25968;&#25454;&#31163;&#24320;swap&#20013;&#30340;&#25968;&#25454;&#36895;&#29575;(kb/s)
-    io
-      bi: &#20174;&#22359;&#35774;&#22791;&#35835;&#20837;&#25968;&#25454;&#21040;&#20869;&#23384;&#30340;&#36895;&#29575;(kb/s)
-      bo: &#20445;&#23384;&#25968;&#25454;&#33267;&#22359;&#35774;&#22791;&#30340;&#36895;&#29575;
-    system
-      in: interrupts, &#27599;&#31186;&#21457;&#29983;&#22810;&#23569;&#20010;&#20013;&#26029;
-      cs: context switch, &#36827;&#31243;&#20999;&#25442;&#36895;&#29575;
+  &#20869;&#32622;&#21629;&#20196;
+  <span style="color: #FD971F;">h</span>: &#24110;&#21161;
+  <span style="color: #FD971F;">s</span>: &#36319;&#36394;&#36873;&#23450;&#36827;&#31243;&#30340;&#31995;&#32479;&#35843;&#29992;
+  <span style="color: #FD971F;">l</span>: &#26174;&#31034;&#36873;&#23450;&#36827;&#31243;&#25171;&#24320;&#30340;&#25991;&#20214;&#21015;&#34920;
+  <span style="color: #FD971F;">a</span>: &#23558;&#36873;&#23450;&#30340;&#36827;&#31243;&#32465;&#23450;&#33267;&#26576;&#25351;&#23450;CPU&#26680;&#24515;
+  <span style="color: #FD971F;">t</span>: &#26174;&#31034;&#36827;&#31243;&#26641;
 </pre>
 </div>
 </div>
 </div>
 <div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16">dstat</h3>
+<h3 id="orgheadline16">glances</h3>
 <div class="outline-text-3" id="text-orgheadline16">
+<p>
+远程监控工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">glances [OPTIONS]
+    <span style="color: #FD971F;">-t NUM</span>: &#35774;&#32622;&#26102;&#38388;&#38388;&#38548;
+  &#21551;&#21160;&#26381;&#21153;
+    <span style="color: #FD971F;">-s -B IPADDR</span>: &#25351;&#23450;IP&#19982;&#31471;&#21475;
+  &#36828;&#31243;&#30417;&#25511;
+    <span style="color: #FD971F;">-c server</span>:
+    <span style="color: #FD971F;">-p port</span>:
+    <span style="color: #FD971F;">-P password</span>:
+    <span style="color: #FD971F;">--password</span>:
+  &#36755;&#20986;&#25991;&#20214;
+    <span style="color: #FD971F;">-f FILE</span>: &#35774;&#32622;&#36755;&#20986;&#25991;&#20214;&#30340;&#20301;&#32622;
+    <span style="color: #FD971F;">-o {HTML|CSV}</span>: &#36755;&#20986;&#26684;&#24335;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">vmstat</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+管理虚拟内存信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">vmstat [options] [delay [count]]  
+  <span style="color: #FD971F;">-s</span>: &#26174;&#31034;&#20869;&#23384;&#30340;&#32479;&#35745;&#25968;&#25454;
+  <span style="color: #FD971F;">delay</span>: &#27599;&#22810;&#23569;&#31186;&#21047;&#26032;&#19968;&#27425;
+  <span style="color: #FD971F;">count</span>: &#21047;&#26032;&#22810;&#23569;&#27425;
+
+  &#26174;&#31034;&#30340;&#20449;&#24687;
+    procs
+      <span style="color: #FD971F;">r</span>: &#31561;&#24453;&#36816;&#34892;&#30340;&#36827;&#31243;&#30340;&#20010;&#25968;
+      <span style="color: #FD971F;">b</span>: &#22788;&#20110;&#19981;&#21487;&#20013;&#26029;&#30561;&#30496;&#24577;&#30340;&#36827;&#31243;&#20010;&#25968;(&#34987;&#38459;&#22622;&#30340;&#38431;&#21015;&#30340;&#38271;&#24230;)
+    memory
+      <span style="color: #FD971F;">swpd</span>: &#20132;&#25442;&#20869;&#23384;&#30340;&#20351;&#29992;&#24635;&#37327;
+      <span style="color: #FD971F;">free</span>: &#31354;&#38386;&#29289;&#29702;&#20869;&#23384;&#24635;&#37327;
+      <span style="color: #FD971F;">buffer</span>: &#29992;&#20110;buffer&#30340;&#20869;&#23384;&#24635;&#37327;
+      <span style="color: #FD971F;">cache</span>: &#29992;&#20110;cache&#30340;&#20869;&#23384;&#24635;&#37327;
+    swap
+      <span style="color: #FD971F;">si</span>: &#25968;&#25454;&#36827;&#20837;swap&#20013;&#30340;&#25968;&#25454;&#36895;&#29575;(kb/s)
+      <span style="color: #FD971F;">so</span>: &#25968;&#25454;&#31163;&#24320;swap&#20013;&#30340;&#25968;&#25454;&#36895;&#29575;(kb/s)
+    io
+      <span style="color: #FD971F;">bi</span>: &#20174;&#22359;&#35774;&#22791;&#35835;&#20837;&#25968;&#25454;&#21040;&#20869;&#23384;&#30340;&#36895;&#29575;(kb/s)
+      <span style="color: #FD971F;">bo</span>: &#20445;&#23384;&#25968;&#25454;&#33267;&#22359;&#35774;&#22791;&#30340;&#36895;&#29575;
+    system
+      <span style="color: #FD971F;">in</span>: interrupts, &#27599;&#31186;&#21457;&#29983;&#22810;&#23569;&#20010;&#20013;&#26029;
+      <span style="color: #FD971F;">cs</span>: context switch, &#36827;&#31243;&#20999;&#25442;&#36895;&#29575;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">dstat</h3>
+<div class="outline-text-3" id="text-orgheadline18">
 <p>
 用于生成系统统计数据
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">dstat [options] [delay [count]]
-  -c: &#26174;&#31034;cpu&#30456;&#20851;&#20449;&#24687;(&#40664;&#35748;)
-  -C 1,2,...,total: &#26174;&#31034;&#21738;&#39063;CPU
-  -d: &#26174;&#31034;disk&#30456;&#20851;&#20449;&#24687;(&#40664;&#35748;)
-  -D sda,sdb,...,total: &#26174;&#31034;&#21738;&#20010;&#30913;&#30424;
-  -g: &#26174;&#31034;page&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;(&#40664;&#35748;)
-  -m: &#26174;&#31034;memory&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;
-  -n: &#26174;&#31034;network&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;(&#40664;&#35748;)
-  -p: &#26174;&#31034;process&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;
-  -r: &#26174;&#31034;io&#35831;&#27714;&#30456;&#20851;&#30340;&#32479;&#35745;&#25968;&#25454;
-  -s: &#26174;&#31034;swapped&#30456;&#20851;&#30340;&#32479;&#35745;&#25968;&#25454;
+<pre class="src src-yaml">dstat [options] [delay [count]]
+  <span style="color: #FD971F;">-c</span>: &#26174;&#31034;cpu&#30456;&#20851;&#20449;&#24687;(&#40664;&#35748;)
+  <span style="color: #FD971F;">-C 1,2,...,total</span>: &#26174;&#31034;&#21738;&#39063;CPU
+  <span style="color: #FD971F;">-d</span>: &#26174;&#31034;disk&#30456;&#20851;&#20449;&#24687;(&#40664;&#35748;)
+  <span style="color: #FD971F;">-D sda,sdb,...,total</span>: &#26174;&#31034;&#21738;&#20010;&#30913;&#30424;
+  <span style="color: #FD971F;">-g</span>: &#26174;&#31034;page&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;(&#40664;&#35748;)
+  <span style="color: #FD971F;">-m</span>: &#26174;&#31034;memory&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;
+  <span style="color: #FD971F;">-n</span>: &#26174;&#31034;network&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;(&#40664;&#35748;)
+  <span style="color: #FD971F;">-p</span>: &#26174;&#31034;process&#30456;&#20851;&#32479;&#35745;&#25968;&#25454;
+  <span style="color: #FD971F;">-r</span>: &#26174;&#31034;io&#35831;&#27714;&#30456;&#20851;&#30340;&#32479;&#35745;&#25968;&#25454;
+  <span style="color: #FD971F;">-s</span>: &#26174;&#31034;swapped&#30456;&#20851;&#30340;&#32479;&#35745;&#25968;&#25454;
 
   --ipc
   --tcp
@@ -397,34 +454,64 @@ top的升级版
   --raw
   --socket 
 
-  --top-cpu: &#26174;&#31034;&#26368;&#21344;&#29992;CPU&#30340;&#36827;&#31243;
-  --top-io: &#26174;&#31034;&#26368;&#21344;&#29992;io&#30340;&#36827;&#31243;
-  --top-mem: &#26174;&#31034;&#26368;&#21344;&#29992;&#20869;&#23384;&#30340;&#36827;&#31243;
-  --top-lantency: &#26174;&#31034;&#24310;&#36831;&#26368;&#22823;&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">--top-cpu</span>: &#26174;&#31034;&#26368;&#21344;&#29992;CPU&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">--top-io</span>: &#26174;&#31034;&#26368;&#21344;&#29992;io&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">--top-mem</span>: &#26174;&#31034;&#26368;&#21344;&#29992;&#20869;&#23384;&#30340;&#36827;&#31243;
+  <span style="color: #FD971F;">--top-lantency</span>: &#26174;&#31034;&#24310;&#36831;&#26368;&#22823;&#30340;&#36827;&#31243;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-3">
-<h3 id="orgheadline17">pmap</h3>
-<div class="outline-text-3" id="text-orgheadline17">
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">pmap</h3>
+<div class="outline-text-3" id="text-orgheadline19">
 <p>
-查询进程内存映射表(Page frame)
+查询进程内存映射表(Page frame)，包含共享库的内存映射
 </p>
 <ul class="org-ul">
 <li>这些信息被存在了 <code>/proc/PID/maps</code> 中</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">pmap [options] pid [...]
-  -x: &#26174;&#31034;&#35814;&#32454;&#26684;&#24335;&#30340;&#20449;&#24687;
+<pre class="src src-yaml">pmap [options] pid [...]
+  <span style="color: #FD971F;">-x</span>: &#26174;&#31034;&#35814;&#32454;&#26684;&#24335;&#30340;&#20449;&#24687;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-3">
-<h3 id="orgheadline18">kill</h3>
-<div class="outline-text-3" id="text-orgheadline18">
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20"><span class="todo TODO">TODO</span> sar</h3>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21"><span class="todo TODO">TODO</span> tsar</h3>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22"><span class="todo TODO">TODO</span> iostat</h3>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23"><span class="todo TODO">TODO</span> iftop</h3>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-2">
+<h2 id="orgheadline27"><span class="section-number-2">3</span> 进程管理</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">进程优先级调整</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<div class="org-src-container">
+
+<pre class="src src-yaml">nice [OPTIONS] [COMMAND...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#26032;&#21019;&#24314;&#30340;&#36827;&#31243;&#25351;&#23450;&#20248;&#20808;&#32423;</span>
+  <span style="color: #FD971F;">-n NUM</span>: &#25351;&#23450;nice&#20540;, &#40664;&#35748;&#20026;10
+
+renice [-n] NUM PID...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#36827;&#31243;&#25351;&#23450;&#20248;&#20808;&#32423;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">kill与killall</h3>
+<div class="outline-text-3" id="text-orgheadline26">
 <p>
 向进程发送控制信号，以实现对进程的管理
 </p>
@@ -476,34 +563,22 @@ top的升级版
 
 <div class="org-src-container">
 
-<pre class="src src-conf">kill -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#21487;&#29992;&#20449;&#21495;</span>
-man 7 signal  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#21487;&#29992;&#20449;&#21495;</span>
+<pre class="src src-bash"><span style="color: #F92672;">kill</span> -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#21487;&#29992;&#20449;&#21495;</span>
+man <span style="color: #AE81FF;">7</span> signal  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#21487;&#29992;&#20449;&#21495;</span>
 
-kill [-SIGNAL] PID...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21521;&#36827;&#31243;&#21457;&#36865;&#20449;&#21495;</span>
-killall [-SIGNAL] Program  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#21305;&#37197;&#35813;&#21517;&#31216;&#30340;&#25152;&#26377;&#36827;&#31243;</span>
+<span style="color: #F92672;">kill</span> <span style="color: #AE81FF;">[</span>-SIGNAL<span style="color: #AE81FF;">]</span> PID...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21521;&#36827;&#31243;&#21457;&#36865;&#20449;&#21495;</span>
+killall <span style="color: #AE81FF;">[</span>-SIGNAL<span style="color: #AE81FF;">]</span> Program  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#21305;&#37197;&#35813;&#21517;&#31216;&#30340;&#25152;&#26377;&#36827;&#31243;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline19" class="outline-3">
-<h3 id="orgheadline19"><span class="todo TODO">TODO</span> sar</h3>
 </div>
-<div id="outline-container-orgheadline20" class="outline-3">
-<h3 id="orgheadline20"><span class="todo TODO">TODO</span> tsar</h3>
-</div>
-<div id="outline-container-orgheadline21" class="outline-3">
-<h3 id="orgheadline21"><span class="todo TODO">TODO</span> iostat</h3>
-</div>
-<div id="outline-container-orgheadline22" class="outline-3">
-<h3 id="orgheadline22"><span class="todo TODO">TODO</span> iftop</h3>
-</div>
-</div>
-<div id="outline-container-orgheadline27" class="outline-2">
-<h2 id="orgheadline27"><span class="section-number-2">3</span> Linux的作业控制</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">作业的分类</h3>
-<div class="outline-text-3" id="text-orgheadline24">
+<div id="outline-container-orgheadline31" class="outline-2">
+<h2 id="orgheadline31"><span class="section-number-2">4</span> Linux的作业控制</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">作业的分类</h3>
+<div class="outline-text-3" id="text-orgheadline28">
 <ul class="org-ul">
 <li>前台作业：通过终端启动，且启动后一直占据终端</li>
 <li>后台作业：可以通过终端启动，但启动后即转入后台运行（释放终端）
@@ -514,67 +589,31 @@ killall [-SIGNAL] Program  <span style="color: #75715E;"># </span><span style="c
 </div>
 </div>
 
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25">创建作业</h3>
-<div class="outline-text-3" id="text-orgheadline25">
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">创建作业</h3>
+<div class="outline-text-3" id="text-orgheadline29">
 <dl class="org-dl">
 <dt>启动后台作业</dt><dd><ul class="org-ul">
-<li>在运行中的作业使用 Ctrl+Z</li>
-<li>尚未启动的作业 COMMAND &amp;</li>
+<li>在运行中的作业使用 <code>Ctrl+Z</code></li>
+<li>尚未启动的作业 <code>COMMAND &amp;</code></li>
 </ul></dd>
-<dt>启动与终端无关的作业</dt><dd><div class="org-src-container">
+<dt>启动与终端无关的进程</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">nohup COMMAND &amp;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19982;&#32456;&#31471;&#26080;&#20851;&#30340;&#20316;&#19994;</span>
+<pre class="src src-yaml">nohup COMMAND &amp;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19982;&#32456;&#31471;&#26080;&#20851;&#30340;&#20316;&#19994;</span>
 </pre>
 </div></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26">相关控制命令</h3>
-<div class="outline-text-3" id="text-orgheadline26">
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">相关控制命令</h3>
+<div class="outline-text-3" id="text-orgheadline30">
 <div class="org-src-container">
 
-<pre class="src src-conf">jobs  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#25152;&#26377;&#20316;&#19994;</span>
+<pre class="src src-yaml">jobs  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#25152;&#26377;&#20316;&#19994;</span>
 fg [[%]JOB_NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25226;&#25351;&#23450;&#30340;&#21518;&#21488;&#20316;&#19994;&#35843;&#22238;&#21069;&#21488;</span>
 bg [[%]JOB_NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35753;&#36865;&#24448;&#21518;&#21488;&#30340;&#20316;&#19994;&#22312;&#21518;&#21488;&#32487;&#32493;&#36816;&#34892;(SIGCONT)</span>
 kill [%JOB_NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#25351;&#23450;&#30340;&#20316;&#19994;</span>
-</pre>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-orgheadline30" class="outline-2">
-<h2 id="orgheadline30"><span class="section-number-2">4</span> 进程优先级调整</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">进程的优先级</h3>
-<div class="outline-text-3" id="text-orgheadline28">
-<ul class="org-ul">
-<li>优先级范围是0~139
-<ul class="org-ul">
-<li>1-99: 实时优先级, 数字越大，优先级越高</li>
-<li>100-139: 静态优先级, 数字越小，优先级越高
-<ul class="org-ul">
-<li>nice值: [-20,19]</li>
-</ul></li>
-</ul></li>
-<li>相同优先级的程序排一队，内核每次顺序执行140个优先级的队列排头程序</li>
-<li>进程默认启动时的nice值为0, 优先级为120</li>
-<li>普通用户只能调高nice值</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline29" class="outline-3">
-<h3 id="orgheadline29">相关命令</h3>
-<div class="outline-text-3" id="text-orgheadline29">
-<div class="org-src-container">
-
-<pre class="src src-conf">ps axo pid,comm,ni  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;nice</span>
-
-nice [OPTIONS] [COMMAND...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#26032;&#21019;&#24314;&#30340;&#36827;&#31243;&#25351;&#23450;&#20248;&#20808;&#32423;</span>
-  -n NUM: &#25351;&#23450;nice&#20540;, &#40664;&#35748;&#20026;10
-renice [-n] NUM PID...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#36827;&#31243;&#25351;&#23450;&#20248;&#20808;&#32423;</span>
 </pre>
 </div>
 </div>

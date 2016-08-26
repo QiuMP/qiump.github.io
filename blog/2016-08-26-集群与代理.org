@@ -1,0 +1,63 @@
+#+TITLE: 集群与代理
+#+DATE: 2016-07-24
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 网络知识
+#+JEKYLL_TAGS: 集群
+#+JEKYLL_PUBLISHED: true
+
+* 系统扩展方式
+- =scale up=: 向上扩展，使用性能更好的主机
+- =scale out=: 向外扩展，使用更多的主机
+* 集群类型
+- LB(Load Balancing) :: 负载均衡集群，用于任务分配
+  - 基于软硬件划分 ::
+    - 硬件: =F5=, =NetScaler=, =A10=, =Array=, =Redware=
+    - 软件: =LVS=, =HAProxy=, =Nginx=, =ats=, =perlbal=
+  - 基于工作的协议层次划分 ::
+    - 传输层: =lvs=, =haproxy(TCP Mode)=
+    - 应用层: =haproxy=, =nginx=, =ats=, =perlbal=
+  : GSLB: Global Service Load Balancing，用于CDN(内容分发网络)
+- HA(High Availability) :: 高可用集群，用于系统快速恢复
+  - vrrp: =keepalived=
+  - AIS: =heartbeat=, =OpenAIS=, =corosync/pacemaker=, =cman/rgmanager(conga)=
+  : Availability=可用时间/总时间
+- HP(High Performancing) :: 高性能集群，并行处理、分布式
+  - 分布式: 一个业务分拆多个子业务，部署在不同的服务器上
+  - 集群: 同一个业务，部署在多个服务器上
+* 衡量系统的指标
+- =可扩展性= 
+  : 构建高可扩展性系统的重要原则: 在系统内部尽量避免串行化和交互
+- =可用性= 
+- =容量=: 最大处理量
+- =吞吐量=: 单位时间的请求处理量
+- =性能=: 请求处理时间
+* 高效运维
+=可用= > =标准化= > =自动化=
+* 集群下session的保持
+- =session绑定=: 基于cookie进行绑定
+- =session集群=: 解决所有主机的session的同步问题
+- =session服务器=: 解决session的可用性，可使用memcached、redis
+* 集群下的相关术语
+- =director=: 调度器(负载均衡器)，负责分配任务
+- =RS=: Real Server，提供业务的服务器
+- =CIP=: Client IP，用户客户端
+- =VIP=: Director Virutal IP，对外部用户的IP地址
+- =DIP=: Director IP，对内部RS的IP地址
+- =RIP=: Real Server IP
+
+* 代理服务器相关
+- 代理(http) ::
+  - =正向代理=: 客户端代理
+  - =反向代理=: 服务器代理
+  - 可以在报文上添加 =Via首部= 表示代理的服务器
+- 代理的作用 ::
+  - web缓存(加速)
+  - 反向代理
+  - 内容路由(根据流量及内容类型等将请求转发至特定服务器)
+  - 转码器
+- 缓存的作用 ::
+  - 减少冗余内容传输
+  - 节省带宽、缓解网络瓶颈
+  - 降低了对原始服务器的请求压力
+  - 降低了传输延迟

@@ -1,0 +1,225 @@
+---
+title: "TODO 分布式系统"
+date: 2016-08-16
+layout: post
+categories: 
+- 网络知识
+tags: 
+- 分布式
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 分布式系统</a></li>
+<li><a href="#orgheadline2">2. 多线程编程模型</a></li>
+<li><a href="#orgheadline3">3. 网络编程模型</a></li>
+<li><a href="#orgheadline4">4. 控制器的实现模式</a></li>
+<li><a href="#orgheadline5">5. 分布式系统的难点</a></li>
+<li><a href="#orgheadline6">6. 应用的分类</a></li>
+<li><a href="#orgheadline7">7. session保持</a></li>
+<li><a href="#orgheadline8">8. 缓存的分类</a></li>
+<li><a href="#orgheadline9">9. 数据库</a></li>
+<li><a href="#orgheadline10">10. 分布式事务</a></li>
+<li><a href="#orgheadline11">11. 应用的拆分</a></li>
+<li><a href="#orgheadline12">12. 分布式文件系统DFS</a></li>
+<li><a href="#orgheadline13">13. 消息中间件</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 分布式系统</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+分布式系统的各组件分布在网络上多个计算机，各组件彼此之间仅通过消息传递来通信并协调行动
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 多线程编程模型</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>互不通信的线程模型</li>
+<li>基于共享容器协同工作的模型</li>
+<li>通过事件协调的多线程模型</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 网络编程模型</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li><code>BIO(Blocking IO)</code>: 一个进程或一个线程处理一个请求</li>
+<li><code>NIO(Nonblocking IO)</code>: 基于事件驱动(epoll)思想，采用Reactor模式</li>
+<li><code>AIO(Asynchronous IO)</code>: 基于事件驱动思想，采用Proactor模式</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> 控制器的实现模式</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>透明代理: lvs-nat、haproxy、nginx</li>
+<li>旁路代理: lvs-dr、lvs-tun</li>
+<li>名称服务: DNS</li>
+<li>规则服务: 规定需要查询的对象，一般用于数据库的水平拆分上</li>
+<li>Master/Slave机制</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> 分布式系统的难点</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>缺乏全局时钟</li>
+<li>面对故障时的独立性</li>
+<li>处理单点故障</li>
+<li>事务处理: ACID</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> 应用的分类</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+从资源占用的角度
+</p>
+<ul class="org-ul">
+<li>CPU Bound</li>
+<li>IO Bound</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> session保持</h2>
+<div class="outline-text-2" id="text-7">
+<ul class="org-ul">
+<li>session sticky
+<ul class="org-ul">
+<li>ip based</li>
+<li>cookie based</li>
+</ul></li>
+<li>session replication</li>
+<li>session server</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">8</span> 缓存的分类</h2>
+<div class="outline-text-2" id="text-8">
+<ul class="org-ul">
+<li>页面缓存: varnish、squid</li>
+<li>数据缓存: key-value store(memcached)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">9</span> 数据库</h2>
+<div class="outline-text-2" id="text-9">
+<ul class="org-ul">
+<li>主从面临的问题
+<ul class="org-ul">
+<li>数据复制的问题</li>
+<li>应用选择数据源的问题</li>
+</ul></li>
+<li>主库写操作的压力
+<ul class="org-ul">
+<li>垂直拆分：把数据库中不同的业务的数据拆分到不同的数据库服务器中
+<ul class="org-ul">
+<li>单机的ACID保证被打破：要么放弃事务，要么引入分布式事务</li>
+<li>一些Join查询操作将变得非常困难</li>
+<li>原来依赖于外键实现的约束将无从保证</li>
+</ul></li>
+<li>水平拆分：把一个单独的表中的数据拆分到多个不同的数据库服务器上
+<ul class="org-ul">
+<li>单机的ACID保证被打破：要么放弃事务，要么引入分布式事务</li>
+<li>一些Join查询操作将变得非常困难</li>
+<li>原来依赖于外键实现的约束将无从保证</li>
+<li>自增序列的ID号的产生会有影响</li>
+<li>针对单张表的查询很有可能要跨库操作</li>
+</ul></li>
+<li>使用NoSQL: 文档数据库、列式数据库</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10"><span class="section-number-2">10</span> 分布式事务</h2>
+<div class="outline-text-2" id="text-10">
+<ul class="org-ul">
+<li>事务的要素: 事务参与者、支持事务的服务器、资源服务器、事务管理器</li>
+<li>分布式事务的模型及规范
+<ul class="org-ul">
+<li>X/Open: XA(分布式事务规范)定义了三个组件
+<ul class="org-ul">
+<li>AP: 应用程序，即使用DTP模型的程序</li>
+<li>RM：资源管理器，即DBMS系统</li>
+<li>TM：事务管理器，负责使用XA协调和管理管理资源，提供给AP应用程序编程接口并管理</li>
+</ul></li>
+</ul></li>
+<li>2PC: 两段式提交协议，若中途出错则回滚
+<ol class="org-ol">
+<li>准备好所有资资源</li>
+<li>提交所有资源</li>
+</ol></li>
+<li>CAP: 一致性、可用性、网络分区容错性
+<ul class="org-ul">
+<li>任何一种分布式系统最多只能同时满足上述三项中的两项</li>
+<li>AP: 大多分布式系统</li>
+<li>CA: 单机上的实现，如MySQL</li>
+</ul></li>
+<li>ACID模型: 用来评估一个存储引擎是否支持事务标准</li>
+<li>BASE模型: 分布式系统的目标
+<ul class="org-ul">
+<li>BA：Basically Availibale，主服务器出错会导致不可用</li>
+<li>S：Soft state: 接受一段时间内的状态不同步，同步需要时间</li>
+<li>E：Eventually Consistent: 最终一致性</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">11</span> 应用的拆分</h2>
+<div class="outline-text-2" id="text-11">
+<ul class="org-ul">
+<li>根据业务特性拆分</li>
+<li>根据用户拆分
+<ul class="org-ul">
+<li>用户注册</li>
+<li>用户登录</li>
+<li>用户信息维护</li>
+</ul></li>
+<li>根据对底层应用的调用进行拆分</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">12</span> 分布式文件系统DFS</h2>
+<div class="outline-text-2" id="text-12">
+<p>
+DFS用于存储非结构化数据
+</p>
+<ul class="org-ul">
+<li>TFS, MogileFS: 适用于海量小文件</li>
+<li>HDFS, GFS：少量大文件</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">13</span> 消息中间件</h2>
+<div class="outline-text-2" id="text-13">
+<p>
+MOM(Message-oriented middleware): 在分布式系统中，完成消息发送和接收的基础性软件，实现异步进行消息传送，不一定会立即生效
+</p>
+<ul class="org-ul">
+<li>RabbitMQ, ActiveMQ, ZMQ</li>
+</ul>
+</div>
+</div>

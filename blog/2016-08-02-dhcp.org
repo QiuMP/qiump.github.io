@@ -2,40 +2,34 @@
 #+DATE: 2016-08-02
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 网络
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-TODO
-
-
-
-
------
 * DHCP
-DHCP: Dynamic Host Configuration Protocol
+=DHCP=: Dynamic Host Configuration Protocol，用于动态分配IP地址
 ** DHCP交互步骤
 1. Client: dhcp discover(广播)
 2. Server: dhcp offer(IP/netmask, gw)
-3. Client：dhcp request
+3. Client: dhcp request
 4. Server: dhcp ack
 ** DHCP续租步骤
 1. Client: dhcp request(单播)
 2. Server: dhcp ack/nak
 ** DHCP服务
-*** DHCP服务端
-- /usr/sbin/dhcpd: ipv4的DHCP
+*** DHCP服务器端
+- =/usr/sbin/dhcpd=: ipv4的DHCP
   - 配置文件: /etc/dhcp/dhcpd.conf
   - 地址分配记录文件: /var/lib/dhcpd/dhcpd.leases
-- /usr/sbin/dhcp6: ipv6的DHCP
+- =/usr/sbin/dhcp6=: ipv6的DHCP
   - 配置文件: /etc/dhcp/dhcpd6.conf 
-- /usr/sbin/dhcrelay
-- 监听端口: 67/udp
+- =/usr/sbin/dhcrelay=
+: 服务器端的监听端口为67/udp
 *** DHCP客户端
-- /usr/sbin/dhclient
-- 监听端口: 68/udp
+- =/usr/sbin/dhclient=
+: 客户端的监听端口为68/udp
 ** dhcpd.conf配置
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 # option用于定义传输给客户端的数据，可在subnet中特殊定义
 option domain-name "magedu.com"  # 定义搜索域
 option domain-name-servers "DNS_IP", "DNS_IP";  # 定义DNS
@@ -57,17 +51,18 @@ host {  # 定义固定地址
     ...
 }
 #+END_SRC
+
 * PXE
-PXE：preboot execute environment，可用于网卡启动和安装系统
+=PXE=: preboot execute environment，可用于网卡启动和安装系统
 
 ** PXE的准备
-- DHCP: 配置好filename和next-server
-- tftp
-- file server(yum repository)
+- =DHCP=: 配置好filename和next-server即可
+- =tftp=
+- =file server=: 可以为http服务器，作为yum repository
 
 ** tftp服务器配置
-- 配置tftp
-  #+BEGIN_SRC conf
+- 配置tftp ::
+  #+BEGIN_SRC bash
   yum -y install syslinux tftp-server
   
   cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/
@@ -83,8 +78,8 @@ PXE：preboot execute environment，可用于网卡启动和安装系统
   systemctl start tftp.service
   #+END_SRC
 
-- 自定义创建的default文件
-  #+BEGIN_SRC conf
+- default文件 ::
+  #+BEGIN_SRC bash
   default menu.c32
   prompt 0
   timeout 30
@@ -97,4 +92,5 @@ PXE：preboot execute environment，可用于网卡启动和安装系统
 #+END_SRC
 
 ** file server配置
-将光盘挂载至httpd目录下，同时复制KS文件到httpd目录下，改变其url地址指向光盘挂载的文件夹
+- 将光盘挂载至httpd目录下
+- 复制 =KS文件= 到httpd目录下，改变其url地址指向光盘挂载的文件夹

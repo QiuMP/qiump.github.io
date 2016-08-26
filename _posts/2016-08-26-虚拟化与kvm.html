@@ -1,0 +1,975 @@
+---
+title: "虚拟化与KVM"
+date: 2016-08-06
+layout: post
+categories: 
+- 虚拟化
+tags: 
+- Linux 
+- 虚拟化
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline12">1. 虚拟化</a>
+<ul>
+<li><a href="#orgheadline1">CPU虚拟化</a></li>
+<li><a href="#orgheadline2">Memory虚拟化</a></li>
+<li><a href="#orgheadline3">I/O设备虚拟化</a></li>
+<li><a href="#orgheadline4">虚拟化的实现方式</a></li>
+<li><a href="#orgheadline5">虚拟技术分类</a></li>
+<li><a href="#orgheadline6">虚拟化网络</a></li>
+<li><a href="#orgheadline7">linux的虚拟网络设备</a></li>
+<li><a href="#orgheadline11">实现虚拟化网络(sdn)</a>
+<ul>
+<li><a href="#orgheadline8">添加桥设备</a></li>
+<li><a href="#orgheadline9">添加veth设备</a></li>
+<li><a href="#orgheadline10">配置桥接模式</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline32">2. KVM</a>
+<ul>
+<li><a href="#orgheadline13">系统的运行模式</a></li>
+<li><a href="#orgheadline14">KVM组件</a></li>
+<li><a href="#orgheadline15">KVM特性</a></li>
+<li><a href="#orgheadline16">KVM局限性</a></li>
+<li><a href="#orgheadline17">KVM工具</a></li>
+<li><a href="#orgheadline18">KVM的安装</a></li>
+<li><a href="#orgheadline19">半虚拟化virtio</a></li>
+<li><a href="#orgheadline30">QEMU</a>
+<ul>
+<li><a href="#orgheadline28">qemu-kvm</a></li>
+<li><a href="#orgheadline29">qemu-img</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline31">虚拟机迁移</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline46">3. libvirt工具</a>
+<ul>
+<li><a href="#orgheadline33">libvirt</a></li>
+<li><a href="#orgheadline34">libvirt的安装和配置</a></li>
+<li><a href="#orgheadline35">使用桥接模式</a></li>
+<li><a href="#orgheadline44">virt-install</a>
+<ul>
+<li><a href="#orgheadline36">一般选项</a></li>
+<li><a href="#orgheadline37">安装方法</a></li>
+<li><a href="#orgheadline38">存储配置</a></li>
+<li><a href="#orgheadline39">网络配置</a></li>
+<li><a href="#orgheadline40">设备选项</a></li>
+<li><a href="#orgheadline41">虚拟化选项</a></li>
+<li><a href="#orgheadline42">其它选项</a></li>
+<li><a href="#orgheadline43">virt-install使用示例</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline45">virsh常用命令</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">1</span> 虚拟化</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">CPU虚拟化</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<pre class="example">
+CPU的分级保护域ring
+  ring -1: 特权指令，需要硬件的支持
+  ring 0: 虚拟机(Guest)根区域，能被主机(hypervisor)捕获
+  ring 1/2: 未使用
+  ring 3: 用户指令
+</pre>
+<dl class="org-dl">
+<dt>模拟(emulation)</dt><dd>纯软件实现，需要模拟CPU的所有ring(0/1/2/3)，可模拟出不同的硬件架构</dd>
+<dt>虚拟(virtualization)</dt><dd>只能使用相同的硬件架构
+<ul class="org-ul">
+<li><code>完全虚拟化(full-virtualization)</code>: Guest不知道自己运行在虚拟化中
+<ul class="org-ul">
+<li><code>BT(vmware)</code>: 二进制翻译软件，需要模拟CPU的ring 0，Guest的内核运行在ring 1上</li>
+<li><code>HVM</code>: 硬件辅助的虚拟化，主机使用ring -1，Guest使用ring 0</li>
+</ul></li>
+<li><code>半虚拟化(para-virtualization)</code>: Guest知道自己运行在虚拟化中，直接调用 <code>hypervisor</code> 的 <code>hyper call</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Memory虚拟化</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<dl class="org-dl">
+<dt>虚拟地址空间</dt><dd><ul class="org-ul">
+<li><code>进程</code>: 线性地址空间</li>
+<li><code>内核</code>: 物理地址空间</li>
+</ul></dd>
+<dt>MMU Virtualization</dt><dd>虚拟机的进程只需要经过一次转换即可
+<ul class="org-ul">
+<li>Intel: <code>EPT</code> (Extended Page Table)</li>
+<li>AMD: <code>NTP</code> (Nested Page Table)</li>
+</ul></dd>
+<dt>TLB virtualization</dt><dd>解决虚拟机切换所导致的TLB(Table buffer)无效
+<ul class="org-ul">
+<li><code>tagged TLB</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">I/O设备虚拟化</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<dl class="org-dl">
+<dt>I/O设备类型</dt><dd><ul class="org-ul">
+<li>外存: 硬盘、光盘、U盘</li>
+<li>网络设备: 网卡</li>
+<li>显示设备: VGA(利用 <code>frame buffer</code> 机制虚拟)</li>
+<li>键盘鼠标: ps/2, usb</li>
+</ul></dd>
+<dt>I/O虚拟化的方式</dt><dd><ul class="org-ul">
+<li><code>模拟</code>: 完全使用软件来模拟真实硬件</li>
+<li><code>半虚拟化化</code>: 同CPU虚拟化</li>
+<li><code>IO-through</code>: 主机有多块I/O设备
+<ul class="org-ul">
+<li><code>Intel</code>: VT-d，隔离DMA的中断请求，完成物理DMA到虚拟DMA的映射</li>
+</ul></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">虚拟化的实现方式</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<dl class="org-dl">
+<dt>Type-I</dt><dd>直接在硬件上运行一个Hypervisor来管理虚拟机
+<ul class="org-ul">
+<li><code>xen</code>, <code>vmware ESX/ESXi</code></li>
+</ul></dd>
+<dt>Type-II</dt><dd>需要在主机系统基础上，借助虚拟化软件vmm管理虚拟机
+<ul class="org-ul">
+<li><code>kvm</code>, <code>vmware workstation</code>, <code>virtualbox</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">虚拟技术分类</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<dl class="org-dl">
+<dt>模拟</dt><dd>使用软件模拟硬件环境
+<ul class="org-ul">
+<li>PearPC, Bochs, QEMU</li>
+</ul></dd>
+<dt>完全虚拟化</dt><dd><ul class="org-ul">
+<li>VMware Workstation, VMware Server, Parallels Desktop, KVM, Xen(HVM)</li>
+</ul></dd>
+<dt>半虚拟化</dt><dd>内核需要支持hyper call
+<ul class="org-ul">
+<li>xen, uml(user-mode linux)</li>
+</ul></dd>
+<dt>OS级别的虚拟化</dt><dd>虚拟用户空间
+<ul class="org-ul">
+<li>OpenVZ, lxc</li>
+<li>Solaris Containers</li>
+<li>FreeBSD jails</li>
+</ul></dd>
+<dt>库虚拟化</dt><dd><ul class="org-ul">
+<li>wine</li>
+</ul></dd>
+<dt>应用程序虚拟化</dt><dd><ul class="org-ul">
+<li>jvm</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">虚拟化网络</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<ul class="org-ul">
+<li><code>bridge mode</code>: 主机网卡当作交换机使用，虚拟网卡有自己的mac</li>
+<li><code>host only</code>: 在主机上虚拟交换机和另一张虚拟网卡，连接虚拟机的虚拟网卡</li>
+<li><code>routed mode</code>: 在host only的基础上，打开电脑的ip地址转发</li>
+<li><code>nat mode</code>: 在host only的基础上，将主机配置为nat服务器</li>
+<li><code>isolation mode</code>: 在主机上虚拟交换机，仅连接虚拟机的虚拟网卡</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">linux的虚拟网络设备</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ul class="org-ul">
+<li><code>tap</code> 设备是一种工作在二层协议的点对点网络设备，每一个tap设备都有一个对应的linux字符设备，用户程序可以通过对字符设备的读写操作，完成与linux内核网络协议栈的数据交换工作，在虚拟化环境中经常被模拟器使用</li>
+<li><code>tun</code> 模拟了网络层设备，操作第三层数据包比如ip数据封包</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">实现虚拟化网络(sdn)</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">添加桥设备</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<p>
+桥设备是基于内核实现的二层数据交换设备
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">brctl addbr br0
+brctl stp br0 off  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#38381;stp</span>
+
+ip link set dev br0 up  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#35813;&#26725;&#35774;&#22791;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+若要将主机连接至桥设备，只需要对桥接口设置IP地址即可
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ip addr add IP/MASK dev br0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#22312;&#26725;&#35774;&#22791;&#19978;&#30340;&#22320;&#22336;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">添加veth设备</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<p>
+VETH设备是一种成对出现的点对点网络设备，从一段输入的数据会从另一端改变方向输出，通常用于改变数据方向，或连接其它网络设备
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ip addr add veth0 type veth peer name veth1
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">配置桥接模式</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<pre class="example">
+配置桥接网络不能开启NetworkManager
+</pre>
+<dl class="org-dl">
+<dt>不使用工具来配置桥接网络</dt><dd><ol class="org-ol">
+<li><p>
+克隆原来的网卡设备脚本为桥设备脚本 <code>ifcfg-br0</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">DEVICE=br0
+NM_CONTROLLED=no
+TYPE=Bridge
+<span style="color: #75715E;">...</span>
+</pre>
+</div></li>
+<li><p>
+将原来的网卡设备脚本作为交换机关联到br0上
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">DEVICE=eth0
+BOOTPROTO=none
+NM_CONTROLLED=none
+TYPE=Ethernet
+BRIDGE=br0
+IPV6INIT=no
+</pre>
+</div></li>
+</ol></dd>
+<dt>使用 <code>bridge-utils</code> 来配置</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">brctl show  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#26725;&#35774;&#22791;</span>
+brctl addbr br0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#19968;&#20010;&#26725;&#35774;&#22791;</span>
+
+ip addr del IP dev eth0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;eth0&#30340;&#22320;&#22336;</span>
+
+brctl addif br0 eth0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36830;&#25509;&#26725;&#35774;&#22791;&#21644;&#34987;&#20316;&#20026;&#20132;&#25442;&#26426;&#30340;&#32593;&#21345;</span>
+ip link set eth0 promisc on  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#21551;&#32593;&#21345;&#30340;&#28151;&#26434;&#27169;&#24335;&#65292;&#20197;&#25509;&#21463;&#25152;&#26377;&#21457;&#26469;&#30340;&#21253;</span>
+
+ip addr add IP/MASK dev br0  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;eth0&#21407;&#26469;&#30340;&#22320;&#22336;&#37197;&#32622;&#21040;&#26725;&#35774;&#22791;&#19978;</span>
+route add default gw GW
+</pre>
+</div></dd>
+</dl>
+<pre class="example">
+可以使用 nmgui 对网络进行管理
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-2">
+<h2 id="orgheadline32"><span class="section-number-2">2</span> KVM</h2>
+<div class="outline-text-2" id="text-2">
+<pre class="example">
+KVM: Kernel-based Virtual Machine，依赖于HVM (VT-x, ADM-V)
+</pre>
+</div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">系统的运行模式</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<ul class="org-ul">
+<li><code>来宾-内核模式</code>: GuestOS的内核模式，用于执行I/O类操作，或其它的特殊指令的操作，之后交给VMM负责管理运行</li>
+<li><code>来宾-用户模式</code>: GuestOS的内核模式，用于执行非I/O类操作，若架构一样直接在CPU上运行，否则需要交给VMM负责运行</li>
+<li><code>用户模式</code>: 宿主机的用户空间，代表GuestOS请求I/O类操作</li>
+<li><code>kvm hypervisor</code>: 宿主机自己的内核空间</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">KVM组件</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<ul class="org-ul">
+<li><code>/dev/kvm</code>: 工作于 <code>hypervisor</code> 的字符设备，在用户空间可通过 <code>ioctl()</code> 系统调用来完成VM的管理功能，如创建VM、为VM分配内存、读写VCPU的寄存器、向VCPU注入中断、运行VCPU等等</li>
+<li><code>QEMU进程</code>: 工作于用户空间，主要用于实现模拟PC机的I/O设备，其功能如下
+<ul class="org-ul">
+<li>处理器模拟器(不同架构)</li>
+<li>仿真I/O设备</li>
+<li>关联模拟的设备至真实设备</li>
+<li>调试器</li>
+<li>与模拟器交互的用户接口</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">KVM特性</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<ul class="org-ul">
+<li>内存管理
+<ul class="org-ul">
+<li>将分配给VM的内存交换至SWAP</li>
+<li>支持使用Huge Page</li>
+<li>支持使用Intel EPT或AMD RVI技术完成内存地址映射</li>
+<li>支持KSM(Kernel Same-page Merging): 合并相同的共享库文件内存</li>
+</ul></li>
+<li>存储
+<ul class="org-ul">
+<li>本地存储</li>
+<li>网络附加存储</li>
+<li>存储区域网络</li>
+<li>分布式存储，如GlustFS</li>
+</ul></li>
+<li>实时迁移: 在使用共享存储的基础上，通过内存复制的方法迁移正在运行的虚拟机</li>
+<li>支持运行Linux, Windows, OpenBSD, FreeBSD, OpenSolaris</li>
+<li>设备驱动
+<ul class="org-ul">
+<li>I/O设备的完全虚拟化: 模拟硬件</li>
+<li>I/O设备的半虚拟化: 在GuestOS中安装驱动(virtio)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">KVM局限性</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>CPU的过载能力有限</li>
+<li>虚拟机时间难以精确，依赖于时间同步机制</li>
+<li>MAC地址在VM量特别大时，存在冲突的可能性</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">KVM工具</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<dl class="org-dl">
+<dt>QEMU</dt><dd><ul class="org-ul">
+<li><code>/usr/libexec/qemu-kvm</code></li>
+<li><code>qemu-img</code></li>
+</ul></dd>
+<dt>libvirt</dt><dd>通用虚拟机管理，支持远程管理
+<ul class="org-ul">
+<li>GUI: <code>virt-manager</code>, <code>virt-viewer</code></li>
+<li>CLI: <code>virt-install</code> (安装工具), <code>virsh</code> (管理工具)</li>
+</ul></dd>
+<dt>工具组</dt><dd><ul class="org-ul">
+<li>Virtualization: <code>qemu-kvm</code></li>
+<li>Virtualization Client: <code>python-virtinst</code>, <code>virt-manager</code>, <code>virt-viewer</code></li>
+<li>Virtualization Platform: <code>libvirt</code>, <code>libvirt-client</code></li>
+</ul></dd>
+<dt>cirros project</dt><dd>为cloud环境测试vm提供的微缩版Linux</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">KVM的安装</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<ol class="org-ol">
+<li><p>
+确保CPU支持HVM
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">grep -E <span style="color: #E6DB74;">"(vmx|svm)"</span> /proc/cpuinfo
+</pre>
+</div></li>
+<li><p>
+装载模块
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">modprobe kvm
+</pre>
+</div></li>
+<li>验证 <code>/dev/kvm</code> 是否存在即可</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">半虚拟化virtio</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<p>
+<code>virtio</code> 仅实现驱动的前端部分(虚拟机部分)，主机的驱动是由 <code>QEMU</code> 实现
+</p>
+<dl class="org-dl">
+<dt>virtio-balloon</dt><dd><ul class="org-ul">
+<li>ballooning: 让VM中运行的GuestOS自动根据系统占用来调整其所占host的内存大小</li>
+<li><p>
+手动查看GuestOS的内存用量
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">info balloon
+balloon N
+</pre>
+</div></li>
+</ul></dd>
+<dt>virtio-net</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;Host&#20013;&#30340;GSO, TSO&#20851;&#25481;&#21487;&#33021;&#20250;&#25552;&#21319;&#24615;&#33021;</span>
+ethtool -K $IF gso off
+ethtool -K $IF tso off
+ethtool -k $IF
+</pre>
+</div></dd>
+<dt>virtio-blk</dt><dd></dd>
+
+<dt>virtio-pci</dt><dd></dd>
+
+<dt>virtio-console</dt><dd></dd>
+
+<dt>kvm-clock</dt><dd><p>
+半虚拟化时钟，提高虚拟机的时间精度
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;/boot/config-2.6.32-504.el6.x86_64</span>
+CONFIG_PARAVIRT_GUEST=y
+CONFIG_PARAVIRT=y
+CONFIG_PARAVIRT_CLOCK=y
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">QEMU</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+</div><div id="outline-container-orgheadline28" class="outline-4">
+<h4 id="orgheadline28">qemu-kvm</h4>
+<div class="outline-text-4" id="text-orgheadline28">
+</div><ul class="org-ul"><li><a id="orgheadline20"></a>命令格式<br  /><div class="outline-text-5" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-yaml">qemu-kvm [OPTIONS] [disk_image]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34394;&#25311;&#26426;&#31649;&#29702;&#24037;&#20855;</span>
+</pre>
+</div>
+</div></li>
+<li><a id="orgheadline21"></a>选项的分类<br  /><div class="outline-text-5" id="text-orgheadline21">
+<ul class="org-ul">
+<li>标准选项</li>
+<li>显示选项</li>
+<li>块设备选项</li>
+<li>网络选项</li>
+<li>i386平台专用选项</li>
+<li>字符设备选项</li>
+<li>蓝牙设备选项</li>
+<li>Linux启动专用选项</li>
+<li>调试/专家模式选项</li>
+</ul>
+</div></li>
+
+<li><a id="orgheadline22"></a>启动第一个虚拟机<br  /><div class="outline-text-5" id="text-orgheadline22">
+<div class="org-src-container">
+
+<pre class="src src-bash">qemu-kvm -m <span style="color: #AE81FF;">128</span> -smp <span style="color: #AE81FF;">2</span> -name test -hda /images/kvm/cirros-0.3.4-i386.disk.img  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;&#27169;&#25311;&#36733;&#20837;&#30913;&#30424;&#35774;&#22791;</span>
+qemu-kvm -m <span style="color: #AE81FF;">128</span> -name test -smp <span style="color: #AE81FF;">2</span> -drive <span style="color: #FD971F;">file</span>=/images/kvm/cirros-0.3.4-i386-disk.img,<span style="color: #FD971F;">if</span>=virtio,<span style="color: #FD971F;">media</span>=disk,<span style="color: #FD971F;">cache</span>=writeback,<span style="color: #FD971F;">format</span>=qcow2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#21322;&#34394;&#25311;&#21270;&#30340;&#26041;&#24335;&#36733;&#20837;&#30913;&#30424;&#35774;&#22791;</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#20250;&#30417;&#21548;&#19968;&#20010;&#26174;&#31034;&#22120;&#31471;&#21475;&#65292;&#21487;&#20197;&#29992;&#36828;&#31243;RFB&#21327;&#35758;&#36719;&#20214;&#36827;&#34892;&#36830;&#25509;&#65292;&#20363;&#22914;tigervnc</span>
+</pre>
+</div>
+</div></li>
+
+<li><a id="orgheadline23"></a>标准选项<br  /><div class="outline-text-5" id="text-orgheadline23">
+<p>
+qemu-kvm的标准选项主要涉及指定主机类型、CPU模式、NUMA等
+</p>
+<ul class="org-ul">
+<li><code>-name name</code>: 设定虚拟机名称</li>
+<li><code>-M machine</code>: 指定要模拟的主机类型，使用 <code>qemu-kvm -M ?</code> 获取所支持的所有类型</li>
+<li><code>-m megs</code>: 设定虚拟机的RAM大小</li>
+<li><code>-cpu host</code>: 设定CPU模型，可以使用 <code>qemu-kvm -cpu ?</code> 获取所支持的所有模型</li>
+<li><code>-smp N[,cores=N][,threads=N][,sockets=N][,maxcpus=N]</code>: 设定模拟的SMP架构中CPU的个数(最大255)、每个CPU的核心数和线程数及CPU的插槽数目、maxcpus用于指定热插入的CPU个数上限</li>
+<li><code>-numa opts</code>: 指定模拟多节点的numa设备(多CPU下每个CPU自己绑定的内存)</li>
+<li><code>-daemonize</code>: 让虚拟机工作在后台</li>
+<li><code>-balloon virtio</code>: 支持内存动态扩展和缩小</li>
+</ul>
+</div></li>
+<li><a id="orgheadline24"></a>块设备选项<br  /><div class="outline-text-5" id="text-orgheadline24">
+<p>
+qemu-kvm的块设备选项主要涉及指定软驱设备、光驱设备及硬件设备等
+</p>
+<ul class="org-ul">
+<li><code>-hda|hdb|hdc|hdd file</code>: 指定file为硬盘镜像</li>
+<li><code>-cdrom file</code>: 指定file为CD-ROM镜像，不能与 <code>-hdc</code> 同时使用</li>
+<li><code>-drive option,option</code>: 定义一个硬盘设备
+<ul class="org-ul">
+<li><code>file=/path/to/somefile</code>: 硬件映像文件路径</li>
+<li><code>if=</code>: 指定硬盘设备所连接的控制器类型，如ide、scsi、sd，尽量使用半虚拟化 <code>virtio</code></li>
+<li><code>index=</code>: 设定同一种控制器类型中不同设备的索引号，即标识号</li>
+<li><code>media=</code>: 定义介质类型为硬盘( <code>disk</code> )还是光盘( <code>cdrom</code> )</li>
+<li><code>snapshot={on|off}</code>: 指定当前硬盘设备是否支持快照功能</li>
+<li><code>cache=</code>: 定义如何使用物理机缓存来访问块数据，其可用值有 <code>none</code>, <code>writeback</code> (延迟写回), <code>unsafe</code>, <code>writethrough</code> (立即写回)</li>
+<li><code>format=</code>: 指定映像文件的格式，参考qemu-img命令</li>
+</ul></li>
+<li><p>
+<code>-boot [order=dc][,once=d][,menu=on|off]</code>: 定义启动设备的引导次序，每种设备使用一个字符表示，once只在创建虚拟机时使用，可配置使用pxe安装系统
+</p>
+<pre class="example">
+不同的架构所支持的设备及其表示字符不尽相同，在x86 PC架构上，a、b表示软驱、c表示第一块硬盘，d表示第一个光驱设备，n-p表示网络适配器；默认为硬盘设备
+</pre></li>
+</ul>
+</div></li>
+<li><a id="orgheadline25"></a>字符设备选项<br  /><div class="outline-text-5" id="text-orgheadline25">
+<ul class="org-ul">
+<li><code>usbdevice tablet</code>: 解决鼠标内外不同步的情况</li>
+</ul>
+</div></li>
+<li><a id="orgheadline26"></a>显示选项<br  /><div class="outline-text-5" id="text-orgheadline26">
+<p>
+显示选项用于定义虚拟机启动后的显示接口相关类型及属性等
+</p>
+<ul class="org-ul">
+<li><p>
+<code>-nographic</code>: 用于禁止图形接口，默认情况下，qemu使用VNC来显示VGA输出
+</p>
+<pre class="example">
+快捷键: 
+  Ctrl-a, c: 在console和monitor之间切换
+  Ctrl-a, h: 显示帮助信息
+  Ctrl+Alt+1,2: 切换窗口
+</pre></li>
+<li><code>-sdl</code>: 启用SDL</li>
+<li><code>-vnc display[,OPTIONS]</code>: 使用VNC协议监听在display上
+<ul class="org-ul">
+<li><code>display</code>:
+<ul class="org-ul">
+<li><code>host</code>:N : 监听在host上的5900+N的端口上</li>
+<li><code>unix</code>:/path/to/socket_file</li>
+<li><code>none</code>: 不显示</li>
+</ul></li>
+<li><code>options</code>:
+<ul class="org-ul">
+<li><code>password</code>: 连接时需要验证密码；设定密码通过monitor接口使用 <code>change</code> 命令</li>
+<li><code>reverse</code>: "反向"连接至某处于监听状态的vncview上</li>
+</ul></li>
+</ul></li>
+<li><code>-monitor stdin</code>: 表示在标准输入输出上显示monitor管理界面</li>
+<li><code>-vgs type</code>: 指定显卡类型，常见类型有cirrus、std、vmware、qxl、none</li>
+</ul>
+</div></li>
+<li><a id="orgheadline27"></a>网络选项<br  /><div class="outline-text-5" id="text-orgheadline27">
+<p>
+网络属性相关选项用于定义网络设备接口类型及其相关的各属性等信息
+</p>
+<ul class="org-ul">
+<li><code>-net nic[,OPTIONS]</code>: 设置虚拟机上的虚拟网卡(虚拟网卡前端)
+<ul class="org-ul">
+<li><code>vlan=n</code>: 设置该设备VLAN编号，默认值为0</li>
+<li><code>name=name</code>: 设置名称，在monitor中显示</li>
+<li><code>macaddr=mac</code>: 设置设备的MAC，前6位应固定为52:54:00</li>
+<li><code>model=type</code>: 设定网卡的类型，默认为e1000，可开启半虚拟化virtio</li>
+<li><code>addr=addr</code>: 设定网卡的IP地址</li>
+</ul></li>
+<li><code>-net tap[,OPTIONS]</code>: 连接宿主机端的TAP网络接口(虚拟网卡后端)
+<ul class="org-ul">
+<li><code>vlan=n</code>: 设置该设备VLAN编号，默认值为0</li>
+<li><code>name=name</code>: 设置名称，在monitor中显示</li>
+<li><code>fd=h</code>: 连接到现在已经打开着的TAP接口的文件描述符，当使用了fd=h的选项后，ifname、script、downscript、helper、vnet_hdr等选项都不可使用</li>
+<li><code>ifname=name</code>: 设置在宿主机中添加的TAP虚拟设备的名称(如tap1、tap5等等)</li>
+<li><p>
+<code>script=file</code>: 设置宿主机在启动客户机时自动执行的网络配置脚本。如果不指定，其默认值为 <code>/etc/qemu-ifup</code> 这个脚本；如果不需要执行脚本，则设置为 <code>script=no</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">cat /etc/qemu-ifup </span>
+<span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/bash</span>
+<span style="color: #75715E;">#</span>
+<span style="color: #FD971F;">bridge</span>=br0
+<span style="color: #F92672;">if</span> <span style="color: #AE81FF;">[</span> -n <span style="color: #E6DB74;">"$1"</span> <span style="color: #AE81FF;">]</span>; <span style="color: #F92672;">then</span>
+    ip link set $<span style="color: #AE81FF;">1</span> up  <span style="color: #75715E;"># </span><span style="color: #75715E;">$1&#20026;&#34394;&#25311;&#26426;&#32593;&#21345;&#22312;&#20027;&#26426;&#19978;&#30340;&#21517;&#31216;&#65292;&#22914;tap1</span>
+    sleep <span style="color: #AE81FF;">1</span>
+    brctl addif $<span style="color: #FD971F;">bridge</span> $<span style="color: #AE81FF;">1</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#32593;&#21345;&#21040;&#26725;&#35774;&#22791;&#19978;</span>
+<span style="color: #AE81FF;">[</span> $<span style="color: #FD971F;">?</span> -eq <span style="color: #AE81FF;">0</span> <span style="color: #AE81FF;">]</span> &amp;&amp; <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span> || <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+    <span style="color: #F92672;">else</span>
+    <span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"Error: no interface specified."</span>
+<span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+<span style="color: #F92672;">fi</span>
+</pre>
+</div></li>
+<li><p>
+<code>downscript=dfile</code>: 设置宿主机在客户机关闭时自动执行的网络配置脚本。如果不设置，其默认值为 <code>/etc/qemu-ifdown</code> ；若客户机关闭时宿主机不需要执行脚本，则设置为 <code>downscript=no</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">cat /etc/qemu-ifdown </span>
+<span style="color: #75715E;">#</span><span style="color: #75715E;">!/bin/bash</span>
+<span style="color: #75715E;">#</span>
+<span style="color: #FD971F;">bridge</span>=br0
+<span style="color: #F92672;">if</span> <span style="color: #AE81FF;">[</span> -n <span style="color: #E6DB74;">"$1"</span> <span style="color: #AE81FF;">]</span>;<span style="color: #F92672;">then</span>
+    brctl delif $<span style="color: #FD971F;">bridge</span> $<span style="color: #AE81FF;">1</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#26725;&#35774;&#22791;&#19978;&#30340;&#35813;&#32593;&#21345;&#65292;&#20294;&#40664;&#35748;&#25805;&#20316;&#20063;&#20250;&#21024;&#38500;</span>
+    ip link set $<span style="color: #AE81FF;">1</span> down
+    <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">0</span>
+<span style="color: #F92672;">else</span>
+    <span style="color: #F92672;">echo</span> <span style="color: #E6DB74;">"Error: no interface specified."</span>
+    <span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">1</span>
+<span style="color: #F92672;">fi</span>
+</pre>
+</div></li>
+<li><code>vnet_hdr=on,vhost=on</code>: 用于提高半虚拟化网卡的后端性能</li>
+</ul></li>
+<li><code>-net user</code>: 在用户空间中创建网卡，无需管理员权限</li>
+</ul>
+</div></li></ul>
+</div>
+<div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29">qemu-img</h4>
+<div class="outline-text-4" id="text-orgheadline29">
+<div class="org-src-container">
+
+<pre class="src src-yaml">qemu-img subcommand [options]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#30913;&#30424;&#26144;&#20687;&#31649;&#29702;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+<code>create</code>: 创建一个新的磁盘映像文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">qemu-img create <span style="color: #AE81FF;">[</span>-f fmt<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-o OPTIONS<span style="color: #AE81FF;">]</span> filename <span style="color: #AE81FF;">[</span>size<span style="color: #AE81FF;">]</span>
+qemu-img create -f qcow2 -o <span style="color: #FD971F;">size</span>=<span style="color: #AE81FF;">120G,preallocation</span>=metadata /VM/images/rhel5.8/hda
+</pre>
+</div>
+<pre class="example">
+fmt: 
+  raw: 不存储额外数据，不支持高级功能，可节约带宽
+  qcow2: 提供高级功能，支持快照、压缩和加密
+</pre></li>
+<li><code>check</code>: 检查磁盘映像文件中的错误</li>
+<li><code>convert</code>: 转换磁盘映像的格式</li>
+<li><code>info</code>: 显示指定磁盘映像的信息</li>
+<li><code>snapshot</code>: 管理磁盘映像的快照</li>
+<li><code>commit</code>: 提交磁盘映像的所有改变</li>
+<li><code>rbase</code>: 基于某磁盘映像创建新的映像文件</li>
+<li><code>resize</code>: 增大或缩减磁盘映像文件的大小</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">虚拟机迁移</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<ul class="org-ul">
+<li>迁移需要共享存储映像文件</li>
+<li><p>
+在待迁入主机使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">qemu-kvm -vnc :N -incoming tcp:0:7777  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25171;&#24320;&#25509;&#25910;&#31471;&#21475;</span>
+vncviewer :590N
+</pre>
+</div></li>
+<li><p>
+在源主机monitor中使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">migrate tcp:DEST_IP:DEST:PORT
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline46" class="outline-2">
+<h2 id="orgheadline46"><span class="section-number-2">3</span> libvirt工具</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">libvirt</h3>
+<div class="outline-text-3" id="text-orgheadline33">
+<ul class="org-ul">
+<li>支持的虚拟化技术: KVM、XEN、VMWARE、LXC、QEMU</li>
+<li>libvirt中的术语
+<ul class="org-ul">
+<li><code>node</code>: 指物理节点</li>
+<li><code>hypervisor</code></li>
+<li><code>domain</code>: vm instances</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">libvirt的安装和配置</h3>
+<div class="outline-text-3" id="text-orgheadline34">
+<dl class="org-dl">
+<dt>安装</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">yum install libvirt libvirt-client virt-install virt-manager
+</pre>
+</div></dd>
+<dt>libvirt和libvirtd的配置文件</dt><dd><ul class="org-ul">
+<li>libvirt配置文件: <code>/etc/libvirt/libvirt.conf</code></li>
+<li>守护进程配置文件: <code>/etc/libvirt/libvirtd.conf</code></li>
+<li>网络配置文件: <code>/etc/libvirt/qemu/networks/default.xml</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="orgheadline35">使用桥接模式</h3>
+<div class="outline-text-3" id="text-orgheadline35">
+<div class="org-src-container">
+
+<pre class="src src-yaml">virsh iface-bridge eth0 br0 --no-stp  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#26725;&#25509;&#27169;&#24335;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline44" class="outline-3">
+<h3 id="orgheadline44">virt-install</h3>
+<div class="outline-text-3" id="text-orgheadline44">
+</div><div id="outline-container-orgheadline36" class="outline-4">
+<h4 id="orgheadline36">一般选项</h4>
+<div class="outline-text-4" id="text-orgheadline36">
+<p>
+指定虚拟机的名称、内存大小、VCPU个数及特性等
+</p>
+<ul class="org-ul">
+<li><code>--name=NAME</code>: 虚拟机名称，需全局唯一</li>
+<li><code>--ram=MEMORY</code>: 虚拟机内在大小，单位为MB</li>
+<li><code>--vcpus=VCPUS[,maxvcpus=MAX][,sockets=#][,cores=#][,threads=#]</code>: VCPU个数及相关配置</li>
+<li><code>--cpu=CPU</code>: CPU模式及特性</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline37" class="outline-4">
+<h4 id="orgheadline37">安装方法</h4>
+<div class="outline-text-4" id="text-orgheadline37">
+<p>
+指定安装方法、GuestOS类型等
+</p>
+<ul class="org-ul">
+<li><code>--cdrom=CDROM</code>: 光盘安装介质</li>
+<li><code>--location=LOCATION</code>: 安装源URL，支持FTP、HTTP及NFS等</li>
+<li><code>--pxe</code>: 基于PXE完成安装</li>
+<li><code>--os-type=DISTRO_TYPE</code>: 操作系统类型，如linux、unix或windows等</li>
+<li><code>--os-variant=DISTRO_VARIANT</code>: 某类型操作系统的变体，如rhel5、fedora8等</li>
+<li><p>
+<code>--extra-args=EXTRA</code>: 根据 <code>--location</code> 指定的方式安装GuestOS时，用于传递给内核的额外选项
+</p>
+<pre class="example">
+指定kickstart文件的位置: --extra-args "ks=http://172.16.0.1/class.cfg"
+</pre></li>
+<li><code>--boot cdrom,hd,network</code>: 指定引导次序</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline38" class="outline-4">
+<h4 id="orgheadline38">存储配置</h4>
+<div class="outline-text-4" id="text-orgheadline38">
+<p>
+指定存储类型、位置及属性等
+</p>
+<ul class="org-ul">
+<li><code>--disk arg=value,...</code>: 指定存储设备及其属性
+<ul class="org-ul">
+<li><code>device</code>: 设备类型，如cdrom、disk或floppy等，默认为disk</li>
+<li><code>bus</code>: 磁盘总线类型，其值可以为ide、scsi、usb、virtio或xen</li>
+<li><code>perms</code>: 访问权限，如rw、ro或sh（共享的可读写），默认为rw</li>
+<li><code>size</code>: 新建磁盘映像的大小，单位为GB</li>
+<li><code>cache</code>: 缓存模型，其值有none、writethrouth及writeback</li>
+<li><code>format</code>: 磁盘映像格式，如raw、qcow2、vmdk等</li>
+<li><code>sparse</code>: 磁盘映像使用稀疏格式，即不立即分配指定大小的空间</li>
+</ul></li>
+<li><code>--nodisks</code>: 不使用本地磁盘，在LiveCD模式中常用</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline39" class="outline-4">
+<h4 id="orgheadline39">网络配置</h4>
+<div class="outline-text-4" id="text-orgheadline39">
+<p>
+指定网络接口的网络类型及接口属性如MAC地址、驱动模式等
+</p>
+<ul class="org-ul">
+<li><code>--network opt1=val1,opt2=val2</code>: 将虚拟机连入宿主机的网络中
+<ul class="org-ul">
+<li><code>bridge=BRIDGE</code>: 连接至名为"BRIDEG"的桥设备</li>
+<li><code>network=NAME</code>: 连接至名为"NAME"的网络</li>
+<li><code>model</code>: 虚拟机网卡的设备型号，如e1000、rtl8139或virtio等</li>
+<li><code>mac</code>: MAC地址，省略此选项时将使用随机地址，对于KVM来说，其前三段必须为52:54:00</li>
+</ul></li>
+<li><code>--nonetworks</code>: 虚拟机不使用网络功能</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline40" class="outline-4">
+<h4 id="orgheadline40">设备选项</h4>
+<div class="outline-text-4" id="text-orgheadline40">
+<p>
+指定文本控制台、声音设备、串行接口、并行接口、显示接口等
+</p>
+<ul class="org-ul">
+<li><code>--serial pty</code>: 创建伪终端</li>
+<li><code>--serial=CHAROPTS</code>: 附加一个串行设备至当前虚拟机</li>
+<li><code>--serial dev,path=HOSTPATH</code>: 附加主机设备至此虚拟机</li>
+<li><code>--video=VIDEO</code>: 指定显卡设备类型，可用取值为cirrus、vga、qxl或vmvga</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline41" class="outline-4">
+<h4 id="orgheadline41">虚拟化选项</h4>
+<div class="outline-text-4" id="text-orgheadline41">
+<ul class="org-ul">
+<li><code>--hvm</code>: 当物理机同时支持完全虚拟化和半虚拟化时，指定使用完全虚拟化</li>
+<li><code>--paravirt</code>: 指定使用半虚拟化</li>
+<li><code>--virt-type</code>: 使用的hypervisor，如kvm、qemu、xen等</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline42" class="outline-4">
+<h4 id="orgheadline42">其它选项</h4>
+<div class="outline-text-4" id="text-orgheadline42">
+<ul class="org-ul">
+<li><code>--autostart</code>: 指定虚拟机是否在物理启动后自动启动</li>
+<li><code>--print-xml</code>: 如果虚拟机不需要安装过程(&#x2013;import、&#x2013;boot)，则显示生成的XML而不是创建此虚拟机；默认情况下，此选项仍会创建磁盘映像</li>
+<li><code>--force</code>: 禁止命令进入交互式模式，所有问题自动回答为yes</li>
+<li><code>--dry-run</code>: 执行创建虚拟机的整个过程，但不真正创建虚拟机、改变主机上的设备配置信息及将其创建的需求通知给libvirt</li>
+<li><code>--debug</code>: 显示debug信息</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline43" class="outline-4">
+<h4 id="orgheadline43">virt-install使用示例</h4>
+<div class="outline-text-4" id="text-orgheadline43">
+<p>
+尽管 <code>virt-install</code> 命令有着类似上述的众多选项，但实际使用中，其必须提供的选项仅包括 <code>--name</code>, <code>--ram</code>, <code>--disk</code> (或者 <code>--nodisks</code> )及安装过程相关的选项
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">virt-install -n <span style="color: #E6DB74;">"centos6"</span> -r <span style="color: #AE81FF;">512</span> --vcpus=<span style="color: #AE81FF;">2</span> --pxe --disk <span style="color: #FD971F;">path</span>=/images/kvm/centos6.qcow2,<span style="color: #FD971F;">size</span>=<span style="color: #AE81FF;">120,format</span>=qcow2,<span style="color: #FD971F;">bus</span>=virtio,<span style="color: #FD971F;">sparse</span>=yes --network <span style="color: #FD971F;">bridge</span>=br0,<span style="color: #FD971F;">model</span>=virtio --force --graphics vnc  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;pxe&#23433;&#35013;&#31995;&#32479;</span>
+
+virt-install --name cirros --ram <span style="color: #AE81FF;">128</span> --disk /VMs/cirros-*.img --import --network <span style="color: #FD971F;">bridge</span>=br0,<span style="color: #FD971F;">model</span>=virtio --import --serial=pty --console=pty --nographics <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23548;&#20837;&#24050;&#32463;&#23384;&#22312;&#30340;&#30913;&#30424;&#26144;&#20687;&#25991;&#20214;&#65292;&#24182;&#22312;&#21069;&#21488;&#27169;&#25311;&#19968;&#20010;&#32456;&#31471;</span>
+</pre>
+</div>
+<pre class="example">
+每个虚拟机创建后，其配置信息保存在 /etc/libvirt/qemu 目录中，文件名与虚拟机相同，格式为XML
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline45" class="outline-3">
+<h3 id="orgheadline45">virsh常用命令</h3>
+<div class="outline-text-3" id="text-orgheadline45">
+<ul class="org-ul">
+<li>根据xml文件创建虚拟机
+<ul class="org-ul">
+<li><code>create</code>: 创建并启动</li>
+<li><code>define</code>: 创建但不启动</li>
+</ul></li>
+<li>关闭domain
+<ul class="org-ul">
+<li><code>destroy</code>: 强制关机</li>
+<li><code>shutdown</code>: 正常关机</li>
+<li><code>reboot</code></li>
+</ul></li>
+<li>删除domain
+<ul class="org-ul">
+<li><code>undefine</code></li>
+</ul></li>
+<li>连接至console
+<ul class="org-ul">
+<li><code>console</code></li>
+</ul></li>
+<li>列出domain
+<ul class="org-ul">
+<li><code>list</code></li>
+</ul></li>
+<li>附加或拆除disk
+<ul class="org-ul">
+<li><p>
+<code>attach-disk</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">virsh attach-disk DOMAIN_ID /PATH/TO/*.qcow2 vda --targetbus virtio
+</pre>
+</div></li>
+<li><p>
+<code>detach-disk</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">virsh detach-disk DOMAIN_ID vda
+</pre>
+</div></li>
+</ul></li>
+<li>附加或拆除网卡
+<ul class="org-ul">
+<li><p>
+<code>attach-interface</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">virsh attach-interface <span style="color: #AE81FF;">15</span> bridge br0
+</pre>
+</div></li>
+<li><p>
+<code>detach-interface</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">virsh detach-interface <span style="color: #AE81FF;">15</span> bridge --mac ...
+</pre>
+</div></li>
+</ul></li>
+<li>挂起与恢复
+<ul class="org-ul">
+<li><code>save</code></li>
+<li><code>restore</code></li>
+</ul></li>
+<li>暂停于 <b>内存</b> 中或继续运行
+<ul class="org-ul">
+<li><code>suspend</code></li>
+<li><code>resume</code></li>
+</ul></li>
+<li>查询帮助
+<ul class="org-ul">
+<li><code>help</code></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>

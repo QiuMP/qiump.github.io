@@ -1,13 +1,12 @@
 ---
-title: "文件共享服务"
+title: "文件共享服务NAS"
 date: 2016-07-11
 layout: post
 categories: 
-- 网络
+- 服务器
 tags: 
 - Linux 
-- 运维 
-- 网络
+- 文件系统
 published: true
 comments: 
 ---
@@ -15,259 +14,344 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. 文件共享服务</a></li>
-<li><a href="#orgheadline9">2. ftp</a>
+<li><a href="#orgheadline1">1. DAS、NAS与SAN</a></li>
+<li><a href="#orgheadline2">2. 文件共享服务</a></li>
+<li><a href="#orgheadline15">3. ftp</a>
 <ul>
-<li><a href="#orgheadline2">ftp相关知识</a>
+<li><a href="#orgheadline8">ftp相关知识</a>
 <ul>
-<li><a href="#orgheadline3">连接类型</a></li>
-<li><a href="#orgheadline4">程序软件</a></li>
-<li><a href="#orgheadline5">响应码</a></li>
-<li><a href="#orgheadline6">用户认证</a></li>
+<li><a href="#orgheadline3">ftp</a></li>
+<li><a href="#orgheadline4">连接类型</a></li>
+<li><a href="#orgheadline5">程序软件</a></li>
+<li><a href="#orgheadline6">响应码</a></li>
+<li><a href="#orgheadline7">用户认证</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline7">vsftpd配置</a></li>
-<li><a href="#orgheadline8">lftp</a></li>
+<li><a href="#orgheadline13">vsftpd配置</a>
+<ul>
+<li><a href="#orgheadline9">配置文件</a></li>
+<li><a href="#orgheadline10">用户相关</a></li>
+<li><a href="#orgheadline11">日志</a></li>
+<li><a href="#orgheadline12">连接限制</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline14">3. NFS</a>
-<ul>
-<li><a href="#orgheadline10">NFS相关</a></li>
-<li><a href="#orgheadline11">运行主要的服务</a></li>
-<li><a href="#orgheadline12">配置NFS</a></li>
-<li><a href="#orgheadline13">相关操作</a></li>
+<li><a href="#orgheadline14">lftp</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline18">4. samba</a>
+<li><a href="#orgheadline20">4. <span class="todo TODO">TODO</span> NFS</a>
 <ul>
-<li><a href="#orgheadline15">samba相关</a></li>
-<li><a href="#orgheadline16">客户端</a></li>
-<li><a href="#orgheadline17">服务器</a></li>
+<li><a href="#orgheadline16">NFS相关</a></li>
+<li><a href="#orgheadline17">运行主要的服务</a></li>
+<li><a href="#orgheadline18">配置NFS</a></li>
+<li><a href="#orgheadline19">相关操作</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline24">5. <span class="todo TODO">TODO</span> samba</a>
+<ul>
+<li><a href="#orgheadline21">samba相关</a></li>
+<li><a href="#orgheadline22">客户端</a></li>
+<li><a href="#orgheadline23">服务器</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-介绍了Linux下常见的文件共享服务以及其配置过程，包括ftp、nfs、samba
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> 文件共享服务</h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> DAS、NAS与SAN</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>文件共享服务用于实现NAS</li>
-<li>应用层: ftp</li>
-<li>内核: nfs</li>
-<li>跨平台: samba</li>
-</ul>
+<dl class="org-dl">
+<dt>DAS</dt><dd>DAS是一种将存储介质直接安装在服务器上或者安装在服务器外的存储方式</dd>
+<dt>NAS</dt><dd><ul class="org-ul">
+<li>用户通过TCP/IP协议访问数据，采用业界标准文件共享协议如：NFS、HTTP、CIFS实现共享　　</li>
+<li>每个应用服务器通过网络共享协议（如：NFS、CIFS）使用同一个文件管理系统</li>
+</ul></dd>
+<dt>SAN</dt><dd><ul class="org-ul">
+<li>通过专用光纤通道交换机访问数据，采用SCSI、FC-AL接口。</li>
+<li>文件管理系统(FS)还是分别在每一个应用服务器上</li>
+</ul></dd>
+</dl>
 </div>
 </div>
 
-<div id="outline-container-orgheadline9" class="outline-2">
-<h2 id="orgheadline9"><span class="section-number-2">2</span> ftp</h2>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 文件共享服务</h2>
 <div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">ftp相关知识</h3>
-<div class="outline-text-3" id="text-orgheadline2">
-<ul class="org-ul">
-<li>ftp(File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输</li>
-<li>ftps使用SSL加密，sftp使用SSH加密，两者比较少用</li>
-</ul>
+<p>
+文件共享服务用于实现 <code>NAS</code>
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">文件共享服务</th>
+<th scope="col" class="org-left">特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">ftp</td>
+<td class="org-left">在应用层实现</td>
+</tr>
+
+<tr>
+<td class="org-left">nfs</td>
+<td class="org-left">基于内核</td>
+</tr>
+
+<tr>
+<td class="org-left">samba</td>
+<td class="org-left">跨平台</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="outline-container-orgheadline3" class="outline-4">
-<h4 id="orgheadline3">连接类型</h4>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><span class="section-number-2">3</span> ftp</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">ftp相关知识</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+</div><div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3">ftp</h4>
 <div class="outline-text-4" id="text-orgheadline3">
-<ul class="org-ul">
-<li>命令连接(21/tcp): 用于传输文件管理类命令，始终在线的连接</li>
-<li>数据连接: 用于传输数据，按需创建和关闭的连接
-<ul class="org-ul">
-<li>数据传输格式: 文本传输，二进制传输</li>
-<li>主动连接: 由服务器创建连接</li>
-<li>被动连接: 服务器生成一个随机端口，由客户端创建连接
-<ul class="org-ul">
-<li>服务器的防火墙要进行特殊配置来允许随机端口</li>
-</ul></li>
-</ul></li>
-</ul>
+<p>
+<code>ftp</code> (File Transfer Protocol)是一个C/S架构的应用层协议(21/tcp)，使用明文传输
+</p>
+<pre class="example">
+ftps使用SSL加密，sftp使用SSH加密，但两者比较少用
+</pre>
 </div>
 </div>
 <div id="outline-container-orgheadline4" class="outline-4">
-<h4 id="orgheadline4">程序软件</h4>
+<h4 id="orgheadline4">连接类型</h4>
 <div class="outline-text-4" id="text-orgheadline4">
+<dl class="org-dl">
+<dt>命令连接(21/tcp)</dt><dd>用于传输文件管理类命令，始终在线的连接</dd>
+<dt>数据连接</dt><dd>用于传输数据，按需创建和关闭的连接
 <ul class="org-ul">
-<li>Server: wu-ftpd、proftpd、pureftp、vsftpd(Very Secure)、ServU</li>
-<li>Client: ftp、lftp、wget、curl</li>
-</ul>
+<li>数据传输格式: <code>文本传输</code>, <code>二进制传输</code></li>
+<li><code>主动连接</code>: 由服务器创建连接</li>
+<li><code>被动连接</code>: 服务器生成一个随机端口，由客户端创建连接，服务器的防火墙要进行特殊配置来允许随机端口</li>
+</ul></dd>
+</dl>
 </div>
 </div>
 <div id="outline-container-orgheadline5" class="outline-4">
-<h4 id="orgheadline5">响应码</h4>
+<h4 id="orgheadline5">程序软件</h4>
 <div class="outline-text-4" id="text-orgheadline5">
-<ul class="org-ul">
-<li>1xx: 信息</li>
-<li>2xx: 成功</li>
-<li>3xx: 提示需进一步提供补充类信息</li>
-<li>4xx: 客户端错误</li>
-<li>5xx: 服务端错误</li>
-</ul>
+<dl class="org-dl">
+<dt>Server</dt><dd><code>wu-ftpd</code>, <code>proftpd</code>, <code>pureftp</code>, <code>vsftpd(Very Secure)</code>, <code>ServU</code></dd>
+<dt>Client</dt><dd><code>ftp</code>, <code>lftp</code>, <code>wget</code>, <code>curl</code></dd>
+</dl>
 </div>
 </div>
 <div id="outline-container-orgheadline6" class="outline-4">
-<h4 id="orgheadline6">用户认证</h4>
+<h4 id="orgheadline6">响应码</h4>
 <div class="outline-text-4" id="text-orgheadline6">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">响应码</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1xx</td>
+<td class="org-left">信息</td>
+</tr>
+
+<tr>
+<td class="org-right">2xx</td>
+<td class="org-left">成功</td>
+</tr>
+
+<tr>
+<td class="org-right">3xx</td>
+<td class="org-left">提示需进一步提供补充类信息</td>
+</tr>
+
+<tr>
+<td class="org-right">4xx</td>
+<td class="org-left">客户端错误</td>
+</tr>
+
+<tr>
+<td class="org-right">5xx</td>
+<td class="org-left">服务端错误</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">用户认证</h4>
+<div class="outline-text-4" id="text-orgheadline7">
 <ul class="org-ul">
-<li>虚拟用户: 使用Linux系统的nsswitch和pam进行认证
-<ul class="org-ul">
-<li>nsswitch: network server switch，名称解析框架</li>
-<li>pam: pluggable authentication module，用户认证框架</li>
-</ul></li>
+<li>虚拟用户: 使用Linux系统的 <code>nsswitch</code> 和 <code>pam</code> 进行认证</li>
 <li>系统用户(默认)</li>
 <li>匿名用户(ftp用户)</li>
 </ul>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">vsftpd配置</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">vsftpd配置</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+</div><div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">配置文件</h4>
+<div class="outline-text-4" id="text-orgheadline9">
 <ul class="org-ul">
-<li>主配置文件: /etc/vsftpd/vsftpd.conf
-<ul class="org-ul">
-<li>配置文件每行前不能有多余空白字符</li>
-</ul></li>
 <li><p>
-匿名用户(ftp用户)共享资源位置: /var/ftp
+主配置文件: <code>/etc/vsftpd/vsftpd.conf</code>
+</p>
+<pre class="example">
+配置文件每行前不能有多余空白字符
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">用户相关</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<dl class="org-dl">
+<dt>匿名用户</dt><dd><p>
+匿名用户(ftp用户)共享资源位置: <code>/var/ftp</code>
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">anonymous_enable</span>=YES
+<pre class="src src-bash"><span style="color: #FD971F;">anonymous_enable</span>=YES  
 <span style="color: #FD971F;">anon_upload_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#19981;&#21551;&#29992;&#21311;&#21517;&#29992;&#25143;&#30340;&#19978;&#20256;</span>
 <span style="color: #FD971F;">anon_mkdir_write_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21019;&#24314;&#25991;&#20214;&#22841;</span>
 <span style="color: #FD971F;">anon_other_write_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21311;&#21517;&#29992;&#25143;&#19981;&#33021;&#21024;&#38500;&#25991;&#20214;&#21644;&#25991;&#20214;&#22841;</span>
 </pre>
-</div></li>
-<li><p>
+</div></dd>
+<dt>系统用户</dt><dd><p>
 系统用户默认访问资源位置为用户自己的家目录，同时可以访问其他文件夹
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">local_enable</span>=YES
+<pre class="src src-yaml">local_enable=YES
 
-<span style="color: #FD971F;">write_enable</span>=YES
-<span style="color: #FD971F;">local_umask</span>=022
+write_enable=YES
+local_umask=022
 
-<span style="color: #FD971F;">chroot_local_user</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38145;&#23450;&#29992;&#25143;&#19981;&#33021;&#35775;&#38382;&#23478;&#30446;&#24405;&#22806;&#30340;&#20854;&#20182;&#30446;&#24405;</span>
-<span style="color: #FD971F;">chroot_list_enable</span>=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#38145;&#23450;&#21015;&#34920;&#25991;&#20214;&#20013;&#30340;&#29992;&#25143;</span>
-<span style="color: #FD971F;">chroot_list_file</span>=/etc/vsftpd/chroot_list
+chroot_local_user=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38145;&#23450;&#29992;&#25143;&#19981;&#33021;&#35775;&#38382;&#23478;&#30446;&#24405;&#22806;&#30340;&#20854;&#20182;&#30446;&#24405;</span>
+chroot_list_enable=YES  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#38145;&#23450;&#21015;&#34920;&#25991;&#20214;&#20013;&#30340;&#29992;&#25143;</span>
+chroot_list_file=/etc/vsftpd/chroot_list
 </pre>
-</div></li>
-<li><p>
+</div></dd>
+<dt>虚拟用户</dt><dd><p>
 虚拟用户会被统一映射到一个指定的系统账号，权限默认为匿名用户权限，虚拟用户可被赋予不同的访问权限
 </p>
 <ul class="org-ul">
 <li>虚拟用户账号列表可存储为一个文件或存储在数据库(使用 <code>pam_mysql</code> 模块)中</li>
-<li>默认用户认证配置文件: /etc/pam.d/vsftpd</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">guest_enable</span>=YES
-<span style="color: #FD971F;">guest_username</span>=vuser  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#34987;&#26144;&#23556;&#30340;&#29992;&#25143;&#21517;</span>
+<pre class="src src-yaml">guest_enable=YES
+guest_username=vuser  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#34987;&#26144;&#23556;&#30340;&#29992;&#25143;&#21517;</span>
 
-<span style="color: #FD971F;">user_config_dir</span>=/etc/vsftpd/vusers_config  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#25143;&#26435;&#38480;&#37197;&#32622;&#30446;&#24405;&#65292;&#35813;&#30446;&#24405;&#19979;&#30340;&#25991;&#20214;&#21517;&#20026;&#29305;&#27530;&#26435;&#38480;&#30340;&#29992;&#25143;&#21517;&#65292;&#37197;&#32622;&#35821;&#21477;&#21644;&#21311;&#21517;&#36134;&#21495;&#26435;&#38480;&#37197;&#32622;&#19968;&#26679;</span>
+user_config_dir=/etc/vsftpd/vusers_config  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#25143;&#26435;&#38480;&#37197;&#32622;&#30446;&#24405;&#65292;&#35813;&#30446;&#24405;&#19979;&#30340;&#25991;&#20214;&#21517;&#20026;&#29305;&#27530;&#26435;&#38480;&#30340;&#29992;&#25143;&#21517;&#65292;&#37197;&#32622;&#35821;&#21477;&#21644;&#21311;&#21517;&#36134;&#21495;&#26435;&#38480;&#37197;&#32622;&#19968;&#26679;</span>
 
-<span style="color: #FD971F;">pam_service_name</span>=vsftpd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;pam&#37197;&#32622;&#25991;&#20214;</span>
+pam_service_name=vsftpd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;pam&#37197;&#32622;&#25991;&#20214;&#65292;&#40664;&#35748;&#20026;/etc/pam.d/vsftpd</span>
 </pre>
-</div></li>
-<li><p>
-控制用户的登录
-</p>
-<div class="org-src-container">
+</div></dd>
+<dt>控制用户的登录</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">userlist_enable</span>=YES  
-<span style="color: #FD971F;">userlist_deny</span>=YES|NO  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35828;&#26126;&#29992;&#25143;&#21015;&#34920;&#25991;&#20214;&#26159;&#40657;&#21517;&#21333;&#36824;&#26159;&#30333;&#21517;&#21333;</span>
-<span style="color: #FD971F;">userlist_file</span>=/etc/vsftpd/user_list
+<pre class="src src-yaml">userlist_enable=YES  
+userlist_deny=YES|NO  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35828;&#26126;&#29992;&#25143;&#21015;&#34920;&#25991;&#20214;&#26159;&#40657;&#21517;&#21333;&#36824;&#26159;&#30333;&#21517;&#21333;</span>
+userlist_file=/etc/vsftpd/user_list
 </pre>
-</div></li>
-<li><p>
-日志
-</p>
-<div class="org-src-container">
+</div></dd>
+<dt>改变上传文件的属主</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">xferlog_enable</span>=YES
-<span style="color: #FD971F;">xferlog_std_format</span>=YES
-<span style="color: #FD971F;">xferlog_file</span>=/var/log/xferlog
+<pre class="src src-yaml">chown_uploads=YES
+chown_username=whoever
 </pre>
-</div></li>
-<li><p>
-改变上传文件的属主
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf"><span style="color: #FD971F;">chown_uploads</span>=YES
-<span style="color: #FD971F;">chown_username</span>=whoever
-</pre>
-</div></li>
-<li><p>
-提示信息
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf"><span style="color: #FD971F;">ftpd_banner</span>=...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30331;&#24405;&#27426;&#36814;&#20449;&#24687;</span>
-<span style="color: #FD971F;">dirmessage_enable</span>=...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36827;&#20837;&#30446;&#24405;&#26102;&#26174;&#31034;&#30446;&#24405;&#19979;&#30340;.message&#30340;&#20449;&#24687;</span>
-</pre>
-</div></li>
-<li><p>
-连接限制
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">max_clients: &#26368;&#22823;&#24182;&#21457;&#36830;&#25509;&#25968;
-max_per_ip: &#27599;&#20010;IP&#21487;&#21516;&#26102;&#21457;&#36215;&#30340;&#24182;&#21457;&#36830;&#25509;&#25968;
-anno_max_rate: &#21311;&#21517;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
-local_max_rate: &#26412;&#22320;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
-</pre>
-</div></li>
-</ul>
+</div></dd>
+</dl>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">lftp</h3>
-<div class="outline-text-3" id="text-orgheadline8">
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">日志</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-yaml">xferlog_enable=YES
+xferlog_std_format=YES
+xferlog_file=/var/log/xferlog
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">连接限制</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #FD971F;">max_clients</span>: &#26368;&#22823;&#24182;&#21457;&#36830;&#25509;&#25968;
+<span style="color: #FD971F;">max_per_ip</span>: &#27599;&#20010;IP&#21487;&#21516;&#26102;&#21457;&#36215;&#30340;&#24182;&#21457;&#36830;&#25509;&#25968;
+<span style="color: #FD971F;">anno_max_rate</span>: &#21311;&#21517;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
+<span style="color: #FD971F;">local_max_rate</span>: &#26412;&#22320;&#29992;&#25143;&#30340;&#26368;&#22823;&#20256;&#36755;&#36895;&#29575;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">lftp</h3>
+<div class="outline-text-3" id="text-orgheadline14">
 <p>
-用于连接ftp服务器(默认21端口)，用于代替ftp程序
+用于连接ftp服务器(默认21端口)，代替ftp程序
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">lftp [-p port] [-u user[,password]] SERVER
-  &#23376;&#21629;&#20196;
-    get: &#33719;&#21462;&#36828;&#31243;&#30340;&#25991;&#20214;
-    mget: &#33719;&#21462;&#36828;&#31243;&#30340;&#22810;&#20010;&#25991;&#20214;
-    ls
-    help
+<pre class="src src-yaml">lftp [-p port] [-u user[,password]] SERVER
 
-lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;lftp&#33719;&#21462;&#19968;&#20010;&#25991;&#20214;</span>
+  <span style="color: #FD971F;">&#23376;&#21629;&#20196;</span>:
+    <span style="color: #FD971F;">get</span>: &#33719;&#21462;&#36828;&#31243;&#30340;&#25991;&#20214;
+    <span style="color: #FD971F;">mget</span>: &#33719;&#21462;&#36828;&#31243;&#30340;&#22810;&#20010;&#25991;&#20214;
+    <span style="color: #FD971F;">ls</span>:
+    <span style="color: #FD971F;">help</span>:
 </pre>
 </div>
-<ul class="org-ul">
-<li>使用匿名账户登录ftp，用户名为ftp</li>
-</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash">lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;lftp&#33719;&#21462;&#19968;&#20010;&#25991;&#20214;</span>
+</pre>
+</div>
+<pre class="example">
+使用匿名账户登录ftp，用户名为ftp
+</pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline14" class="outline-2">
-<h2 id="orgheadline14"><span class="section-number-2">3</span> NFS</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">NFS相关</h3>
-<div class="outline-text-3" id="text-orgheadline10">
+<div id="outline-container-orgheadline20" class="outline-2">
+<h2 id="orgheadline20"><span class="section-number-2">4</span> <span class="todo TODO">TODO</span> NFS</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">NFS相关</h3>
+<div class="outline-text-3" id="text-orgheadline16">
 <ul class="org-ul">
-<li>NFS: Network File System，内核级别的文件共享，通过RPC进行交互
+<li><code>NFS</code>: Network File System，内核级别的文件共享，通过RPC进行交互
 <ul class="org-ul">
 <li>软件名: nfs-utils</li>
 </ul></li>
@@ -283,16 +367,16 @@ lftpget URL  <span style="color: #75715E;"># </span><span style="color: #75715E;
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">运行主要的服务</h3>
-<div class="outline-text-3" id="text-orgheadline11">
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">运行主要的服务</h3>
+<div class="outline-text-3" id="text-orgheadline17">
 <ul class="org-ul">
 <li><p>
 RPC服务进程portmapper(111/tcp)
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">rpcinfo -p [IP]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#20027;&#26426;&#19978;&#27880;&#20876;&#20351;&#29992;&#30340;&#26381;&#21153;</span>
+<pre class="src src-yaml">rpcinfo -p [IP]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#20027;&#26426;&#19978;&#27880;&#20876;&#20351;&#29992;&#30340;&#26381;&#21153;</span>
 </pre>
 </div></li>
 <li>nfs服务进程nfsd(2049/tcp)，基于IP进行认证</li>
@@ -301,24 +385,24 @@ RPC服务进程portmapper(111/tcp)
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">配置NFS</h3>
-<div class="outline-text-3" id="text-orgheadline12">
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">配置NFS</h3>
+<div class="outline-text-3" id="text-orgheadline18">
 <p>
 配置文件: /etc/exports
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">directory  Client1(OPTIONS)  Client2(OPTIONS)
-  Client: IP&#12289;FQDN&#12289;NETWORK
-  OPTIONS: 
-    secure: &#40664;&#35748;&#36873;&#39033;&#65292;&#20351;&#29992;1024&#20197;&#19979;&#30340;TCP/IP&#31471;&#21475;&#26469;&#23454;&#29616;NFS&#30340;&#36830;&#25509;&#12290;&#25351;&#23450;insecure&#21487;&#20197;&#31105;&#29992;&#36825;&#20010;&#36873;&#39033;
-    rw: &#20801;&#35768;&#36827;&#34892;&#35835;/&#20889;&#35775;&#38382;&#65292;&#40664;&#35748;&#20026;&#21482;&#35835;
-    async: &#36825;&#20010;&#36873;&#39033;&#21487;&#20197;&#25913;&#36827;&#24615;&#33021;&#65292;&#20294;&#26159;&#22914;&#26524;&#27809;&#26377;&#23436;&#20840;&#20851;&#38381;NFS&#23432;&#25252;&#36827;&#31243;&#23601;&#37325;&#26032;&#21551;&#21160;&#20102;NFS&#26381;&#21153;&#22120;&#21487;&#33021;&#20250;&#36896;&#25104;&#25968;&#25454;&#20002;&#22833;
+<pre class="src src-yaml">directory  Client1(OPTIONS)  Client2(OPTIONS)
+  <span style="color: #FD971F;">Client</span>: IP&#12289;FQDN&#12289;NETWORK
+  <span style="color: #FD971F;">OPTIONS</span>: 
+    <span style="color: #FD971F;">secure</span>: &#40664;&#35748;&#36873;&#39033;&#65292;&#20351;&#29992;1024&#20197;&#19979;&#30340;TCP/IP&#31471;&#21475;&#26469;&#23454;&#29616;NFS&#30340;&#36830;&#25509;&#12290;&#25351;&#23450;insecure&#21487;&#20197;&#31105;&#29992;&#36825;&#20010;&#36873;&#39033;
+    <span style="color: #FD971F;">rw</span>: &#20801;&#35768;&#36827;&#34892;&#35835;/&#20889;&#35775;&#38382;&#65292;&#40664;&#35748;&#20026;&#21482;&#35835;
+    <span style="color: #FD971F;">async</span>: &#36825;&#20010;&#36873;&#39033;&#21487;&#20197;&#25913;&#36827;&#24615;&#33021;&#65292;&#20294;&#26159;&#22914;&#26524;&#27809;&#26377;&#23436;&#20840;&#20851;&#38381;NFS&#23432;&#25252;&#36827;&#31243;&#23601;&#37325;&#26032;&#21551;&#21160;&#20102;NFS&#26381;&#21153;&#22120;&#21487;&#33021;&#20250;&#36896;&#25104;&#25968;&#25454;&#20002;&#22833;
 
-    no_root_squash: &#36825;&#20010;&#36873;&#39033;&#20801;&#35768;root&#29992;&#25143;&#26412;&#36523;&#25346;&#36733;&#19978;&#26469;&#30340;NFS&#21367;(&#40664;&#35748;root&#20250;&#34987;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;)
-    all_squash: &#25152;&#26377;&#29992;&#25143;&#20250;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;&#26469;&#35775;&#38382;
-    anonuid/anongid: &#23558;&#21311;&#21517;UID&#21644;GID&#20462;&#25913;&#25104;&#29305;&#23450;&#29992;&#25143;&#21644;&#32452;&#24080;&#21495;&#65292;&#40664;&#35748;&#20026;nobody
+    <span style="color: #FD971F;">no_root_squash</span>: &#36825;&#20010;&#36873;&#39033;&#20801;&#35768;root&#29992;&#25143;&#26412;&#36523;&#25346;&#36733;&#19978;&#26469;&#30340;NFS&#21367;(&#40664;&#35748;root&#20250;&#34987;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;)
+    <span style="color: #FD971F;">all_squash</span>: &#25152;&#26377;&#29992;&#25143;&#20250;&#26144;&#23556;&#20026;&#21311;&#21517;&#29992;&#25143;&#26469;&#35775;&#38382;
+    <span style="color: #FD971F;">anonuid/anongid</span>: &#23558;&#21311;&#21517;UID&#21644;GID&#20462;&#25913;&#25104;&#29305;&#23450;&#29992;&#25143;&#21644;&#32452;&#24080;&#21495;&#65292;&#40664;&#35748;&#20026;nobody
 </pre>
 </div>
 <ul class="org-ul">
@@ -327,24 +411,24 @@ RPC服务进程portmapper(111/tcp)
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">exportfs -ar: &#37325;&#26032;&#23548;&#20986;&#25152;&#26377;&#30340;&#25991;&#20214;&#31995;&#32479;
-exportfs -au: &#20851;&#38381;&#23548;&#20986;&#30340;&#25152;&#26377;&#25991;&#20214;&#31995;&#32479;
-exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;&#25991;&#20214;&#31995;&#32479;
+<pre class="src src-yaml"><span style="color: #FD971F;">exportfs -ar</span>: &#37325;&#26032;&#23548;&#20986;&#25152;&#26377;&#30340;&#25991;&#20214;&#31995;&#32479;
+<span style="color: #FD971F;">exportfs -au</span>: &#20851;&#38381;&#23548;&#20986;&#30340;&#25152;&#26377;&#25991;&#20214;&#31995;&#32479;
+<span style="color: #FD971F;">exportfs -u FS</span>: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;&#25991;&#20214;&#31995;&#32479;
 </pre>
 </div></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">相关操作</h3>
-<div class="outline-text-3" id="text-orgheadline13">
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">相关操作</h3>
+<div class="outline-text-3" id="text-orgheadline19">
 <ul class="org-ul">
 <li><p>
 查看NFS服务端共享的文件系统
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">showmount -e IP
+<pre class="src src-yaml">showmount -e IP
 </pre>
 </div></li>
 <li><p>
@@ -352,7 +436,7 @@ exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
+<pre class="src src-yaml">mount -t nfs SERVER:/path/to/sharedfs  /path/to/mount_point
 </pre>
 </div>
 <ul class="org-ul">
@@ -362,12 +446,12 @@ exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-2">
-<h2 id="orgheadline18"><span class="section-number-2">4</span> samba</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15">samba相关</h3>
-<div class="outline-text-3" id="text-orgheadline15">
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">5</span> <span class="todo TODO">TODO</span> samba</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">samba相关</h3>
+<div class="outline-text-3" id="text-orgheadline21">
 <ul class="org-ul">
 <li>samba在Linux实现CIFS(Common Internet File System)协议或smb(Service Message Block)协议，用于解决不同系统之间的文件系统共享问题</li>
 <li>samba监听服务器上的端口: 137/udp, 138/udp, 139/tcp, 445/tcp</li>
@@ -383,9 +467,9 @@ exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16">客户端</h3>
-<div class="outline-text-3" id="text-orgheadline16">
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">客户端</h3>
+<div class="outline-text-3" id="text-orgheadline22">
 <ul class="org-ul">
 <li>samba-client用于Linux连接其他主机的共享目录</li>
 <li>Linux下表示的Windows的UNC路径: //SERVER/shared_name</li>
@@ -394,9 +478,9 @@ exportfs -u FS: &#20851;&#38381;&#25351;&#23450;&#30340;&#23548;&#20986;&#30340;
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">smbclient -L HOST -U USERNAME
-  -L HOST: &#33719;&#21462;&#20027;&#26426;&#19978;&#30340;&#20849;&#20139;&#36164;&#28304;
-  -U USERNAME: &#20351;&#29992;Windows&#19978;&#30340;&#21738;&#20010;&#29992;&#25143;&#36827;&#34892;&#35775;&#38382;
+<pre class="src src-yaml">smbclient -L HOST -U USERNAME
+  <span style="color: #FD971F;">-L HOST</span>: &#33719;&#21462;&#20027;&#26426;&#19978;&#30340;&#20849;&#20139;&#36164;&#28304;
+  <span style="color: #FD971F;">-U USERNAME</span>: &#20351;&#29992;Windows&#19978;&#30340;&#21738;&#20010;&#29992;&#25143;&#36827;&#34892;&#35775;&#38382;
 
 smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25805;&#20316;&#31867;&#20284;ftp</span>
 </pre>
@@ -412,9 +496,9 @@ smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </sp
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-3">
-<h3 id="orgheadline17">服务器</h3>
-<div class="outline-text-3" id="text-orgheadline17">
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">服务器</h3>
+<div class="outline-text-3" id="text-orgheadline23">
 <ul class="org-ul">
 <li>服务脚本smb和nmb分别启动系统中的smbd和nmbd服务，两个服务要同时启动</li>
 <li>主配置文件: /etc/samba/smb.conf
@@ -424,11 +508,11 @@ smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </sp
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">workgroup</span> = WORKGROUP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;windows&#19979;&#30340;&#32452;&#21517;</span>
-<span style="color: #FD971F;">netbios name</span> = MYSERVER  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;NetBIOS&#30340;&#20027;&#26426;&#21517;</span>
+<pre class="src src-yaml">workgroup = WORKGROUP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;windows&#19979;&#30340;&#32452;&#21517;</span>
+netbios name = MYSERVER  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;NetBIOS&#30340;&#20027;&#26426;&#21517;</span>
 
-<span style="color: #FD971F;">interfaces</span> = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#30340;&#22320;&#22336;</span>
-<span style="color: #FD971F;">hosts allow</span> = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;IP&#22320;&#22336;&#30340;&#35775;&#38382;&#25511;&#21046;</span>
+interfaces = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#30340;&#22320;&#22336;</span>
+hosts allow = ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22522;&#20110;IP&#22320;&#22336;&#30340;&#35775;&#38382;&#25511;&#21046;</span>
 </pre>
 </div></li>
 <li>特定共享设定
@@ -440,13 +524,13 @@ smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </sp
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">[<span style="color: #66D9EF;">shared_name</span>]
-    <span style="color: #FD971F;">path</span> = /path/to/share_directory
-    <span style="color: #FD971F;">;comment</span> = Comment String
-    <span style="color: #FD971F;">guest ok</span> = {yes|no}  ; &#26469;&#23486;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
-    <span style="color: #FD971F;">browseable</span> = {yes|no}  ; &#20854;&#20182;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
-    <span style="color: #FD971F;">read only</span> = {yes|no}  ; &#26159;&#21542;&#21482;&#35835;&#65292;&#21516;&#26102;&#20063;&#20381;&#36182;&#31995;&#32479;&#25991;&#20214;&#26412;&#36523;&#26435;&#38480;
-    <span style="color: #FD971F;">write list</span> = +GROUP_NAME  ; &#21738;&#20123;&#29992;&#25143;&#21487;&#20889;
+<pre class="src src-yaml">[shared_name]
+    path = /path/to/share_directory
+    ;comment = Comment String
+    guest ok = {yes|no}  ; &#26469;&#23486;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
+    browseable = {yes|no}  ; &#20854;&#20182;&#29992;&#25143;&#26159;&#21542;&#21487;&#27983;&#35272;
+    read only = {yes|no}  ; &#26159;&#21542;&#21482;&#35835;&#65292;&#21516;&#26102;&#20063;&#20381;&#36182;&#31995;&#32479;&#25991;&#20214;&#26412;&#36523;&#26435;&#38480;
+    write list = +GROUP_NAME  ; &#21738;&#20123;&#29992;&#25143;&#21487;&#20889;
 </pre>
 </div></li>
 </ul></li>
@@ -455,7 +539,7 @@ smbclient //SERVER/shared_name -U USERNAME  <span style="color: #75715E;"># </sp
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">testparm
+<pre class="src src-yaml">testparm
 </pre>
 </div></li>
 </ul></li>
@@ -464,11 +548,11 @@ samba的认证的用户是系统用户，但密码由samba自己的密码文件�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">smbpasswd [OPTIONS] Sys_User  
-  -a: &#28155;&#21152;&#31995;&#32479;&#29992;&#25143;&#20026;samba&#29992;&#25143;
-  -x: &#21024;&#38500;samba&#29992;&#25143;
-  -d: &#31105;&#29992;samba&#29992;&#25143;
-  -e: &#21551;&#29992;samba&#29992;&#25143;
+<pre class="src src-yaml">smbpasswd [OPTIONS] Sys_User  
+  <span style="color: #FD971F;">-a</span>: &#28155;&#21152;&#31995;&#32479;&#29992;&#25143;&#20026;samba&#29992;&#25143;
+  <span style="color: #FD971F;">-x</span>: &#21024;&#38500;samba&#29992;&#25143;
+  <span style="color: #FD971F;">-d</span>: &#31105;&#29992;samba&#29992;&#25143;
+  <span style="color: #FD971F;">-e</span>: &#21551;&#29992;samba&#29992;&#25143;
 </pre>
 </div></li>
 <li>网页服务端设置: samba-swat，该软件基于xinetd运行</li>

@@ -1,0 +1,48 @@
+#+TITLE: TODO OpenStack
+#+DATE: 2016-08-10
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 虚拟化
+#+JEKYLL_TAGS: Linux 虚拟化
+#+JEKYLL_PUBLISHED: true
+
+
+* OpenStack
+- 一般使用一个网域用于控制节点来控制服务器，另一个网域用于服务器间的通讯和与外部的通讯
+** 云计算服务
+- 按照用途分类
+  - 私有云
+  - 公有云
+  - 混合云
+- 按照功能分类
+  - IaaS: Infrastructure as a Service，需要配置应用、环境、安全、数据库
+    - 使用OpenStack、CloudStack
+  - PaaS: Platform as a Service，只需要部署应用
+    - 使用Docker、Openshift
+  - Saas: Software as a Service，直接调用即可
+  - DBaaS: 提供数据库服务
+  - FWaaS: 防火墙服务
+  - NCaaS: 网络连接服务
+** 组件
+
+| 组件名          | 代码名     | 功能                                                               |
+|-----------------+------------+--------------------------------------------------------------------|
+| Compute         | Nova       | 管理VM的整个生命周期，主要职责包括启动、调度VMs                    |
+| Networking      | Netron     | 为Openstack提供NCaaS的功能；插件化设计，支持众多流行的网络管理插件 |
+| Object Storage  | swift      | 分布式存储，基于RESTful的API实现非结构化数据对象的存储及检索       |
+| Block Storage   | Cinder     | 为VMs提供持久的块存储能力                                          |
+| Identity        | Keystone   | 为Openstack中的所有服务提供了认证、授权以及端点编录目录            |
+| Image           | Glance     | 用于存储和检索swift中的磁盘映像文件                                |
+| Dashboard       | Horizon    | WebGUI                                                             |
+| Telemetry       | Ceilometer | 用于实现监控和计量服务的实现                                       |
+| Orachestration  | Heat       | 用于多组件联动，基于模板进行管理                                   |
+| Database        | Trove      | 提供DBaaS服务的实现                                                |
+| Data processing | sahara     | 用于在OpenStack中实现Hadoop的管理                                  |
+** 多结点构架
+两结点构架
+- Controller Node: 管理接口
+- Compute Node: 管理接口，外网接口
+三结点构架
+- Controller Node: 管理接口
+- Network Node: 管理接口，隧道接口
+- Compute Node: 管理接口，隧道接口，外网接口

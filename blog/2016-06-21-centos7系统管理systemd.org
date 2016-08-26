@@ -2,16 +2,12 @@
 #+DATE: 2016-06-21
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 CentOS
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-记录CentOS 7新增的systemd系列命令的特性，以及其使用和配置文件的设置
 
-
-
------
-* 特性
+* systemd的特性
 - 系统引导时实现服务并行启动
 - 按需激活进程和服务
   - 基于socket的激活机制: socket被访问时激活服务
@@ -24,14 +20,14 @@
 * Unit
 进行标识和配置的配置文件，主要包含了系统服务、监听socket、保存的系统快照以及其它与init相关的信息
 - 相关目录
-  - /usr/lib/systemd/system
-  - /etc/systemd/system
-  - /run/systemd/system
+  - =/usr/lib/systemd/system=
+  - =/etc/systemd/system=
+  - =/run/systemd/system=
 - Unit类型
   | Unit类型       | 文件扩展名 | 作用                               |
   |----------------+------------+------------------------------------|
   | Service unit   | .service   | 用于定义系统服务                   |
-  | Target unit    | .target    | 用于模拟实现“运行级别”             |
+  | Target unit    | .target    | 用于模拟实现"运行级别"             |
   | Device unit    | .device    | 用于定义内核识别的设备             |
   | Mount unit     | .mount     | 定义文件系统挂载点                 |
   | Socket unit    | .socket    | 用于标识进程间通信用的socket文件   |
@@ -40,31 +36,30 @@
   | Automount unit | .automount | 文件系统的自动挂载点               |
   | Path unit      | .path      | 用于定义文件系统中的一个文件或目录 |
 * 管理系统服务
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 systemctl COMMAND name[.service]
-  COMMAND
-    start: 启动服务
-    stop: 停止服务
-    restart: 重启或启动服务
-    try-restart: 若服务启动则重启，若服务未启动则不操作
-    reload-or-restart: 重载或重启服务
-    reload-or-try-restart: 重载或条件式重启服务
+  start: 启动服务
+  stop: 停止服务
+  restart: 重启或启动服务
+  try-restart: 若服务启动则重启，若服务未启动则不操作
+  reload-or-restart: 重载或重启服务
+  reload-or-try-restart: 重载或条件式重启服务
 
-    mask: 将服务链接至/dev/null，则服务无法进行开机自启的设定
-    unmask: 取消将服务链接至/dev/null
+  mask: 将服务链接至/dev/null，则服务无法进行开机自启的设定
+  unmask: 取消将服务链接至/dev/null
 
-    enable: 设置服务开机自启动
-    disable: 关闭服务开机自启动
+  enable: 设置服务开机自启动
+  disable: 关闭服务开机自启动
 
-    status: 查询状态和最近状态日志
-    is-active: 查询服务当前是否启用
-    is-enabled: 查询服务是否开机自启
+  status: 查询状态和最近状态日志
+  is-active: 查询服务当前是否启用
+  is-enabled: 查询服务是否开机自启
 
-    list-dependencies: 查询服务的依赖关系
+  list-dependencies: 查询服务的依赖关系
 
-    list-units --type service: 查看所有已经启动的服务的信息
-    list-units --type service --all: 查看所有服务的信息
-    list-unit-files --type service: 查询所有服务的开机自启状态
+  list-units --type service: 查看所有已经启动的服务的信息
+  list-units --type service --all: 查看所有服务的信息
+  list-unit-files --type service: 查询所有服务的开机自启状态
 #+END_SRC
 * Target unit
 ** 运行级别
@@ -78,7 +73,7 @@ systemctl COMMAND name[.service]
 |    5 | runlevel5.target -> graphical.target  |
 |    6 | runlevel6.target -> reboot.target     |
 ** 相关命令
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 systemctl list-units --type target  #  查看当前已装载的target
 
 systemctl isolate name.target  # 切换当前的target文件
@@ -88,7 +83,7 @@ systemctl get-default  # 查看默认运行级别
 systemctl set-default name.target  # 设置默认运行级别，设置/etc/systemd/system/default.target
 #+END_SRC
 * 开关机命令
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 systemctl {halt|poweroff}  # 关机
 systemctl reboot  # 重启
 systemctl suspend  # 挂起

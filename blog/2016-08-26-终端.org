@@ -1,0 +1,56 @@
+#+TITLE: 终端
+#+DATE: 2016-05-17
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Bash
+#+JEKYLL_TAGS: Linux Bash
+#+JEKYLL_PUBLISHED: true
+
+
+* 定义
+终端是用户与主机交互，必然用到的设备
+
+* 终端的类型
+** 物理终端
+直接接入本机的显示器和键盘设备，在刚开机程序还未启动完全的时候会用到
+
+** 虚拟终端
+附加在物理终端之上的以软件方式虚拟实现的终端
+: CentOS 6默认启动6个虚拟终端，使用Ctrl+Alt+F[1,6]切换
+
+** 图形终端(也是虚拟终端一种)
+附加在物理终端之上的以软件方式虚拟实现的终端，但额外会提供桌面环境
+
+** 模拟终端
+图形界面下打开的命令行接口，或者基于ssh协议或telnet协议等远程打开的界面
+
+* 设备文件
+#+BEGIN_SRC bash
+tty  # 查询当前的终端的设备文件
+#+END_SRC
+| 终端类型 | 设备文件     |
+|----------+--------------|
+| 物理终端 | /dev/console |
+| 虚拟终端 | /dev/tty*    |
+| 图形终端 | /dev/tty*    |
+| 模拟终端 | /dev/pts/*   |
+
+* 交互式接口
+** 定义
+启动终端后，在终端设备附加的一个交互式应用程序
+** GUI
+X protocol, window manager, desktop
+** CLI(shell)
+shell程序: sh, csh, tcsh, ksh, bash(GPL), zsh  
+#+BEGIN_SRC bash
+echo ${SHELL}  # 显示当前使用的shell
+cat /etc/shells  # 显示当前系统使用的所有shell
+#+END_SRC
+- 命令提示符 ::
+  - 管理员: #
+  - 普通用户: $
+* 重置终端: reset
+当终端显示出现异常的时候可以重置终端
+#+BEGIN_SRC bash
+reset
+#+END_SRC

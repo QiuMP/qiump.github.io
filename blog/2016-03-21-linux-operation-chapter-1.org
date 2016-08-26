@@ -3,7 +3,7 @@
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 安全
+#+JEKYLL_TAGS: Linux 安全
 #+JEKYLL_PUBLISHED: true
 
 Linux服务器在使用过程中需要注意的几个安全问题

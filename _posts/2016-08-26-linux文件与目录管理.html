@@ -1,0 +1,988 @@
+---
+title: "Linux文件与目录管理"
+date: 2016-05-18
+layout: post
+categories: 
+- Linux管理
+tags: 
+- Linux
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">1. FHS(FileSystem Heirache Standard)</a>
+<ul>
+<li><a href="#orgheadline1">rootfs</a></li>
+<li><a href="#orgheadline2">/etc目录</a></li>
+<li><a href="#orgheadline3">/usr目录</a></li>
+<li><a href="#orgheadline4">/var目录</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline6">2. 应用程序的组成部分</a></li>
+<li><a href="#orgheadline7">3. 文件类型</a></li>
+<li><a href="#orgheadline13">4. 文件属性</a>
+<ul>
+<li><a href="#orgheadline8">文件元数据</a></li>
+<li><a href="#orgheadline9">文件名</a></li>
+<li><a href="#orgheadline10">文件路径</a></li>
+<li><a href="#orgheadline11">文件时间戳</a></li>
+<li><a href="#orgheadline12">文件的类型</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline17">5. 目录切换与查询</a>
+<ul>
+<li><a href="#orgheadline14">cd</a></li>
+<li><a href="#orgheadline15">ls</a></li>
+<li><a href="#orgheadline16">tree</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline25">6. 文件与目录的管理</a>
+<ul>
+<li><a href="#orgheadline18">cp</a></li>
+<li><a href="#orgheadline19">install</a></li>
+<li><a href="#orgheadline20">dd</a></li>
+<li><a href="#orgheadline21">mv</a></li>
+<li><a href="#orgheadline22">rm</a></li>
+<li><a href="#orgheadline23">mkdir, rmdir</a></li>
+<li><a href="#orgheadline24">mktemp</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline29">7. 文件查找</a>
+<ul>
+<li><a href="#orgheadline26">文件查找的类型</a></li>
+<li><a href="#orgheadline27">locate</a></li>
+<li><a href="#orgheadline28">find</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">1</span> FHS(FileSystem Heirache Standard)</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">rootfs</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">目录</th>
+<th scope="col" class="org-left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">/boot</td>
+<td class="org-left">引导文件存放目录，内核文件(vmlinuz)、引导加载器(bootloader, grub)都存放于此目录</td>
+</tr>
+
+<tr>
+<td class="org-left">/bin</td>
+<td class="org-left">供所有用户使用的基本命令；不能关联至独立分区，OS启动即会用到的程序</td>
+</tr>
+
+<tr>
+<td class="org-left">/sbin</td>
+<td class="org-left">管理类的基本命令；不能关联至独立分区，OS启动即会用到的程序</td>
+</tr>
+
+<tr>
+<td class="org-left">/lib</td>
+<td class="org-left">基本共享库文件，以及内核模块文件(/lib/modules)</td>
+</tr>
+
+<tr>
+<td class="org-left">/lib64</td>
+<td class="org-left">专用于x86_64系统上的辅助共享库文件存放位置</td>
+</tr>
+
+<tr>
+<td class="org-left">/etc</td>
+<td class="org-left">配置文件目录(纯文本文件)</td>
+</tr>
+
+<tr>
+<td class="org-left">/home/USERNAME</td>
+<td class="org-left">普通用户家目录</td>
+</tr>
+
+<tr>
+<td class="org-left">/root</td>
+<td class="org-left">管理员的家目录</td>
+</tr>
+
+<tr>
+<td class="org-left">/media</td>
+<td class="org-left">便携式移动设备(cdrom, usb)挂载点</td>
+</tr>
+
+<tr>
+<td class="org-left">/mnt</td>
+<td class="org-left">临时文件系统挂载点</td>
+</tr>
+
+<tr>
+<td class="org-left">/dev</td>
+<td class="org-left">设备文件及特殊文件存储位置</td>
+</tr>
+
+<tr>
+<td class="org-left">/opt</td>
+<td class="org-left">第三方应用程序的安装位置</td>
+</tr>
+
+<tr>
+<td class="org-left">/srv</td>
+<td class="org-left">系统上运行的服务用到的数据</td>
+</tr>
+
+<tr>
+<td class="org-left">/tmp</td>
+<td class="org-left">临时文件存储位置</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr</td>
+<td class="org-left">universal shared、read-only data</td>
+</tr>
+
+<tr>
+<td class="org-left">/var</td>
+<td class="org-left">variable data files</td>
+</tr>
+
+<tr>
+<td class="org-left">/proc</td>
+<td class="org-left">用于输出内核与进程信息相关的虚拟文件系统</td>
+</tr>
+
+<tr>
+<td class="org-left">/sys</td>
+<td class="org-left">用于输出当前系统上硬件设备相关信息的虚拟文件系统</td>
+</tr>
+
+<tr>
+<td class="org-left">/selinux</td>
+<td class="org-left">security enhanced Linux，selinux相关的安全策略等信息的存储位置</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">/etc目录</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">目录</th>
+<th scope="col" class="org-left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">/etc/opt</td>
+<td class="org-left">安装在/opt下的软件配置文件</td>
+</tr>
+
+<tr>
+<td class="org-left">/etc/X11</td>
+<td class="org-left">X Window System的配置文件</td>
+</tr>
+
+<tr>
+<td class="org-left">/etc/xml</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">/etc/sgml</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">/usr目录</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">目录</th>
+<th scope="col" class="org-left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">/usr/bin</td>
+<td class="org-left">保证系统拥有完整功能而提供的应用程序</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/sbin</td>
+<td class="org-left">管理类命令</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/lib</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/lib64</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/include</td>
+<td class="org-left">C程序的头文件(header files)，描述库文件的调用接口</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/share</td>
+<td class="org-left">结构化独立的数据，例如doc, man等</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/src</td>
+<td class="org-left">源代码放置位置</td>
+</tr>
+
+<tr>
+<td class="org-left">/usr/local</td>
+<td class="org-left">第三方应用程序的安装位置，同样包含了bin、sbin、lib、lib64、etc、share等目录</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">/var目录</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">目录</th>
+<th scope="col" class="org-left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">/var/cache</td>
+<td class="org-left">应用程序缓存数据目录</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/lib</td>
+<td class="org-left">应用程序状态信息数据</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/local</td>
+<td class="org-left">专用于为/usr/local下的应用程序存储可变数据</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/lock</td>
+<td class="org-left">锁文件</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/log</td>
+<td class="org-left">日志目录及文件</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/mail</td>
+<td class="org-left">存放邮件</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/opt</td>
+<td class="org-left">专用于为/opt下的应用程序存储可变数据</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/run</td>
+<td class="org-left">运行中的进程相关的数据；通常用于存储进程的pid文件</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/spool</td>
+<td class="org-left">应用程序数据池</td>
+</tr>
+
+<tr>
+<td class="org-left">/var/tmp</td>
+<td class="org-left">保存系统两次重启之间产生的临时数据</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">2</span> 应用程序的组成部分</h2>
+<div class="outline-text-2" id="text-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">文件类型</th>
+<th scope="col" class="org-left">相关文件夹</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">二进制程序</td>
+<td class="org-left">/bin、/sbin、/usr/bin、/usr/sbin、/usr/local/bin、/usr/local/sbin</td>
+</tr>
+
+<tr>
+<td class="org-left">库文件</td>
+<td class="org-left">/lib、/lib64、/usr/lib、/usr/lib64、/usr/local/lib、/usr/local/lib64</td>
+</tr>
+
+<tr>
+<td class="org-left">配置文件</td>
+<td class="org-left">/etc、/etc/DIRECTORY、/usr/local/etc</td>
+</tr>
+
+<tr>
+<td class="org-left">帮助文件</td>
+<td class="org-left">/usr/share/man、/usr/share/doc、/usr/local/share/man、/usr/local/share/doc</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">3</span> 文件类型</h2>
+<div class="outline-text-2" id="text-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">类型字符</th>
+<th scope="col" class="org-left">文件类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">-(f)</td>
+<td class="org-left">普通文件(纯文本文件\二进制文件\数据文件)</td>
+</tr>
+
+<tr>
+<td class="org-left">d</td>
+<td class="org-left">目录</td>
+</tr>
+
+<tr>
+<td class="org-left">l</td>
+<td class="org-left">连接文件，类似windows下快捷方式</td>
+</tr>
+
+<tr>
+<td class="org-left">b</td>
+<td class="org-left">块设备文件(可存储数据，随机访问)</td>
+</tr>
+
+<tr>
+<td class="org-left">c</td>
+<td class="org-left">字符设备文件(鼠标\键盘，线性)</td>
+</tr>
+
+<tr>
+<td class="org-left">s</td>
+<td class="org-left">sockets</td>
+</tr>
+
+<tr>
+<td class="org-left">p</td>
+<td class="org-left">管道(FIFO)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">4</span> 文件属性</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">文件元数据</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+文件有两类数据: 元数据和数据
+</p>
+<ul class="org-ul">
+<li><p>
+元数据: metadata(如索引等)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">stat FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#25351;&#23450;&#25991;&#20214;&#30340;&#20803;&#25968;&#25454;</span>
+</pre>
+</div></li>
+<li>数据: data</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">文件名</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<ul class="org-ul">
+<li>文件名严格区分字符大小写</li>
+<li><p>
+文件名可使用除 <code>/</code> 以外的任意字符，但不建议使用特殊字符
+</p>
+<pre class="example">
+/ 为根目录，同时也是路径分隔符
+</pre></li>
+<li>文件名长度最长不能超过255个字符</li>
+<li>所有.开头的文件，均为隐藏文件</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">文件路径</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<ul class="org-ul">
+<li>绝对路径: 从根目录 <code>/</code> 起始的路径</li>
+<li>相对路径: 从当前位置(working directory)起始的路径</li>
+<li>特殊路径
+<ul class="org-ul">
+<li><code>.</code>: 当前目录</li>
+<li><code>..</code>: 当前目录的上一级目录</li>
+<li><code>-</code>: 上一个工作目录</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">pwd</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">printing working directory</span>
+
+basename PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;PATH&#30340;&#22522;&#21517;</span>
+dirname PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;PATH&#38500;&#22522;&#21517;&#20197;&#22806;&#30340;&#37096;&#20998;</span>
+</pre>
+</div>
+<dl class="org-dl">
+<dt>相关的环境变量</dt><dd><ul class="org-ul">
+<li>PWD: 保存了当前的目录路径</li>
+<li>OLDPWD: 上一次所在目录路径</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">文件时间戳</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<ul class="org-ul">
+<li>access time: 访问时间(atime)，读取文件内容的时间</li>
+<li>modify time: 修改时间(mtime)，改变文件内容(数据)的时间</li>
+<li>change time: 改变时间(ctime)，元数据发生改变(包含时间戳的改变)的时间</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml">touch [OPTION]... FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25913;&#21464;&#25991;&#20214;&#26102;&#38388;&#25139;&#25110;&#21019;&#24314;&#25991;&#20214;</span>
+  <span style="color: #FD971F;">-a</span>: only atime  <span style="color: #75715E;"># </span><span style="color: #75715E;">touch&#40664;&#35748;&#25226;3&#20010;&#26102;&#38388;&#37117;&#25913;&#20026;&#24403;&#21069;&#26102;&#38388;</span>
+  <span style="color: #FD971F;">-m</span>: only mtime
+  <span style="color: #FD971F;">-t [[CC]YY]MMDDhhmm[.ss]</span>: &#25351;&#23450;&#26102;&#38388;
+
+  <span style="color: #FD971F;">-c</span>: &#19981;&#33258;&#21160;&#21019;&#24314;&#31354;&#25991;&#20214;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">文件的类型</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<div class="org-src-container">
+
+<pre class="src src-bash">file FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#25991;&#20214;&#20869;&#23481;&#30340;&#31867;&#22411;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>Linux的可执行文件格式是 ELF binaries</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-2">
+<h2 id="orgheadline17"><span class="section-number-2">5</span> 目录切换与查询</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">cd</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+切换工作目录
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">cd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22238;&#21040;&#24403;&#21069;&#29992;&#25143;&#30340;&#20027;&#30446;&#24405;</span>
+cd ~USERNAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#33267;&#25351;&#23450;&#29992;&#25143;&#30340;&#20027;&#30446;&#24405;</span>
+cd -  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#19978;&#19968;&#20010;&#30446;&#24405;&#21644;&#24403;&#21069;&#30446;&#24405;&#20043;&#38388;&#26469;&#22238;&#20999;&#25442;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">ls</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<p>
+显示指定路径下的文件列表
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ls [OPTION]... [DIR]...
+  <span style="color: #FD971F;">-a, --all</span>: &#26174;&#31034;&#25152;&#26377;&#25991;&#20214;&#65292;&#21253;&#25324;&#38544;&#34255;&#25991;&#20214;
+  <span style="color: #FD971F;">-l</span>: &#38271;&#26684;&#24335;
+  <span style="color: #FD971F;">-d</span>: &#26174;&#31034;&#30446;&#24405;&#33258;&#36523;&#30340;&#30456;&#20851;&#23646;&#24615;&#65292;&#36890;&#24120;&#35201;&#19982;-l&#19968;&#36215;&#20351;&#29992;
+  <span style="color: #FD971F;">-h, --human-readable</span>: &#21333;&#20301;&#25442;&#31639;
+  <span style="color: #FD971F;">-r, --reverse</span>: &#36870;&#24207;&#26174;&#31034;
+  <span style="color: #FD971F;">-R, --recursive</span>: &#36882;&#24402;
+
+  <span style="color: #FD971F;">-Z</span>: &#26174;&#31034;SELinux&#26435;&#38480;
+</pre>
+</div>
+<dl class="org-dl">
+<dt>长格式说明</dt><dd><img src="../images/ls.gif" alt="ls.gif" />
+<ul class="org-ul">
+<li>-rw-r&#x2013;r&#x2013; 最左侧的一位表示文件类型</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">tree</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<p>
+列出目录的层级结构
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">tree /path/to 
+  <span style="color: #FD971F;">-d</span>: &#21482;&#26174;&#31034;&#30446;&#24405;
+  <span style="color: #FD971F;">-L level</span>: &#25351;&#23450;&#26174;&#31034;&#30340;&#23618;&#32423;&#25968;&#30446;
+  <span style="color: #FD971F;">-P pattern</span>: &#21482;&#26174;&#31034;&#30001;&#25351;&#23450;pattern&#21305;&#37197;&#21040;&#30340;&#36335;&#24452;
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-2">
+<h2 id="orgheadline25"><span class="section-number-2">6</span> 文件与目录的管理</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">cp</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<p>
+通过文件接口复制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">cp [OPTION]... SOURCE... DIRECTORY
+cp [OPTION]... -t DIRECTORY SOURCE...
+  <span style="color: #FD971F;">-i</span>: &#20132;&#20114;&#24335;
+  <span style="color: #FD971F;">-r, -R</span>: &#36882;&#24402;&#22797;&#21046;&#30446;&#24405;&#21450;&#20869;&#37096;&#30340;&#25152;&#26377;&#20869;&#23481;
+  <span style="color: #FD971F;">-a</span>: &#24402;&#26723;&#65292;&#30456;&#24403;&#20110;-dr --preserv=all
+    <span style="color: #FD971F;">-d</span>: &#19981;&#36319;&#36394;&#31526;&#21495;&#25991;&#20214;&#38142;&#25509;(&#40664;&#35748;&#20250;&#36319;&#36394;&#22797;&#21046;&#21407;&#25991;&#20214;)
+    <span style="color: #FD971F;">--preserv[=ATTR_LIST]</span>: &#20445;&#30041;&#23646;&#24615;&#65292;&#22914;mode,ownership,timestamp,links,xattr,context,all
+  <span style="color: #FD971F;">-p</span>: &#30456;&#24403;&#20110;--preserv=mode,ownership,timestamp
+  <span style="color: #FD971F;">-v</span>: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
+  <span style="color: #FD971F;">-f</span>: --force
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">cp SRC DEST
+  <span style="color: #FD971F;">&#22914;&#26524;&#30446;&#26631;&#19981;&#23384;&#22312;</span>: &#26032;&#24314;DEST&#65292;&#24182;&#23558;SRC&#20013;&#20869;&#23481;&#22635;&#20805;&#21040;DEST&#20013;
+  <span style="color: #FD971F;">&#22914;&#26524;&#30446;&#26631;&#23384;&#22312;</span>: 
+    <span style="color: #FD971F;">&#22914;&#26524;DEST&#26159;&#25991;&#20214;</span>: &#23558;SRC&#20013;&#30340;&#20869;&#23481;&#35206;&#30422;&#21040;DEST&#20013;(&#20351;&#29992;-i&#20197;&#30830;&#35748;)
+    <span style="color: #FD971F;">&#22914;&#26524;DEST&#26159;&#30446;&#24405;</span>: &#23558;SRC&#22797;&#21046;&#21040;&#35813;&#30446;&#24405;&#19979;
+
+cp SRC... DEST
+  DEST&#24517;&#39035;&#23384;&#22312;&#65292;&#19988;&#20026;&#30446;&#24405;
+
+cp -r &#30446;&#24405;SRC DEST
+  <span style="color: #FD971F;">&#22914;&#26524;&#30446;&#26631;&#19981;&#23384;&#22312;</span>: &#26032;&#24314;DEST&#30446;&#24405;&#65292;&#22797;&#21046;SRC&#20013;&#25152;&#26377;&#25991;&#20214;&#33267;DEST&#20013;
+  <span style="color: #FD971F;">&#22914;&#26524;DEST&#23384;&#22312;&#19988;&#20026;&#30446;&#24405;</span>: &#22312;DEST&#20013;&#21019;&#24314;&#19982;SRC&#21516;&#21517;&#30340;&#30446;&#24405;&#65292;&#22797;&#21046;SRC&#20013;&#30340;&#25152;&#26377;&#25991;&#20214;&#33267;&#35813;&#30446;&#24405;&#20013;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">install</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<p>
+类似于cp，但同时可以更改权限和属主属组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">install <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>-T<span style="color: #AE81FF;">]</span> SOURCE DEST  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;cp</span>
+install <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... SOURCE... DIRECTORY  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;cp</span>
+install <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... -t DIRECTORY SOURCE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;cp</span>
+install <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... -d DIRECTORY...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#30446;&#24405;</span>
+  -m MODE
+  -o OWNER
+  -g GROUP
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">dd</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<p>
+比较底层的复制命令，可用于文件或磁盘的复制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">dd [OPTIONS] if=/PATH/SRC of=/PATH/DEST
+  <span style="color: #FD971F;">bs=NUM</span>: block size, &#22797;&#21046;&#21333;&#20803;&#30340;&#22823;&#23567;
+  <span style="color: #FD971F;">count=NUM</span>: &#22797;&#21046;&#22810;&#23569;&#20010;bs
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">dd <span style="color: #FD971F;">if</span>=/dev/sda <span style="color: #FD971F;">of</span>=/dev/sdb  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22797;&#21046;&#30913;&#30424;</span>
+dd <span style="color: #FD971F;">if</span>=/dev/sda <span style="color: #FD971F;">of</span>=/... <span style="color: #FD971F;">bs</span>=<span style="color: #AE81FF;">512</span> <span style="color: #FD971F;">count</span>=<span style="color: #AE81FF;">1</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22791;&#20221;MBR</span>
+dd <span style="color: #FD971F;">if</span>=/dev/zero <span style="color: #FD971F;">of</span>=/dev/sda <span style="color: #FD971F;">bs</span>=<span style="color: #AE81FF;">256</span> <span style="color: #FD971F;">count</span>=<span style="color: #AE81FF;">1</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30772;&#22351;MBR&#30340;bootloader</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">mv</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<p>
+移动文件或目录，也可以用于重命名
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mv [OPTION]... SOURCE... DIRECTORY
+mv [OPTION]... -t DIRECTORY SOURCE...
+  <span style="color: #FD971F;">-i</span>: &#20132;&#20114;&#24335;
+  <span style="color: #FD971F;">-f</span>: &#24378;&#21046;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">rm</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<p>
+删除文件或目录
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">rm [OPTION]... FILE...
+  <span style="color: #FD971F;">-i</span>: &#20132;&#20114;&#24335;
+  <span style="color: #FD971F;">-f</span>: &#24378;&#21046;&#21024;&#38500;
+  <span style="color: #FD971F;">-r</span>: &#36882;&#24402;&#21024;&#38500;&#30446;&#24405;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">mkdir, rmdir</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-yaml">mkdir [OPTION]... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#30446;&#24405;</span>
+  <span style="color: #FD971F;">-p</span>: &#24403;&#30446;&#24405;&#23384;&#22312;&#26102;&#19981;&#25253;&#38169;&#65292;&#19988;&#21487;&#33258;&#21160;&#21019;&#24314;&#25152;&#38656;&#30340;&#21508;&#30446;&#24405;
+  <span style="color: #FD971F;">-v</span>: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
+  <span style="color: #FD971F;">-m MODE</span>: &#21019;&#24314;&#30446;&#24405;&#26102;&#30452;&#25509;&#25351;&#23450;&#26435;&#38480;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">rmdir [OPTION]... /path/to...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#33021;&#21024;&#38500;&#31354;&#30446;&#24405;</span>
+  <span style="color: #FD971F;">-p</span>: &#23618;&#32423;&#21024;&#38500;&#31354;&#30446;&#24405; 
+  <span style="color: #FD971F;">-v</span>: &#26174;&#31034;&#35814;&#32454;&#20449;&#24687;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">mktemp</h3>
+<div class="outline-text-3" id="text-orgheadline24">
+<p>
+创建临时文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mktemp [OPRIONS] [TEMPLATE]
+  <span style="color: #FD971F;">-d</span>: &#21019;&#24314;&#20020;&#26102;&#30446;&#24405;
+  <span style="color: #FD971F;">-p /PATH/SOMEWHERE</span>: &#25351;&#21517;&#20020;&#26102;&#25991;&#20214;&#30446;&#24405;&#30340;&#20301;&#32622;(&#40664;&#35748;&#20026;&#24403;&#21069;&#30446;&#24405;)
+  <span style="color: #FD971F;">TEMPLATE</span>: &#31867;&#20284;&#20110;filename.XXX(X&#20250;&#34987;&#26367;&#25442;&#25104;&#38543;&#26426;&#23383;&#31526;, &#19988;&#33267;&#23569;&#20986;&#29616;&#19977;&#20010;)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline29" class="outline-2">
+<h2 id="orgheadline29"><span class="section-number-2">7</span> 文件查找</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">文件查找的类型</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+<p>
+文件查找是在文件系统上查找符合条件的文件
+</p>
+<ul class="org-ul">
+<li>非实时的查找(数据库查找): locate</li>
+<li>实时查找: find</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">locate</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+<ul class="org-ul">
+<li>locate依赖于事先构建的索引进行搜索
+<ul class="org-ul">
+<li>索引的构建是在系统较为空闲时自动进行(周期性任务)</li>
+<li>手动更新数据库(<code>updatedb</code>)</li>
+<li>索引构建过程需要遍历整个根文件系统，极消耗资源，小心使用</li>
+</ul></li>
+<li>工作特点
+<ul class="org-ul">
+<li>查找速度快</li>
+<li>模糊查找: 匹配完整的路径</li>
+<li>非实时查找</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash">locate KEYWORD  
+updatedb  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26356;&#26032;&#25968;&#25454;&#24211;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">find</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<p>
+find是个实时查找工具，通过遍历指定路径下的文件系统完成文件查找
+</p>
+<ul class="org-ul">
+<li>工作特点
+<ul class="org-ul">
+<li>查找速度略慢</li>
+<li>精确查找</li>
+<li>实时查找</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml">find [OPTION]... [&#26597;&#25214;&#36335;&#24452;] [&#26597;&#25214;&#26465;&#20214;] [&#22788;&#29702;&#21160;&#20316;]
+  <span style="color: #FD971F;">-Olevel</span>: &#25351;&#23450;&#25628;&#32034;&#30340;&#36335;&#24452;&#28145;&#24230;
+
+  <span style="color: #FD971F;">&#26597;&#25214;&#36335;&#24452;</span>: &#25351;&#23450;&#20855;&#20307;&#30446;&#26631;&#36335;&#24452;(&#40664;&#35748;&#20026;&#24403;&#21069;&#30446;&#24405;)
+  <span style="color: #FD971F;">&#26597;&#25214;&#26465;&#20214;</span>: &#25351;&#23450;&#30340;&#26597;&#25214;&#26631;&#20934;&#65292;&#21487;&#20197;&#25991;&#20214;&#21517;&#12289;&#22823;&#23567;&#12289;&#31867;&#22411;&#12289;&#26435;&#38480;&#31561;&#26631;&#20934;&#36827;&#34892;(&#40664;&#35748;&#20026;&#25214;&#20986;&#25351;&#23450;&#36335;&#24452;&#19979;&#30340;&#25152;&#26377;&#25991;&#20214;)
+  <span style="color: #FD971F;">&#22788;&#29702;&#21160;&#20316;</span>: &#23545;&#31526;&#21512;&#26465;&#20214;&#30340;&#25991;&#20214;&#20570;&#20160;&#20040;&#25805;&#20316;(&#40664;&#35748;&#36755;&#20986;&#33267;&#23631;&#24149;)
+</pre>
+</div>
+<dl class="org-dl">
+<dt>查找条件</dt><dd><ul class="org-ul">
+<li>根据文件名查找
+<ul class="org-ul">
+<li><code>-name 文件名称</code>: 使用glob精确匹配文件名</li>
+<li><code>-iname 文件名称</code>: 不区分字母大小写</li>
+<li><code>-regex PATTERN</code>: 以PATTERN匹配整个文件路径字符串，而不仅仅是文件名称</li>
+</ul></li>
+<li>根据属主/组查找
+<ul class="org-ul">
+<li><code>-user USERNAME</code>: 查找属主为指定用户的文件</li>
+<li><code>-group GROUPNAME</code>: 查找属组为指定组的文件</li>
+<li><code>-uid UID</code>: 查找属主为指定的UID号的文件</li>
+<li><code>-gid GID</code>: 查找属组为指定的GID号的文件</li>
+<li><code>-nouser</code>: 查找没有属主的文件</li>
+<li><code>-nogroup</code>: 查找没有属组的文件</li>
+</ul></li>
+<li>根据文件类型查找
+<ul class="org-ul">
+<li><code>-type TYPE</code>: TYPE可以是f/d/l/s/b/c/p</li>
+</ul></li>
+<li><p>
+根据文件大小查找
+</p>
+<ul class="org-ul">
+<li><code>-size [+|-]NUM[k|M|G]</code></li>
+</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数量</th>
+<th scope="col" class="org-left">范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">NUM</td>
+<td class="org-left">(NUM-1, NUM]</td>
+</tr>
+
+<tr>
+<td class="org-left">-NUM</td>
+<td class="org-left">[0, NUM-1]</td>
+</tr>
+
+<tr>
+<td class="org-left">+NUM</td>
+<td class="org-left">(NUM, oo)</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+根据时间戳，即多少时间之前
+</p>
+<ul class="org-ul">
+<li>以天为单位
+<ul class="org-ul">
+<li><code>-atime [+|-]NUM</code></li>
+<li><code>-mtime [+|-]NUM</code></li>
+<li><code>-ctime [+|-]NUM</code></li>
+</ul></li>
+<li>以分钟为单位
+<ul class="org-ul">
+<li><code>-amin [+|-]NUM</code></li>
+<li><code>-mmin [+|-]NUM</code></li>
+<li><code>-cmin [+|-]NUM</code></li>
+</ul></li>
+</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数量</th>
+<th scope="col" class="org-left">范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">NUM</td>
+<td class="org-left">[NUM, NUM+1)</td>
+</tr>
+
+<tr>
+<td class="org-left">-NUM</td>
+<td class="org-left">[0, NUM)</td>
+</tr>
+
+<tr>
+<td class="org-left">+NUM</td>
+<td class="org-left">[NUM+1,oo]</td>
+</tr>
+</tbody>
+</table></li>
+<li>根据权限查找:
+<ul class="org-ul">
+<li><code>-perm [/|-]MODE</code>
+<ul class="org-ul">
+<li><code>MODE</code>: 精确权限匹配，即MODE中所有位都必须被匹配</li>
+<li><code>-MODE</code>: MODE中所有权限位为1的都必须被匹配</li>
+<li><code>/MODE</code>: MODE中所有权限位为1的有一个被匹配即可</li>
+</ul></li>
+</ul></li>
+<li>组合条件
+<ul class="org-ul">
+<li>与: <code>-a</code> (可省略)</li>
+<li>或: <code>-o</code></li>
+<li>非: <code>-not</code> 、 <code>!</code></li>
+<li>组合条件同时也会将处理动作分开，即处理动作只作用与后半部分的结果。所以最好用括号 <code>\( \)</code> 将查找条件与处理动作分开</li>
+</ul></li>
+</ul></dd>
+<dt>处理动作</dt><dd><ul class="org-ul">
+<li><code>-print</code>: 默认的处理动作，直接将文件名显示至屏幕</li>
+<li><code>-ls</code>: 类似于对查找到的文件执行 <code>ls -l</code> 命令</li>
+<li><code>-fls /path/to/somefile</code>: 查找到的所有文件的长格式信息保存至指定文件中</li>
+<li><code>-delete</code>: 删除查找到的文件，小心操作</li>
+<li><code>-exec COMMAND {} \;</code>: 对查找到的每个文件执行由COMMAND指定的命令</li>
+<li><code>-ok COMMAND {} \;</code>: 对查找到的每个文件执行由COMMAND指定的命令，执行前会交互式要求用户确认
+<ul class="org-ul">
+<li><code>{}</code>: 用于引用查找到的文件名称自身</li>
+</ul></li>
+<li>注意: find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性传递给后面的命令，有些命令不能接受过多参数，可以使用 <code>find | xargs COMMAND</code> 来解决</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>

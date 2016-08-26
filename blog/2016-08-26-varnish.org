@@ -1,0 +1,268 @@
+#+TITLE: Varnish
+#+DATE: 2016-08-04
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 缓存
+#+JEKYLL_PUBLISHED: true
+
+
+* Web Cache
+** 需要缓存服务器的原因
+1. 程序具有局部性
+   - 时间局部性
+   - 空间局部性
+2. 缓存一般以key-value形式进行存储，查询极快
+   - =key=: 对访问路径(URL)做hash计算
+   - =value=: Web Content
+3. 可以加快热点数据的读取
+** 命中率
+=缓存命中率=hit/(hit+miss)=
+- =文档命中率=: 从文档个数进行衡量
+- =字节命中率=: 从内容大小进行衡量
+** 缓存处理
+缓存处理步骤: =接收请求= > =解析请求(提取请求的URL及各种首部)= > =查询缓存= > =新鲜度检测= > =创建响应报文= > =发送响应= > =记录日志=
+- 缓存对象有生命周期，需要定期清理
+- 缓存空间耗尽的清理算法: =LRU= (最近最少使用)
+- 有些对象是不可缓存的，比如用户私有数据
+** 新鲜度检测机制
+- 过期日期 ::
+  - HTTP/1.0: =Expires: 过期日期= (绝对时间，可能会受时间不同步的影响)
+  - HTTP/1.1: =Cache-Control: max-age= (相对时间)
+- 有效性再验证(revalidate) ::
+  - 使用条件式请求首部向服务器端发送请求
+    - =If-Modified-Since=: 基于请求内容的时间戳作验证，最小精确到秒
+    - =If-None-Match=: 匹配文件特征码(Etag)，用于实时验证
+  - 如果原始内容未改变，则仅响应首部(不附带body部分)，响应码 =304= (Not Modified)
+  - 如果原始内容发生改变，则正常响应(返回资源)，响应码 =200= 
+  - 如果原始内容消失，则响应 =404= ，此时缓存中的缓存对象也应该被删除
+** http中缓存相关内容
+http中使用 =Cache-Control= 的值来控制缓存
+- 请求 ::
+  - =no-cache=: 不要返回缓存的对象
+  - =max-age=: 只接受age值小于该值的对象
+  - =min-fresh=: 可接受距离过期的时间大于该值的对象
+  - =max-stale=: 可接受超出过期的时间小于该值的对象
+- 响应 ::
+  - =public=: 可以缓存的公共信息
+  - =private=: 可以缓存的私有信息
+  - =no-cache=: 可以缓存，但每次使用需要验证有效性
+  - =max-age=: 对象的过期时间
+  - =no-store=: 不可缓存
+  - =s-maxage=: 作用于代理服务器上，使得代理服务器与用户客户端的缓存时间不相同
+** 常见的缓存服务开源解决方案
+- =varnish=
+- =squid=
+** CDN
+=CDN= (内容分发网络)本身是一个缓存服务器，同时当缓存内容未命中的时候，会路由至它最近的CDN去获取内容，从而减轻主服务器的压力
+: CDN需要有一个GSLB(全局负载均衡器)来安排路由
+* Varnish的模块
+- 管理进程 ::
+  - 编译VCL并应用新配置
+  - 监控Varnish
+  - 初始化Varnish
+  - 提供命令行接口
+- Child/cache线程 ::
+  - =Acceptor=: 接收新的连接请求
+  - =worker threads=: 处理用户请求
+  - =Expiry=: 清理缓存中的过期对象
+- Shared Memory Log :: 默认为90MB，由计数器和数据组成
+- vcl(Varnish Configuration Language) ::
+  - 缓存策略的配置接口
+  - 基于 =domain= 的类C编程语言
+* Varnish的配置
+** 配置方式
+*** 启动时配置
+使用varnishd命令行进行主程序配置
+  #+BEGIN_SRC yaml
+  varnishd [OPTIONS]
+    -a address[:port],...: 监听端口(默认为6081)
+    -T address[:port]: 管理端口(默认为127.0.0.1:6082)
+
+    -u USER: 运行用户
+    -g GROUP: 运行组
+
+    -s type: 指定Varnish存储对象的方式
+       malloc[,size]: 全部缓存在内存，使用jemalloc库(并行版的malloc)
+       file[,path,size]: key缓存在内存中，value缓存在单个文件中，重启时缓存会失效
+       persistent,path,size: 基于文件的持久存储，不稳定
+
+    -f config_file: 指定VCL配置文件
+    -S secret_file: 进入管理接口的认证密钥
+
+    -p param=value: 配置运行时参数
+    -r param[,param...]: 设定只读参数列表
+  #+END_SRC
+  : CentOS下，命令行参数可以使用 /etc/varnish/varnish.params 文件进行配置
+*** 运行时修改配置
+可在程序运行中用CLI配置运行时参数
+#+BEGIN_SRC yaml
+varnishadm -S /etc/varnish/secret -T IP:PORT  # 交互式管理varnish
+#+END_SRC
+- varnishadm的功能 ::
+  - 设置vcl文件
+  - 设置param
+  - 检查后端服务器
+  - 清理缓存中的缓存对象(ban)
+- 线程参数 ::
+  - =thread_pools=: 线程池个数(默认为2)
+  - =thread_pool_max=: 单线程池内允许启动的最多线程个数
+  - =thread_pool_min=: 单线程池内允许启动的最少线程个数
+  - =thread_pool_timeout=: 多于thread_pool_min的线程空闲此参数指定的时长后即被purge
+*** vcl配置文件
+用于配置缓存系统的缓存机制，也可以在程序运行时生效(编译后使用)
+** VCL
+*** state engine
+各引擎之间存在一定程度上的相关性，前一个engine如果可以有多种下游engine，则上游engine需要用 =return= 指明要转移的下游engine
+*** 编程语言语法
+- =//=, =#=, =/* */= 用于注释
+- =sub $name{ }=: 用于定义子例程
+- 支持 =if-else= 判断语句，但不支持循环
+- 有众多内置的变量，变量的可调用位置与 =state engine= 有密切相关性
+- 使用终止语句指明下一个引擎: =return(action)=
+- =domain= 空间
+- 操作符: ===, ====, =~= (正则匹配), =!=, =&&=, =||=, =+= (支持字符串相加)
+- 变量的赋值
+  #+BEGIN_SRC bash
+  set name=value
+  unset name
+  #+END_SRC
+- 变量的调用
+*** Varnish 3的工作流
+[[../images/varnish3.jpeg]]
+- 缓存命中 :: =vcl_recv= > =vcl_hash= > =vcl_hit= > =vcl_deliver=
+- 强制更新缓存 :: =vcl_recv= > =vcl_hash= > =vcl_hit= > =vcl_pass= > =vcl_fetch= > =vcl_deliver=
+- 缓存未命中 :: =vcl_recv= > =vcl_hash= > =vcl_miss= [ > =vcl_pass= ] > =vcl_fetch= > =vcl_deliver=
+- 不可缓存对象 :: =vcl_recv= > =vcl_pass= > =vcl_fetch= > =vcl_deliver=
+- 未知对象 :: =vcl_recv= > =vcl_pipe=
+- 生成错误页面返回 :: =vcl_error= > =vcl_deliver=
+*** Varnish 4的工作流
+[[../images/varnish4.jpeg]]
+- 增加了 =vcl_purge= > =vcl_synth= ，用于直接清除缓存对象，所对应的清除对象的 =http method= 是 =PURGE= 
+- 将 =vcl_fetch= 分成了三步，用于检测回应报文是否有错误
+  - =vcl_backend_fetch=
+  - =vcl_backend_response=
+  - =vcl_backend_error=: 获取错误后的操作
+- 增加 =vcl_init= ，可以用来定义后端负载均衡
+*** 内置变量
+- client :: 客户端信息
+  - =client.ip=: 客户端IP
+- server :: 缓存服务器自己的信息
+  - =server.ip=
+  - =server.hostname=
+- req :: 客户端发送的请求
+  - =req.http.HEADER=: 调用request报文中http协议的指定的HEADER首部
+    - =req.http.X-Forwarded-For=: 转发IP
+    - =req.http.Auhtorization=: 是否为用户私人信息
+    - =req.http.cookie=
+  - =req.request=: 请求方法
+  - =req.backend_hint=: 设定目标服务器
+- resp :: 发送给客户端的响应
+- bereq :: 发送给后端的请求
+  - =bereq.http.HEADER=: 发往backend server的请求报文的首部
+  - =bereq.request=: 请求方法
+  - =bereq.url=
+  - =bereq.proto=: 版本
+  - =bereq.backend=: 指明要调用的后端主机
+- beresp :: 从后端接收到的响应
+  - =beresp.proto=
+  - =beresp.status=: 后端服务器的响应的状态码
+  - =beresp.reason=: 原因短语
+  - =beresp.backend.ip=
+  - =beresp.backend.name=
+  - =beresp.http.HEADER=: 从backend server响应的报文的首部
+  - =beresp.ttl=: 后端服务器响应的内容的余下的生存时长
+- obj :: 从后端或缓存中获取的对象
+  - =obj.ttl=: 对象的 ttl 值
+  - =obj.hits=: 此对象从缓存中命中的次数
+- storage :: 缓存存储
+*** backend server
+**** 定义backend server
+#+BEGIN_SRC cpp
+backend websrv1 {
+    .host = "172.16.100.68";  
+    .port = "80";
+    .max_connections = ..;  // 设定并发连接的最大数量
+    .probe = {  // 对后端服务器进行健康状态检查
+        .url = "/test1.html";  // 所检查的请求URL
+        .expected_response = 200;  // 期望响应的状态码，默认为200
+    }
+}
+
+sub vcl_recv {
+    if (req.url ~ "(?i)\.(jpg|png|gif)$") {
+        set req.backend_hint = websrv1;  // 设定目标服务器
+    } else {
+        set req.backend_hint = websrv2;
+    }				
+}
+#+END_SRC
+**** 定义负载均衡
+#+BEGIN_SRC cpp
+import directors;
+
+sub vcl_init {  // 在vcl初始化中对负载均衡组进行初始化
+    new mycluster = directors.round_robin();  //对不同资源请求进行轮询
+    mycluster.add_backend(websrv1);
+    mycluster.add_backend(websrv2);
+}
+
+sub vcl_recv {
+	set req.backend_hint = mycluster.backend();  //进行负载均衡
+}
+#+END_SRC
+*** 例子
+- 定义在 =vcl_deliver= 中，向响应给客户端的报文添加一个自定义首部 =X-Cache=
+  #+BEGIN_SRC sh
+  if (obj.hits > 0) {
+      set resp.http.X-Cache = "HIT";
+  } else {
+      set resp.http.X-Cahce = "MISS";
+  }
+  #+END_SRC
+- 定义虚拟主机
+  #+BEGIN_SRC c
+  if (req.http.host == "www.magedu.com") {
+   ...
+  }
+  #+END_SRC
+- 强制对某资源的请求，不检查缓存
+  #+BEGIN_SRC c
+  if (req.url ~ "(?i)^/login" || req.url ~ "(?i)^/admin") { //(?i)不区分大小写
+      return(pass);
+  }
+  #+END_SRC
+- 对特定类型的资源删除其私有的 =cookie= 标识，并强行设定其可以varnish缓存的时长(在 =vcl_backend_response= 中定义)
+  #+BEGIN_SRC c
+  if (beresp.http.cache-control !~ "s-maxage") { 
+      if (bereq.url ~ "(?i)\.jpg$") {
+          set beresp.ttl = 3600s;
+          unset beresp.http.Set-Cookie;
+      }
+      if (bereq.url ~ "(?i)\.css$") {
+          set beresp.ttl = 600s;
+          unset beresp.http.Set-Cookie;
+      } 
+  }
+  #+END_SRC
+- 官方配置示例: [[https://www.varnish-cache.org/trac/wiki/VCLExamples]]
+* Varnish命令行工具
+- 管理和配置Varnish ::  =varnishadm= 
+- 实时显示日志 ::  =varnishlog= (详细), =varnishncsa= (简单)
+- 对日志进行排序 ::  =varnishtop= 
+  #+BEGIN_SRC yaml
+  varnishtop [OPTIONS]
+    -I REGEX: 匹配正则
+    -X REGEX: 排除匹配的正则
+    -C: 忽略字符大小写
+    -d: 显示已有日志
+  #+END_SRC
+- 查看Varnish数据统计 ::  =varnishstat= 
+  #+BEGIN_SRC yaml
+  varnishstat [OPTIONS]
+    -l: 列出所有可以显示的字段
+    -f 字段名: 指定要显示的字段
+      MAIN.sess_sonn: 处理的请求数
+      MAIN.sess_drop: 丢弃的请求数(负载)
+      MAIN.cache_hit: 缓存命中次数
+  #+END_SRC

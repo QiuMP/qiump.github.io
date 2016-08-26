@@ -1,0 +1,99 @@
+---
+title: "TODO Hadoop"
+date: 2016-08-11
+layout: post
+categories: 
+- 服务器
+tags: 
+- Linux 
+- 高性能计算
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 大数据</a></li>
+<li><a href="#orgheadline2">2. MapReduce</a></li>
+<li><a href="#orgheadline3">3. Hadoop</a></li>
+<li><a href="#orgheadline5">4. Hadoop</a>
+<ul>
+<li><a href="#orgheadline4">运行模式</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<pre class="example">
+2003年：The Google File System
+2004年：MapReduce: Simplified Data Processing On Large Cluster
+2006年：BigTable: A Distributed Storage System for Structure Data
+
+HDFS + MapReduce = Hadoop
+HBase: Hadoop Database，是一个列式存储数据库，运行在HDFS之上
+</pre>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 大数据</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>结构化数据：约束</li>
+<li>半结构化数据：有结构但没有约束</li>
+<li>非结构化数据：没有元数据</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> MapReduce</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>map和reduce的处理操作类似于Python的map和reduce函数，具体的过程由程序员所定义
+<ul class="org-ul">
+<li>mapper: 处理或拆分数据，生成结果列表(k-v数据)</li>
+<li>combiner(可选): 初步对mapper生成的结果进行合并处理</li>
+<li>partitioner: 负责将mapper生成的结果根据键发送给对应的reducer，同一个键发往同一个reducer</li>
+<li>reducer: 对mapper生成的结果列表进行合并处理，生成最终结果</li>
+</ul></li>
+<li>可能需要多次MapReduce才能得到最终结果</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> Hadoop</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>HDFS为MapReduce提供了运行框架
+<ul class="org-ul">
+<li>NN(NameNode): 负责存储文件的元数据</li>
+<li>SNN(SecondaryNameNode): 辅助NN定期合并元数据的修改日志到磁盘的fsimage中</li>
+<li>DN(DataNode): 存储文件的内容，通过副本进行高可用，同时作为MapReduce的TaskTracker</li>
+</ul></li>
+<li>Hadoop v1中，MapReduce提供了运行Hadoop程序的环境
+<ul class="org-ul">
+<li>JobTracker: 根据提交的程序，负责调度分配每一个子任务task运行于TaskTracker上，并管理TaskTracker资源</li>
+<li>TaskTracker: 运行JobTracker所分配的任务，可能需要从其他DN获取数据</li>
+</ul></li>
+<li>Hadoop v2中，YARN成为了运行Hadoop的环境
+<ul class="org-ul">
+<li>ResourceManager代替集群管理器</li>
+<li>ApplicationMaster代替一个专用且短暂的JobTracker，即负责调度分配每一个子任务task运行于</li>
+<li>NodeManager代替TaskTracker，周期性报告节点信息</li>
+<li>一个分布式应用程序代替一个MapReduce作业</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">4</span> Hadoop</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">运行模式</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<ul class="org-ul">
+<li>单机模型：测试使用</li>
+<li>伪分布式模型：运行于单机</li>
+<li>分布式模型：集群模型</li>
+</ul>
+</div>
+</div>
+</div>

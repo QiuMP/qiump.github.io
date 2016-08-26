@@ -1,0 +1,1190 @@
+---
+title: "Linux磁盘管理"
+date: 2016-05-20
+layout: post
+categories: 
+- Linux管理
+tags: 
+- Linux
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">1. 设备</a>
+<ul>
+<li><a href="#orgheadline1">设备文件</a></li>
+<li><a href="#orgheadline2">设备号码</a></li>
+<li><a href="#orgheadline3">磁盘设备</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">2. 硬盘分区管理</a>
+<ul>
+<li><a href="#orgheadline5">fdisk</a></li>
+<li><a href="#orgheadline6"><span class="todo TODO">TODO</span> parted</a></li>
+<li><a href="#orgheadline7">更新分区表</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline32">3. 文件系统管理</a>
+<ul>
+<li><a href="#orgheadline12">文件系统</a>
+<ul>
+<li><a href="#orgheadline9">文件系统的类型</a></li>
+<li><a href="#orgheadline10">journal</a></li>
+<li><a href="#orgheadline11">Linux支持的文件系统</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline16">文件系统的创建</a>
+<ul>
+<li><a href="#orgheadline13">mkfs</a></li>
+<li><a href="#orgheadline14">mke2fs</a></li>
+<li><a href="#orgheadline15">mkswap</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline21">文件系统的查询与修改</a>
+<ul>
+<li><a href="#orgheadline17">blkid</a></li>
+<li><a href="#orgheadline18">e2label</a></li>
+<li><a href="#orgheadline19">tune2fs</a></li>
+<li><a href="#orgheadline20">dumpe2fs</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline28">文件系统的挂载</a>
+<ul>
+<li><a href="#orgheadline22">查询已挂载设备</a></li>
+<li><a href="#orgheadline23">挂载</a></li>
+<li><a href="#orgheadline24">卸载</a></li>
+<li><a href="#orgheadline25">交换分区</a></li>
+<li><a href="#orgheadline26">空间占用查询</a></li>
+<li><a href="#orgheadline27">/etc/fstab</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline31">文件系统检测</a>
+<ul>
+<li><a href="#orgheadline29">fsck</a></li>
+<li><a href="#orgheadline30">e2fsck</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline40">4. Ext2</a>
+<ul>
+<li><a href="#orgheadline33">block group</a></li>
+<li><a href="#orgheadline34">data block</a></li>
+<li><a href="#orgheadline35">inodetable</a></li>
+<li><a href="#orgheadline36">Superblock</a></li>
+<li><a href="#orgheadline37">File system Description</a></li>
+<li><a href="#orgheadline38">block bitmap</a></li>
+<li><a href="#orgheadline39">inode bitmap</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline48">5. 文件系统的其他概念</a>
+<ul>
+<li><a href="#orgheadline41">目录</a></li>
+<li><a href="#orgheadline42">文件的写入过程</a></li>
+<li><a href="#orgheadline46">链接文件</a>
+<ul>
+<li><a href="#orgheadline43">硬链接</a></li>
+<li><a href="#orgheadline44">符号链接</a></li>
+<li><a href="#orgheadline45">创建链接文件</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline47">命令sync</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline53">6. RAID</a>
+<ul>
+<li><a href="#orgheadline49">RAID的作用</a></li>
+<li><a href="#orgheadline50">RAID的实现方式</a></li>
+<li><a href="#orgheadline51">RAID级别</a></li>
+<li><a href="#orgheadline52">软件实现RAID</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline61">7. LVM2</a>
+<ul>
+<li><a href="#orgheadline54">LVM</a></li>
+<li><a href="#orgheadline55">设备文件</a></li>
+<li><a href="#orgheadline56">pv管理工具</a></li>
+<li><a href="#orgheadline57">vg管理命令</a></li>
+<li><a href="#orgheadline58">lv管理工具</a></li>
+<li><a href="#orgheadline59">空间调整</a></li>
+<li><a href="#orgheadline60">快照</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline64">8. btrfs文件系统</a>
+<ul>
+<li><a href="#orgheadline62">核心特性</a></li>
+<li><a href="#orgheadline63">文件系统相关命令</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">1</span> 设备</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">设备文件</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+设备文件是关联至一个设备驱动程序，进而能够跟与之对应硬件设备进行通信
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">设备号码</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ul class="org-ul">
+<li>主设备号: major number, 标识设备类型</li>
+<li>次设备号: minor number, 标识同一类型下的不同设备</li>
+<li>UUID: 设备分区号</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">磁盘设备</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<dl class="org-dl">
+<dt>磁盘接口类型</dt><dd><ul class="org-ul">
+<li>并行: IDE, SCSI</li>
+<li>串口: SATA, SAS, USB</li>
+</ul></dd>
+<dt>磁盘设备的设备文件</dt><dd><ul class="org-ul">
+<li>IDE: /dev/hd*</li>
+<li><p>
+SCSI、SATA、SAS、USB: /dev/sd*
+</p>
+<pre class="example">
+不同设备: sda, sdb, ...
+同一设备不同分区: sda1, sda2, ...
+  逻辑分区要从5开始编号
+</pre></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">2</span> 硬盘分区管理</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">fdisk</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+fdisk对一块硬盘最多只能管理15个分区
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">fdisk -l [-u] [device...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#30913;&#30424;&#20998;&#21306;&#20449;&#24687;&#65292;&#40664;&#35748;&#26174;&#31034;&#25152;&#26377;&#20998;&#21306;&#20449;&#24687;</span>
+fdisk device  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31649;&#29702;&#30913;&#30424;&#20998;&#21306; </span>
+  <span style="color: #FD971F;">p</span>: print, &#26174;&#31034;&#24050;&#26377;&#20998;&#21306;
+  <span style="color: #FD971F;">n</span>: new, &#21019;&#24314;
+  <span style="color: #FD971F;">d</span>: delete, &#21024;&#38500;
+  <span style="color: #FD971F;">w</span>: write, &#20889;&#20837;&#30913;&#30424;&#24182;&#36864;&#20986;
+  <span style="color: #FD971F;">q</span>: quit, &#25918;&#24323;&#26356;&#26032;&#24182;&#36864;&#20986;
+  <span style="color: #FD971F;">m</span>: &#33719;&#21462;&#24110;&#21161;
+  <span style="color: #FD971F;">l</span>: &#26174;&#31034;&#20998;&#21306;id&#21015;&#34920;
+  <span style="color: #FD971F;">t</span>: &#35843;&#25972;&#20998;&#21306;id
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6"><span class="todo TODO">TODO</span> parted</h3>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">更新分区表</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+通知内核重新读取分区表
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">partx -a /dev/DEVICE <span style="color: #AE81FF;">[</span>-n M:N<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25195;&#25551;DEVICE&#30340;&#20998;&#21306;&#32534;&#21495;&#20174;M&#21040;N&#30340;&#20998;&#21306;</span>
+kpartx -a /dev/DEVICE
+partprobe <span style="color: #AE81FF;">[</span>/dev/DEVICE<span style="color: #AE81FF;">]</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">CentOS 5</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">cat /proc/partations  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#20869;&#26680;&#26159;&#21542;&#24050;&#32463;&#35782;&#21035;&#26032;&#30340;&#20998;&#21306;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-2">
+<h2 id="orgheadline32"><span class="section-number-2">3</span> 文件系统管理</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">文件系统</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">文件系统的类型</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">类型</th>
+<th scope="col" class="org-left">实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Linux文件系统</td>
+<td class="org-left">ext2、ext3、ext4、xfs、btrfs、reiserfs、jfs</td>
+</tr>
+
+<tr>
+<td class="org-left">交换分区</td>
+<td class="org-left">swap</td>
+</tr>
+
+<tr>
+<td class="org-left">光盘</td>
+<td class="org-left">iso9660</td>
+</tr>
+
+<tr>
+<td class="org-left">Windows</td>
+<td class="org-left">fat32、ntfs</td>
+</tr>
+
+<tr>
+<td class="org-left">Unix</td>
+<td class="org-left">FFS、UFS、JFS2</td>
+</tr>
+
+<tr>
+<td class="org-left">网络文件系统</td>
+<td class="org-left">NFS、CIFS</td>
+</tr>
+
+<tr>
+<td class="org-left">集群文件系统</td>
+<td class="org-left">GFS2、OCFS2</td>
+</tr>
+
+<tr>
+<td class="org-left">分布式文件系统</td>
+<td class="org-left">ceph、moosefs、mogilefs、GlusterFS、Lustre</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">journal</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<p>
+根据文件系统是否支持"journal"功能(用于提升存储出错后修复的速度)，文件系统可分为
+</p>
+<ul class="org-ul">
+<li>日志型文件系统: ext3、ext4、xfs、&#x2026;</li>
+<li>非日志型文件系统: ext2、vfat</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">Linux支持的文件系统</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<p>
+Linux的虚拟文件系统VFS为不同的文件系统统一了接口，提高了文件系统的兼容性
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">cat /proc/filesystem  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21015;&#20986;&#30446;&#21069;&#31995;&#32479;&#25152;&#25903;&#25345;&#30340;&#25991;&#20214;&#31995;&#32479;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">文件系统的创建</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+</div><div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">mkfs</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<p>
+通用格式化分区工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mkfs.FS_TYPE /dev/DEVICE
+mkfs -t FS_TYPE /dev/DEVICE
+  <span style="color: #FD971F;">FS_TYPE</span>: ext4, xfs, btrfs, vfat
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#35774;&#23450;&#21367;&#26631;
+  <span style="color: #FD971F;">-f</span>: &#24378;&#21046;&#21019;&#24314;&#25991;&#20214;&#31995;&#32479;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-4">
+<h4 id="orgheadline14">mke2fs</h4>
+<div class="outline-text-4" id="text-orgheadline14">
+<p>
+ext系列文件系统专用管理工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mke2fs [OPTIONS...] /dev/DEVICE
+  <span style="color: #FD971F;">-t ext2|ext3|ext4</span>: &#25991;&#20214;&#31995;&#32479;&#31867;&#22411;
+  <span style="color: #FD971F;">-j</span>: &#28155;&#21152;&#26085;&#24535;&#65292;&#30456;&#24403;&#20110;-t ext3
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#35774;&#23450;&#21367;&#26631;
+
+  <span style="color: #FD971F;">-b 1024|2048|4096</span>: &#22359;&#22823;&#23567;(&#22914;&#26524;&#23567;&#25991;&#20214;&#36807;&#22810;&#21487;&#20197;&#20351;&#29992;&#36739;&#23567;&#30340;&#22359;)
+  <span style="color: #FD971F;">-i NUM</span>: &#20026;&#25968;&#25454;&#31354;&#38388;&#20013;&#27599;&#22810;&#23569;&#23383;&#33410;&#21019;&#24314;&#19968;&#20010;inode(&#27492;&#22823;&#23567;&#19981;&#24212;&#35813;&#23567;&#20110;block&#30340;&#22823;&#23567;)
+  <span style="color: #FD971F;">-N NUM</span>: &#20026;&#25968;&#25454;&#31354;&#38388;&#21019;&#24314;&#22810;&#23569;&#20010;inode
+  <span style="color: #FD971F;">-m NUM</span>: &#20026;&#31649;&#29702;&#20154;&#21592;&#39044;&#30041;&#30340;&#31354;&#38388;&#21344;&#25454;&#30340;&#30334;&#20998;&#27604;
+
+  <span style="color: #FD971F;">-O [^]FEATURE[,...]</span>: &#21551;&#29992;&#25110;&#20851;&#38381;&#25351;&#23450;&#29305;&#24615;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">mkswap</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<p>
+创建交换分区(分区id为82)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mkswap [OPTIONS] device
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#35774;&#23450;&#21367;&#26631;
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">文件系统的查询与修改</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+</div><div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">blkid</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+<p>
+块设备属性信息查看
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">blkid [OPTION...] [DEVICE]
+  <span style="color: #FD971F;">-U UUID</span>: &#26681;&#25454;&#25351;&#23450;&#30340;UUID&#26469;&#26597;&#25214;&#23545;&#24212;&#30340;&#35774;&#22791;
+  <span style="color: #FD971F;">-L LABEL</span>: &#26681;&#25454;&#25351;&#23450;&#30340;LABEL&#26469;&#26597;&#25214;&#23545;&#24212;&#30340;&#35774;&#22791;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">e2label</h4>
+<div class="outline-text-4" id="text-orgheadline18">
+<p>
+查看或设定ext系列文件系统的LABEL
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">e2label DEVICE [LABEL]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">tune2fs</h4>
+<div class="outline-text-4" id="text-orgheadline19">
+<p>
+重新设定ext系列文件系统的可调整参数的值
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">tune2fs [OPTIONS...] /dev/DEVICE
+  <span style="color: #FD971F;">-l</span>: &#26597;&#30475;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#36229;&#32423;&#22359;&#20449;&#24687;(super block)
+  <span style="color: #FD971F;">-j</span>: &#23558;ext2&#21319;&#32423;&#20026;ext3
+
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#20462;&#25913;&#21367;&#26631;
+  <span style="color: #FD971F;">-U UUID</span>: &#20462;&#25913;UUID&#21495;
+
+  <span style="color: #FD971F;">-m NUM</span>: &#20462;&#39044;&#30041;&#32473;&#31649;&#29702;&#21592;&#30340;&#31354;&#38388;&#30334;&#20998;&#27604;
+
+  <span style="color: #FD971F;">-O [^]FEATURE</span>: &#25991;&#20214;&#31995;&#32479;&#23646;&#24615;&#21551;&#29992;&#25110;&#31105;&#29992;
+  <span style="color: #FD971F;">-o [^]FLAG</span>: &#35843;&#25972;&#25991;&#20214;&#31995;&#32479;&#30340;&#40664;&#35748;&#25346;&#36733;&#36873;&#39033;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-4">
+<h4 id="orgheadline20">dumpe2fs</h4>
+<div class="outline-text-4" id="text-orgheadline20">
+<p>
+查询ext分区的布局信息和超级块信息
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">文件系统的挂载</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+</div><div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">查询已挂载设备</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<div class="org-src-container">
+
+<pre class="src src-bash">cat /proc/mounts  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#20869;&#26680;&#36861;&#36394;&#21040;&#30340;&#24050;&#25346;&#36733;&#30340;&#25152;&#26377;&#35774;&#22791;</span>
+mount  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;&#26597;&#30475;/etc/mtab&#25991;&#20214;&#26597;&#30475;&#31995;&#32479;&#24050;&#25346;&#36733;&#30340;&#25152;&#26377;&#35774;&#22791;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">挂载</h4>
+<div class="outline-text-4" id="text-orgheadline23">
+<p>
+挂载: 额外文件系统与根文件系统某现存的目录(挂载点)建立起关联关系，进而使得此目录做为其它文件访问入口的行为
+</p>
+<ul class="org-ul">
+<li>挂载点下的原有文件在挂载完成后会被临时隐藏</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mount [-fnrsvw] [-t vfstype] [-o options] DEVICE MOUNT_POINT
+  <span style="color: #FD971F;">DEVICE</span>: &#35774;&#22791;&#25991;&#20214;/&#21367;&#26631;/UUID/&#20266;&#25991;&#20214;&#31995;&#32479;&#21517;&#23383;(proc, sysfs, devtmpfs, yamligfs)
+
+  <span style="color: #FD971F;">-t vsftype</span>: &#25351;&#23450;&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#19978;&#30340;&#25991;&#20214;&#31995;&#32479;&#31867;&#22411;&#65292;&#40664;&#35748;&#20250;&#20351;&#29992;blkid&#33258;&#21160;&#21028;&#26029;
+
+  <span style="color: #FD971F;">-r</span>: readonly&#65292;&#21482;&#35835;&#25346;&#36733;
+  <span style="color: #FD971F;">-w</span>: read and write, &#35835;&#20889;&#25346;&#36733;
+
+  <span style="color: #FD971F;">-n</span>: &#19981;&#26356;&#26032;/etc/mtab&#65292;&#20294;&#36824;&#26159;&#20250;&#26356;&#26032;&#21040;/proc/mounts
+  <span style="color: #FD971F;">-a</span>: &#33258;&#21160;&#25346;&#36733;/etc/fstab&#20013;&#25903;&#25345;&#33258;&#21160;&#25346;&#36733;&#30340;&#35774;&#22791;
+
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#20197;&#21367;&#26631;&#25351;&#23450;&#25346;&#36733;&#35774;&#22791;
+  -U <span style="color: #E6DB74;">'UUID'</span>: &#20197;UUID&#25351;&#23450;&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;
+
+  <span style="color: #FD971F;">-B, --bind</span>: &#32465;&#23450;&#30446;&#24405;&#21040;&#21478;&#19968;&#20010;&#30446;&#24405;&#19978;
+
+  <span style="color: #FD971F;">-o options</span>: &#25346;&#36733;&#25991;&#20214;&#31995;&#32479;&#36873;&#39033;
+</pre>
+</div>
+<dl class="org-dl">
+<dt>挂载文件系统选项</dt><dd><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">挂载选项</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">remount</td>
+<td class="org-left">重新挂载</td>
+</tr>
+
+<tr>
+<td class="org-left">async</td>
+<td class="org-left">异步模式</td>
+</tr>
+
+<tr>
+<td class="org-left">sync</td>
+<td class="org-left">同步模式(修改立即写人磁盘)</td>
+</tr>
+
+<tr>
+<td class="org-left">atime/noatime</td>
+<td class="org-left">开关目录和文件的atime的更新</td>
+</tr>
+
+<tr>
+<td class="org-left">diratime/nodiratime</td>
+<td class="org-left">开关目录的atime的更新</td>
+</tr>
+
+<tr>
+<td class="org-left">auto/noauto</td>
+<td class="org-left">是否自动挂载</td>
+</tr>
+
+<tr>
+<td class="org-left">exec/noexec</td>
+<td class="org-left">是否支持将文件系统上应用程序运行为进程</td>
+</tr>
+
+<tr>
+<td class="org-left">dev/nodev</td>
+<td class="org-left">是否支持在此文件系统上使用设备文件</td>
+</tr>
+
+<tr>
+<td class="org-left">suid/nosuid</td>
+<td class="org-left">开关suid的支持</td>
+</tr>
+
+<tr>
+<td class="org-left">ro/rw</td>
+<td class="org-left">只读/读写</td>
+</tr>
+
+<tr>
+<td class="org-left">user/nouser</td>
+<td class="org-left">是否允许普通用户挂载此设备(默认只能由root挂载)</td>
+</tr>
+
+<tr>
+<td class="org-left">acl</td>
+<td class="org-left">启用此文件系统上的acl功能</td>
+</tr>
+
+<tr>
+<td class="org-left">defaults</td>
+<td class="org-left">相当于rw,suid,dev,exec,auto,nouser,async</td>
+</tr>
+</tbody>
+</table></dd>
+
+<dt>挂载光盘</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">mount -r /dev/cdrom MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25346;&#36733;&#20809;&#30424;&#35774;&#22791;</span>
+mount -r -t iso9660 /PATH/*.iso MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25346;&#36733;&#20809;&#30424;&#25991;&#20214;</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">卸载</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<p>
+卸载: 解除挂载关联关系的过程，但进程正在使用中的设备无法被卸载
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">umount DEVICE/MOUNT_POINT
+</pre>
+</div>
+<dl class="org-dl">
+<dt>检查访问文件系统的进程</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">fuser -v MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#27491;&#35775;&#38382;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#30340;&#36827;&#31243;</span>
+fuser -km MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#25152;&#26377;&#27491;&#35775;&#38382;&#25351;&#23450;&#25991;&#20214;&#31995;&#32479;&#30340;&#36827;&#31243;</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">交换分区</h4>
+<div class="outline-text-4" id="text-orgheadline25">
+<div class="org-src-container">
+
+<pre class="src src-yaml">swapon [OPTION] [DEVICE]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#29992;&#20132;&#25442;&#20998;&#21306;</span>
+  <span style="color: #FD971F;">-a</span>: &#28608;&#27963;&#25152;&#26377;&#20132;&#25442;&#20998;&#21306;&#65292;&#19981;&#29992;&#25351;&#23450;DEVICE
+  <span style="color: #FD971F;">-p PRIORITY</span>: &#25351;&#23450;&#20132;&#25442;&#20998;&#21306;&#30340;&#20248;&#20808;&#32423;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">swapoff [OPTION] [DEVICE]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#38381;&#20132;&#25442;&#20998;&#21306;</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">free [OPTION]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#20869;&#23384;&#31354;&#38388;&#20351;&#29992;&#29366;&#24577;</span>
+  <span style="color: #FD971F;">-m</span>: &#20197;MB&#20026;&#21333;&#20301;
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#30495;&#27491;&#30340;&#20869;&#23384;&#20351;&#29992;=used-buffers-cached</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">空间占用查询</h4>
+<div class="outline-text-4" id="text-orgheadline26">
+<div class="org-src-container">
+
+<pre class="src src-yaml">df [OPTIONS]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25991;&#20214;&#31995;&#32479;&#31354;&#38388;&#21344;&#29992;&#20449;&#24687;</span>
+  <span style="color: #FD971F;">-l</span>: &#21482;&#26174;&#31034;&#26412;&#22320;&#25991;&#20214;&#31995;&#32479;&#20998;&#21306;
+  <span style="color: #FD971F;">-h</span>: human-readable
+  <span style="color: #FD971F;">-i</span>: &#26174;&#31034;inodes&#30340;&#20351;&#29992;&#24773;&#20917;
+  <span style="color: #FD971F;">-P</span>: &#20197;Posix&#20860;&#23481;&#30340;&#26684;&#24335;&#36755;&#20986;&#65292;&#26041;&#20415;&#20110;&#25991;&#23383;&#22788;&#29702;&#24037;&#20855;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">du [OPTIONS] DIR  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#26576;&#30446;&#24405;&#31354;&#38388;&#21344;&#29992;&#20449;&#24687; </span>
+  <span style="color: #FD971F;">-h</span>: human-readabel
+  <span style="color: #FD971F;">-s</span>: &#21482;&#26174;&#31034;&#25351;&#23450;&#30446;&#24405;
+</pre>
+</div>
+<pre class="example">
+df是通过元数据来统计，会计算一些正使用但已经被删除的文件
+du不会记录一些正使用但已经被删除的文件
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline27" class="outline-4">
+<h4 id="orgheadline27">/etc/fstab</h4>
+<div class="outline-text-4" id="text-orgheadline27">
+<p>
+<code>/etc/fstab</code> 是文件挂载的配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#25991;&#20214;&#27599;&#34892;&#23450;&#20041;&#19968;&#20010;&#35201;&#25346;&#36733;&#30340;&#25991;&#20214;&#31995;&#32479;</span>
+&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#25110;&#20266;&#25991;&#20214;&#31995;&#32479;  &#25346;&#36733;&#28857;  &#25991;&#20214;&#31995;&#32479;&#31867;&#22411;  &#25346;&#36733;&#36873;&#39033;  &#22791;&#20221;&#39057;&#29575;  &#33258;&#26816;&#27425;&#24207;
+  <span style="color: #FD971F;">&#35201;&#25346;&#36733;&#30340;&#35774;&#22791;&#25110;&#20266;&#25991;&#20214;&#31995;&#32479;</span>: 
+    &#35774;&#22791;&#25991;&#20214;&#12289;LABEL(LABEL=<span style="color: #E6DB74;">""</span>)&#12289;UUID(UUID=<span style="color: #E6DB74;">""</span>)&#12289;&#20266;&#25991;&#20214;&#31995;&#32479;&#21517;&#31216;(proc, sysfs)
+  <span style="color: #FD971F;">&#25346;&#36733;&#36873;&#39033;</span>: 
+    defaults ...
+  <span style="color: #FD971F;">&#22791;&#20221;&#39057;&#29575;</span>: 
+    <span style="color: #FD971F;">0</span>: &#19981;&#20570;&#22791;&#20221;
+    <span style="color: #FD971F;">1</span>: &#27599;&#22825;&#22791;&#20221;
+    <span style="color: #FD971F;">2</span>: &#27599;&#38548;&#19968;&#22825;&#22791;&#20221;
+  <span style="color: #FD971F;">&#33258;&#26816;&#27425;&#24207;</span>: 
+    <span style="color: #FD971F;">0</span>: &#19981;&#33258;&#26816;
+    <span style="color: #FD971F;">NUM</span>: &#33258;&#26816;&#30340;&#20248;&#20808;&#32423;&#65292;&#19968;&#33324;&#21482;&#26377;rootfs&#25165;&#29992;1
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">文件系统检测</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+</div><div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29">fsck</h4>
+<div class="outline-text-4" id="text-orgheadline29">
+<p>
+File System Check
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">fsck.FS_TYPE [OPTIONS...] DEVICE
+fsck -t FS_TYPE [OPTIONS...] DEVICE
+  <span style="color: #FD971F;">-a</span>: &#33258;&#21160;&#20462;&#22797;&#38169;&#35823;
+  <span style="color: #FD971F;">-r</span>: &#20132;&#20114;&#24335;&#20462;&#22797;&#38169;&#35823;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline30" class="outline-4">
+<h4 id="orgheadline30">e2fsck</h4>
+<div class="outline-text-4" id="text-orgheadline30">
+<p>
+ext文件系统专用的检测修复工具
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">e2fsck [OPTIONS...] DEVICE
+  <span style="color: #FD971F;">-y</span>: &#33258;&#21160;&#20462;&#22797;&#38169;&#35823;
+  <span style="color: #FD971F;">-f</span>: &#24378;&#21046;&#20462;&#22797;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline40" class="outline-2">
+<h2 id="orgheadline40"><span class="section-number-2">4</span> Ext2</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33">block group</h3>
+<div class="outline-text-3" id="text-orgheadline33">
+<p>
+Ext2区分为多个block group，每个块组都有独立的inode/block/superblock系统
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">data block</h3>
+<div class="outline-text-3" id="text-orgheadline34">
+<p>
+用于放置文件数据块的地方
+</p>
+<ul class="org-ul">
+<li>Ext2文件系统支持block大小有1KB、2KB、4KB</li>
+<li>每个block最多只能放置一个文件的数据</li>
+<li>block太大会造成空间浪费，太小造成性能下降</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="orgheadline35">inodetable</h3>
+<div class="outline-text-3" id="text-orgheadline35">
+<p>
+存储文件的inode
+</p>
+<ul class="org-ul">
+<li>inode记录的文件数据: 该文件的访问模式、所有者与组、大小、ctime/atime/mtime、flag、内容指向</li>
+<li>inode大小: Ext3是128bytes，Ext4是256bytes</li>
+<li>能够创建的文件数量与inode的数量有关</li>
+<li>读取文件会先验证inode记录的权限与用户</li>
+<li>inode记录一个block需要4byte</li>
+<li>Ext3由12直接\1间接\1双间接\1三间接组成，因此文件大小有上限
+<ul class="org-ul">
+<li>间接是使用一个block来记录block号码</li>
+</ul></li>
+<li>Ext4使用extent存储连续的数据块，因此文件大小没有上限</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36">Superblock</h3>
+<div class="outline-text-3" id="text-orgheadline36">
+<p>
+Superblock记录的信息: block/inode的总量、未使用的inode/block数量、block与inode的大小、文件系统挂载时间、最近写数据时间、最近fsck时间等相关信息
+</p>
+<ul class="org-ul">
+<li>superblock一般为1024bytes( <code>dumpe2fs</code> 可查询)</li>
+<li>validbit: 被挂载时这个位为0，未挂载时为1</li>
+<li>superblock一般只位于第一个block group中，后续若存在则为第一个的备份</li>
+<li>当block为1KB，superblock位于block1，boot sector位于block0(第一个扇区)</li>
+<li>当block为2/4KB，superblock和boot sector都位于block0</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">File system Description</h3>
+<div class="outline-text-3" id="text-orgheadline37">
+<p>
+记录每个block group的开始和结束的block号码, 以及说明每个区段的block号码(dumpe2fs可查询)
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">block bitmap</h3>
+<div class="outline-text-3" id="text-orgheadline38">
+<p>
+记录使用与未使用的block号码
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">inode bitmap</h3>
+<div class="outline-text-3" id="text-orgheadline39">
+<p>
+记录使用与未使用的inode号码
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline48" class="outline-2">
+<h2 id="orgheadline48"><span class="section-number-2">5</span> 文件系统的其他概念</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline41" class="outline-3">
+<h3 id="orgheadline41">目录</h3>
+<div class="outline-text-3" id="text-orgheadline41">
+<p>
+目录占用一个inode和至少一个block
+</p>
+<ul class="org-ul">
+<li>inode记录目录的相关权限属性和block号码</li>
+<li>block记录目录下文件名和对应的inode号码</li>
+<li>目录树读取，需要一层一层目录检验用户的权限</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline42" class="outline-3">
+<h3 id="orgheadline42">文件的写入过程</h3>
+<div class="outline-text-3" id="text-orgheadline42">
+<ol class="org-ol">
+<li>确定是否有权限</li>
+<li>由inode bitmap找到一个没有使用的inode，写入新文件的权限/属性</li>
+<li>由block bitmap找到没有使用的block，写入数据后更新inode的指向</li>
+<li>同步更新至inode/block bitmap、superblock</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline46" class="outline-3">
+<h3 id="orgheadline46">链接文件</h3>
+<div class="outline-text-3" id="text-orgheadline46">
+</div><div id="outline-container-orgheadline43" class="outline-4">
+<h4 id="orgheadline43">硬链接</h4>
+<div class="outline-text-4" id="text-orgheadline43">
+<ul class="org-ul">
+<li>硬链接是指向同一个inode的多个不同目录</li>
+<li>创建文件的硬链接即为为inode创建新的引用路径，因此会增加其引用计数</li>
+<li>删除硬链接时，会减少该inode的引用计数，若引用计数为0则删除该文件</li>
+<li>不能够对目录进行(但 <code>.</code> 和 <code>..</code> 也算是目录的硬链接)</li>
+<li>不能跨分区进行</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline44" class="outline-4">
+<h4 id="orgheadline44">符号链接</h4>
+<div class="outline-text-4" id="text-orgheadline44">
+<ul class="org-ul">
+<li>符号链接是利用block记录另一个文件的路径，其大小为指向的路径字符串的长度</li>
+<li>符号链接不增加或减少目标文件inode的引用计数</li>
+<li>可以对目录进行</li>
+<li>可以跨分区</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline45" class="outline-4">
+<h4 id="orgheadline45">创建链接文件</h4>
+<div class="outline-text-4" id="text-orgheadline45">
+<div class="org-src-container">
+
+<pre class="src src-yaml">ln [-sv] SRC DEST  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21019;&#24314;&#30828;&#38142;&#25509;</span>
+  <span style="color: #FD971F;">-s</span>: &#21019;&#24314;&#31526;&#21495;&#38142;&#25509;
+  <span style="color: #FD971F;">-v</span>: verbose
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline47" class="outline-3">
+<h3 id="orgheadline47">命令sync</h3>
+<div class="outline-text-3" id="text-orgheadline47">
+<p>
+手动将磁盘缓存写入磁盘中
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline53" class="outline-2">
+<h2 id="orgheadline53"><span class="section-number-2">6</span> RAID</h2>
+<div class="outline-text-2" id="text-6">
+<pre class="example">
+RAID: Redundant Arrays of Independent Disks
+</pre>
+</div>
+<div id="outline-container-orgheadline49" class="outline-3">
+<h3 id="orgheadline49">RAID的作用</h3>
+<div class="outline-text-3" id="text-orgheadline49">
+<ul class="org-ul">
+<li>提高IO能力
+<ul class="org-ul">
+<li>磁盘并行读写</li>
+<li>额外提供CPU、内存、电源</li>
+</ul></li>
+<li>提高耐用性
+<ul class="org-ul">
+<li>磁盘冗余实现</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline50" class="outline-3">
+<h3 id="orgheadline50">RAID的实现方式</h3>
+<div class="outline-text-3" id="text-orgheadline50">
+<ul class="org-ul">
+<li>外接式磁盘阵列: 通过扩展卡提供适配能力</li>
+<li>内接式RAID: 主板集成RAID控制器</li>
+<li>Software RAID: 软件模拟RAID</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline51" class="outline-3">
+<h3 id="orgheadline51">RAID级别</h3>
+<div class="outline-text-3" id="text-orgheadline51">
+<dl class="org-dl">
+<dt>RAID-0</dt><dd><ul class="org-ul">
+<li>将数据分成若干chunk，分散到每个硬盘中</li>
+<li>读、写性能提升</li>
+<li>可用空间: N*min(S1,S2,&#x2026;)</li>
+<li>无容错能力</li>
+</ul></dd>
+<dt>RAID-1</dt><dd><ul class="org-ul">
+<li>将数据分成若干chunk，复制到每个硬盘中</li>
+<li>读性能提升、写性能略下降</li>
+<li>1*min(S1,S2,&#x2026;)</li>
+<li>有冗余能力</li>
+</ul></dd>
+<dt>RAID-4</dt><dd><ul class="org-ul">
+<li>3个硬盘中1个硬盘存储校验码</li>
+<li>有容错能力: 1块硬盘</li>
+</ul></dd>
+<dt>RAID-5</dt><dd><ul class="org-ul">
+<li>在RAID-4的基础上，轮流用硬盘存储校验码</li>
+<li>读、写性能提升</li>
+<li>可用空间: (N-1)*min(S1,S2,&#x2026;)</li>
+<li>有容错能力: 1块硬盘</li>
+<li>最少使用3块硬盘</li>
+</ul></dd>
+<dt>RAID-6</dt><dd><ul class="org-ul">
+<li>轮流用两块硬盘做校验盘</li>
+<li>读、写性能提升</li>
+<li>可用空间: (N-2)*min(S1,S2,&#x2026;)</li>
+<li>有容错能力: 2块硬盘</li>
+<li>最少使用4块硬盘</li>
+</ul></dd>
+<dt>RAID-10</dt><dd><ul class="org-ul">
+<li>先两两一组进行RAID-1，后用RAID-0</li>
+<li>读、写性能提升</li>
+<li>可用空间: N*min(S1,S2,&#x2026;)/2</li>
+<li>有容错能力: 每组镜像最多只能坏一块</li>
+<li>最少硬盘数: 4, 4+</li>
+</ul></dd>
+<dt>JBOD</dt><dd><ul class="org-ul">
+<li>JBOD: Just a Bunch Of Disks</li>
+<li>将多块硬盘的空间合并一个大的连续空间使用，即顺序使用</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline52" class="outline-3">
+<h3 id="orgheadline52">软件实现RAID</h3>
+<div class="outline-text-3" id="text-orgheadline52">
+<p>
+mdadm: 模式化工具，使用内核中的md模块(multi devices)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">mdadm [mode] &lt;raiddevice&gt; [options] &lt;component-devices&gt;
+  <span style="color: #FD971F;">mode</span>:
+    <span style="color: #FD971F;">&#21019;&#24314;</span>: -C
+    <span style="color: #FD971F;">&#35013;&#37197;</span>: -A
+    <span style="color: #FD971F;">&#30417;&#25511;</span>: -F
+    <span style="color: #FD971F;">&#31649;&#29702;</span>: -f, -r, -a
+  <span style="color: #FD971F;">&lt;raiddevice&gt;</span>: /dev/md[num]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#21551;&#21487;&#33021;&#20250;&#25913;&#21464;</span>
+  <span style="color: #FD971F;">&lt;component-devices&gt;</span>: &#20219;&#24847;&#22359;&#35774;&#22791;(id&#20026;fd)
+
+  <span style="color: #FD971F;">-C</span>: &#21019;&#24314;&#27169;&#24335;
+    <span style="color: #FD971F;">-n num</span>: &#20351;&#29992;num&#20010;&#22359;&#35774;&#22791;&#26469;&#21019;&#24314;&#27492;RAID
+    <span style="color: #FD971F;">-l num</span>: &#25351;&#26126;&#35201;&#21019;&#24314;&#30340;RAID&#30340;&#32423;&#21035;
+    <span style="color: #FD971F;">-a {yes|no}</span>: &#33258;&#21160;&#21019;&#24314;&#30446;&#26631;RAID&#35774;&#22791;&#30340;&#35774;&#22791;&#25991;&#20214;
+    <span style="color: #FD971F;">-c CHUNK_SIZE</span>: &#25351;&#26126;&#22359;&#22823;&#23567;
+    <span style="color: #FD971F;">-x num</span>: &#25351;&#26126;&#31354;&#38386;&#30424;&#30340;&#20010;&#25968;
+  <span style="color: #FD971F;">-S</span>: &#20572;&#27490;md&#35774;&#22791;
+  <span style="color: #FD971F;">-D</span>: &#26174;&#31034;RAID&#30340;&#35814;&#32454;&#20449;&#24687;
+
+  &#31649;&#29702;&#27169;&#24335;
+    <span style="color: #FD971F;">-f</span>: &#26631;&#35760;&#25351;&#23450;&#30913;&#30424;&#20026;&#25439;&#22351;
+    <span style="color: #FD971F;">-a</span>: &#28155;&#21152;&#30913;&#30424;
+    <span style="color: #FD971F;">-r</span>: &#31227;&#38500;&#30913;&#30424;
+</pre>
+</div>
+<ul class="org-ul">
+<li>可以查询 <code>/proc/mdstat</code> 来查询电脑的RAID情况</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline61" class="outline-2">
+<h2 id="orgheadline61"><span class="section-number-2">7</span> LVM2</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-orgheadline54" class="outline-3">
+<h3 id="orgheadline54">LVM</h3>
+<div class="outline-text-3" id="text-orgheadline54">
+<p>
+LVM: Logical Volume Manager, 使用内核中的dm模块(device mapper)
+</p>
+
+
+<div class="figure">
+<p><img src="../images/LVM.png" alt="LVM.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline55" class="outline-3">
+<h3 id="orgheadline55">设备文件</h3>
+<div class="outline-text-3" id="text-orgheadline55">
+<ul class="org-ul">
+<li>实际文件: /dev/dm-*</li>
+<li>链接文件
+<ul class="org-ul">
+<li>/dev/mapper/VG_NAME-LV_NAME</li>
+<li>/dev/VG_NAME/LV_NAME</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline56" class="outline-3">
+<h3 id="orgheadline56">pv管理工具</h3>
+<div class="outline-text-3" id="text-orgheadline56">
+<p>
+pv: Physical Volume
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">pvs  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31616;&#35201;&#26174;&#31034;&#31995;&#32479;&#19978;&#30446;&#21069;&#30340;pv&#20449;&#24687;</span>
+pvdisplay  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;pv&#30340;&#35814;&#32454;&#20449;&#24687;</span>
+
+pvcreate /dev/DEVICE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;pv</span>
+pvremove /dev/DEVICE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;pv</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#30340;&#30913;&#30424;&#35774;&#22791;&#25991;&#20214;id&#24212;&#20026;8e</span>
+
+pvmove /dev/DEVICE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#31227;&#21160;&#35774;&#22791;&#19978;&#36793;&#30340;&#25968;&#25454;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline57" class="outline-3">
+<h3 id="orgheadline57">vg管理命令</h3>
+<div class="outline-text-3" id="text-orgheadline57">
+<p>
+vg: Volume Group
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">vgs
+vgdisplay
+
+vgcreate <span style="color: #AE81FF;">[</span>-s PE_Size<span style="color: #66D9EF;">(</span>&#40664;&#35748;4MB<span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">]</span> VolumeGroupName PhysicalDevicePath...  
+vgextend VolumeGroupName PhysicalDevicePath...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;vg&#20013;&#30340;pv</span>
+vgreduce VolumeGroupName PhysicalDevicePath...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;vg&#20013;&#30340;pv</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">vgreduce&#20043;&#21069;&#35201;&#23545;pv&#20808;&#20570;pvmove&#65292;&#31227;&#21160;&#19978;&#36793;&#30340;&#25968;&#25454;</span>
+vgremove VolumeGroupName  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;vg</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline58" class="outline-3">
+<h3 id="orgheadline58">lv管理工具</h3>
+<div class="outline-text-3" id="text-orgheadline58">
+<p>
+lv: Logical Volume
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">lvs
+lvdisplay
+
+lvcreate -L LV_Size -n NAME VolumeGroupName
+lvremove /dev/VG_NAME/LV_NAME
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline59" class="outline-3">
+<h3 id="orgheadline59">空间调整</h3>
+<div class="outline-text-3" id="text-orgheadline59">
+<p>
+LVM的空间调整是通过调整PE(Physical Extent)的分配来进行调整的
+</p>
+
+<dl class="org-dl">
+<dt>逻辑卷的扩展</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">umount /dev/VG_NAME/LV_NAME
+lvextend -L <span style="color: #AE81FF;">[</span>+<span style="color: #AE81FF;">]</span>SIZE /dev/VG_NAME/LV_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#36923;&#36753;&#21367;&#30340;&#29289;&#29702;&#36793;&#30028;</span>
+resize2fs /dev/VG_NAME/LV_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#36923;&#36753;&#21367;&#30340;&#36923;&#36753;&#36793;&#30028;</span>
+</pre>
+</div></dd>
+
+<dt>逻辑卷的缩减</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">umount /dev/VG_NAME/LV_NAME
+e2fsck -f /dev/VG_NAME/LV_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24378;&#21046;&#26816;&#27979;&#20462;&#22797;</span>
+resize2fs /dev/VG_NAME/LV_NAME SIZE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#36923;&#36753;&#36793;&#30028;</span>
+lvreduce -L <span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">]</span>SIZE /dev/VG_NAME/LV_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#29289;&#29702;&#36793;&#30028;</span>
+mount /dev/VG_NAME/LV_NAME
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline60" class="outline-3">
+<h3 id="orgheadline60">快照</h3>
+<div class="outline-text-3" id="text-orgheadline60">
+<p>
+快照卷仅存储创建快照卷以后逻辑卷所变化的文件，快照是特殊的逻辑卷
+</p>
+<ul class="org-ul">
+<li>快照卷经常用于对逻辑卷的备份的过程中</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-yaml">lvcreate -L SIZE -p r -s -n snapshot_lv_name original_lv_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#24555;&#29031;</span>
+  <span style="color: #FD971F;">-p r</span>: &#24555;&#29031;&#21367;&#26159;&#21482;&#35835;&#26435;&#38480;
+  <span style="color: #FD971F;">-s</span>: &#34920;&#31034;&#21019;&#24314;&#24555;&#29031;
+
+lvremove snapshot_lv_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#24555;&#29031;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline64" class="outline-2">
+<h2 id="orgheadline64"><span class="section-number-2">8</span> btrfs文件系统</h2>
+<div class="outline-text-2" id="text-8">
+<pre class="example">
+Btrfs: B-tree FS
+</pre>
+</div>
+<div id="outline-container-orgheadline62" class="outline-3">
+<h3 id="orgheadline62">核心特性</h3>
+<div class="outline-text-3" id="text-orgheadline62">
+<ul class="org-ul">
+<li>多物理卷支持: btrfs可由多个底层物理卷组成；支持RAID，可以联机添加、移除、修改</li>
+<li>写时复制更机制(CoW): 每次写磁盘数据时，先将更新数据写入一个新的block，当新数据写入成功之后，再更新相关的数据结构指向新block</li>
+<li>数据及元数据校验码: checksum</li>
+<li>子卷: sub_volume</li>
+<li>快照: 支持快照的快照</li>
+<li>透明压缩</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline63" class="outline-3">
+<h3 id="orgheadline63">文件系统相关命令</h3>
+<div class="outline-text-3" id="text-orgheadline63">
+<div class="org-src-container">
+
+<pre class="src src-yaml">mkfs.btrfs [OPTIONS] [DEVICE...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#25991;&#20214;&#31995;&#32479;</span>
+  -L <span style="color: #E6DB74;">'LABEL'</span>: &#35774;&#23450;&#21367;&#26631;
+
+  <span style="color: #FD971F;">-d &lt;type&gt;</span>: &#25968;&#25454;&#23384;&#25918;&#26426;&#21046;, &#21487;&#20026;raid0, raid1, raid5, raid6, raid10, single
+  <span style="color: #FD971F;">-m &lt;profile&gt;</span>: &#20803;&#25968;&#25454;&#23384;&#25918;&#26426;&#21046;, &#21487;&#20026;raid0, raid1, raid5, raid6, raid10, single, dup
+
+  <span style="color: #FD971F;">-O &lt;feature&gt;</span>: &#35774;&#23450;&#35774;&#22791;&#29305;&#24615;
+  <span style="color: #FD971F;">-O list-all</span>: &#21015;&#20986;&#25903;&#25345;&#30340;&#25152;&#26377;feature
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">btrfs filesystem show <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23646;&#24615;&#26597;&#30475;</span>
+btrfs filesystem df <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;&#31354;&#38388;&#21344;&#29992;&#24773;&#20917;</span>
+btrfs filesystem resize <span style="color: #AE81FF;">[</span>+/-<span style="color: #AE81FF;">]</span>SIZE/max DEVICE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35843;&#25972;&#25991;&#20214;&#31995;&#32479;&#30340;&#22823;&#23567;</span>
+
+btrfs device add/delete DEVICE PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#28155;&#21152;&#21644;&#21024;&#38500;&#35774;&#22791;</span>
+btrfs balance start PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24179;&#22343;&#20998;&#37197;&#35774;&#22791;&#19978;&#30340;&#25968;&#25454;</span>
+
+btrfs subvolume list <span style="color: #AE81FF;">[</span>PATH<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#23376;&#21367;</span>
+btrfs subvolume create/delete PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22312;&#25346;&#36733;&#30340;&#30446;&#24405;&#19979;&#21019;&#24314;&#25110;&#21024;&#38500;&#23376;&#21367;&#25110;&#24555;&#29031;, &#21363;&#23376;&#21367;&#26159;DEVICE&#25346;&#36733;&#30446;&#24405;&#19979;&#30340;&#19968;&#20010;&#30446;&#24405;</span>
+btrfs subvolume snapshot sub_volume PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23545;&#23376;&#21367;&#21019;&#24314;&#24555;&#29031;PATH</span>
+mount -o <span style="color: #FD971F;">subvol</span>=logs DEVICE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#25346;&#36733;DEVICE&#19979;&#21517;&#23383;&#20026;logs&#30340;&#23376;&#21367;</span>
+mount -o <span style="color: #FD971F;">subvolid</span>=NUM DEVICE  
+
+btrfs-convert <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36716;&#25442;ext&#31995;&#32479;&#30340;&#35774;&#22791;&#20026;btrfs</span>
+btrfs-convert -r <span style="color: #AE81FF;">[</span>DEVICE<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24674;&#22797;btrfs&#30340;&#36716;&#25442;</span>
+
+cp --reflink FILE1 PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23545;&#25991;&#20214;&#21019;&#24314;&#24555;&#29031;</span>
+
+mount -o <span style="color: #FD971F;">compress</span>=<span style="color: #AE81FF;">{</span>lzo|zlib<span style="color: #AE81FF;">}</span> DEVICE MOUNT_POINT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36879;&#26126;&#21387;&#32553;&#26426;&#21046;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>

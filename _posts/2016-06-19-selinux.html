@@ -3,10 +3,9 @@ title: "SELinux"
 date: 2016-06-19
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
 - Linux 
-- 运维 
 - 安全
 published: true
 comments: 
@@ -15,95 +14,79 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline6">1. SELinux相关内容</a>
-<ul>
-<li><a href="#orgheadline1">访问控制的类型</a></li>
-<li><a href="#orgheadline2">SELinux的工作级别</a></li>
-<li><a href="#orgheadline3">SELinux的安全标签</a></li>
-<li><a href="#orgheadline4">SELinux规则库</a></li>
-<li><a href="#orgheadline5">SELinux日志</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline11">2. 配置SELinux</a>
-<ul>
-<li><a href="#orgheadline7">SELinux状态</a></li>
-<li><a href="#orgheadline8">更改文件标签</a></li>
-<li><a href="#orgheadline9">设定布尔型规则</a></li>
-<li><a href="#orgheadline10"><span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</a></li>
-</ul>
-</li>
+<li><a href="#orgheadline1">1. SELinux作用</a></li>
+<li><a href="#orgheadline2">2. 访问控制的类型</a></li>
+<li><a href="#orgheadline3">3. SELinux的工作级别</a></li>
+<li><a href="#orgheadline4">4. SELinux的安全标签</a></li>
+<li><a href="#orgheadline5">5. SELinux规则库</a></li>
+<li><a href="#orgheadline6">6. SELinux日志</a></li>
+<li><a href="#orgheadline7">7. SELinux状态</a></li>
+<li><a href="#orgheadline8">8. 更改文件标签</a></li>
+<li><a href="#orgheadline9">9. 设定布尔型规则</a></li>
+<li><a href="#orgheadline10">10. <span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</a></li>
 </ul>
 </div>
 </div>
-<p>
-简单记录了SELinux相关的内容，以及如何去配置SELinux
-</p>
 
 
-
-
-<hr  />
-<div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6"><span class="section-number-2">1</span> SELinux相关内容</h2>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> SELinux作用</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>SELinux: Secure Enhanced Linux
-<ul class="org-ul">
-<li>通过为每个进程设定sandbox，来限制进程的访问范围</li>
-</ul></li>
-</ul>
+<p>
+<code>Secure Enhanced Linux</code>: 通过为每个进程设定sandbox，来限制进程的访问范围
+</p>
+</div>
 </div>
 
-<div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">访问控制的类型</h3>
-<div class="outline-text-3" id="text-orgheadline1">
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 访问控制的类型</h2>
+<div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li>DAC: 自主访问控制</li>
-<li>MAC: 强制访问控制，限制进程的访问权限</li>
+<li><code>DAC</code>: 自主访问控制，如权限管理等</li>
+<li><code>MAC</code>: 强制访问控制，限制进程的访问权限</li>
 <li>SELinux是一种MAC模式</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">SELinux的工作级别</h3>
-<div class="outline-text-3" id="text-orgheadline2">
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> SELinux的工作级别</h2>
+<div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li>strict: 每个进程都受到selinux的控制</li>
-<li>targeted: 仅有限个进程受到selinux控制，只监控容易被入侵的进程</li>
+<li><code>strict</code>: 每个进程都受到selinux的控制</li>
+<li><code>targeted</code>: 仅有限个进程受到selinux控制，只监控容易被入侵的进程</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline3" class="outline-3">
-<h3 id="orgheadline3">SELinux的安全标签</h3>
-<div class="outline-text-3" id="text-orgheadline3">
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> SELinux的安全标签</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+SELinux为每个文件提供了安全标签，也为进程提供了安全标签
+</p>
+<dl class="org-dl">
+<dt>标签内容</dt><dd><code>user:role:type</code>
 <ul class="org-ul">
-<li>SELinux为每个文件提供了安全标签，也为进程提供了安全标签
-<ul class="org-ul">
-<li>标签内容为 <code>user:role:type</code>
-<ul class="org-ul">
-<li>user: SELinux的user</li>
-<li>role: 角色</li>
-<li>type: 对文件来说是类型，对进程来说是域</li>
-</ul></li>
-</ul></li>
-</ul>
+<li><code>user</code>: SELinux的user</li>
+<li><code>role</code>: 角色</li>
+<li><code>type</code>: 对文件来说是 <code>类型</code> ，对进程来说是 <code>域</code></li>
+</ul></dd>
+<dt>查询方法</dt><dd><div class="org-src-container">
 
-<div class="org-src-container">
-
-<pre class="src src-conf">ls -Z FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25991;&#20214;&#30340;&#23433;&#20840;&#26631;&#31614;</span>
+<pre class="src src-bash">ls -Z FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25991;&#20214;&#30340;&#23433;&#20840;&#26631;&#31614;</span>
 ps auxZ FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#31243;&#24207;&#30340;&#23433;&#20840;&#26631;&#31614;</span>
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 
-<div id="outline-container-orgheadline4" class="outline-3">
-<h3 id="orgheadline4">SELinux规则库</h3>
-<div class="outline-text-3" id="text-orgheadline4">
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> SELinux规则库</h2>
+<div class="outline-text-2" id="text-5">
 <p>
-规则: 定义哪种域能访问哪些类型的文件
+规则用于定义哪种 <code>域</code> 能访问哪些 <code>类型</code> 的文件
 </p>
 <ul class="org-ul">
 <li>若进程访问规则没有允许访问的类型的文件，则会拒绝访问并记录到日志中</li>
@@ -112,34 +95,29 @@ ps auxZ FILE  <span style="color: #75715E;"># </span><span style="color: #75715E
 </div>
 </div>
 
-<div id="outline-container-orgheadline5" class="outline-3">
-<h3 id="orgheadline5">SELinux日志</h3>
-<div class="outline-text-3" id="text-orgheadline5">
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> SELinux日志</h2>
+<div class="outline-text-2" id="text-6">
 <p>
 SELinux日志位置在 <code>/var/log/audit/audit.log</code>
 </p>
 </div>
 </div>
-</div>
 
-
-<div id="outline-container-orgheadline11" class="outline-2">
-<h2 id="orgheadline11"><span class="section-number-2">2</span> 配置SELinux</h2>
-<div class="outline-text-2" id="text-2">
-</div><div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">SELinux状态</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> SELinux状态</h2>
+<div class="outline-text-2" id="text-7">
 <ul class="org-ul">
-<li>enforcing: 强制，每个受限的进程都必然受限</li>
-<li>permissive: 启用，每个受限的进程违规操作不会被禁止，但会被记录于审计日志</li>
-<li>disabled: 关闭，启用后需要重启系统</li>
+<li><code>enforcing</code>: 强制，每个受限的进程都必然受限</li>
+<li><code>permissive</code>: 启用，每个受限的进程违规操作不会被禁止，但会被记录于审计日志</li>
+<li><code>disabled</code>: 关闭，启用后需要重启系统</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-conf">getenforce  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24403;&#21069;SELinux&#30340;&#29366;&#24577;</span>
+<pre class="src src-yaml">getenforce  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24403;&#21069;SELinux&#30340;&#29366;&#24577;</span>
 setenforce 0|1  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26242;&#26102;&#35774;&#32622;&#24403;&#21069;SELinux&#30340;&#29366;&#24577;</span>
-  0: permissive
-  1: enforcing
+  <span style="color: #FD971F;">0</span>: permissive
+  <span style="color: #FD971F;">1</span>: enforcing
 </pre>
 </div>
 <ul class="org-ul">
@@ -147,43 +125,44 @@ setenforce 0|1  <span style="color: #75715E;"># </span><span style="color: #7571
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8">更改文件标签</h3>
-<div class="outline-text-3" id="text-orgheadline8">
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">8</span> 更改文件标签</h2>
+<div class="outline-text-2" id="text-8">
 <ul class="org-ul">
-<li>文件标签一般只改TYPE</li>
-</ul>
+<li><p>
+文件标签一般只改TYPE
+</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">chcon [OPTION]... CONTEXT FILE...
+<pre class="src src-yaml">chcon [OPTION]... CONTEXT FILE...
 chcon [OPTION]... [-u USER] [-r ROLE] [-t TYPE] FILE...
-<span style="color: #FD971F;">chcon [OPTION]... --reference</span>=RFILE FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26356;&#25913;&#25104;&#20854;&#20182;&#25991;&#20214;&#30340;SELinux</span>
-  -R: &#36882;&#24402;
+chcon [OPTION]... --reference=RFILE FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26356;&#25913;&#25104;&#20854;&#20182;&#25991;&#20214;&#30340;SELinux</span>
+  <span style="color: #FD971F;">-R</span>: &#36882;&#24402;
 </pre>
-</div>
-<ul class="org-ul">
-<li>还原文件的默认标签</li>
+</div></li>
+<li><p>
+还原文件的默认标签
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">restorecon [-R] FILE
+</pre>
+</div></li>
 </ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">9</span> 设定布尔型规则</h2>
+<div class="outline-text-2" id="text-9">
 <div class="org-src-container">
 
-<pre class="src src-conf">restorecon [-R] FILE
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">设定布尔型规则</h3>
-<div class="outline-text-3" id="text-orgheadline9">
-<div class="org-src-container">
-
-<pre class="src src-conf">getsebool [-a] [boolean]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24067;&#23572;&#22411;&#35268;&#21017;</span>
+<pre class="src src-yaml">getsebool [-a] [boolean]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33719;&#21462;&#24067;&#23572;&#22411;&#35268;&#21017;</span>
 setsebool [-P] boolean value
-  -P: &#23558;&#35268;&#21017;&#20889;&#20837;&#37197;&#32622;&#25991;&#20214;
+  <span style="color: #FD971F;">-P</span>: &#23558;&#35268;&#21017;&#20889;&#20837;&#37197;&#32622;&#25991;&#20214;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10"><span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</h3>
-</div>
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10"><span class="section-number-2">10</span> <span class="todo TODO">TODO</span> 使用semanage设置文件夹文件默认标签</h2>
 </div>

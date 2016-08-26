@@ -1,12 +1,11 @@
 ---
-title: "Linux防火墙iptables"
+title: "防火墙iptables"
 date: 2016-07-16
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
 - Linux 
-- 运维 
 - 安全
 published: true
 comments: 
@@ -30,12 +29,12 @@ comments:
 <ul>
 <li><a href="#orgheadline9">定义规则的法则</a></li>
 <li><a href="#orgheadline10">规则的组成部分</a></li>
-<li><a href="#orgheadline11">规则和链有计数器</a></li>
+<li><a href="#orgheadline11">规则和链的计数器</a></li>
 </ul>
 </li>
 <li><a href="#orgheadline38">5. iptables命令</a>
 <ul>
-<li><a href="#orgheadline13">table</a></li>
+<li><a href="#orgheadline13">命令的使用</a></li>
 <li><a href="#orgheadline14">链管理</a></li>
 <li><a href="#orgheadline15">规则管理</a></li>
 <li><a href="#orgheadline16">规则查看</a></li>
@@ -72,25 +71,20 @@ comments:
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline39">6. 补充</a></li>
+<li><a href="#orgheadline39">6. <span class="todo TODO">TODO</span> layer7</a></li>
 </ul>
 </div>
 </div>
-<p>
-TODO
-</p>
 
 
-
-
-<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
 <h2 id="orgheadline1"><span class="section-number-2">1</span> 防火墙</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-Firewall: 防火墙工作于主机或网络的边缘，对于进出本主机或网络的报文根据事先定义好的检查规则作匹配检测，对于能够被规则所匹配到的报文做出相应处理的组件
+防火墙(Firewall)工作于主机或网络的边缘，对于进出本主机或网络的报文根据事先定义好的检查规则作匹配检测，对于能够被规则所匹配到的报文做出相应处理
 </p>
-<ul class="org-ul">
+<dl class="org-dl">
+<dt>防火墙的种类</dt><dd><ul class="org-ul">
 <li>主机防火墙: 服务器本身</li>
 <li>网络防火墙: 网络中转</li>
 <li>IPS: IDS检测到入侵行为的时候通知Firewall，Firewall自动生成应对的规则
@@ -98,15 +92,16 @@ Firewall: 防火墙工作于主机或网络的边缘，对于进出本主机或�
 <li>HIDS(主机)、NIDS(网络)</li>
 <li>honeypot: 用于诱捕入侵者的服务器</li>
 </ul></li>
-</ul>
+</ul></dd>
+</dl>
 </div>
 </div>
 <div id="outline-container-orgheadline2" class="outline-2">
 <h2 id="orgheadline2"><span class="section-number-2">2</span> iptables的组成</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li>framework: netfilter，内核TCP/IP所实现的网络过滤器框架，通过在报文的经过路线(五条链)上添加 <code>hooks function</code> 实现</li>
-<li>rule utils: iptables，负责对 <code>hooks function</code> 的规则进行设置，是一个规则管理的命令行工具，工作在用户空间上</li>
+<li><code>netfilter</code>: 内核TCP/IP所实现的网络过滤器框架，通过在报文的经过路线(五条链)上添加 <code>hooks function</code> 实现</li>
+<li><code>iptables</code>: 负责对 <code>hooks function</code> 的规则进行设置，是一个规则管理的命令行工具，工作在用户空间上</li>
 </ul>
 </div>
 </div>
@@ -116,58 +111,151 @@ Firewall: 防火墙工作于主机或网络的边缘，对于进出本主机或�
 </div><div id="outline-container-orgheadline3" class="outline-3">
 <h3 id="orgheadline3">表(table)</h3>
 <div class="outline-text-3" id="text-orgheadline3">
-<p>
-iptables的表即是iptables的功能
-</p>
-<ul class="org-ul">
-<li>filter: 过滤，防火墙</li>
-<li>nat: network address translation，网络地址转换</li>
-<li>mangle：拆解报文，做出修改，封装报文</li>
-<li>raw：关闭nat表上启用的连接追踪机制(使用历史访问记录功能)</li>
-</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">表名</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">filter</td>
+<td class="org-left">过滤，防火墙</td>
+</tr>
+
+<tr>
+<td class="org-left">nat</td>
+<td class="org-left">network address translation，网络地址转换</td>
+</tr>
+
+<tr>
+<td class="org-left">mangle</td>
+<td class="org-left">拆解报文，做出修改，封装报文</td>
+</tr>
+
+<tr>
+<td class="org-left">raw</td>
+<td class="org-left">关闭nat表上启用的连接追踪机制(即历史访问记录功能)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="outline-container-orgheadline4" class="outline-3">
 <h3 id="orgheadline4">链(chain)</h3>
 <div class="outline-text-3" id="text-orgheadline4">
-<ul class="org-ul">
-<li>PREROUTING: 报文刚进入主机时，判断其目标主机</li>
-<li>INPUT: 报文要到达内部端口前</li>
-<li>FORWARD: 路由机制内</li>
-<li>OUTPUT: 报文刚从内部端口发送时</li>
-<li>POSTROUTING: 报文准备发送出主机前，判断经由哪个接口发出</li>
-</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">链名</th>
+<th scope="col" class="org-left">调用时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">PREROUTING</td>
+<td class="org-left">报文刚进入主机时，判断其目标主机</td>
+</tr>
+
+<tr>
+<td class="org-left">INPUT</td>
+<td class="org-left">报文要到达内部端口前</td>
+</tr>
+
+<tr>
+<td class="org-left">FORWARD</td>
+<td class="org-left">路由机制内</td>
+</tr>
+
+<tr>
+<td class="org-left">OUTPUT</td>
+<td class="org-left">报文刚从内部端口发送时</td>
+</tr>
+
+<tr>
+<td class="org-left">POSTROUTING</td>
+<td class="org-left">报文准备发送出主机前，判断经由哪个接口发出</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="outline-container-orgheadline5" class="outline-3">
 <h3 id="orgheadline5">报文的线路</h3>
 <div class="outline-text-3" id="text-orgheadline5">
-<ul class="org-ul">
-<li>流入本机: PREROUTING &#x2013;&gt; INPUT</li>
-<li>本机发出: OUTPUT &#x2013;&gt; POSTROUTING</li>
-<li>通过本机转发(网络防火墙): PREROUTING &#x2013;&gt; FORWARD &#x2013;&gt; POSTROUTING
-<ul class="org-ul">
-<li>要开启内核的转发功能</li>
-</ul></li>
-</ul>
+<dl class="org-dl">
+<dt>流入本机</dt><dd><code>PREROUTING</code> &gt; <code>INPUT</code></dd>
+<dt>本机发出</dt><dd><code>OUTPUT</code> &gt; <code>POSTROUTING</code></dd>
+<dt>通过本机转发(网络防火墙)</dt><dd><p>
+<code>PREROUTING</code> &gt; <code>FORWARD</code> &gt; <code>POSTROUTING</code>
+</p>
+<pre class="example">
+需要开启内核的转发功能
+</pre></dd>
+</dl>
 </div>
 </div>
 <div id="outline-container-orgheadline6" class="outline-3">
 <h3 id="orgheadline6">链上的表实现</h3>
 <div class="outline-text-3" id="text-orgheadline6">
-<ul class="org-ul">
-<li>filter：INPUT, FORWARD, OUTPUT</li>
-<li>nat: PREROUTING(DNAT), INPUT, OUTPUT, POSTROUTING(SNAT)</li>
-<li>mangle：PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING</li>
-<li>raw：PREROUTING, OUTPUT</li>
-</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">表名</th>
+<th scope="col" class="org-left">实现该表的链</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">filter</td>
+<td class="org-left"><code>INPUT</code>, <code>FORWARD</code>, <code>OUTPUT</code></td>
+</tr>
+
+<tr>
+<td class="org-left">nat</td>
+<td class="org-left"><code>PREROUTING(DNAT)</code>, <code>INPUT</code>, <code>OUTPUT</code>, <code>POSTROUTING(SNAT)</code></td>
+</tr>
+
+<tr>
+<td class="org-left">mangle</td>
+<td class="org-left"><code>PREROUTING</code>, <code>INPUT</code>, <code>FORWARD</code>, <code>OUTPUT</code>, <code>POSTROUTING</code></td>
+</tr>
+
+<tr>
+<td class="org-left">raw</td>
+<td class="org-left"><code>PREROUTING</code>, <code>OUTPUT</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="outline-container-orgheadline7" class="outline-3">
 <h3 id="orgheadline7">表的优先级次序</h3>
 <div class="outline-text-3" id="text-orgheadline7">
 <p>
-raw &#x2013;&gt; mangle &#x2013;&gt; nat &#x2013;&gt; filter
+<code>raw</code> &gt; <code>mangle</code> &gt; <code>nat</code> &gt; <code>filter</code>
 </p>
 </div>
 </div>
@@ -180,32 +268,32 @@ raw &#x2013;&gt; mangle &#x2013;&gt; nat &#x2013;&gt; filter
 <h3 id="orgheadline9">定义规则的法则</h3>
 <div class="outline-text-3" id="text-orgheadline9">
 <p>
-链上规则的次序，即为检查的次序，因此
+链上规则的顺序，即为检查的顺序，因此
 </p>
-<ol class="org-ol">
+<ul class="org-ul">
 <li>同类规则(访问同一应用)，匹配范围小的放上面</li>
 <li>不同类规则(访问不同应用)，匹配到报文频率较大的放上面</li>
 <li>将那些可由一条规则描述的多个规则合并为一个</li>
 <li>设置默认策略</li>
-</ol>
+</ul>
 </div>
 </div>
 <div id="outline-container-orgheadline10" class="outline-3">
 <h3 id="orgheadline10">规则的组成部分</h3>
 <div class="outline-text-3" id="text-orgheadline10">
 <ul class="org-ul">
-<li>匹配条件(rule-specification): 根据协议报文特征指定</li>
-<li>处理动作(target): 可使用内建处理机制，也可自定义处理</li>
-<li>自定义链: 报文不会经过自定义链，只能在内置链上通过规则进行引用后生效</li>
+<li><code>匹配条件(rule-specification)</code>: 根据协议报文特征指定</li>
+<li><code>处理动作(target)</code>: 可使用内建处理机制，也可自定义处理</li>
+<li><code>自定义链</code>: 报文不会经过自定义链，只能在内置链上通过规则进行引用后生效</li>
 </ul>
 </div>
 </div>
 <div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">规则和链有计数器</h3>
+<h3 id="orgheadline11">规则和链的计数器</h3>
 <div class="outline-text-3" id="text-orgheadline11">
 <ul class="org-ul">
-<li>pkts：由规则或链所匹配到的报文的个数</li>
-<li>bytes：由规则或链匹配到的所有报文大小之和</li>
+<li><code>pkts</code>: 由规则或链所匹配到的报文的个数</li>
+<li><code>bytes</code>: 由规则或链匹配到的所有报文大小之和</li>
 </ul>
 </div>
 </div>
@@ -214,20 +302,16 @@ raw &#x2013;&gt; mangle &#x2013;&gt; nat &#x2013;&gt; filter
 <div id="outline-container-orgheadline38" class="outline-2">
 <h2 id="orgheadline38"><span class="section-number-2">5</span> iptables命令</h2>
 <div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">命令的使用</h3>
+<div class="outline-text-3" id="text-orgheadline13">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables [-t table] SUBCOMMAND CHAIN CRETERIA -j TARGET
-
+<pre class="src src-yaml">iptables [-t table] SUBCOMMAND CHAIN CRETERIA -j TARGET
 iptables [-t table] -S [chain [rulenum]]
+  <span style="color: #FD971F;">table</span>: filter(&#40664;&#35748;), nat, mangle, raw
 </pre>
 </div>
-</div>
-<div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">table</h3>
-<div class="outline-text-3" id="text-orgheadline13">
-<p>
-filter(默认), nat, mangle, raw
-</p>
 </div>
 </div>
 <div id="outline-container-orgheadline14" class="outline-3">
@@ -235,19 +319,19 @@ filter(默认), nat, mangle, raw
 <div class="outline-text-3" id="text-orgheadline14">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables [-t table] {-F|-L|-Z} [chain [rulenum]] [options...]
-  -F: flush&#65292;&#28165;&#31354;&#35268;&#21017;&#38142;&#65307;&#30465;&#30053;&#38142;&#65292;&#34920;&#31034;&#28165;&#31354;&#25351;&#23450;&#34920;&#19978;&#30340;&#25152;&#26377;&#30340;&#38142;
-  -Z: zero&#65292;&#28165;&#38646;&#65292;&#32622;&#38646;&#35268;&#21017;&#35745;&#25968;&#22120;
+<pre class="src src-yaml">iptables [-t table] {-F|-Z} [chain [rulenum]] [options...]
+  <span style="color: #FD971F;">-F</span>: flush&#65292;&#28165;&#31354;&#35268;&#21017;&#38142;&#65292;&#40664;&#35748;&#28165;&#31354;&#25351;&#23450;&#34920;&#19978;&#30340;&#25152;&#26377;&#30340;&#38142;
+  <span style="color: #FD971F;">-Z</span>: zero&#65292;&#23558;&#35268;&#21017;&#35745;&#25968;&#22120;&#28165;&#38646;
 
 iptables [-t table] -N chain
 iptables [-t table] -X [chain]
 iptables [-t table] -E old-chain-name new-chain-name
-  -N: new, &#21019;&#24314;&#26032;&#30340;&#33258;&#23450;&#20041;&#35268;&#21017;&#38142;
-  -X: drop, &#21024;&#38500;&#29992;&#25143;&#33258;&#23450;&#20041;&#30340;&#31354;&#30340;&#35268;&#21017;&#38142;
-  -E: rEname&#65292;&#37325;&#21629;&#20196;&#33258;&#23450;&#20041;&#38142;&#65307;&#34987;&#24341;&#29992;&#30340;&#33258;&#23450;&#20041;&#38142;&#65292;&#26080;&#27861;&#25913;&#21517;&#21644;&#21024;&#38500;
+  <span style="color: #FD971F;">-N</span>: new, &#21019;&#24314;&#26032;&#30340;&#33258;&#23450;&#20041;&#35268;&#21017;&#38142;
+  <span style="color: #FD971F;">-X</span>: drop, &#21024;&#38500;&#29992;&#25143;&#33258;&#23450;&#20041;&#30340;&#31354;&#30340;&#35268;&#21017;&#38142;&#65292;&#40664;&#35748;&#21024;&#38500;&#25152;&#26377;
+  <span style="color: #FD971F;">-E</span>: rEname&#65292;&#37325;&#21629;&#20196;&#33258;&#23450;&#20041;&#38142;&#65307;&#34987;&#24341;&#29992;&#30340;&#33258;&#23450;&#20041;&#38142;&#65292;&#26080;&#27861;&#25913;&#21517;&#21644;&#21024;&#38500;
 
 iptables [-t table] -P chain target
-  -P: Policy&#65292;&#20026;&#25351;&#23450;&#38142;&#35774;&#32622;&#40664;&#35748;&#31574;&#30053;&#65307;&#23545;filter&#34920;&#20013;&#30340;&#38142;&#32780;&#35328;&#65292;&#40664;&#35748;&#31574;&#30053;&#36890;&#24120;&#26377;ACCEPT, DROP, REJECT
+  <span style="color: #FD971F;">-P</span>: Policy&#65292;&#20026;&#25351;&#23450;&#38142;&#35774;&#32622;&#40664;&#35748;&#22788;&#29702;&#21160;&#20316;&#65292;&#40664;&#35748;&#21160;&#20316;&#36890;&#24120;&#26377;ACCEPT(&#25509;&#21463;)&#12289;DROP(&#26080;&#35270;)&#12289;REJECT(&#26174;&#24335;&#25298;&#32477;)
 </pre>
 </div>
 </div>
@@ -257,14 +341,14 @@ iptables [-t table] -P chain target
 <div class="outline-text-3" id="text-orgheadline15">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables [-t table] -A chain rule-specification
-iptables [-t table] -D chain {rulenum|rule-specification}
+<pre class="src src-yaml">iptables [-t table] -A chain rule-specification
 iptables [-t table] -I chain [rulenum] rule-specification
+iptables [-t table] -D chain {rulenum|rule-specification}
 iptables [-t table] -R chain rulenum rule-specification
-  -A: append&#65292;&#23558;&#26032;&#35268;&#21017;&#36861;&#21152;&#20110;&#25351;&#23450;&#38142;&#30340;&#23614;&#37096;
-  -I: insert&#65292;&#23558;&#26032;&#35268;&#21017;&#25554;&#20837;&#33267;&#25351;&#23450;&#38142;&#30340;&#25351;&#23450;&#20301;&#32622;(rulenum&#40664;&#35748;&#20026;1)
-  -D: delete&#65292;&#21024;&#38500;&#25351;&#23450;&#38142;(&#20351;&#29992;&#21305;&#37197;&#26465;&#20214;&#25110;&#35268;&#21017;&#32534;&#21495;)&#19978;&#30340;&#25351;&#23450;&#35268;&#21017;
-  -R: replace&#65292;&#26367;&#25442;&#25351;&#23450;&#38142;&#19978;&#30340;&#25351;&#23450;&#35268;&#21017;
+  <span style="color: #FD971F;">-A</span>: append&#65292;&#23558;&#26032;&#35268;&#21017;&#36861;&#21152;&#20110;&#25351;&#23450;&#38142;&#30340;&#23614;&#37096;
+  <span style="color: #FD971F;">-I</span>: insert&#65292;&#23558;&#26032;&#35268;&#21017;&#25554;&#20837;&#33267;&#25351;&#23450;&#38142;&#30340;&#25351;&#23450;&#20301;&#32622;(rulenum&#40664;&#35748;&#20026;1)
+  <span style="color: #FD971F;">-D</span>: delete&#65292;&#21024;&#38500;&#25351;&#23450;&#38142;(&#20351;&#29992;&#21305;&#37197;&#26465;&#20214;&#25110;&#35268;&#21017;&#32534;&#21495;)&#19978;&#30340;&#25351;&#23450;&#35268;&#21017;
+  <span style="color: #FD971F;">-R</span>: replace&#65292;&#26367;&#25442;&#25351;&#23450;&#38142;&#19978;&#30340;&#25351;&#23450;&#35268;&#21017;
 </pre>
 </div>
 </div>
@@ -274,11 +358,11 @@ iptables [-t table] -R chain rulenum rule-specification
 <div class="outline-text-3" id="text-orgheadline16">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables [-t table] -L [chain [rulenum]] [options...]
-  -n: numberic&#65292;&#20197;&#25968;&#23383;&#26684;&#24335;&#26174;&#31034;&#22320;&#22336;&#21644;&#31471;&#21475;&#21495;
-  -v|-vv|-vvv: verbose&#65292;&#26174;&#31034;&#35814;&#32454;&#20449;&#24687;(pkts&#21644;bytes)
-  --line-numbers: &#26174;&#31034;&#35268;&#21017;&#32534;&#21495;&#65292;&#29992;&#20110;&#21024;&#38500;&#35268;&#21017;
-  -x: exactly, &#26174;&#31034;&#35745;&#25968;&#22120;&#35745;&#25968;&#32467;&#26524;&#30340;&#31934;&#30830;&#20540;&#65292;&#19981;&#20570;&#21333;&#20301;&#25442;&#31639;
+<pre class="src src-yaml">iptables [-t table] -L [chain [rulenum]] [options...]
+  <span style="color: #FD971F;">-n</span>: numberic&#65292;&#20197;&#25968;&#23383;&#26684;&#24335;&#26174;&#31034;&#22320;&#22336;&#21644;&#31471;&#21475;&#21495;
+  <span style="color: #FD971F;">-v|-vv|-vvv</span>: verbose&#65292;&#26174;&#31034;&#35814;&#32454;&#20449;&#24687;(&#21253;&#25324;pkts&#21644;bytes)
+  <span style="color: #FD971F;">--line-numbers</span>: &#26174;&#31034;&#35268;&#21017;&#32534;&#21495;&#65292;&#29992;&#20110;&#21024;&#38500;&#35268;&#21017;
+  <span style="color: #FD971F;">-x</span>: exactly, &#26174;&#31034;&#35745;&#25968;&#22120;&#35745;&#25968;&#32467;&#26524;&#30340;&#31934;&#30830;&#20540;&#65292;&#19981;&#20570;&#21333;&#20301;&#25442;&#31639;
 </pre>
 </div>
 </div>
@@ -290,9 +374,9 @@ iptables [-t table] -R chain rulenum rule-specification
 <h4 id="orgheadline17">连接跟踪的相关参数</h4>
 <div class="outline-text-4" id="text-orgheadline17">
 <ul class="org-ul">
-<li>调整连接追踪功能所能够容纳最大连接数量: /proc/sys/net/ipv4/ip_conntrack_max</li>
-<li>已经追踪到并记录下的连接: /proc/net/nf_conntrack</li>
-<li>不同协议或连接类型追踪的时长: <i>proc/sys/net/netfilter</i></li>
+<li>调整连接追踪功能所能够容纳最大连接数量: <code>/proc/sys/net/ipv4/ip_conntrack_max</code></li>
+<li>已经追踪到并记录下的连接: <code>/proc/net/nf_conntrack</code></li>
+<li>不同协议或连接类型追踪的时长: <code>/proc/sys/net/netfilter/</code></li>
 </ul>
 </div>
 </div>
@@ -300,10 +384,10 @@ iptables [-t table] -R chain rulenum rule-specification
 <h4 id="orgheadline18">可追踪的连接状态</h4>
 <div class="outline-text-4" id="text-orgheadline18">
 <ul class="org-ul">
-<li>NEW：新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目</li>
-<li>ESTABLISHED：NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态</li>
-<li>RELATED：相关的连接，如ftp协议的命令连接与数据连接之间的关系</li>
-<li>INVALIED：无法识别的连接</li>
+<li><code>NEW</code>: 新发出的请求(不包含响应)，连接追踪模板中不存此连接相关的信息条目</li>
+<li><code>ESTABLISHED</code>: NEW状态之后，连接追踪模板中为其建立的条目失效之前期间内所进行的通信的状态</li>
+<li><code>RELATED</code>: 相关的连接，如ftp协议的命令连接与数据连接之间的关系</li>
+<li><code>INVALIED</code>: 无法识别的连接</li>
 </ul>
 </div>
 </div>
@@ -311,7 +395,7 @@ iptables [-t table] -R chain rulenum rule-specification
 <h4 id="orgheadline19">更该连接跟踪表的最大容量</h4>
 <div class="outline-text-4" id="text-orgheadline19">
 <p>
-修改sysctl.conf
+修改内核参数文件 <code>sysctl.conf</code>
 </p>
 <ol class="org-ol">
 <li><p>
@@ -319,8 +403,8 @@ iptables [-t table] -R chain rulenum rule-specification
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">net.ipv4.ip_conntrack_max</span> = 393216
-<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_max</span> = 393216
+<pre class="src src-bash">net.ipv4.ip_conntrack_max = <span style="color: #AE81FF;">393216</span>
+net.ipv4.netfilter.ip_conntrack_max = <span style="color: #AE81FF;">393216</span>
 </pre>
 </div></li>
 <li><p>
@@ -328,10 +412,18 @@ iptables [-t table] -R chain rulenum rule-specification
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_established</span> = 300
-<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait</span> = 120
-<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_close_wait</span> = 60
-<span style="color: #FD971F;">net.ipv4.netfilter.ip_conntrack_tcp_timeout_fin_wait</span> = 120
+<pre class="src src-bash">net.ipv4.netfilter.ip_conntrack_tcp_timeout_established = <span style="color: #AE81FF;">300</span>
+net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait = <span style="color: #AE81FF;">120</span>
+net.ipv4.netfilter.ip_conntrack_tcp_timeout_close_wait = <span style="color: #AE81FF;">60</span>
+net.ipv4.netfilter.ip_conntrack_tcp_timeout_fin_wait = <span style="color: #AE81FF;">120</span>
+</pre>
+</div></li>
+<li><p>
+重载配置文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">sysctl -p
 </pre>
 </div></li>
 </ol>
@@ -346,11 +438,12 @@ iptables [-t table] -R chain rulenum rule-specification
 <h4 id="orgheadline21">基本匹配条件</h4>
 <div class="outline-text-4" id="text-orgheadline21">
 <ul class="org-ul">
-<li>[!] -s IP|Netaddr：检查报文中源IP地址是否符合此处指定的地址范围</li>
-<li>[!] -d IP|Netaddr：检查报文中目标IP地址是否符合此处指定的地址范围</li>
-<li>[!] -p {tcp|udp|icmp}：检查报文中的协议，即ip首部中的protocols所标识的协议</li>
-<li>[!] -i IFACE：数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)</li>
-<li>[!] -o IFACE：数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)</li>
+<li><code>[!] -s IP|Netaddr</code>: 检查报文中源IP地址是否符合此处指定的地址范围</li>
+<li><code>[!] -d IP|Netaddr</code>: 检查报文中目标IP地址是否符合此处指定的地址范围</li>
+<li><code>[!] -p {tcp|udp|icmp}</code>: 检查报文中的协议，即ip首部中的protocols所标识的协议</li>
+<li><code>[!] -i IFACE</code>: 数据报文的流入接口(仅能用于PREROUTING, INPUT及FORWARD链上)</li>
+<li><code>[!] -o IFACE</code>: 数据报文的流出接口(仅能用于FORWARD, OUTPUT及POSTROUTING链上)</li>
+<li>在规则前添加 <code>!</code> 表示反条件</li>
 </ul>
 </div>
 </div>
@@ -358,20 +451,19 @@ iptables [-t table] -R chain rulenum rule-specification
 <h4 id="orgheadline22">扩展匹配条件</h4>
 <div class="outline-text-4" id="text-orgheadline22">
 <p>
-模块文件路径是/usr/lib64/xtables/*.so(小写字母)
+模块文件路径是 <code>/usr/lib64/xtables/*.so</code> (小写字母)
 </p>
 </div>
 <ul class="org-ul"><li><a id="orgheadline23"></a>隐式扩展<br  /><div class="outline-text-5" id="text-orgheadline23">
 <p>
-对-p protocol指明的协议进行的扩展，可省略-m选项
+对 <code>-p protocol</code> 指明的协议进行的扩展，可省略 <code>-m</code> 选项
 </p>
-<ul class="org-ul">
-<li>-p tcp
-<ul class="org-ul">
-<li>&#x2013;dport PORT[-PORT]：目标端口，可以是单个端口或连续多个端口</li>
-<li>&#x2013;sport PORT[-PORT]: 源端口</li>
+<dl class="org-dl">
+<dt>-p tcp</dt><dd><ul class="org-ul">
+<li><code>--dport PORT[-PORT]</code>: 目标端口，可以是单个端口或连续多个端口</li>
+<li><code>--sport PORT[-PORT]</code>: 源端口</li>
 <li><p>
-&#x2013;tcp-flags LIST1 LIST2：检查LIST1所指明的所有标志位，且这其中，LIST2所表示出的所有标记位必须为1，而余下的必须为0
+<code>--tcp-flags LIST1 LIST2</code>: 检查 <code>LIST1</code> 所指明的所有标志位，且这其中， <code>LIST2</code> 所表示出的所有标记位必须为1，而余下的必须为0
 </p>
 <pre class="example">
 SYN表示建立连接
@@ -379,129 +471,133 @@ FIN表示关闭连接
 ACK表示响应
 PSH表示有DATA数据传输
 RST表示连接重置
-ALL与NONE
+ALL与NONE表示所有
 </pre></li>
-<li>&#x2013;syn: 相当于 &#x2013;tcp-flags SYN,ACK,FIN,RST SYN</li>
-</ul></li>
-<li>-p udp
-<ul class="org-ul">
-<li>&#x2013;dport</li>
-<li>&#x2013;sport</li>
-</ul></li>
-<li>-p icmp
-<ul class="org-ul">
+<li><code>--syn</code>: 相当于 <code>--tcp-flags SYN,ACK,FIN,RST SYN</code></li>
+</ul></dd>
+<dt>-p udp</dt><dd><ul class="org-ul">
+<li><code>--dport</code></li>
+<li><code>--sport</code></li>
+</ul></dd>
+<dt>-p icmp</dt><dd><ul class="org-ul">
 <li><p>
-&#x2013;icmp-type
+<code>--icmp-type</code>
 </p>
 <pre class="example">
 可用数字表示报文类型，常见类型有：
-  0：echo-reply
+  0: echo-reply
   8: echo-request
 </pre></li>
-</ul></li>
-</ul>
+</ul></dd>
+</dl>
 </div></li>
 <li><a id="orgheadline24"></a>显式扩展<br  /><div class="outline-text-5" id="text-orgheadline24">
 <p>
-必须使用-m选项显式指定使用的扩展，如 <code>-m macth_name --spec_options</code>
+必须使用 <code>-m</code> 选项显式指定使用的扩展，如 <code>-m macth_name --spec_options</code>
 </p>
 <pre class="example">
-查询帮助:
+查询帮助的方式
   CentOS 6: man iptables
   CentOS 7: man iptables-extensions
 </pre>
-<ol class="org-ol">
-<li><p>
-multiport: 以离散方式定义多端口匹配(最多15个)
+<dl class="org-dl">
+<dt>multiport</dt><dd><p>
+以离散方式定义多端口匹配(最多15个)
 </p>
 <ul class="org-ul">
-<li>[!] &#x2013;sports port[,port|,port:port]&#x2026;: 源端口</li>
-<li>[!] &#x2013;dports port[,port|,port:port]&#x2026;: 目标端口</li>
-<li>[!] &#x2013;ports port[,port|,port:port]&#x2026;: 两者同时指定</li>
+<li><code>[!] --sports port[,port:port]...</code>: 源端口</li>
+<li><code>[!] --dports port[,port:port]...</code>: 目标端口</li>
+<li><code>[!] --ports port[,port:port]...</code>: 两者同时指定</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh">iptables -I INPUT -s <span style="color: #AE81FF;">172.16.0.0/16</span> -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp -m multiport --dports <span style="color: #AE81FF;">22,80</span> -j ACCEPT
+<pre class="src src-bash">iptables -I INPUT -s <span style="color: #AE81FF;">172.16.0.0/16</span> -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp -m multiport --dports <span style="color: #AE81FF;">22,80</span> -j ACCEPT
 </pre>
-</div></li>
-<li><p>
-iprange: 指明连续的ip地址范围
+</div></dd>
+<dt>iprange</dt><dd><p>
+指明连续的ip地址范围
 </p>
 <ul class="org-ul">
-<li>[!] &#x2013;src-range from[-to]：指明连续的源IP地址范围</li>
-<li>[!] &#x2013;dst-range from[-to]：指明连续的目标IP地址范围</li>
+<li><code>[!] --src-range from[-to]</code>: 指明连续的源IP地址范围</li>
+<li><code>[!] --dst-range from[-to]</code>: 指明连续的目标IP地址范围</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh">iptables -I INPUT -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp -m multiport --dports <span style="color: #AE81FF;">22:23,80</span> -m iprange --src-range <span style="color: #AE81FF;">172.16.100.1-172.16.100.120</span> -j ACCEPT
+<pre class="src src-bash">iptables -I INPUT -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp -m multiport --dports <span style="color: #AE81FF;">22:23,80</span> -m iprange --src-range <span style="color: #AE81FF;">172.16.100.1-172.16.100.120</span> -j ACCEPT
 </pre>
-</div></li>
-<li><p>
-string: 检查报文中出现的字符串
+</div></dd>
+<dt>string</dt><dd><p>
+检查报文中出现的字符串
 </p>
 <ul class="org-ul">
-<li>&#x2013;algo {bm|kmp}: 字符串比对算法</li>
-<li>[!] &#x2013;string pattern</li>
+<li><code>--algo {bm|kmp}</code>: 字符串比对算法</li>
+<li><code>[!] --string pattern</code>: 匹配的字符串</li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh">iptables -A INPUT -p tcp --dport <span style="color: #AE81FF;">80</span> -m string --algo bm --string <span style="color: #E6DB74;">'GET /index.html'</span> -j LOG
+<pre class="src src-bash">iptables -A INPUT -p tcp --dport <span style="color: #AE81FF;">80</span> -m string --algo bm --string <span style="color: #E6DB74;">'GET /index.html'</span> -j LOG
 </pre>
-</div></li>
-<li><p>
-time: 根据报文到达的时间与指定的时间范围(UTC时间)进行匹配
+</div></dd>
+<dt>time</dt><dd><p>
+根据报文到达的时间与指定的时间范围(UTC时间)进行匹配
 </p>
 <ul class="org-ul">
-<li>&#x2013;datestart YYYY-MM[-DD]</li>
-<li>&#x2013;datestop YYYY-MM[-DD]</li>
-<li>&#x2013;timestart hh:mm[:ss]</li>
-<li>&#x2013;timestop hh:mm[:ss]</li>
-<li>&#x2013;monthdays day[,day]</li>
-<li>&#x2013;weekdays day[,day]</li>
+<li><code>--datestart YYYY-MM[-DD]</code></li>
+<li><code>--datestop YYYY-MM[-DD]</code></li>
+<li><code>--timestart hh:mm[:ss]</code></li>
+<li><code>--timestop hh:mm[:ss]</code></li>
+<li><code>--monthdays day[,day]</code></li>
+<li><code>--weekdays day[,day]</code></li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh">iptables -I INPUT -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp --dport <span style="color: #AE81FF;">80</span> -m time --timestart <span style="color: #AE81FF;">14:00</span> --timestop <span style="color: #AE81FF;">16:00</span> -j REJECT
+<pre class="src src-bash">iptables -I INPUT -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp --dport <span style="color: #AE81FF;">80</span> -m time --timestart <span style="color: #AE81FF;">14:00</span> --timestop <span style="color: #AE81FF;">16:00</span> -j REJECT
 </pre>
-</div></li>
-<li>connlimit: 根据每客户端IP或地址块的并发连接数进行匹配
+</div></dd>
+<dt>connlimit</dt><dd>根据每客户端IP或地址块的并发连接数进行匹配
 <ul class="org-ul">
-<li>&#x2013;connlimit-above n：连接的数量大于n</li>
-<li>&#x2013;connlimit-upto n: 连接的数量小于等于n</li>
-</ul></li>
-<li>limit: 基于收发报文的速率做检查(使用令牌桶过滤器)
+<li><code>--connlimit-above n</code>: 连接的数量大于n</li>
+<li><code>--connlimit-upto n</code>: 连接的数量小于等于n</li>
+</ul></dd>
+<dt>limit</dt><dd>基于收发报文的速率做检查(使用令牌桶过滤器)
 <ul class="org-ul">
-<li>&#x2013;limit rate[/second|/minute|/hour|/day]</li>
-<li>&#x2013;limit-burst number: 一开始的峰值(通过空闲速率的积累)</li>
-</ul></li>
-<li><p>
-state: 根据连接追踪机制检查连接的状态
+<li><code>--limit RATE[/second|/minute|/hour|/day]</code></li>
+<li><code>--limit-burst number</code>: 瞬间的峰值(通过空闲速率的积累)</li>
+</ul></dd>
+<dt>state</dt><dd><p>
+根据连接追踪机制检查连接的状态
 </p>
 <ul class="org-ul">
-<li>&#x2013;state STATE1,STATE2</li>
+<li><code>--state STATE1,STATE2</code></li>
 </ul>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#20801;&#35768;&#21035;&#20154;&#23545;&#26381;&#21153;&#22120;&#24314;&#31435;&#35775;&#38382;&#65292;&#19981;&#20801;&#35768;&#26381;&#21153;&#22120;&#23545;&#21035;&#20154;&#24314;&#31435;&#35775;&#38382;</span>
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#21482;&#20801;&#35768;&#21035;&#20154;&#23545;&#26381;&#21153;&#22120;&#24314;&#31435;&#35775;&#38382;&#65292;&#19981;&#20801;&#35768;&#26381;&#21153;&#22120;&#23545;&#21035;&#20154;&#24314;&#31435;&#35775;&#38382;</span>
 iptables -I INPUT -d <span style="color: #AE81FF;">172.16.100.9</span> -p tcp --dport <span style="color: #AE81FF;">80</span> -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -I OUTPUT -s <span style="color: #AE81FF;">172.16.100.9</span> -p tcp --sport <span style="color: #AE81FF;">80</span> -m state --state ESTABLISHED -j ACCEPT
+</pre>
+</div>
+<div class="org-src-container">
 
-<span style="color: #75715E;"># </span><span style="color: #75715E;">&#20801;&#35768;&#24050;&#24314;&#31435;&#36830;&#25509;&#30340;&#35775;&#38382;&#65292;&#21152;&#24555;&#21305;&#37197;&#25928;&#29575;</span>
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#20801;&#35768;&#24050;&#24314;&#31435;&#36830;&#25509;&#30340;&#35775;&#38382;&#65292;&#21152;&#24555;&#21305;&#37197;&#25928;&#29575;</span>
 iptables -I INPUT -m state --state ESTABLISHED -j ACCEPT
 iptables -I OUTPUT -m state --state ESTABLISHED -j ACCEPT
+</pre>
+</div>
+<div class="org-src-container">
 
-<span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#25918;&#34987;&#21160;&#27169;&#24335;&#30340;ftp&#26381;&#21153;</span>
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#24320;&#25918;&#34987;&#21160;&#27169;&#24335;&#30340;ftp&#26381;&#21153;</span>
 modprobe nf_conntrack_ftp  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35013;&#36733;ftp&#36861;&#36394;&#26102;&#30340;&#19987;&#29992;&#30340;&#27169;&#22359;</span>
 iptables -A INPUT -d LocalIP -p tcp --dport <span style="color: #AE81FF;">21</span> -m state --state NEW,ESTABLISHED -j ACCEPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20801;&#35768;&#21629;&#20196;&#36830;&#25509;</span>
 iptables -A INPUT -d LocalIP -p tcp -m state --state RELATED,ESTABLISHED -j ACCEPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20801;&#35768;&#38543;&#26426;&#31471;&#21475;&#30340;&#25968;&#25454;&#36830;&#25509;</span>
 iptables -A OUTPUT -s LocalIP -p tcp -m state --state ESTABLISHED -j ACCEPT
 </pre>
-</div></li>
-<li>recent: 用于抵御DOS攻击</li>
-</ol>
+</div></dd>
+<dt>recent</dt><dd>用于抵御DOS攻击</dd>
+</dl>
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables -I INPUT -p tcp --dport 22 -m connlimit --connlimit-above 3 -j DROP
+<pre class="src src-yaml">iptables -I INPUT -p tcp --dport 22 -m connlimit --connlimit-above 3 -j DROP
 iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --set --name SSH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19968;&#20010;&#21517;&#20026;SSH&#30340;&#21015;&#34920;&#26469;&#23384;&#20648;&#25253;&#25991;&#26469;&#28304;IP</span>
 iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --update --seconds  300 --hitcount 3 --name SSH -j DROP  <span style="color: #75715E;"># </span><span style="color: #75715E;">SSH&#35760;&#24405;&#20013;&#30340;IP&#65292;300s&#20869;&#21457;&#36215;&#36229;&#36807;3&#27425;&#36830;&#25509;&#21017;&#25298;&#32477;&#27492;IP&#30340;&#36830;&#25509;</span>
 </pre>
@@ -513,21 +609,79 @@ iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --update --s
 <h4 id="orgheadline25">目标(TARGET)</h4>
 <div class="outline-text-4" id="text-orgheadline25">
 <p>
-<code>-j TARGET</code>: jump至定的TARGET(位于/usr/lib64/xtables/*.so大写字母的文件)
+<code>-j TARGET</code>: jump至指定的 <code>TARGET</code> (位于 <code>/usr/lib64/xtables/*.so</code> 大写字母的文件)
 </p>
-<ul class="org-ul">
-<li>ACCEPT: 接受</li>
-<li>DROP: 丢弃</li>
-<li>REJECT: 拒绝</li>
-<li>RETURN: 返回调用链</li>
-<li>REDIRECT：端口重定向</li>
-<li>LOG [&#x2013;log-prefix "&#x2026;"]: 记录日志</li>
-<li>MARK：做防火墙标记</li>
-<li>DNAT：目标地址转换</li>
-<li>SNAT：源地址转换</li>
-<li>MASQUERADE：地址伪装</li>
-<li>自定义链：由自定义链上的规则进行匹配检查</li>
-</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">TARGET</th>
+<th scope="col" class="org-left">处理动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">ACCEPT</td>
+<td class="org-left">接受</td>
+</tr>
+
+<tr>
+<td class="org-left">DROP</td>
+<td class="org-left">丢弃，即无视</td>
+</tr>
+
+<tr>
+<td class="org-left">REJECT</td>
+<td class="org-left">拒绝，即显式拒绝</td>
+</tr>
+
+<tr>
+<td class="org-left">RETURN</td>
+<td class="org-left">返回调用链</td>
+</tr>
+
+<tr>
+<td class="org-left">REDIRECT</td>
+<td class="org-left">端口重定向</td>
+</tr>
+
+<tr>
+<td class="org-left">LOG [&#x2013;log-prefix "&#x2026;"]</td>
+<td class="org-left">记录日志</td>
+</tr>
+
+<tr>
+<td class="org-left">MARK</td>
+<td class="org-left">做防火墙标记，常用于LVS</td>
+</tr>
+
+<tr>
+<td class="org-left">DNAT</td>
+<td class="org-left">目标地址转换</td>
+</tr>
+
+<tr>
+<td class="org-left">SNAT</td>
+<td class="org-left">源地址转换</td>
+</tr>
+
+<tr>
+<td class="org-left">MASQUERADE</td>
+<td class="org-left">地址伪装，自动根据发出的网卡地址进行SNAT</td>
+</tr>
+
+<tr>
+<td class="org-left">自定义链</td>
+<td class="org-left">由自定义链上的规则进行匹配检查</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -537,7 +691,7 @@ iptables -I INPUT  -p tcp --dport 22 -m state --state NEW -m recent --update --s
 <div class="outline-text-3" id="text-orgheadline27">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables-save &gt; /PATH/TO/SOMEFILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20445;&#23384;&#24403;&#21069;&#35268;&#21017;</span>
+<pre class="src src-bash">iptables-save &gt; /PATH/TO/SOMEFILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20445;&#23384;&#24403;&#21069;&#35268;&#21017;</span>
 iptables-restore &lt; /PATH/FROM/SOMEFILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35835;&#21462;&#25991;&#20214;&#35268;&#21017;</span>
 
 service iptables save  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#35268;&#21017;&#20445;&#23384;&#22312;/etc/sysconfig/iptables&#20013;</span>
@@ -551,8 +705,8 @@ service iptables restart
 <h3 id="orgheadline28">开机载入的文件</h3>
 <div class="outline-text-3" id="text-orgheadline28">
 <ul class="org-ul">
-<li>开机默认载入的规则: /etc/sysconfig/iptables</li>
-<li>开机默认载入的模块: /etc/sysconfig/iptables-config</li>
+<li>开机默认载入的规则: <code>/etc/sysconfig/iptables</code></li>
+<li>开机默认载入的模块: <code>/etc/sysconfig/iptables-config</code></li>
 </ul>
 </div>
 </div>
@@ -564,11 +718,11 @@ service iptables restart
 <h4 id="orgheadline29">内网与外网</h4>
 <div class="outline-text-4" id="text-orgheadline29">
 <p>
-网络服务器中，外网的服务器无法定位到内网服务器，除非外网服务器将网络服务器设置为网关，因此有两种方法: 
+网络服务器中，外网的服务器无法定位到内网服务器，除非外网服务器将网络服务器设置为网关，因此有两种解决方法: 
 </p>
 <ol class="org-ol">
-<li>NAT(Network Address Translation): 用于隐藏本地网络主机，提高安全性在网络层(更改IP)和传输层(更改端口)实现</li>
-<li>proxy：代理服务器(网关)，在应用层(区分代理的协议)实现</li>
+<li><code>NAT</code> (Network Address Translation): 用于隐藏本地网络主机，提高安全性在网络层(更改IP)和传输层(更改端口)实现</li>
+<li><code>proxy</code>: 代理服务器(网关)，在应用层(区分代理的协议)实现</li>
 </ol>
 </div>
 </div>
@@ -577,9 +731,9 @@ service iptables restart
 <h4 id="orgheadline30">NAT类型</h4>
 <div class="outline-text-4" id="text-orgheadline30">
 <ul class="org-ul">
-<li>SNAT: 只修改请求报文的源地址，在POSTROUTING链的nat表中转换，其响应报文会自动根据NAT表修改目标地址</li>
-<li>DNAT：只修改请求报文的目标地址(不然目标地址为本主机)，在PREROUTING链的nat表中转换，其响应报文会自动根据NAT表修改源地址</li>
-<li>FULLNAT</li>
+<li><code>SNAT</code>: 只修改请求报文的源地址，在 <code>POSTROUTING链</code> 的 <code>nat表</code> 中转换，其响应报文会自动根据NAT表修改目标地址</li>
+<li><code>DNAT</code>: 只修改请求报文的目标地址(否则目标地址为本主机)，在 <code>PREROUTING链</code> 的 <code>nat表</code> 中转换，其响应报文会自动根据NAT表修改源地址</li>
+<li><code>FULLNAT</code></li>
 </ul>
 </div>
 </div>
@@ -587,25 +741,19 @@ service iptables restart
 <div id="outline-container-orgheadline31" class="outline-4">
 <h4 id="orgheadline31">配置NAT</h4>
 <div class="outline-text-4" id="text-orgheadline31">
-<ul class="org-ul">
-<li><p>
-配置SNAT
-</p>
-<div class="org-src-container">
+<dl class="org-dl">
+<dt>配置SNAT</dt><dd><div class="org-src-container">
 
-<pre class="src src-sh">iptables -t nat -A POSTROUTING -s LocalNet ! -d LocalNet -j SNAT --to-source ExtIP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22806;&#32593;IP&#22266;&#23450;</span>
+<pre class="src src-bash">iptables -t nat -A POSTROUTING -s LocalNet ! -d LocalNet -j SNAT --to-source ExtIP  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22806;&#32593;IP&#22266;&#23450;</span>
 iptables -t nat -A POSTROUTING -s LocalNET ! -d LocalNet -j MASQUERADE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22806;&#32593;IP&#32463;&#24120;&#21464;&#21270;</span>
 </pre>
-</div></li>
-<li><p>
-配置DNAT(可修改端口)
-</p>
-<div class="org-src-container">
+</div></dd>
+<dt>配置DNAT(可修改端口)</dt><dd><div class="org-src-container">
 
-<pre class="src src-sh">iptables -t nat -A PREROUTING -d ExtIP -p tcp|udp --dport PORT -j DNAT --to-destination InterSeverIP<span style="color: #AE81FF;">[</span>:PORT<span style="color: #AE81FF;">]</span>
+<pre class="src src-bash">iptables -t nat -A PREROUTING -d ExtIP -p tcp|udp --dport PORT -j DNAT --to-destination InterSeverIP<span style="color: #AE81FF;">[</span>:PORT<span style="color: #AE81FF;">]</span>
 </pre>
-</div></li>
-</ul>
+</div></dd>
+</dl>
 </div>
 </div>
 </div>
@@ -618,7 +766,7 @@ iptables -t nat -A POSTROUTING -s LocalNET ! -d LocalNet -j MASQUERADE  <span st
 <div class="outline-text-4" id="text-orgheadline33">
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#35268;&#21017;</span>
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#28165;&#31354;&#35268;&#21017;</span>
 iptables -F
 iptables -X
 
@@ -628,8 +776,8 @@ iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#23450;&#35268;&#21017;</span>
-iptables -A INPUT -d &#26412;&#26426;IP -p icmp --icmp-type 0 -j ACCEPT
-iptables -A OUTPUT -s &#26412;&#26426;IP -p icmp --icmp-type 8 -j ACCEPT
+iptables -A INPUT -d &#26412;&#26426;IP -p icmp --icmp-type <span style="color: #AE81FF;">0</span> -j ACCEPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">echo-reply</span>
+iptables -A OUTPUT -s &#26412;&#26426;IP -p icmp --icmp-type <span style="color: #AE81FF;">8</span> -j ACCEPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">echo-request</span>
 </pre>
 </div>
 </div>
@@ -639,8 +787,8 @@ iptables -A OUTPUT -s &#26412;&#26426;IP -p icmp --icmp-type 8 -j ACCEPT
 <div class="outline-text-4" id="text-orgheadline34">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables -A FORWARD -m state --state ESTABLISHED -j ACCEPT
-iptables -A FORWARD -d 192.168.50.100 -p tcp -m multiport --dports 22,80 -m state --state NEW -j ACCEPT
+<pre class="src src-bash">iptables -A FORWARD -m state --state ESTABLISHED -j ACCEPT
+iptables -A FORWARD -d <span style="color: #AE81FF;">192.168.50.100</span> -p tcp -m multiport --dports <span style="color: #AE81FF;">22,80</span> -m state --state NEW -j ACCEPT
 </pre>
 </div>
 </div>
@@ -650,7 +798,7 @@ iptables -A FORWARD -d 192.168.50.100 -p tcp -m multiport --dports 22,80 -m stat
 <div class="outline-text-4" id="text-orgheadline35">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables -A INPUT  -i lo -j ACCEPT
+<pre class="src src-yaml">iptables -A INPUT  -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 </pre>
 </div>
@@ -661,7 +809,7 @@ iptables -A OUTPUT -o lo -j ACCEPT
 <div class="outline-text-4" id="text-orgheadline36">
 <div class="org-src-container">
 
-<pre class="src src-conf">iptables -N clean_in
+<pre class="src src-yaml">iptables -N clean_in
 iptables -A clean_in -d 255.255.255.255 -p icmp -j DROP
 iptables -A clean_in -d 172.16.255.255 -p icmp -j DROP
 iptables -A clean_in -p tcp ! --syn -m state --state NEW -j DROP
@@ -675,7 +823,7 @@ iptables -A clean_in -d 172.16.100.7 -j RETURN  <span style="color: #75715E;"># 
 </div>
 </div>
 <div id="outline-container-orgheadline39" class="outline-2">
-<h2 id="orgheadline39"><span class="section-number-2">6</span> 补充</h2>
+<h2 id="orgheadline39"><span class="section-number-2">6</span> <span class="todo TODO">TODO</span> layer7</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 iptables还可以实现七层访问过滤，需要用到模块layer7

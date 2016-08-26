@@ -1,12 +1,11 @@
 ---
-title: "Python2.7学习笔记"
+title: "Python2.7"
 date: 2016-05-19
 layout: post
 categories: 
 - Python
 tags: 
-- Python 
-- Python2.7
+- 编程语言
 published: true
 comments: 
 ---
@@ -20,126 +19,122 @@ comments:
 <li><a href="#orgheadline2">输入</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline19">2. 数据类型和变量</a>
+<li><a href="#orgheadline20">2. 数据类型和变量</a>
 <ul>
 <li><a href="#orgheadline4">整数</a></li>
 <li><a href="#orgheadline5">浮点数</a></li>
-<li><a href="#orgheadline6">字符串</a>
+<li><a href="#orgheadline10">字符串</a>
 <ul>
+<li><a href="#orgheadline6">字符串</a></li>
 <li><a href="#orgheadline7">字符编码</a></li>
 <li><a href="#orgheadline8">Python字符串</a></li>
 <li><a href="#orgheadline9">格式化字符串</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline10">布尔值</a></li>
-<li><a href="#orgheadline11">空值</a></li>
-<li><a href="#orgheadline12">变量</a></li>
-<li><a href="#orgheadline13">常量</a></li>
-<li><a href="#orgheadline18">特殊类型</a>
+<li><a href="#orgheadline11">布尔值</a></li>
+<li><a href="#orgheadline12">空值</a></li>
+<li><a href="#orgheadline13">变量</a></li>
+<li><a href="#orgheadline14">常量</a></li>
+<li><a href="#orgheadline19">特殊类型</a>
 <ul>
-<li><a href="#orgheadline14">list</a></li>
-<li><a href="#orgheadline15">tuple</a></li>
-<li><a href="#orgheadline16">dict</a></li>
-<li><a href="#orgheadline17">set</a></li>
+<li><a href="#orgheadline15">list</a></li>
+<li><a href="#orgheadline16">tuple</a></li>
+<li><a href="#orgheadline17">dict</a></li>
+<li><a href="#orgheadline18">set</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline22">3. 条件判断和循环</a>
+<li><a href="#orgheadline23">3. 条件判断和循环</a>
 <ul>
-<li><a href="#orgheadline20">条件判断</a></li>
-<li><a href="#orgheadline21">循环</a></li>
+<li><a href="#orgheadline21">条件判断</a></li>
+<li><a href="#orgheadline22">循环</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline39">4. 函数</a>
+<li><a href="#orgheadline40">4. 函数</a>
 <ul>
-<li><a href="#orgheadline23">定义函数</a></li>
-<li><a href="#orgheadline24">函数的参数</a>
+<li><a href="#orgheadline24">定义函数</a></li>
+<li><a href="#orgheadline25">函数的参数</a>
 <ul>
-<li><a href="#orgheadline25">默认参数</a></li>
-<li><a href="#orgheadline26">可变参数</a></li>
-<li><a href="#orgheadline27">关键字参数</a></li>
+<li><a href="#orgheadline26">默认参数</a></li>
+<li><a href="#orgheadline27">可变参数</a></li>
+<li><a href="#orgheadline28">关键字参数</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline28">递归函数</a></li>
-<li><a href="#orgheadline29">函数名</a></li>
-<li><a href="#orgheadline34">内建函数：</a>
+<li><a href="#orgheadline29">递归函数</a></li>
+<li><a href="#orgheadline30">函数名</a></li>
+<li><a href="#orgheadline35">内建函数：</a>
 <ul>
-<li><a href="#orgheadline30">map</a></li>
-<li><a href="#orgheadline31">reduce</a></li>
-<li><a href="#orgheadline32">filter</a></li>
-<li><a href="#orgheadline33">sorted</a></li>
+<li><a href="#orgheadline31">map</a></li>
+<li><a href="#orgheadline32">reduce</a></li>
+<li><a href="#orgheadline33">filter</a></li>
+<li><a href="#orgheadline34">sorted</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline35">返回函数</a></li>
-<li><a href="#orgheadline36">匿名函数</a></li>
-<li><a href="#orgheadline37">装饰器</a></li>
-<li><a href="#orgheadline38">偏函数</a></li>
+<li><a href="#orgheadline36">返回函数</a></li>
+<li><a href="#orgheadline37">匿名函数</a></li>
+<li><a href="#orgheadline38">装饰器</a></li>
+<li><a href="#orgheadline39">偏函数</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline48">5. 高级特性</a>
+<li><a href="#orgheadline50">5. 高级特性</a>
 <ul>
-<li><a href="#orgheadline40">切片</a></li>
-<li><a href="#orgheadline41">迭代</a>
+<li><a href="#orgheadline41">切片</a></li>
+<li><a href="#orgheadline47">迭代</a>
 <ul>
-<li><a href="#orgheadline42">多变量的迭代</a></li>
-<li><a href="#orgheadline43">dict的迭代</a></li>
-<li><a href="#orgheadline44">字符串的迭代</a></li>
-<li><a href="#orgheadline45">list的下标循环</a></li>
+<li><a href="#orgheadline42">检测是否可迭代</a></li>
+<li><a href="#orgheadline43">多变量的迭代</a></li>
+<li><a href="#orgheadline44">dict的迭代</a></li>
+<li><a href="#orgheadline45">字符串的迭代</a></li>
+<li><a href="#orgheadline46">list的下标循环</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline46">列表生成式</a></li>
-<li><a href="#orgheadline47">生成器generator</a></li>
+<li><a href="#orgheadline48">列表生成式</a></li>
+<li><a href="#orgheadline49">生成器generator</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline54">6. 模块</a>
+<li><a href="#orgheadline56">6. 模块</a>
 <ul>
-<li><a href="#orgheadline49">模块与包</a></li>
-<li><a href="#orgheadline50">使用模块</a></li>
-<li><a href="#orgheadline51">模块的别名</a></li>
-<li><a href="#orgheadline52">作用域</a></li>
-<li><a href="#orgheadline53">使用__future__</a></li>
+<li><a href="#orgheadline51">模块与包</a></li>
+<li><a href="#orgheadline52">使用模块</a></li>
+<li><a href="#orgheadline53">模块的别名</a></li>
+<li><a href="#orgheadline54">作用域</a></li>
+<li><a href="#orgheadline55">使用<span class="underline"><span class="underline">future</span></span></a></li>
 </ul>
 </li>
-<li><a href="#orgheadline66">7. 面向对象编程</a>
+<li><a href="#orgheadline68">7. 面向对象编程</a>
 <ul>
-<li><a href="#orgheadline55">类与实例</a></li>
-<li><a href="#orgheadline58">继承和多态</a>
+<li><a href="#orgheadline57">类与实例</a></li>
+<li><a href="#orgheadline60">继承和多态</a>
 <ul>
-<li><a href="#orgheadline56">继承</a></li>
-<li><a href="#orgheadline57">多态</a></li>
+<li><a href="#orgheadline58">继承</a></li>
+<li><a href="#orgheadline59">多态</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline62">获取对象信息</a>
+<li><a href="#orgheadline64">获取对象信息</a>
 <ul>
-<li><a href="#orgheadline59">type()</a></li>
-<li><a href="#orgheadline60">isinstance()</a></li>
-<li><a href="#orgheadline61">dir()与hasattr()</a></li>
+<li><a href="#orgheadline61">type()</a></li>
+<li><a href="#orgheadline62">isinstance()</a></li>
+<li><a href="#orgheadline63">dir()与hasattr()</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline63">为类绑定方法</a></li>
-<li><a href="#orgheadline64">使用@property</a></li>
-<li><a href="#orgheadline65">多重继承</a></li>
+<li><a href="#orgheadline65">为类绑定方法</a></li>
+<li><a href="#orgheadline66">使用@property</a></li>
+<li><a href="#orgheadline67">多重继承</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline70">8. 定制类</a>
+<li><a href="#orgheadline72">8. 定制类</a>
 <ul>
-<li><a href="#orgheadline67">__slots__</a></li>
-<li><a href="#orgheadline68">__str__ 与 <span class="underline"><span class="underline">repr</span></span></a></li>
-<li><a href="#orgheadline69">__iter__</a></li>
+<li><a href="#orgheadline69">__slots__</a></li>
+<li><a href="#orgheadline70">__str__ 与 <span class="underline"><span class="underline">repr</span></span></a></li>
+<li><a href="#orgheadline71">__iter__</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-通过廖雪峰教程学习Python2.7所做的笔记
-</p>
 
 
-
-
-<hr  />
 <div id="outline-container-orgheadline3" class="outline-2">
 <h2 id="orgheadline3"><span class="section-number-2">1</span> 输入和输出</h2>
 <div class="outline-text-2" id="text-1">
@@ -175,20 +170,19 @@ comments:
 </div>
 </div>
 
-<div id="outline-container-orgheadline19" class="outline-2">
-<h2 id="orgheadline19"><span class="section-number-2">2</span> 数据类型和变量</h2>
+<div id="outline-container-orgheadline20" class="outline-2">
+<h2 id="orgheadline20"><span class="section-number-2">2</span> 数据类型和变量</h2>
 <div class="outline-text-2" id="text-2">
-<ul class="org-ul">
-<li><code>#注释</code> #后边的字符为注释</li>
-</ul>
+<pre class="example">
+#注释: #后边的字符为注释
+</pre>
 </div>
-
 <div id="outline-container-orgheadline4" class="outline-3">
 <h3 id="orgheadline4">整数</h3>
 <div class="outline-text-3" id="text-orgheadline4">
 <ul class="org-ul">
 <li>普通整数: 1, -80</li>
-<li>十六进制使用 <code>0x</code> 开头: 0xff00</li>
+<li>十六进制使用 <code>0x</code> 开头的数字</li>
 </ul>
 </div>
 </div>
@@ -203,14 +197,19 @@ comments:
 </div>
 </div>
 
-<div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6">字符串</h3>
-<div class="outline-text-3" id="text-orgheadline6">
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">字符串</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">字符串</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<p>
+字符串是以 <b>单引号</b> 或 <b>双引号</b> 括起来的任意文本，字符串里可以使用转义字符（ <code>\n</code>, <code>\t</code>, <code>\\</code> 等等）
+</p>
 <ul class="org-ul">
-<li>字符串是以 '' 或 "" 括起来的任意文本，字符串里可以使用转义字符（\n、\t、\\等等）</li>
 <li>r'' 表示字符串默认不转义</li>
 <li><p>
-如果字符串中含有很多换行， \n 用起来不好阅读，可以使用 ''' ''' 或 r''' '''
+如果字符串中含有很多换行，<code>\n</code> 用起来不好阅读，可以使用 ''' ''' 或 r''' '''
 </p>
 <div class="org-src-container">
 
@@ -219,8 +218,9 @@ comments:
 <span style="color: #E6DB74;">line3'''</span>
 </pre>
 </div></li>
-<li>字符串之间可以直接相加+ 结果是两个字符串连接起来</li>
+<li>字符串之间可以直接相加 <code>+</code> 结果是两个字符串连接起来</li>
 </ul>
+</div>
 </div>
 
 <div id="outline-container-orgheadline7" class="outline-4">
@@ -270,34 +270,36 @@ comments:
 </table>
 
 <ul class="org-ul">
-<li>同时，由于Python源代码也是个文本文件，文件包含中文的时候，需要在文件头加上</li>
-</ul>
+<li><p>
+同时，由于Python源代码也是个文本文件，文件包含中文的时候，需要在文件头加上
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #75715E;">#</span><span style="color: #75715E;">!/usr/bin/env python</span>
 <span style="color: #75715E;"># </span><span style="color: #75715E;">-*- coding: utf-8 -*-</span>
 </pre>
-</div>
-<ul class="org-ul">
-<li>字符串是不变对象，即调用自身的任意方法也不会改变自身的内容，这些方法会创建新的对象并返回</li>
-</ul>
+</div></li>
+<li><p>
+字符串是不变对象，即调用自身的任意方法也不会改变自身的内容，这些方法会创建新的对象并返回
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">a</span> = <span style="color: #E6DB74;">'abc'</span>
 <span style="color: #FD971F;">b</span> = a.replace<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'a'</span>, <span style="color: #E6DB74;">'A'</span><span style="color: #AE81FF;">)</span>
 <span style="color: #FD971F;">c</span> = a.title<span style="color: #AE81FF;">()</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23383;&#31526;&#20018;&#24320;&#22836;&#31532;&#19968;&#20010;&#23383;&#27597;&#22823;&#20889;&#65292;&#20854;&#20182;&#23567;&#20889;</span>
-<span style="color: #75715E;"># </span><span style="color: #75715E;">a&#20173;&#20026;'abc'</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#19978;&#36848;&#25805;&#20316;&#21518;&#65292;a&#20173;&#20026;'abc'</span>
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline9" class="outline-4">
 <h4 id="orgheadline9">格式化字符串</h4>
 <div class="outline-text-4" id="text-orgheadline9">
-<ul class="org-ul">
-<li><code>%</code> 运算符用于格式化字符串，python采用的格式化方式和C语言一样</li>
-</ul>
+<p>
+<code>%</code> 运算符用于格式化字符串，python采用的格式化方式和C语言一样
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">print</span> u<span style="color: #E6DB74;">'Hello, %s'</span> % u<span style="color: #E6DB74;">'world'</span>
@@ -342,72 +344,71 @@ comments:
 </div>
 
 
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">布尔值</h3>
-<div class="outline-text-3" id="text-orgheadline10">
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">布尔值</h3>
+<div class="outline-text-3" id="text-orgheadline11">
 <ul class="org-ul">
 <li>一个布尔值只用 <code>True</code> 、 <code>False</code> 两种值</li>
 <li>布尔值可以用 <code>and</code> 、 <code>or</code> 、 <code>not</code> 运算</li>
-<li>比如 2&gt;1 的值为 True</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">空值</h3>
-<div class="outline-text-3" id="text-orgheadline11">
-<ul class="org-ul">
-<li>空值用 <code>None</code> 表示</li>
-<li><code>None</code> 并不能理解为0, 0是有意义的</li>
+<li>比如 <code>2&gt;1</code> 的值为 <code>True</code></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">变量</h3>
+<h3 id="orgheadline12">空值</h3>
 <div class="outline-text-3" id="text-orgheadline12">
 <ul class="org-ul">
-<li>变量名是大小写英文、数字和 _ 的组合，并且不能用数字开头</li>
-<li>对于 a='abc' ，Python解释器做了两件事情：
-<ol class="org-ol">
-<li>在内存中创建了 <code>abc</code> 的字符串</li>
-<li>在内存中创建了名为 <code>a</code> 的变量，并把它指向 <code>abc</code></li>
-</ol></li>
+<li>空值用 <code>None</code> 表示</li>
+<li><code>None</code> 并不能理解为0，0是有意义的</li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">常量</h3>
+<h3 id="orgheadline13">变量</h3>
 <div class="outline-text-3" id="text-orgheadline13">
-<ul class="org-ul">
-<li>python中，通常用全部大写的变量表示常量，但并不保证该变量不会被改变</li>
-</ul>
+<p>
+变量名是大小写英文、数字和 _ 的组合，并且不能用数字开头
+</p>
+<pre class="example">
+对于 a='abc' ，Python解释器做了两件事情：
+1. 在内存中创建了 abc 的字符串
+2. 在内存中创建了名为 a 的变量，并把它指向 abc
+</pre>
 </div>
 </div>
 
-<div id="outline-container-orgheadline18" class="outline-3">
-<h3 id="orgheadline18">特殊类型</h3>
-<div class="outline-text-3" id="text-orgheadline18">
-</div><div id="outline-container-orgheadline14" class="outline-4">
-<h4 id="orgheadline14">list</h4>
-<div class="outline-text-4" id="text-orgheadline14">
-<ul class="org-ul">
-<li>list是一种有序的集合，可以随时添加和删除其中的元素，是一种可变对象</li>
-</ul>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">常量</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+python中，通常用全部大写的变量表示常量，但并不保证该变量不会被改变
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">特殊类型</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+</div><div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">list</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<p>
+<code>list</code> 是一种有序的集合，可以随时添加和删除其中的元素，是一种可变对象
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">alist</span> = <span style="color: #AE81FF;">[</span><span style="color: #E6DB74;">'first'</span>, <span style="color: #AE81FF;">123</span>, <span style="color: #66D9EF;">[</span><span style="color: #E6DB74;">'lis'</span>,<span style="color: #AE81FF;">123</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>
 <span style="color: #FD971F;">blist</span> = <span style="color: #AE81FF;">[]</span> <span style="color: #75715E;">#</span><span style="color: #75715E;">&#31354;list</span>
 <span style="color: #F92672;">print</span> alist<span style="color: #AE81FF;">[</span><span style="color: #AE81FF;">0</span><span style="color: #AE81FF;">]</span> <span style="color: #75715E;">#</span><span style="color: #75715E;">&#24403;&#32034;&#24341;&#36229;&#20986;&#33539;&#22260;&#26102;&#20250;&#25253;&#19968;&#20010;IndexError&#38169;&#35823;</span>
 <span style="color: #F92672;">print</span> alint<span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">]</span> <span style="color: #75715E;">#</span><span style="color: #75715E;">&#33719;&#21462;&#20498;&#25968;&#31532;1&#20010;&#20803;&#32032;</span>
+
+<span style="color: #FD971F;">num</span> = <span style="color: #F92672;">len</span><span style="color: #AE81FF;">(</span>alist<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;len&#21487;&#20197;&#33719;&#24471;list&#20803;&#32032;&#30340;&#20010;&#25968;</span>
 </pre>
 </div>
-<ul class="org-ul">
-<li>使用 <code>len()</code> 可以获得list元素的个数</li>
-<li>list常用方法:</li>
-</ul>
-<div class="org-src-container">
+<dl class="org-dl">
+<dt>list常用方法</dt><dd><div class="org-src-container">
 
 <pre class="src src-python">alist.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'yes'</span><span style="color: #AE81FF;">)</span>    <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#20803;&#32032;&#28155;&#21152;&#21040;list&#26411;&#23614; </span>
 alist.insert<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">1</span>, <span style="color: #E6DB74;">'yes'</span><span style="color: #AE81FF;">)</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#20803;&#32032;&#28155;&#21152;&#21040;&#25351;&#23450;&#20301;&#32622; </span>
@@ -415,33 +416,34 @@ alist.pop<span style="color: #AE81FF;">()</span>            <span style="color: 
 alist.pop<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">)</span>           <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#25351;&#23450;&#20803;&#32032;         </span>
 <span style="color: #FD971F;">alist</span><span style="color: #AE81FF;">[</span><span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">]</span>= <span style="color: #E6DB74;">'yes'</span>        <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26367;&#25442;&#25351;&#23450;&#20803;&#32032;</span>
 </pre>
+</div></dd>
+</dl>
+<pre class="example">
+list的查找和插入速度随着元素的增加而增加
+</pre>
 </div>
-<ul class="org-ul">
-<li>list的查找和插入速度随着元素的增加而增加</li>
-</ul>
 </div>
-</div>
-<div id="outline-container-orgheadline15" class="outline-4">
-<h4 id="orgheadline15">tuple</h4>
-<div class="outline-text-4" id="text-orgheadline15">
-<ul class="org-ul">
-<li>tuple和list类似，但一旦初始化就不能修改了（即没有append()、insert()这样的方法）</li>
-</ul>
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">tuple</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+<p>
+<code>tuple</code> 和 <code>list</code> 类似，但一旦初始化就不能修改了（即没有 <code>append()</code>, <code>insert()</code> 这样的方法）
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">atuple</span> = <span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'first'</span>, <span style="color: #AE81FF;">123</span><span style="color: #AE81FF;">)</span>
-<span style="color: #FD971F;">btuple</span> = <span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">)</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19968;&#20010;&#20803;&#32032;&#38656;&#35201;&#22312;&#20803;&#32032;&#21518;&#21152;&#36887;&#21495;</span>
-<span style="color: #FD971F;">ctuple</span> = <span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'first'</span>, <span style="color: #66D9EF;">[</span><span style="color: #E6DB74;">'x'</span>, <span style="color: #E6DB74;">'y'</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">list&#20869;&#21487;&#20197;&#21464;&#65292;&#22240;&#27492;&#35813;tuple&#21464;&#25104;&#20102;&#21487;&#21464;&#23545;&#35937;</span>
+<span style="color: #FD971F;">btuple</span> = <span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19968;&#20010;&#20803;&#32032;&#30340;tuple&#38656;&#35201;&#22312;&#20803;&#32032;&#21518;&#21152;&#36887;&#21495;</span>
+<span style="color: #FD971F;">ctuple</span> = <span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'first'</span>, <span style="color: #66D9EF;">[</span><span style="color: #E6DB74;">'x'</span>, <span style="color: #E6DB74;">'y'</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">list&#20869;&#21487;&#20197;&#21464;&#65292;&#22240;&#27492;&#35813;tuple&#21464;&#25104;&#20102;&#21487;&#21464;&#23545;&#35937;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-4">
-<h4 id="orgheadline16">dict</h4>
-<div class="outline-text-4" id="text-orgheadline16">
-<ul class="org-ul">
-<li>dict使用key-value存储（作为key的对象必须不可变），具有极快的查找速度，但存储顺序不能保证</li>
-</ul>
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">dict</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+<p>
+<code>dict</code> 使用key-value存储（作为key的对象必须不可变），具有极快的查找速度，但存储顺序不能保证
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">dic</span> = <span style="color: #AE81FF;">{</span><span style="color: #E6DB74;">'first'</span>: <span style="color: #AE81FF;">1</span>, <span style="color: #E6DB74;">'second'</span>: <span style="color: #AE81FF;">2</span>, <span style="color: #E6DB74;">'three'</span>: <span style="color: #AE81FF;">3</span><span style="color: #AE81FF;">}</span> <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21021;&#22987;&#21270;dict</span>
@@ -453,25 +455,27 @@ dic.pop<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'thre
 </pre>
 </div>
 <ul class="org-ul">
-<li>判断dict中key是否存在</li>
-</ul>
+<li><p>
+判断dict中key是否存在
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">if</span> <span style="color: #E6DB74;">'first'</span> <span style="color: #F92672;">in</span> dic:
     <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'yes'</span>
 </pre>
-</div>
-<ul class="org-ul">
-<li>dict与list相比，查找和插入速度极快，但需要占用大量的内存</li>
+</div></li>
 </ul>
+<pre class="example">
+dict与list相比，查找和插入速度极快，但需要占用大量的内存
+</pre>
 </div>
 </div>
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">set</h4>
-<div class="outline-text-4" id="text-orgheadline17">
-<ul class="org-ul">
-<li>set是一组key的集合，即在set中，没有重复的key（同样不可变，即参数不能包含list这种可变元素）</li>
-</ul>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">set</h4>
+<div class="outline-text-4" id="text-orgheadline18">
+<p>
+<code>set</code> 是一组key的集合，即在set中，没有重复的key（同样不可变，即参数不能包含list这种可变元素）
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">s</span> = <span style="color: #F92672;">set</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">3</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#19968;&#20010;set&#65292;&#38656;&#35201;&#25552;&#20379;&#19968;&#20010;list&#20316;&#20026;&#36755;&#20837;&#38598;&#21512;</span>
@@ -481,8 +485,9 @@ s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</s
 </pre>
 </div>
 <ul class="org-ul">
-<li>set之间可以取交集|、并集&amp;</li>
-</ul>
+<li><p>
+set之间可以取交集 <code>|</code> 、并集 <code>&amp;</code> 
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">s1</span> = <span style="color: #F92672;">set</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">3</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>
@@ -490,22 +495,21 @@ s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</s
 <span style="color: #F92672;">print</span> s1 | s2  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#20132;&#38598; set([2,3])</span>
 <span style="color: #F92672;">print</span> s1 &amp; s2  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#24182;&#38598; set([1,2,3,4])</span>
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline22" class="outline-2">
-<h2 id="orgheadline22"><span class="section-number-2">3</span> 条件判断和循环</h2>
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">3</span> 条件判断和循环</h2>
 <div class="outline-text-2" id="text-3">
-</div><div id="outline-container-orgheadline20" class="outline-3">
-<h3 id="orgheadline20">条件判断</h3>
-<div class="outline-text-3" id="text-orgheadline20">
+</div><div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">条件判断</h3>
+<div class="outline-text-3" id="text-orgheadline21">
 <dl class="org-dl">
-<dt>if</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>if</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">if</span> <span style="color: #AE81FF;">3</span> &gt; <span style="color: #AE81FF;">2</span>:
     <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'true'</span>
@@ -514,43 +518,40 @@ s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</s
 <span style="color: #F92672;">else</span>:
     <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'false'</span>
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 
-<div id="outline-container-orgheadline21" class="outline-3">
-<h3 id="orgheadline21">循环</h3>
-<div class="outline-text-3" id="text-orgheadline21">
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">循环</h3>
+<div class="outline-text-3" id="text-orgheadline22">
 <dl class="org-dl">
-<dt>for</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>for</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">101</span><span style="color: #AE81FF;">)</span>: <span style="color: #75715E;">#</span><span style="color: #75715E;">range(101)&#29983;&#25104;0-100&#30340;&#25972;&#25968;list</span>
                      <span style="color: #75715E;">#</span><span style="color: #75715E;">range(3, 50)&#29983;&#25104;3-49&#30340;&#25972;&#25968;list</span>
     <span style="color: #F92672;">print</span> x
 </pre>
-</div>
-<dl class="org-dl">
-<dt>while</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+</div></dd>
+<dt>while</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">while</span> <span style="color: #AE81FF;">True</span>:
     <span style="color: #F92672;">print</span> <span style="color: #E6DB74;">'yes'</span>
     <span style="color: #F92672;">break</span>
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline39" class="outline-2">
-<h2 id="orgheadline39"><span class="section-number-2">4</span> 函数</h2>
+<div id="outline-container-orgheadline40" class="outline-2">
+<h2 id="orgheadline40"><span class="section-number-2">4</span> 函数</h2>
 <div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline23" class="outline-3">
-<h3 id="orgheadline23">定义函数</h3>
-<div class="outline-text-3" id="text-orgheadline23">
+</div><div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24">定义函数</h3>
+<div class="outline-text-3" id="text-orgheadline24">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">my_abs</span><span style="color: #AE81FF;">(</span>x<span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;def&#23450;&#20041;&#20989;&#25968;&#65292;&#26368;&#21518;&#35201;&#21152;&#20882;&#21495;</span>
@@ -560,55 +561,53 @@ s.remove<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</s
         <span style="color: #F92672;">return</span> x  
     <span style="color: #F92672;">else</span>:
         <span style="color: #F92672;">return</span> -x  <span style="color: #75715E;"># </span><span style="color: #75715E;">return&#29992;&#20110;&#32467;&#26463;&#20989;&#25968;&#25191;&#34892;&#65292;&#36820;&#22238;&#32467;&#26524;</span>
+
 my_abs<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">12</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35843;&#29992;&#20989;&#25968;</span>
 my_abs<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">12</span>,<span style="color: #AE81FF;">12</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#21442;&#25968;&#20010;&#25968;&#19981;&#23545;&#26102;&#65292;&#20250;&#25243;&#20986;TypeError&#38169;&#35823;</span>
 </pre>
 </div>
 <dl class="org-dl">
-<dt>空函数</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>空函数</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">kong</span><span style="color: #AE81FF;">()</span>:
     <span style="color: #F92672;">pass</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">pass&#26159;&#19968;&#20010;&#21344;&#20301;&#31526;&#65292;&#20160;&#20040;&#20063;&#19981;&#20570;&#65292;&#21487;&#20197;&#29992;&#26469;&#23450;&#20041;&#31354;&#20989;&#25968;</span>
 </pre>
-</div>
-<dl class="org-dl">
-<dt>返回多个值</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+</div></dd>
+<dt>返回多个值</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">exchange</span><span style="color: #AE81FF;">(</span>x, y<span style="color: #AE81FF;">)</span>:
     <span style="color: #F92672;">return</span> y, x  <span style="color: #75715E;">#</span><span style="color: #75715E;">&#36820;&#22238;&#20540;&#20854;&#23454;&#26159;&#19968;&#20010;tuple</span>
 <span style="color: #FD971F;">x</span>, <span style="color: #FD971F;">y</span> = exchange<span style="color: #AE81FF;">(</span>x, y<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22810;&#20010;&#21464;&#37327;&#21487;&#20197;&#21516;&#26102;&#25509;&#25910;&#19968;&#20010;tuple</span>
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 
-<div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24">函数的参数</h3>
-<div class="outline-text-3" id="text-orgheadline24">
-<ul class="org-ul">
-<li>函数参数传进去是进行复制，在函数内对参数的改动不会影响传进去的参数</li>
-</ul>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">函数的参数</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<pre class="example">
+函数参数传进去是进行复制，在函数内对参数的改动不会影响传进去的参数
+</pre>
 </div>
-<div id="outline-container-orgheadline25" class="outline-4">
-<h4 id="orgheadline25">默认参数</h4>
-<div class="outline-text-4" id="text-orgheadline25">
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">默认参数</h4>
+<div class="outline-text-4" id="text-orgheadline26">
 <ul class="org-ul">
-<li>默认参数不能放在普通参数之前</li>
-</ul>
+<li><p>
+默认参数不能放在普通参数之前
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">get</span><span style="color: #AE81FF;">(</span>x, y=<span style="color: #AE81FF;">2</span><span style="color: #AE81FF;">)</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;y&#27809;&#26377;&#20256;&#20837;&#21442;&#25968;&#21017;&#20026;2</span>
     <span style="color: #F92672;">pass</span>
 get<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">1</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">y=2</span>
 </pre>
-</div>
-<ul class="org-ul">
-<li>默认参数必须指向不变对象</li>
-</ul>
+</div></li>
+<li><p>
+默认参数必须指向不变对象
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">add_end</span><span style="color: #AE81FF;">(</span>L=<span style="color: #66D9EF;">[]</span><span style="color: #AE81FF;">)</span>
@@ -622,13 +621,14 @@ get<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">1</span><
     L.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">'yes'</span><span style="color: #AE81FF;">)</span>
     <span style="color: #F92672;">return</span> L
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline26" class="outline-4">
-<h4 id="orgheadline26">可变参数</h4>
-<div class="outline-text-4" id="text-orgheadline26">
+<div id="outline-container-orgheadline27" class="outline-4">
+<h4 id="orgheadline27">可变参数</h4>
+<div class="outline-text-4" id="text-orgheadline27">
 <p>
 可变参数将多余的参数组装成一个tuple（即函数内不可变），可能为空
 </p>
@@ -647,9 +647,9 @@ mysum<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline27" class="outline-4">
-<h4 id="orgheadline27">关键字参数</h4>
-<div class="outline-text-4" id="text-orgheadline27">
+<div id="outline-container-orgheadline28" class="outline-4">
+<h4 id="orgheadline28">关键字参数</h4>
+<div class="outline-text-4" id="text-orgheadline28">
 <p>
 关键字参数可以将传入的含参数名的参数组装为一个dict，可能为空
 </p>
@@ -667,24 +667,24 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 </div>
 </div>
 
-<div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28">递归函数</h3>
-<div class="outline-text-3" id="text-orgheadline28">
-<ul class="org-ul">
-<li>使用递归函数要注意防止栈溢出，解决栈溢出的方式是通过尾递归优化，但Python的解释器并没有针对尾递归做优化，需要自行处理，即将尾递归转换为循环</li>
-</ul>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">递归函数</h3>
+<div class="outline-text-3" id="text-orgheadline29">
+<p>
+使用递归函数要注意防止栈溢出，解决栈溢出的方式是通过尾递归优化，但Python的解释器并没有针对尾递归做优化，需要自行处理，即将尾递归转换为循环
+</p>
 <pre class="example">
 尾递归是指函数返回的时候，调用自身本身，并且return不能包含表达式
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgheadline29" class="outline-3">
-<h3 id="orgheadline29">函数名</h3>
-<div class="outline-text-3" id="text-orgheadline29">
-<ul class="org-ul">
-<li>函数名其实就是指向函数对象的变量，可以把函数名赋给一个变量，相当于给这个函数起了“别名”</li>
-</ul>
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">函数名</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+<p>
+函数名其实就是指向函数对象的变量，可以把函数名赋给一个变量，相当于给这个函数起了 <code>别名</code>
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">a</span> = <span style="color: #F92672;">abs</span> <span style="color: #75715E;">#</span><span style="color: #75715E;">&#21462;&#32477;&#23545;&#20540;&#30340;&#20869;&#32622;&#20989;&#25968;</span>
@@ -692,19 +692,21 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 <span style="color: #75715E;"># </span><span style="color: #75715E;">abs&#20989;&#25968;&#23454;&#38469;&#19978;&#26159;&#23450;&#20041;&#22312; __builtin__ &#27169;&#22359;&#20013;</span>
 </pre>
 </div>
+<pre class="example">
+当一个函数就可以接受另一个函数名作为参数，这种函数被称为高阶函数
+</pre>
 <ul class="org-ul">
-<li>同样一个函数就可以接受另一个函数名作为参数，这种函数被称为高阶函数</li>
 <li>函数对象有一个 <code>__name__</code> 属性，可以获得函数的名字</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline34" class="outline-3">
-<h3 id="orgheadline34">内建函数：</h3>
-<div class="outline-text-3" id="text-orgheadline34">
-</div><div id="outline-container-orgheadline30" class="outline-4">
-<h4 id="orgheadline30">map</h4>
-<div class="outline-text-4" id="text-orgheadline30">
+<div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="orgheadline35">内建函数：</h3>
+<div class="outline-text-3" id="text-orgheadline35">
+</div><div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31">map</h4>
+<div class="outline-text-4" id="text-orgheadline31">
 <p>
 <code>map()</code> 接受两个参数，一个接受一个参数的函数和一个任意序列（包括字符串），map将传入的函数依次作用到序列的每个元素，并把结果作为新的list返回
 </p>
@@ -720,9 +722,9 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 </div>
 </div>
 
-<div id="outline-container-orgheadline31" class="outline-4">
-<h4 id="orgheadline31">reduce</h4>
-<div class="outline-text-4" id="text-orgheadline31">
+<div id="outline-container-orgheadline32" class="outline-4">
+<h4 id="orgheadline32">reduce</h4>
+<div class="outline-text-4" id="text-orgheadline32">
 <p>
 <code>reduce()</code> 接受两个参数，一个接受两个参数的函数和一个任意序列，reduce会把结果继续和序列的下个一元素累计计算
 </p>
@@ -739,9 +741,9 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 </div>
 </div>
 
-<div id="outline-container-orgheadline32" class="outline-4">
-<h4 id="orgheadline32">filter</h4>
-<div class="outline-text-4" id="text-orgheadline32">
+<div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">filter</h4>
+<div class="outline-text-4" id="text-orgheadline33">
 <p>
 <code>filter()</code> 接受两个参数，一个接受一个参数的函数和一个任意序列（包括字符串），filter将传入的函数依次作用到序列的每个元素，根据返回值是True还是False来决定是否保留该元素
 </p>
@@ -756,9 +758,9 @@ func<span style="color: #AE81FF;">(</span>*<span style="color: #66D9EF;">(</span
 </div>
 </div>
 
-<div id="outline-container-orgheadline33" class="outline-4">
-<h4 id="orgheadline33">sorted</h4>
-<div class="outline-text-4" id="text-orgheadline33">
+<div id="outline-container-orgheadline34" class="outline-4">
+<h4 id="orgheadline34">sorted</h4>
+<div class="outline-text-4" id="text-orgheadline34">
 <p>
 <code>sorted()</code> 对一个任意序列进行排序
 </p>
@@ -781,9 +783,9 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
 </div>
 </div>
 
-<div id="outline-container-orgheadline35" class="outline-3">
-<h3 id="orgheadline35">返回函数</h3>
-<div class="outline-text-3" id="text-orgheadline35">
+<div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36">返回函数</h3>
+<div class="outline-text-3" id="text-orgheadline36">
 <ul class="org-ul">
 <li>返回函数时，相关参数和变量都保存在返回的函数中，被称为“闭包”，是高阶函数</li>
 <li>注意：返回函数不要引用任何循环变量或后续会发生变化的变量</li>
@@ -816,12 +818,13 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
 </div>
 </div>
 
-<div id="outline-container-orgheadline36" class="outline-3">
-<h3 id="orgheadline36">匿名函数</h3>
-<div class="outline-text-3" id="text-orgheadline36">
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">匿名函数</h3>
+<div class="outline-text-3" id="text-orgheadline37">
 <ul class="org-ul">
-<li>匿名函数只能有一个表达式</li>
-</ul>
+<li><p>
+匿名函数只能有一个表达式
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">f</span> = <span style="color: #F92672;">lambda</span> x: x * x
@@ -829,24 +832,25 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
 <span style="color: #F92672;">def</span> <span style="color: #A6E22E;">f</span><span style="color: #AE81FF;">(</span>x<span style="color: #AE81FF;">)</span>:
     <span style="color: #F92672;">return</span> x * x
 </pre>
-</div>
-<ul class="org-ul">
-<li>返回匿名函数：</li>
-</ul>
+</div></li>
+<li><p>
+返回匿名函数：
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">build</span><span style="color: #AE81FF;">(</span>x, y<span style="color: #AE81FF;">)</span>:
     <span style="color: #F92672;">return</span> <span style="color: #F92672;">lambda</span>: x * x + y * y
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline37" class="outline-3">
-<h3 id="orgheadline37">装饰器</h3>
-<div class="outline-text-3" id="text-orgheadline37">
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">装饰器</h3>
+<div class="outline-text-3" id="text-orgheadline38">
 <p>
-装饰器Decorator可以在代码运行期间动态增加功能，本质是一个返回函数的高阶函数
+装饰器 <code>Decorator</code> 可以在代码运行期间动态增加功能，本质是一个返回函数的高阶函数
 </p>
 <div class="org-src-container">
 
@@ -864,8 +868,9 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
 </pre>
 </div>
 <ul class="org-ul">
-<li>如果decorator本身需要传入参数的话，那就需要编写一个返回decorator的高阶函数</li>
-</ul>
+<li><p>
+如果decorator本身需要传入参数的话，那就需要编写一个返回decorator的高阶函数
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">log</span><span style="color: #AE81FF;">(</span>text<span style="color: #AE81FF;">)</span>:
@@ -882,10 +887,10 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
 
 <span style="color: #F92672;">print</span> a.<span style="color: #F92672;">__name__</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20381;&#26087;&#20026;wrapper</span>
 </pre>
-</div>
-<ul class="org-ul">
-<li>如果要使 <code>__name__</code> 正常显示的话，需要使用 <code>functools.wraps</code></li>
-</ul>
+</div></li>
+<li><p>
+如果要使 <code>__name__</code> 正常显示的话，需要使用 <code>functools.wraps</code>
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">import</span> functools
@@ -897,13 +902,14 @@ sort<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>
         <span style="color: #F92672;">return</span> func<span style="color: #AE81FF;">(</span>*args, **kw<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35843;&#29992;func</span>
     <span style="color: #F92672;">return</span> wrapper
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 
-<div id="outline-container-orgheadline38" class="outline-3">
-<h3 id="orgheadline38">偏函数</h3>
-<div class="outline-text-3" id="text-orgheadline38">
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">偏函数</h3>
+<div class="outline-text-3" id="text-orgheadline39">
 <p>
 <code>functools.partial</code> 的作用是把一个函数的某些参数值固定，并返回这个新函数
 </p>
@@ -922,15 +928,15 @@ test2<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">3</span
 </div>
 </div>
 
-<div id="outline-container-orgheadline48" class="outline-2">
-<h2 id="orgheadline48"><span class="section-number-2">5</span> 高级特性</h2>
+<div id="outline-container-orgheadline50" class="outline-2">
+<h2 id="orgheadline50"><span class="section-number-2">5</span> 高级特性</h2>
 <div class="outline-text-2" id="text-5">
-</div><div id="outline-container-orgheadline40" class="outline-3">
-<h3 id="orgheadline40">切片</h3>
-<div class="outline-text-3" id="text-orgheadline40">
-<ul class="org-ul">
-<li>切片可以取一个list、tuple或字符串的部分元素（结果的类型与原来相同）</li>
-</ul>
+</div><div id="outline-container-orgheadline41" class="outline-3">
+<h3 id="orgheadline41">切片</h3>
+<div class="outline-text-3" id="text-orgheadline41">
+<p>
+切片可以取一个list、tuple或字符串的部分元素（结果的类型与原来相同）
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">L</span> = <span style="color: #AE81FF;">[</span><span style="color: #AE81FF;">0</span>,<span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">3</span>,<span style="color: #AE81FF;">4</span>,<span style="color: #AE81FF;">5</span>,<span style="color: #AE81FF;">6</span>,<span style="color: #AE81FF;">7</span>,<span style="color: #AE81FF;">8</span>,<span style="color: #AE81FF;">9</span><span style="color: #AE81FF;">]</span>
@@ -948,12 +954,15 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </div>
 </div>
 
-<div id="outline-container-orgheadline41" class="outline-3">
-<h3 id="orgheadline41">迭代</h3>
-<div class="outline-text-3" id="text-orgheadline41">
-<ul class="org-ul">
-<li>可以使用collections模块的Iterable类型来判断一个对象是否是可迭代对象</li>
-</ul>
+<div id="outline-container-orgheadline47" class="outline-3">
+<h3 id="orgheadline47">迭代</h3>
+<div class="outline-text-3" id="text-orgheadline47">
+</div><div id="outline-container-orgheadline42" class="outline-4">
+<h4 id="orgheadline42">检测是否可迭代</h4>
+<div class="outline-text-4" id="text-orgheadline42">
+<p>
+可以使用collections模块的Iterable类型来判断一个对象是否是可迭代对象
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">from</span> collections <span style="color: #F92672;">import</span> Iterable
@@ -963,9 +972,10 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </pre>
 </div>
 </div>
-<div id="outline-container-orgheadline42" class="outline-4">
-<h4 id="orgheadline42">多变量的迭代</h4>
-<div class="outline-text-4" id="text-orgheadline42">
+</div>
+<div id="outline-container-orgheadline43" class="outline-4">
+<h4 id="orgheadline43">多变量的迭代</h4>
+<div class="outline-text-4" id="text-orgheadline43">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">for</span> x, y <span style="color: #F92672;">in</span> <span style="color: #AE81FF;">[</span><span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">1</span><span style="color: #66D9EF;">)</span>, <span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span><span style="color: #66D9EF;">)</span>, <span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">3</span>,<span style="color: #AE81FF;">3</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">]</span>:
@@ -974,9 +984,9 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline43" class="outline-4">
-<h4 id="orgheadline43">dict的迭代</h4>
-<div class="outline-text-4" id="text-orgheadline43">
+<div id="outline-container-orgheadline44" class="outline-4">
+<h4 id="orgheadline44">dict的迭代</h4>
+<div class="outline-text-4" id="text-orgheadline44">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">d</span> = <span style="color: #AE81FF;">{</span><span style="color: #E6DB74;">'first'</span>: <span style="color: #AE81FF;">1</span>, <span style="color: #E6DB74;">'second'</span>: <span style="color: #AE81FF;">2</span><span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20445;&#23384;&#39034;&#24207;&#19981;&#33021;&#20445;&#35777;</span>
@@ -990,9 +1000,9 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline44" class="outline-4">
-<h4 id="orgheadline44">字符串的迭代</h4>
-<div class="outline-text-4" id="text-orgheadline44">
+<div id="outline-container-orgheadline45" class="outline-4">
+<h4 id="orgheadline45">字符串的迭代</h4>
+<div class="outline-text-4" id="text-orgheadline45">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">for</span> ch <span style="color: #F92672;">in</span> <span style="color: #E6DB74;">'ABC'</span>:   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23383;&#31526;&#20018;&#20063;&#26159;&#21487;&#36845;&#20195;&#23545;&#35937;</span>
@@ -1001,9 +1011,9 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline45" class="outline-4">
-<h4 id="orgheadline45">list的下标循环</h4>
-<div class="outline-text-4" id="text-orgheadline45">
+<div id="outline-container-orgheadline46" class="outline-4">
+<h4 id="orgheadline46">list的下标循环</h4>
+<div class="outline-text-4" id="text-orgheadline46">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">for</span> i, value <span style="color: #F92672;">in</span> <span style="color: #F92672;">enumerate</span><span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #E6DB74;">'a'</span>, <span style="color: #E6DB74;">'b'</span>, <span style="color: #E6DB74;">'c'</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">)</span>: <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33021;&#22815;&#25226;&#19968;&#20010;list&#21464;&#25104;&#32034;&#24341;-&#20803;&#32032;&#23545;</span>
@@ -1014,18 +1024,17 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </div>
 </div>
 
-<div id="outline-container-orgheadline46" class="outline-3">
-<h3 id="orgheadline46">列表生成式</h3>
-<div class="outline-text-3" id="text-orgheadline46">
-<ul class="org-ul">
-<li>列表生成式直接生成一个list，但会占用比较大的内存</li>
-</ul>
-
-
+<div id="outline-container-orgheadline48" class="outline-3">
+<h3 id="orgheadline48">列表生成式</h3>
+<div class="outline-text-3" id="text-orgheadline48">
+<p>
+列表生成式直接生成一个list，但会占用比较大的内存
+</p>
+<pre class="example">
+若想让结果是一个元素则可以不加 [ ]
+</pre>
 <dl class="org-dl">
-<dt>生成平方list</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>生成平方list</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #AE81FF;">[</span>x * x <span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">1</span>, <span style="color: #AE81FF;">5</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[1, 4, 9, 16]</span>
 <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;</span>
@@ -1033,11 +1042,8 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">1</span>, <span style="color: #AE81FF;">5</span><span style="color: #AE81FF;">)</span>:
     L.append<span style="color: #AE81FF;">(</span>x * x<span style="color: #AE81FF;">)</span>
 </pre>
-</div>
-<dl class="org-dl">
-<dt>特殊用法</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+</div></dd>
+<dt>特殊用法</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #75715E;">#</span><span style="color: #75715E;">&#20351;&#29992;&#21028;&#26029;</span>
 <span style="color: #AE81FF;">[</span>x * x <span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">1</span>, <span style="color: #AE81FF;">5</span><span style="color: #66D9EF;">)</span> <span style="color: #F92672;">if</span> x % <span style="color: #AE81FF;">2</span> == <span style="color: #AE81FF;">0</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[4, 16]</span>
@@ -1046,27 +1052,23 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <span style="color: #75715E;">#</span><span style="color: #75715E;">&#22810;&#21464;&#37327;</span>
 <span style="color: #AE81FF;">[</span>k + v <span style="color: #F92672;">for</span> k, v <span style="color: #F92672;">in</span> <span style="color: #66D9EF;">[</span><span style="color: #A6E22E;">(</span><span style="color: #AE81FF;">1</span>,<span style="color: #AE81FF;">1</span><span style="color: #A6E22E;">)</span>, <span style="color: #A6E22E;">(</span><span style="color: #AE81FF;">2</span>,<span style="color: #AE81FF;">2</span><span style="color: #A6E22E;">)</span><span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">[2, 4]</span>
 </pre>
-</div>
-<dl class="org-dl">
-<dt>三元运算符</dt><dd><ul class="org-ul">
-<li>若想让结果是一个元素则可以不加 <code>[]</code></li>
-</ul></dd>
-</dl>
-<div class="org-src-container">
+</div></dd>
+<dt>三元运算符</dt><dd><div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #FD971F;">i</span> = <span style="color: #AE81FF;">3</span>
 <span style="color: #FD971F;">i</span> = i if i &gt; <span style="color: #AE81FF;">4</span> else <span style="color: #AE81FF;">5</span>
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 
-<div id="outline-container-orgheadline47" class="outline-3">
-<h3 id="orgheadline47">生成器generator</h3>
-<div class="outline-text-3" id="text-orgheadline47">
-<ul class="org-ul">
-<li>相对与列表生成式直接生成一个list，是generator保存的是生成值的方法，每次调用会生成一个元素</li>
-</ul>
+<div id="outline-container-orgheadline49" class="outline-3">
+<h3 id="orgheadline49">生成器generator</h3>
+<div class="outline-text-3" id="text-orgheadline49">
+<p>
+相对与列表生成式直接生成一个list，是generator保存的是生成值的方法，每次调用会生成一个元素
+</p>
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #FD971F;">g</span> = <span style="color: #AE81FF;">(</span>x * x <span style="color: #F92672;">for</span> x <span style="color: #F92672;">in</span> <span style="color: #F92672;">range</span><span style="color: #66D9EF;">(</span><span style="color: #AE81FF;">10</span><span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">geneator&#30340;&#20869;&#23481;&#21487;&#20197;&#21644;&#21015;&#34920;&#29983;&#25104;&#24335;&#19968;&#26679;</span>
@@ -1079,9 +1081,7 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </pre>
 </div>
 <dl class="org-dl">
-<dt>将函数转变为生成器</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>将函数转变为生成器</dt><dd><div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">def</span> <span style="color: #A6E22E;">ran</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">max</span><span style="color: #AE81FF;">)</span>:
     <span style="color: #FD971F;">n</span> = <span style="color: #AE81FF;">0</span>
@@ -1095,17 +1095,18 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 <span style="color: #F92672;">for</span> n <span style="color: #F92672;">in</span> ran<span style="color: #AE81FF;">(</span><span style="color: #AE81FF;">6</span><span style="color: #AE81FF;">)</span>:
     <span style="color: #F92672;">print</span> n
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline54" class="outline-2">
-<h2 id="orgheadline54"><span class="section-number-2">6</span> 模块</h2>
+<div id="outline-container-orgheadline56" class="outline-2">
+<h2 id="orgheadline56"><span class="section-number-2">6</span> 模块</h2>
 <div class="outline-text-2" id="text-6">
-</div><div id="outline-container-orgheadline49" class="outline-3">
-<h3 id="orgheadline49">模块与包</h3>
-<div class="outline-text-3" id="text-orgheadline49">
+</div><div id="outline-container-orgheadline51" class="outline-3">
+<h3 id="orgheadline51">模块与包</h3>
+<div class="outline-text-3" id="text-orgheadline51">
 <ul class="org-ul">
 <li>在Python中，一个.py文件就称之为一个模块（Module）</li>
 <li>相同名字的函数和变量完全可以分别存在不同的模块中</li>
@@ -1116,9 +1117,9 @@ L<span style="color: #AE81FF;">[</span>:<span style="color: #AE81FF;">]</span>  
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline50" class="outline-3">
-<h3 id="orgheadline50">使用模块</h3>
-<div class="outline-text-3" id="text-orgheadline50">
+<div id="outline-container-orgheadline52" class="outline-3">
+<h3 id="orgheadline52">使用模块</h3>
+<div class="outline-text-3" id="text-orgheadline52">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #E6DB74;">'a test module'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20219;&#20309;&#27169;&#22359;&#20195;&#30721;&#30340;&#31532;&#19968;&#20010;&#23383;&#31526;&#20018;&#37117;&#34987;&#35270;&#20026;&#27169;&#22359;&#30340;&#25991;&#26723;&#27880;&#37322;</span>
@@ -1144,9 +1145,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline51" class="outline-3">
-<h3 id="orgheadline51">模块的别名</h3>
-<div class="outline-text-3" id="text-orgheadline51">
+<div id="outline-container-orgheadline53" class="outline-3">
+<h3 id="orgheadline53">模块的别名</h3>
+<div class="outline-text-3" id="text-orgheadline53">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">try</span>: 
@@ -1157,18 +1158,18 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline52" class="outline-3">
-<h3 id="orgheadline52">作用域</h3>
-<div class="outline-text-3" id="text-orgheadline52">
+<div id="outline-container-orgheadline54" class="outline-3">
+<h3 id="orgheadline54">作用域</h3>
+<div class="outline-text-3" id="text-orgheadline54">
 <ul class="org-ul">
 <li>在Python模块中，以 <code>_</code> 开头的函数或变量是private，不应该被直接引用（但无法禁止）</li>
 <li>外部不需要引用的函数全部定义成private，只有外部需要引用的函数才定义为public</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline53" class="outline-3">
-<h3 id="orgheadline53">使用__future__</h3>
-<div class="outline-text-3" id="text-orgheadline53">
+<div id="outline-container-orgheadline55" class="outline-3">
+<h3 id="orgheadline55">使用<span class="underline"><span class="underline">future</span></span></h3>
+<div class="outline-text-3" id="text-orgheadline55">
 <ul class="org-ul">
 <li>使用 <code>__future__</code> 模块可以暂时使用新版本的某个功能，以便于移植</li>
 </ul>
@@ -1176,17 +1177,17 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 
-<div id="outline-container-orgheadline66" class="outline-2">
-<h2 id="orgheadline66"><span class="section-number-2">7</span> 面向对象编程</h2>
+<div id="outline-container-orgheadline68" class="outline-2">
+<h2 id="orgheadline68"><span class="section-number-2">7</span> 面向对象编程</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li>面向对象的抽象程度比函数要高，因为一个Class即包含数据，又包含操作数据的方法</li>
 </ul>
 </div>
 
-<div id="outline-container-orgheadline55" class="outline-3">
-<h3 id="orgheadline55">类与实例</h3>
-<div class="outline-text-3" id="text-orgheadline55">
+<div id="outline-container-orgheadline57" class="outline-3">
+<h3 id="orgheadline57">类与实例</h3>
+<div class="outline-text-3" id="text-orgheadline57">
 <ul class="org-ul">
 <li>面向对象的设计思想是抽象出Class，根据Class创建Instance</li>
 </ul>
@@ -1235,12 +1236,12 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 
-<div id="outline-container-orgheadline58" class="outline-3">
-<h3 id="orgheadline58">继承和多态</h3>
-<div class="outline-text-3" id="text-orgheadline58">
-</div><div id="outline-container-orgheadline56" class="outline-4">
-<h4 id="orgheadline56">继承</h4>
-<div class="outline-text-4" id="text-orgheadline56">
+<div id="outline-container-orgheadline60" class="outline-3">
+<h3 id="orgheadline60">继承和多态</h3>
+<div class="outline-text-3" id="text-orgheadline60">
+</div><div id="outline-container-orgheadline58" class="outline-4">
+<h4 id="orgheadline58">继承</h4>
+<div class="outline-text-4" id="text-orgheadline58">
 <div class="org-src-container">
 
 <pre class="src src-python"><span style="color: #F92672;">class</span> <span style="color: #66D9EF;">Animal</span><span style="color: #AE81FF;">(</span><span style="color: #F92672;">object</span><span style="color: #AE81FF;">)</span>:
@@ -1259,9 +1260,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline57" class="outline-4">
-<h4 id="orgheadline57">多态</h4>
-<div class="outline-text-4" id="text-orgheadline57">
+<div id="outline-container-orgheadline59" class="outline-4">
+<h4 id="orgheadline59">多态</h4>
+<div class="outline-text-4" id="text-orgheadline59">
 <ul class="org-ul">
 <li>子类可以赋予给一个父类的对象</li>
 </ul>
@@ -1275,12 +1276,12 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 
-<div id="outline-container-orgheadline62" class="outline-3">
-<h3 id="orgheadline62">获取对象信息</h3>
-<div class="outline-text-3" id="text-orgheadline62">
-</div><div id="outline-container-orgheadline59" class="outline-4">
-<h4 id="orgheadline59">type()</h4>
-<div class="outline-text-4" id="text-orgheadline59">
+<div id="outline-container-orgheadline64" class="outline-3">
+<h3 id="orgheadline64">获取对象信息</h3>
+<div class="outline-text-3" id="text-orgheadline64">
+</div><div id="outline-container-orgheadline61" class="outline-4">
+<h4 id="orgheadline61">type()</h4>
+<div class="outline-text-4" id="text-orgheadline61">
 <ul class="org-ul">
 <li><code>type()</code> 函数可以用来判断对象类型</li>
 <li>type所返回的类型是type类型</li>
@@ -1297,9 +1298,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline60" class="outline-4">
-<h4 id="orgheadline60">isinstance()</h4>
-<div class="outline-text-4" id="text-orgheadline60">
+<div id="outline-container-orgheadline62" class="outline-4">
+<h4 id="orgheadline62">isinstance()</h4>
+<div class="outline-text-4" id="text-orgheadline62">
 <ul class="org-ul">
 <li>方便判断class的类型，子类的类型是父类的类型</li>
 </ul>
@@ -1312,9 +1313,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline61" class="outline-4">
-<h4 id="orgheadline61">dir()与hasattr()</h4>
-<div class="outline-text-4" id="text-orgheadline61">
+<div id="outline-container-orgheadline63" class="outline-4">
+<h4 id="orgheadline63">dir()与hasattr()</h4>
+<div class="outline-text-4" id="text-orgheadline63">
 <ul class="org-ul">
 <li>dir()用于获得一个对象的所有属性和方法，返回一个包含字符串的list</li>
 <li>hasattr()用于判断一个对象是否含有指定属性</li>
@@ -1329,9 +1330,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline63" class="outline-3">
-<h3 id="orgheadline63">为类绑定方法</h3>
-<div class="outline-text-3" id="text-orgheadline63">
+<div id="outline-container-orgheadline65" class="outline-3">
+<h3 id="orgheadline65">为类绑定方法</h3>
+<div class="outline-text-3" id="text-orgheadline65">
 <ul class="org-ul">
 <li>给实例绑定方法，仅对该实例生效</li>
 </ul>
@@ -1356,9 +1357,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline64" class="outline-3">
-<h3 id="orgheadline64">使用@property</h3>
-<div class="outline-text-3" id="text-orgheadline64">
+<div id="outline-container-orgheadline66" class="outline-3">
+<h3 id="orgheadline66">使用@property</h3>
+<div class="outline-text-3" id="text-orgheadline66">
 <ul class="org-ul">
 <li>装饰器 <code>@property</code> 能把一个方法变成属性调用</li>
 </ul>
@@ -1383,9 +1384,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline65" class="outline-3">
-<h3 id="orgheadline65">多重继承</h3>
-<div class="outline-text-3" id="text-orgheadline65">
+<div id="outline-container-orgheadline67" class="outline-3">
+<h3 id="orgheadline67">多重继承</h3>
+<div class="outline-text-3" id="text-orgheadline67">
 <ul class="org-ul">
 <li>通过多重继承，一个子类可以同时获得多个父类的所有功能</li>
 </ul>
@@ -1402,12 +1403,12 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline70" class="outline-2">
-<h2 id="orgheadline70"><span class="section-number-2">8</span> 定制类</h2>
+<div id="outline-container-orgheadline72" class="outline-2">
+<h2 id="orgheadline72"><span class="section-number-2">8</span> 定制类</h2>
 <div class="outline-text-2" id="text-8">
-</div><div id="outline-container-orgheadline67" class="outline-3">
-<h3 id="orgheadline67">__slots__</h3>
-<div class="outline-text-3" id="text-orgheadline67">
+</div><div id="outline-container-orgheadline69" class="outline-3">
+<h3 id="orgheadline69">__slots__</h3>
+<div class="outline-text-3" id="text-orgheadline69">
 <p>
 <code>__slots__</code> 用于限制class的属性
 </p>
@@ -1422,9 +1423,9 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline68" class="outline-3">
-<h3 id="orgheadline68">__str__ 与 <span class="underline"><span class="underline">repr</span></span></h3>
-<div class="outline-text-3" id="text-orgheadline68">
+<div id="outline-container-orgheadline70" class="outline-3">
+<h3 id="orgheadline70">__str__ 与 <span class="underline"><span class="underline">repr</span></span></h3>
+<div class="outline-text-3" id="text-orgheadline70">
 <p>
 <code>__str__</code> 用于直接打印
 </p>
@@ -1443,7 +1444,7 @@ sys.path.append<span style="color: #AE81FF;">(</span><span style="color: #E6DB74
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline69" class="outline-3">
-<h3 id="orgheadline69">__iter__</h3>
+<div id="outline-container-orgheadline71" class="outline-3">
+<h3 id="orgheadline71">__iter__</h3>
 </div>
 </div>

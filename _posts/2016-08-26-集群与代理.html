@@ -1,0 +1,146 @@
+---
+title: "集群与代理"
+date: 2016-07-24
+layout: post
+categories: 
+- 网络知识
+tags: 
+- 集群
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 系统扩展方式</a></li>
+<li><a href="#orgheadline2">2. 集群类型</a></li>
+<li><a href="#orgheadline3">3. 衡量系统的指标</a></li>
+<li><a href="#orgheadline4">4. 高效运维</a></li>
+<li><a href="#orgheadline5">5. 集群下session的保持</a></li>
+<li><a href="#orgheadline6">6. 集群下的相关术语</a></li>
+<li><a href="#orgheadline7">7. 代理服务器相关</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 系统扩展方式</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li><code>scale up</code>: 向上扩展，使用性能更好的主机</li>
+<li><code>scale out</code>: 向外扩展，使用更多的主机</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 集群类型</h2>
+<div class="outline-text-2" id="text-2">
+<dl class="org-dl">
+<dt>LB(Load Balancing)</dt><dd><p>
+负载均衡集群，用于任务分配
+</p>
+<dl class="org-dl">
+<dt>基于软硬件划分</dt><dd><ul class="org-ul">
+<li>硬件: <code>F5</code>, <code>NetScaler</code>, <code>A10</code>, <code>Array</code>, <code>Redware</code></li>
+<li>软件: <code>LVS</code>, <code>HAProxy</code>, <code>Nginx</code>, <code>ats</code>, <code>perlbal</code></li>
+</ul></dd>
+<dt>基于工作的协议层次划分</dt><dd><ul class="org-ul">
+<li>传输层: <code>lvs</code>, <code>haproxy(TCP Mode)</code></li>
+<li>应用层: <code>haproxy</code>, <code>nginx</code>, <code>ats</code>, <code>perlbal</code></li>
+</ul></dd>
+</dl>
+<pre class="example">
+GSLB: Global Service Load Balancing，用于CDN(内容分发网络)
+</pre></dd>
+<dt>HA(High Availability)</dt><dd><p>
+高可用集群，用于系统快速恢复
+</p>
+<ul class="org-ul">
+<li>vrrp: <code>keepalived</code></li>
+<li>AIS: <code>heartbeat</code>, <code>OpenAIS</code>, <code>corosync/pacemaker</code>, <code>cman/rgmanager(conga)</code></li>
+</ul>
+<pre class="example">
+Availability=可用时间/总时间
+</pre></dd>
+<dt>HP(High Performancing)</dt><dd>高性能集群，并行处理、分布式
+<ul class="org-ul">
+<li>分布式: 一个业务分拆多个子业务，部署在不同的服务器上</li>
+<li>集群: 同一个业务，部署在多个服务器上</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 衡量系统的指标</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li><p>
+<code>可扩展性</code> 
+</p>
+<pre class="example">
+构建高可扩展性系统的重要原则: 在系统内部尽量避免串行化和交互
+</pre></li>
+<li><code>可用性</code></li>
+<li><code>容量</code>: 最大处理量</li>
+<li><code>吞吐量</code>: 单位时间的请求处理量</li>
+<li><code>性能</code>: 请求处理时间</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> 高效运维</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+<code>可用</code> &gt; <code>标准化</code> &gt; <code>自动化</code>
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> 集群下session的保持</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li><code>session绑定</code>: 基于cookie进行绑定</li>
+<li><code>session集群</code>: 解决所有主机的session的同步问题</li>
+<li><code>session服务器</code>: 解决session的可用性，可使用memcached、redis</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> 集群下的相关术语</h2>
+<div class="outline-text-2" id="text-6">
+<ul class="org-ul">
+<li><code>director</code>: 调度器(负载均衡器)，负责分配任务</li>
+<li><code>RS</code>: Real Server，提供业务的服务器</li>
+<li><code>CIP</code>: Client IP，用户客户端</li>
+<li><code>VIP</code>: Director Virutal IP，对外部用户的IP地址</li>
+<li><code>DIP</code>: Director IP，对内部RS的IP地址</li>
+<li><code>RIP</code>: Real Server IP</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> 代理服务器相关</h2>
+<div class="outline-text-2" id="text-7">
+<dl class="org-dl">
+<dt>代理(http)</dt><dd><ul class="org-ul">
+<li><code>正向代理</code>: 客户端代理</li>
+<li><code>反向代理</code>: 服务器代理</li>
+<li>可以在报文上添加 <code>Via首部</code> 表示代理的服务器</li>
+</ul></dd>
+<dt>代理的作用</dt><dd><ul class="org-ul">
+<li>web缓存(加速)</li>
+<li>反向代理</li>
+<li>内容路由(根据流量及内容类型等将请求转发至特定服务器)</li>
+<li>转码器</li>
+</ul></dd>
+<dt>缓存的作用</dt><dd><ul class="org-ul">
+<li>减少冗余内容传输</li>
+<li>节省带宽、缓解网络瓶颈</li>
+<li>降低了对原始服务器的请求压力</li>
+<li>降低了传输延迟</li>
+</ul></dd>
+</dl>
+</div>
+</div>

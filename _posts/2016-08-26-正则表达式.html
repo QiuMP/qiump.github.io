@@ -1,0 +1,84 @@
+---
+title: "正则表达式"
+date: 2016-06-02
+layout: post
+categories: 
+- 文本处理
+tags: 
+- Linux 
+- Bash
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 正则表达式的类型</a></li>
+<li><a href="#orgheadline2">2. 基本正则表达式</a></li>
+<li><a href="#orgheadline3">3. 扩展正则表达式</a></li>
+</ul>
+</div>
+</div>
+<pre class="example">
+REGEXP由一类特殊字符及文本字符所编写的模式，其中有些字符不表示字符字面意义，而表示控制或通配的功能
+</pre>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 正则表达式的类型</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>基本正则表达式: BRE</li>
+<li>扩展正则表达式: ERE (正则表达式引擎: pcre)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 基本正则表达式</h2>
+<div class="outline-text-2" id="text-2">
+<dl class="org-dl">
+<dt>字符匹配</dt><dd><ul class="org-ul">
+<li><code>.</code>: 匹配任意单个字符</li>
+<li><code>[]</code>: 匹配指定范围内的任意单个字符</li>
+<li><code>[^]</code>: 匹配指定范围外的任意单个字符</li>
+<li>专用字符集合: [:digit:]、[:lower:]、[:upper:]、[:alpha:]、[:alnum:]、[:punct:]、[:space:]</li>
+</ul></dd>
+<dt>匹配次数</dt><dd><ul class="org-ul">
+<li><code>*</code>: 匹配前面的字符任意次(默认是贪婪模式)</li>
+<li><code>.*</code>: 任意长度的任意字符</li>
+<li><code>\?</code>: 匹配其前面的字符0或1次</li>
+<li><code>\+</code>: 匹配其前面的字符至少1次</li>
+<li><code>\{m\}</code>: 匹配前面的字符m次</li>
+<li><code>\{m,n\}</code>: 匹配前面的字符至少m次，至多n次
+<ul class="org-ul">
+<li><code>\{0,n\}</code>: 匹配前面的字符至多n次</li>
+<li><code>\{m,\}</code>: 匹配前面的字符至少m次</li>
+</ul></li>
+</ul></dd>
+<dt>位置锚定</dt><dd><ul class="org-ul">
+<li><code>^</code>: 行首锚定；用于模式的最左侧</li>
+<li><code>$</code>: 行尾锚定；用于模式的最右侧</li>
+<li><code>^[[:space:]]$</code>: 用于模式匹配整个空白行</li>
+<li><code>\&lt;</code> 或 <code>\b</code>: 词首锚定；用于单词模式的左侧</li>
+<li><code>\&gt;</code> 或 <code>\b</code>: 词尾锚定；用于单词模式的右侧</li>
+<li><code>\&lt;PATTERN\&gt;</code>: 匹配整个单词</li>
+</ul></dd>
+<dt>分组</dt><dd><ul class="org-ul">
+<li><code>\(\)</code>: 将括号内的字符当作一个整体进行处理</li>
+<li>分组括号中的模式匹配到的内容会被正则表达式引擎记录于内部变量，可以用于后向引用</li>
+<li><code>\1</code>: 从左侧起，第一个左括号以及与之匹配右括号之间的模式所匹配到的字符</li>
+</ul></dd>
+<dt>或者</dt><dd><ul class="org-ul">
+<li><code>\|</code>: 匹配左右两种模式中的一个</li>
+<li><code>\(word\|word\)</code>: 两个单词之一</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 扩展正则表达式</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>扩展正则表达式与正则表达式的区别，只是在除 <code>\&lt;、\&gt;、\b</code> 外其他特殊字符不需要添加反斜线\</li>
+</ul>
+</div>
+</div>

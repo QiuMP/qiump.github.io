@@ -1,0 +1,191 @@
+---
+title: "终端"
+date: 2016-05-17
+layout: post
+categories: 
+- Bash
+tags: 
+- Linux 
+- Bash
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 定义</a></li>
+<li><a href="#orgheadline6">2. 终端的类型</a>
+<ul>
+<li><a href="#orgheadline2">物理终端</a></li>
+<li><a href="#orgheadline3">虚拟终端</a></li>
+<li><a href="#orgheadline4">图形终端(也是虚拟终端一种)</a></li>
+<li><a href="#orgheadline5">模拟终端</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">3. 设备文件</a></li>
+<li><a href="#orgheadline11">4. 交互式接口</a>
+<ul>
+<li><a href="#orgheadline8">定义</a></li>
+<li><a href="#orgheadline9">GUI</a></li>
+<li><a href="#orgheadline10">CLI(shell)</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">5. 重置终端: reset</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 定义</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+终端是用户与主机交互，必然用到的设备
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">2</span> 终端的类型</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">物理终端</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+直接接入本机的显示器和键盘设备，在刚开机程序还未启动完全的时候会用到
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">虚拟终端</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+附加在物理终端之上的以软件方式虚拟实现的终端
+</p>
+<pre class="example">
+CentOS 6默认启动6个虚拟终端，使用Ctrl+Alt+F[1,6]切换
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">图形终端(也是虚拟终端一种)</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+附加在物理终端之上的以软件方式虚拟实现的终端，但额外会提供桌面环境
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">模拟终端</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+图形界面下打开的命令行接口，或者基于ssh协议或telnet协议等远程打开的界面
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">3</span> 设备文件</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+
+<pre class="src src-bash">tty  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#24403;&#21069;&#30340;&#32456;&#31471;&#30340;&#35774;&#22791;&#25991;&#20214;</span>
+</pre>
+</div>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">终端类型</th>
+<th scope="col" class="org-left">设备文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">物理终端</td>
+<td class="org-left">/dev/console</td>
+</tr>
+
+<tr>
+<td class="org-left">虚拟终端</td>
+<td class="org-left">/dev/tty*</td>
+</tr>
+
+<tr>
+<td class="org-left">图形终端</td>
+<td class="org-left">/dev/tty*</td>
+</tr>
+
+<tr>
+<td class="org-left">模拟终端</td>
+<td class="org-left">/dev/pts/*</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">4</span> 交互式接口</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">定义</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+启动终端后，在终端设备附加的一个交互式应用程序
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">GUI</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+X protocol, window manager, desktop
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">CLI(shell)</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<p>
+shell程序: sh, csh, tcsh, ksh, bash(GPL), zsh  
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">SHELL</span><span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#20351;&#29992;&#30340;shell</span>
+cat /etc/shells  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#20351;&#29992;&#30340;&#25152;&#26377;shell</span>
+</pre>
+</div>
+<dl class="org-dl">
+<dt>命令提示符</dt><dd><ul class="org-ul">
+<li>管理员: #</li>
+<li>普通用户: $</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">5</span> 重置终端: reset</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+当终端显示出现异常的时候可以重置终端
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">reset
+</pre>
+</div>
+</div>
+</div>

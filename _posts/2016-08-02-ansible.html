@@ -1,12 +1,12 @@
 ---
-title: "ansible"
+title: "Ansible"
 date: 2016-08-02
 layout: post
 categories: 
-- Linux
+- 服务器
 tags: 
 - Linux 
-- 运维
+- 发布系统
 published: true
 comments: 
 ---
@@ -14,122 +14,114 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline3">1. 运维工具</a>
+<li><a href="#orgheadline4">1. 运维工具的分类</a>
 <ul>
-<li><a href="#orgheadline1">按照功能分类</a></li>
-<li><a href="#orgheadline2">按照过程分类</a></li>
+<li><a href="#orgheadline1">运维工作</a></li>
+<li><a href="#orgheadline2">按照功能分类</a></li>
+<li><a href="#orgheadline3">按照过程分类</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline4">2. ansible的核心组件</a></li>
-<li><a href="#orgheadline5">3. ansible的特性</a></li>
-<li><a href="#orgheadline8">4. 配置</a>
+<li><a href="#orgheadline5">2. ansible的核心组件</a></li>
+<li><a href="#orgheadline6">3. ansible的特性</a></li>
+<li><a href="#orgheadline9">4. 配置</a>
 <ul>
-<li><a href="#orgheadline6">配置文件</a></li>
-<li><a href="#orgheadline7">Inventory</a></li>
+<li><a href="#orgheadline7">配置文件</a></li>
+<li><a href="#orgheadline8">Inventory</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline12">5. 模块</a>
+<li><a href="#orgheadline13">5. 模块</a>
 <ul>
-<li><a href="#orgheadline9">查询模块</a></li>
-<li><a href="#orgheadline10">模块的使用</a></li>
-<li><a href="#orgheadline11">常见模块</a></li>
+<li><a href="#orgheadline10">查询模块</a></li>
+<li><a href="#orgheadline11">模块的使用</a></li>
+<li><a href="#orgheadline12">常见模块</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline20">6. Playbook</a>
+<li><a href="#orgheadline21">6. Playbook</a>
 <ul>
-<li><a href="#orgheadline13">YAML</a></li>
-<li><a href="#orgheadline14">变量</a></li>
-<li><a href="#orgheadline15">定义playbook</a></li>
-<li><a href="#orgheadline16">roles</a>
+<li><a href="#orgheadline14">YAML</a></li>
+<li><a href="#orgheadline15">变量</a></li>
+<li><a href="#orgheadline16">定义playbook</a></li>
+<li><a href="#orgheadline17">roles</a>
 <ul>
-<li><a href="#orgheadline17">创建roles目录</a></li>
-<li><a href="#orgheadline18">调用roles</a></li>
+<li><a href="#orgheadline18">创建roles目录</a></li>
+<li><a href="#orgheadline19">调用roles</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline19">运行playbook</a></li>
+<li><a href="#orgheadline20">运行playbook</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-TODO
-</p>
 
 
-
-
-<hr  />
-<div id="outline-container-orgheadline3" class="outline-2">
-<h2 id="orgheadline3"><span class="section-number-2">1</span> 运维工具</h2>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">1</span> 运维工具的分类</h2>
 <div class="outline-text-2" id="text-1">
-<p>
-运维工作：系统安装(物理机、虚拟机) -&gt; 程序包安装、配置、服务启动 -&gt; 批量操作 -&gt; 程序发布 -&gt; 监控
-</p>
-</div>
-<div id="outline-container-orgheadline1" class="outline-3">
-<h3 id="orgheadline1">按照功能分类</h3>
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">运维工作</h3>
 <div class="outline-text-3" id="text-orgheadline1">
-<ul class="org-ul">
-<li>OS Provisioning
-<ul class="org-ul">
-<li>物理机：PXE、Cobbler</li>
-<li>虚拟机：Image Templates</li>
-</ul></li>
-<li>OS Config
-<ul class="org-ul">
-<li>puppet(ruby)</li>
-<li>saltstack(python)</li>
-<li>func</li>
-<li>Ansible(python)</li>
-</ul></li>
-<li>Deployment
-<ul class="org-ul">
-<li>fabric</li>
-<li>Ansible</li>
-</ul></li>
-</ul>
+<p>
+<code>系统安装(物理机、虚拟机)</code> &gt; <code>程序包安装、配置、服务启动</code> &gt; <code>批量操作</code> &gt; <code>程序发布</code> &gt; <code>监控</code>
+</p>
 </div>
 </div>
 <div id="outline-container-orgheadline2" class="outline-3">
-<h3 id="orgheadline2">按照过程分类</h3>
+<h3 id="orgheadline2">按照功能分类</h3>
 <div class="outline-text-3" id="text-orgheadline2">
-<ul class="org-ul">
-<li>agent: 需要部署客户端
-<ul class="org-ul">
-<li>puppet</li>
-<li>func</li>
-</ul></li>
-<li>agentless: 不需要部署客户端，使用ssh
-<ul class="org-ul">
-<li>ansible</li>
-<li>fabric</li>
-</ul></li>
-</ul>
+<dl class="org-dl">
+<dt>OS Provisioning</dt><dd><ul class="org-ul">
+<li>物理机: <code>PXE</code> , <code>Cobbler</code></li>
+<li>虚拟机: <code>Image Templates</code></li>
+</ul></dd>
+<dt>OS Config</dt><dd><ul class="org-ul">
+<li><code>puppet</code> (ruby)</li>
+<li><code>saltstack</code> (python)</li>
+<li><code>func</code></li>
+<li><code>Ansible</code> (python)</li>
+</ul></dd>
+<dt>Deployment</dt><dd><ul class="org-ul">
+<li><code>fabric</code></li>
+<li><code>Ansible</code></li>
+</ul></dd>
+</dl>
 </div>
 </div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">按照过程分类</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<dl class="org-dl">
+<dt>agent</dt><dd>需要部署客户端
+<ul class="org-ul">
+<li><code>puppet</code></li>
+<li><code>func</code></li>
+</ul></dd>
+<dt>agentless</dt><dd>不需要部署客户端，使用ssh进行交互
+<ul class="org-ul">
+<li><code>ansible</code></li>
+<li><code>fabric</code></li>
+</ul></dd>
+</dl>
 </div>
-<div id="outline-container-orgheadline4" class="outline-2">
-<h2 id="orgheadline4"><span class="section-number-2">2</span> ansible的核心组件</h2>
-<div class="outline-text-2" id="text-2">
-<ul class="org-ul">
-<li>ansible core
-<ul class="org-ul">
-<li>core modules</li>
-<li>custom modules</li>
-</ul></li>
-<li>host inventory: 定义主机列表</li>
-<li>playbook: 将多个任务写入yaml文件中</li>
-<li>connect plugin</li>
-</ul>
 </div>
 </div>
 <div id="outline-container-orgheadline5" class="outline-2">
-<h2 id="orgheadline5"><span class="section-number-2">3</span> ansible的特性</h2>
+<h2 id="orgheadline5"><span class="section-number-2">2</span> ansible的核心组件</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li><code>ansible core</code>: core modules、custom modules</li>
+<li><code>host inventory</code>: 定义主机列表</li>
+<li><code>playbook</code>: 将多个任务写入yaml文件中</li>
+<li><code>connect plugin</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">3</span> ansible的特性</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li>基于Python语言实现，由Paramiko、PyYAML和Jinja2三个关键模块</li>
-<li>agentless</li>
+<li>基于Python语言实现，依赖 <code>Paramiko</code> 、 <code>PyYAML</code> 和 <code>Jinja2</code> 三个关键模块</li>
+<li><code>agentless</code></li>
 <li>主从模式，使用SSH协议</li>
 <li>支持自定义模块</li>
 <li>支持Playbook</li>
@@ -137,190 +129,193 @@ TODO
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline8" class="outline-2">
-<h2 id="orgheadline8"><span class="section-number-2">4</span> 配置</h2>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">4</span> 配置</h2>
 <div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6">配置文件</h3>
-<div class="outline-text-3" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline7">
 <ul class="org-ul">
-<li>配置文件: /etc/ansible/ansible.cfg</li>
-<li>Inventory: /etc/ansible/hosts</li>
+<li>配置文件: <code>/etc/ansible/ansible.cfg</code></li>
+<li>Inventory: <code>/etc/ansible/hosts</code></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7">Inventory</h3>
-<div class="outline-text-3" id="text-orgheadline7">
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">Inventory</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+定义主机列表
+</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">[<span style="color: #66D9EF;">group_name</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32452;&#21517;</span>
-<span style="color: #FD971F;">IP/hostname[:port] name</span>=value name=value  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;playbook&#20256;&#36882;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
+<pre class="src src-yaml">[group_name]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32452;&#21517;</span>
+IP/hostname[:port] name=value name=value  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;playbook&#20256;&#36882;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
 172.16.100.[001:100]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#21046;&#23450;&#36830;&#32493;&#30340;&#27169;&#24335;</span>
 
-[<span style="color: #66D9EF;">group_name2:children</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32452;&#23884;&#22871;&#65292;&#23558;&#22810;&#20010;&#32452;&#21512;&#24182;&#20026;&#19968;&#20010;&#32452;</span>
+[group_name2:children]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32452;&#23884;&#22871;&#65292;&#23558;&#22810;&#20010;&#32452;&#21512;&#24182;&#20026;&#19968;&#20010;&#32452;</span>
 group_name
 group_name
 
-[<span style="color: #66D9EF;">group_name2:vars</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32452;&#21464;&#37327;&#65292;&#21363;&#20026;&#32452;&#21592;&#21019;&#24314;&#30456;&#21516;&#30340;&#29305;&#27530;&#21464;&#37327;</span>
-<span style="color: #FD971F;">name</span>=value
-...
+[group_name2:vars]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#32452;&#21464;&#37327;&#65292;&#21363;&#20026;&#32452;&#21592;&#21019;&#24314;&#30456;&#21516;&#30340;&#29305;&#27530;&#21464;&#37327;</span>
+name=value
+<span style="color: #75715E;">...</span>
 </pre>
 </div>
-<ul class="org-ul">
-<li>Inventory文件中还可以定义特殊变量来规定连接的端口、用户名、密码等设定</li>
-</ul>
+<pre class="example">
+Inventory文件中还可以定义特殊变量来规定连接的端口、用户名、密码等设定
+</pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline12" class="outline-2">
-<h2 id="orgheadline12"><span class="section-number-2">5</span> 模块</h2>
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">5</span> 模块</h2>
 <div class="outline-text-2" id="text-5">
-</div><div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">查询模块</h3>
-<div class="outline-text-3" id="text-orgheadline9">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">查询模块</h3>
+<div class="outline-text-3" id="text-orgheadline10">
 <div class="org-src-container">
 
-<pre class="src src-conf">ansible-doc -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21015;&#20986;&#25152;&#26377;&#27169;&#22359;</span>
+<pre class="src src-bash">ansible-doc -l  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21015;&#20986;&#25152;&#26377;&#27169;&#22359;</span>
 ansible-doc -s MODULE_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#27169;&#22359;&#24110;&#21161;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">模块的使用</h3>
-<div class="outline-text-3" id="text-orgheadline10">
-<div class="org-src-container">
-
-<pre class="src src-sh">ansible &lt;host-pattern&gt; <span style="color: #AE81FF;">[</span>-f forks<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-m module_name<span style="color: #AE81FF;">]</span> <span style="color: #AE81FF;">[</span>-a args<span style="color: #AE81FF;">]</span>    
-  host-pattern: &#25351;&#23450;&#32452;&#21517;&#25110;all
-  -f forks: &#21551;&#21160;&#30340;&#24182;&#21457;&#32447;&#31243;&#25968;
-  -m module_name: &#35201;&#20351;&#29992;&#30340;&#27169;&#22359;<span style="color: #AE81FF;">(</span>&#40664;&#35748;&#20026;command&#27169;&#22359;<span style="color: #AE81FF;">)</span>
-  -a <span style="color: #E6DB74;">'args'</span>: &#27169;&#22359;&#30340;&#21442;&#25968;
-</pre>
-</div>
-</div>
-</div>
 <div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">常见模块</h3>
+<h3 id="orgheadline11">模块的使用</h3>
 <div class="outline-text-3" id="text-orgheadline11">
-<ul class="org-ul">
-<li><p>
-command: 默认模块，不通过用户shell环境运行，即不支持 <code>$HOME</code> 和特殊符号如 <code>&lt;</code> <code>&gt;</code> <code>|</code> <code>&amp;</code>
-</p>
 <div class="org-src-container">
 
-<pre class="src src-conf">ansible all -a <span style="color: #E6DB74;">'COMMAND'</span>
+<pre class="src src-yaml">ansible &lt;host-pattern&gt; [-f forks] [-m module_name] [-a args]    
+  <span style="color: #FD971F;">host-pattern</span>: &#25351;&#23450;&#32452;&#21517;&#25110;all
+  <span style="color: #FD971F;">-f forks</span>: &#21551;&#21160;&#30340;&#24182;&#21457;&#32447;&#31243;&#25968;
+  <span style="color: #FD971F;">-m module_name</span>: &#35201;&#20351;&#29992;&#30340;&#27169;&#22359;(&#40664;&#35748;&#20026;command&#27169;&#22359;)
+  -a <span style="color: #E6DB74;">'args'</span>: &#27169;&#22359;&#30340;&#21442;&#25968;&#65292;&#22810;&#20010;&#21442;&#25968;&#20043;&#38388;&#29992;&#31354;&#26684;&#38548;&#24320;
 </pre>
-</div></li>
-<li><p>
-shell: 使用用户的shell环境运行，支持特殊符号和变量
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">ansible all -m shell -a <span style="color: #E6DB74;">'echo yes | passwd --stdin user'</span>
-</pre>
-</div></li>
-<li><p>
-script
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">ansible all -m script -a <span style="color: #E6DB74;">'/path/to/script'</span>
-</pre>
-</div></li>
-<li><p>
-ping
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">ansible all -m ping
-</pre>
-</div></li>
-<li><p>
-setup: 用于显示ansible所收集的主机信息fasts，可用于playbook中
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">ansible all -m setup
-</pre>
-</div></li>
-<li>cron: 管理任务
-<ul class="org-ul">
-<li>任务名: name</li>
-<li>任务属性参数: minute、hour、day、month、weekday、job、user</li>
-<li>任务管理参数: state=present(添加)、status=absent(删除)</li>
-</ul></li>
-<li>user: 添加和删除用户
-<ul class="org-ul">
-<li>用户参数: name、system(是否为系统用户)、uid、group</li>
-<li>用户管理参数: state={present|absent}</li>
-</ul></li>
-<li>group: 添加和删除组
-<ul class="org-ul">
-<li>组参数: name、system(是否为系统组)、gid</li>
-<li>组管理参数: state={present|absent}</li>
-</ul></li>
-<li>copy: 复制文件
-<ul class="org-ul">
-<li>文件属性参数: mode、owner、group</li>
-<li>文件路径: src(本地文件路径)、content(自己指定文件的内容)、dest(远程上的目标绝对路径)</li>
-</ul></li>
-<li>template: 复制文件，同时动态替换该文件中的变量
-<ul class="org-ul">
-<li>文件属性参数: mode、owner、group</li>
-<li>文件路径: src(本地模板文件路径)、content(自己指定文件的内容)、dest(远程上的目标绝对路径)</li>
-<li>模板文件中需要动态分配的值使用 <code>{{ Jinjia2 }}</code> 代替</li>
-</ul></li>
-<li>file: 设定文件属性
-<ul class="org-ul">
-<li>文件属性参数: mode、owner、group</li>
-<li>文件路径: path(指定目标文件)、src(指定link的源文件)</li>
-<li>操作: state={directory|link(创建链接文件)|present|absent}</li>
-</ul></li>
-<li>service
-<ul class="org-ul">
-<li>服务名: name</li>
-<li>服务操作: state={started|stopped|restarted|reloaded}</li>
-<li>是否开机启动: enabled={true|false}</li>
-</ul></li>
-<li>yum
-<ul class="org-ul">
-<li>程序包名: name</li>
-<li>程序包操作: state={latest|absent}</li>
-</ul></li>
-</ul>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline20" class="outline-2">
-<h2 id="orgheadline20"><span class="section-number-2">6</span> Playbook</h2>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">常见模块</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<dl class="org-dl">
+<dt>command</dt><dd><p>
+默认模块，不通过用户shell环境运行，即不支持 <code>$HOME</code> 和特殊符号如 <code>&lt;</code>, <code>&gt;</code>, <code>|</code>, <code>&amp;</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ansible all -a <span style="color: #E6DB74;">'COMMAND'</span>
+</pre>
+</div></dd>
+<dt>shell</dt><dd><p>
+使用用户的shell环境运行，支持特殊符号和变量
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ansible all -m shell -a <span style="color: #E6DB74;">'echo yes | passwd --stdin user'</span>
+</pre>
+</div></dd>
+<dt>script</dt><dd><p>
+远程执行脚本
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ansible all -m script -a <span style="color: #E6DB74;">'/path/to/script'</span>
+</pre>
+</div></dd>
+<dt>ping</dt><dd><p>
+用于ping主机
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ansible all -m ping
+</pre>
+</div></dd>
+<dt>setup</dt><dd><p>
+用于显示ansible所收集的主机信息 <code>facts</code> ，可用于playbook中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">ansible all -m setup
+</pre>
+</div></dd>
+<dt>cron</dt><dd>添加与删除任务
+<ul class="org-ul">
+<li>任务名: <code>name</code></li>
+<li>任务属性参数: <code>minute</code>, <code>hour</code>, <code>day</code>, <code>month</code>, <code>weekday</code>, <code>job</code>, <code>user</code></li>
+<li>任务管理参数: <code>state=present</code> (添加), <code>status=absent</code> (删除)</li>
+</ul></dd>
+<dt>user</dt><dd>添加和删除用户
+<ul class="org-ul">
+<li>用户参数: <code>name</code>, <code>system</code> (是否为系统用户), <code>uid</code>, <code>group</code></li>
+<li>用户管理参数: <code>state={present|absent}</code></li>
+</ul></dd>
+<dt>group</dt><dd>添加和删除组
+<ul class="org-ul">
+<li>组参数: <code>name</code>, <code>system</code> (是否为系统组), <code>gid</code></li>
+<li>组管理参数: <code>state={present|absent}</code></li>
+</ul></dd>
+<dt>copy</dt><dd>复制文件
+<ul class="org-ul">
+<li>文件属性参数: <code>mode</code>, <code>owner</code>, <code>group</code></li>
+<li>文件路径: <code>src</code> (本地文件路径), <code>content</code> (自己指定文件的内容), <code>dest</code> (远程上的目标绝对路径)</li>
+</ul></dd>
+<dt>template</dt><dd>复制文件，同时动态替换该文件中的变量
+<ul class="org-ul">
+<li>文件属性参数: <code>mode</code>, <code>owner</code>, <code>group</code></li>
+<li>文件路径: <code>src</code> (本地模板文件路径), <code>content</code> (自己指定文件的内容), <code>dest</code> (远程上的目标绝对路径)</li>
+<li>模板文件中需要替换的变量使用 <code>{{ Jinjia2 }}</code> 代替</li>
+</ul></dd>
+<dt>file</dt><dd>设定文件属性
+<ul class="org-ul">
+<li>文件属性参数: <code>mode</code>, <code>owner</code>, <code>group</code></li>
+<li>文件路径: <code>path</code> (指定目标文件), <code>src</code> (指定link的源文件)</li>
+<li>操作: <code>state={directory|link(创建链接文件)|present|absent}</code></li>
+</ul></dd>
+<dt>service</dt><dd>管理服务
+<ul class="org-ul">
+<li>服务名: <code>name</code></li>
+<li>服务操作: <code>state={started|stopped|restarted|reloaded}</code></li>
+<li>是否开机启动: <code>enabled={true|false}</code></li>
+</ul></dd>
+<dt>yum</dt><dd>安装和卸载软件
+<ul class="org-ul">
+<li>程序包名: <code>name</code></li>
+<li>程序包操作: <code>state={latest|absent}</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21"><span class="section-number-2">6</span> Playbook</h2>
 <div class="outline-text-2" id="text-6">
-</div><div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">YAML</h3>
-<div class="outline-text-3" id="text-orgheadline13">
-<ul class="org-ul">
-<li>通过缩进构建结构，也可以使用{..,..}合并</li>
-<li>同一类数据称为list，以"-"开头</li>
-<li>键值对使用":"分隔</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgheadline14" class="outline-3">
-<h3 id="orgheadline14">变量</h3>
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">YAML</h3>
 <div class="outline-text-3" id="text-orgheadline14">
 <ul class="org-ul">
-<li>facts: 即模块setup的返回值</li>
-<li>命令行传递: -e "name=value name=value"</li>
-<li>通过roles传递变量</li>
-<li>在Inventory中定义变量</li>
-<li>在playbook中，使用 <code>{{ var }}</code> 来引用变量， <code>{{ }}</code> 中可以使用算术运算符</li>
+<li>通过缩进构建结构，也可以使用 <code>{..,..}</code> 合并</li>
+<li>同一类数据称为 <code>list</code> ，以 <code>-</code> 开头</li>
+<li>键值对使用 <code>:</code> 分隔</li>
 </ul>
 </div>
 </div>
 <div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15">定义playbook</h3>
+<h3 id="orgheadline15">变量</h3>
 <div class="outline-text-3" id="text-orgheadline15">
+<ul class="org-ul">
+<li><code>facts</code>: 即模块 <code>setup</code> 的返回值</li>
+<li>命令行传递: <code>-e</code></li>
+<li>通过 <code>roles</code> 传递变量</li>
+<li>在 <code>Inventory</code> 中定义变量</li>
+<li>在playbook中，使用 <code>{{ var }}</code> 来引用变量， <code>{{ }}</code> 中可以使用算术运算符</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">定义playbook</h3>
+<div class="outline-text-3" id="text-orgheadline16">
 <div class="org-src-container">
 
 <pre class="src src-yaml">- <span style="color: #FD971F;">hosts</span>: group_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;&#32452;&#21517;&#25110;all</span>
@@ -333,11 +328,11 @@ setup: 用于显示ansible所收集的主机信息fasts，可用于playbook中
       <span style="color: #FD971F;">remote_user</span>: qiu  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;&#26576;&#20010;&#20219;&#21153;&#29305;&#27530;&#25351;&#23450;&#29992;&#25143;&#21517;</span>
       <span style="color: #FD971F;">sudo</span>: yes  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20197;sudo&#25191;&#34892;</span>
       <span style="color: #FD971F;">ignore_errors</span>: True  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#24573;&#30053;&#35813;&#20219;&#21153;&#30340;&#38169;&#35823;&#32487;&#32493;&#25191;&#34892;&#20219;&#21153;</span>
-      <span style="color: #FD971F;">notify</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#35813;&#20219;&#21153;&#30340;&#29366;&#24577;&#26159;changed&#26102;&#35302;&#21457;&#30340;&#35302;&#21457;&#22120;</span>
+      <span style="color: #FD971F;">notify</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#35813;&#20219;&#21153;&#30340;&#29366;&#24577;&#26159;changed&#26102;&#35302;&#21457;&#30340;&#35302;&#21457;&#22120;&#65292;&#22312;handles&#20013;&#23450;&#20041;</span>
         - handlers_name 
         - handlers_name
 
-    - <span style="color: #FD971F;">name</span>: add user  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36845;&#20195;&#36827;&#34892;</span>
+    - <span style="color: #FD971F;">name</span>: add user  
       <span style="color: #FD971F;">user</span>: name={{ item.name }} state=present groups={{ item.groups }}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23545;item&#36845;&#20195;&#36827;&#34892;</span>
       <span style="color: #FD971F;">with_items</span>:  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36845;&#20195;&#30340;item&#21464;&#37327;&#65292;&#33509;&#21464;&#37327;&#21482;&#26377;&#19968;&#20010;&#37027;&#21464;&#37327;&#21517;&#21487;&#30465;&#30053;</span>
         - { <span style="color: #FD971F;">name</span>: <span style="color: #E6DB74;">'user1'</span>, <span style="color: #FD971F;">groups</span>: <span style="color: #E6DB74;">'wheel'</span> }
@@ -361,23 +356,23 @@ setup: 用于显示ansible所收集的主机信息fasts，可用于playbook中
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16">roles</h3>
-<div class="outline-text-3" id="text-orgheadline16">
-<ul class="org-ul">
-<li>roles可以将多个功能分离，用于多次利用</li>
-</ul>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">roles</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+<code>roles</code> 可以将多个功能分离，用于多次利用
+</p>
 </div>
-<div id="outline-container-orgheadline17" class="outline-4">
-<h4 id="orgheadline17">创建roles目录</h4>
-<div class="outline-text-4" id="text-orgheadline17">
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">创建roles目录</h4>
+<div class="outline-text-4" id="text-orgheadline18">
 <div class="org-src-container">
 
-<pre class="src src-conf">site.yml  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#24341;&#29992;roles&#30340;yaml</span>
+<pre class="src src-yaml">site.yml  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#24341;&#29992;roles&#30340;yaml</span>
 roles/  <span style="color: #75715E;"># </span><span style="color: #75715E;">roles&#30446;&#24405;</span>
   role_name/  <span style="color: #75715E;"># </span><span style="color: #75715E;">role&#30340;&#24341;&#29992;&#21517;&#31216;</span>
     files/  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23384;&#25918;&#30001;copy&#25110;script&#31561;&#27169;&#22359;&#35843;&#29992;&#30340;&#25991;&#20214;</span>
-    templates/  <span style="color: #75715E;"># </span><span style="color: #75715E;">template&#27169;&#22359;&#20250;&#33258;&#21160;&#22312;&#27492;&#30446;&#24405;&#20013;&#23547;&#25214;Jinja2&#27169;&#26495;&#25991;&#20214;</span>
+    templates/  <span style="color: #75715E;"># </span><span style="color: #75715E;">template&#27169;&#22359;&#20250;&#33258;&#21160;&#22312;&#27492;&#30446;&#24405;&#20013;&#23547;&#25214;Jinja2&#27169;&#26495;&#25991;&#20214;&#36827;&#34892;&#21464;&#37327;&#26367;&#25442;</span>
     tasks/  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33267;&#23569;&#24212;&#35813;&#21253;&#21547;&#19968;&#20010;&#21517;&#20026;main.yml&#30340;&#25991;&#20214;&#65292;&#20854;&#23450;&#20041;&#20102;&#27492;&#35282;&#33394;&#30340;&#20219;&#21153;&#21015;&#34920;&#65292;&#21487;&#20351;&#29992;include&#21253;&#21547;&#20854;&#20182;&#35813;&#30446;&#24405;&#19979;&#30340;&#25991;&#20214;</span>
     handlers/  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21253;&#21547;&#19968;&#20010;main.yml&#25991;&#20214;&#65292;&#29992;&#20110;&#23450;&#20041;&#27492;&#35282;&#33394;&#29992;&#21040;&#30340;&#21508;handler&#65292;&#21487;&#20351;&#29992;include&#21253;&#21547;&#20854;&#20182;&#35813;&#30446;&#24405;&#19979;&#30340;&#25991;&#20214;</span>
     vars/  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21253;&#21547;&#19968;&#20010;main.yml&#25991;&#20214;&#65292;&#29992;&#20110;&#23450;&#20041;&#27492;&#35282;&#33394;&#29992;&#21040;&#30340;&#21464;&#37327;</span>
@@ -386,16 +381,16 @@ roles/  <span style="color: #75715E;"># </span><span style="color: #75715E;">rol
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline18" class="outline-4">
-<h4 id="orgheadline18">调用roles</h4>
-<div class="outline-text-4" id="text-orgheadline18">
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19">调用roles</h4>
+<div class="outline-text-4" id="text-orgheadline19">
 <div class="org-src-container">
 
 <pre class="src src-yaml">- <span style="color: #FD971F;">hosts</span>: ...
   <span style="color: #FD971F;">roles</span>:
-    - role_name
+    - role_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;roles&#30340;&#31616;&#21333;&#26041;&#27861;</span>
 
-    - <span style="color: #FD971F;">role</span>: role_name
+    - <span style="color: #FD971F;">role</span>: role_name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;roles&#30340;&#39640;&#32423;&#26041;&#27861;</span>
       <span style="color: #FD971F;">dir</span>: <span style="color: #E6DB74;">'/opt/a'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32473;role&#20256;&#36882;&#21442;&#25968;</span>
       <span style="color: #FD971F;">when</span>: ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26465;&#20214;&#24335;&#20351;&#29992;role</span>
 </pre>
@@ -403,24 +398,23 @@ roles/  <span style="color: #75715E;"># </span><span style="color: #75715E;">rol
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline19" class="outline-3">
-<h3 id="orgheadline19">运行playbook</h3>
-<div class="outline-text-3" id="text-orgheadline19">
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">运行playbook</h3>
+<div class="outline-text-3" id="text-orgheadline20">
 <div class="org-src-container">
 
-<pre class="src src-sh">ansible-playbook <span style="color: #AE81FF;">[</span>OPTIONS<span style="color: #AE81FF;">]</span> **.yml
+<pre class="src src-yaml">ansible-playbook [OPTIONS] **.yml
   -e <span style="color: #E6DB74;">"name=value name=value"</span>: extra-vars
   -t <span style="color: #E6DB74;">"tags_name"</span>: &#21482;&#36816;&#34892;&#35813;&#26631;&#31614;&#19979;&#30340;&#20219;&#21153;
 </pre>
 </div>
-<ul class="org-ul">
-<li>状态
-<ul class="org-ul">
-<li>ok: 成功执行，但未发生修改(即原先已经修改过)</li>
-<li>changed: 成功进行修改</li>
-<li>skipping: 表示when条件不符合</li>
-</ul></li>
-</ul>
+<dl class="org-dl">
+<dt>状态</dt><dd><ul class="org-ul">
+<li><code>ok</code>: 成功执行，但未发生修改(即原先已经修改过)</li>
+<li><code>changed</code>: 成功进行修改</li>
+<li><code>skipping</code>: 表示when条件不符合</li>
+</ul></dd>
+</dl>
 </div>
 </div>
 </div>

@@ -3,11 +3,9 @@ title: "CentOS7系统管理Systemd"
 date: 2016-06-21
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 运维 
-- CentOS
+- Linux
 published: true
 comments: 
 ---
@@ -15,7 +13,7 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. 特性</a></li>
+<li><a href="#orgheadline1">1. systemd的特性</a></li>
 <li><a href="#orgheadline2">2. Unit</a></li>
 <li><a href="#orgheadline3">3. 管理系统服务</a></li>
 <li><a href="#orgheadline6">4. Target unit</a>
@@ -28,15 +26,10 @@ comments:
 </ul>
 </div>
 </div>
-<p>
-记录CentOS 7新增的systemd系列命令的特性，以及其使用和配置文件的设置
-</p>
 
 
-
-<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> 特性</h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> systemd的特性</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>系统引导时实现服务并行启动</li>
@@ -62,9 +55,9 @@ comments:
 <ul class="org-ul">
 <li>相关目录
 <ul class="org-ul">
-<li>/usr/lib/systemd/system</li>
-<li>/etc/systemd/system</li>
-<li>/run/systemd/system</li>
+<li><code>/usr/lib/systemd/system</code></li>
+<li><code>/etc/systemd/system</code></li>
+<li><code>/run/systemd/system</code></li>
 </ul></li>
 <li><p>
 Unit类型
@@ -96,7 +89,7 @@ Unit类型
 <tr>
 <td class="org-left">Target unit</td>
 <td class="org-left">.target</td>
-<td class="org-left">用于模拟实现“运行级别”</td>
+<td class="org-left">用于模拟实现"运行级别"</td>
 </tr>
 
 <tr>
@@ -150,30 +143,29 @@ Unit类型
 <div class="outline-text-2" id="text-3">
 <div class="org-src-container">
 
-<pre class="src src-conf">systemctl COMMAND name[.service]
-  COMMAND
-    start: &#21551;&#21160;&#26381;&#21153;
-    stop: &#20572;&#27490;&#26381;&#21153;
-    restart: &#37325;&#21551;&#25110;&#21551;&#21160;&#26381;&#21153;
-    try-restart: &#33509;&#26381;&#21153;&#21551;&#21160;&#21017;&#37325;&#21551;&#65292;&#33509;&#26381;&#21153;&#26410;&#21551;&#21160;&#21017;&#19981;&#25805;&#20316;
-    reload-or-restart: &#37325;&#36733;&#25110;&#37325;&#21551;&#26381;&#21153;
-    reload-or-try-restart: &#37325;&#36733;&#25110;&#26465;&#20214;&#24335;&#37325;&#21551;&#26381;&#21153;
+<pre class="src src-yaml">systemctl COMMAND name[.service]
+  <span style="color: #FD971F;">start</span>: &#21551;&#21160;&#26381;&#21153;
+  <span style="color: #FD971F;">stop</span>: &#20572;&#27490;&#26381;&#21153;
+  <span style="color: #FD971F;">restart</span>: &#37325;&#21551;&#25110;&#21551;&#21160;&#26381;&#21153;
+  <span style="color: #FD971F;">try-restart</span>: &#33509;&#26381;&#21153;&#21551;&#21160;&#21017;&#37325;&#21551;&#65292;&#33509;&#26381;&#21153;&#26410;&#21551;&#21160;&#21017;&#19981;&#25805;&#20316;
+  <span style="color: #FD971F;">reload-or-restart</span>: &#37325;&#36733;&#25110;&#37325;&#21551;&#26381;&#21153;
+  <span style="color: #FD971F;">reload-or-try-restart</span>: &#37325;&#36733;&#25110;&#26465;&#20214;&#24335;&#37325;&#21551;&#26381;&#21153;
 
-    mask: &#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null&#65292;&#21017;&#26381;&#21153;&#26080;&#27861;&#36827;&#34892;&#24320;&#26426;&#33258;&#21551;&#30340;&#35774;&#23450;
-    unmask: &#21462;&#28040;&#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null
+  <span style="color: #FD971F;">mask</span>: &#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null&#65292;&#21017;&#26381;&#21153;&#26080;&#27861;&#36827;&#34892;&#24320;&#26426;&#33258;&#21551;&#30340;&#35774;&#23450;
+  <span style="color: #FD971F;">unmask</span>: &#21462;&#28040;&#23558;&#26381;&#21153;&#38142;&#25509;&#33267;/dev/null
 
-    enable: &#35774;&#32622;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
-    disable: &#20851;&#38381;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
+  <span style="color: #FD971F;">enable</span>: &#35774;&#32622;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
+  <span style="color: #FD971F;">disable</span>: &#20851;&#38381;&#26381;&#21153;&#24320;&#26426;&#33258;&#21551;&#21160;
 
-    status: &#26597;&#35810;&#29366;&#24577;&#21644;&#26368;&#36817;&#29366;&#24577;&#26085;&#24535;
-    is-active: &#26597;&#35810;&#26381;&#21153;&#24403;&#21069;&#26159;&#21542;&#21551;&#29992;
-    is-enabled: &#26597;&#35810;&#26381;&#21153;&#26159;&#21542;&#24320;&#26426;&#33258;&#21551;
+  <span style="color: #FD971F;">status</span>: &#26597;&#35810;&#29366;&#24577;&#21644;&#26368;&#36817;&#29366;&#24577;&#26085;&#24535;
+  <span style="color: #FD971F;">is-active</span>: &#26597;&#35810;&#26381;&#21153;&#24403;&#21069;&#26159;&#21542;&#21551;&#29992;
+  <span style="color: #FD971F;">is-enabled</span>: &#26597;&#35810;&#26381;&#21153;&#26159;&#21542;&#24320;&#26426;&#33258;&#21551;
 
-    list-dependencies: &#26597;&#35810;&#26381;&#21153;&#30340;&#20381;&#36182;&#20851;&#31995;
+  <span style="color: #FD971F;">list-dependencies</span>: &#26597;&#35810;&#26381;&#21153;&#30340;&#20381;&#36182;&#20851;&#31995;
 
-    list-units --type service: &#26597;&#30475;&#25152;&#26377;&#24050;&#32463;&#21551;&#21160;&#30340;&#26381;&#21153;&#30340;&#20449;&#24687;
-    list-units --type service --all: &#26597;&#30475;&#25152;&#26377;&#26381;&#21153;&#30340;&#20449;&#24687;
-    list-unit-files --type service: &#26597;&#35810;&#25152;&#26377;&#26381;&#21153;&#30340;&#24320;&#26426;&#33258;&#21551;&#29366;&#24577;
+  <span style="color: #FD971F;">list-units --type service</span>: &#26597;&#30475;&#25152;&#26377;&#24050;&#32463;&#21551;&#21160;&#30340;&#26381;&#21153;&#30340;&#20449;&#24687;
+  <span style="color: #FD971F;">list-units --type service --all</span>: &#26597;&#30475;&#25152;&#26377;&#26381;&#21153;&#30340;&#20449;&#24687;
+  <span style="color: #FD971F;">list-unit-files --type service</span>: &#26597;&#35810;&#25152;&#26377;&#26381;&#21153;&#30340;&#24320;&#26426;&#33258;&#21551;&#29366;&#24577;
 </pre>
 </div>
 </div>
@@ -242,7 +234,7 @@ Unit类型
 <div class="outline-text-3" id="text-orgheadline5">
 <div class="org-src-container">
 
-<pre class="src src-conf">systemctl list-units --type target  <span style="color: #75715E;">#  </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#24050;&#35013;&#36733;&#30340;target</span>
+<pre class="src src-bash">systemctl list-units --type target  <span style="color: #75715E;">#  </span><span style="color: #75715E;">&#26597;&#30475;&#24403;&#21069;&#24050;&#35013;&#36733;&#30340;target</span>
 
 systemctl isolate name.target  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#24403;&#21069;&#30340;target&#25991;&#20214;</span>
 systemctl rescue  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20999;&#25442;&#21040;&#32039;&#24613;&#25937;&#25588;&#27169;&#24335;</span>
@@ -259,7 +251,7 @@ systemctl set-default name.target  <span style="color: #75715E;"># </span><span 
 <div class="outline-text-2" id="text-5">
 <div class="org-src-container">
 
-<pre class="src src-conf">systemctl {halt|poweroff}  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#26426;</span>
+<pre class="src src-bash">systemctl <span style="color: #AE81FF;">{</span>halt|poweroff<span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#26426;</span>
 systemctl reboot  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37325;&#21551;</span>
 systemctl suspend  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25346;&#36215;</span>
 systemctl hibernate  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24555;&#29031;</span>

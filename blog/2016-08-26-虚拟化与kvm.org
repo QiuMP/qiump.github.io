@@ -1,0 +1,474 @@
+#+TITLE: 虚拟化与KVM
+#+DATE: 2016-08-06
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 虚拟化
+#+JEKYLL_TAGS: Linux 虚拟化
+#+JEKYLL_PUBLISHED: true
+
+* 虚拟化
+** CPU虚拟化
+: CPU的分级保护域ring
+:   ring -1: 特权指令，需要硬件的支持
+:   ring 0: 虚拟机(Guest)根区域，能被主机(hypervisor)捕获
+:   ring 1/2: 未使用
+:   ring 3: 用户指令
+- 模拟(emulation) :: 纯软件实现，需要模拟CPU的所有ring(0/1/2/3)，可模拟出不同的硬件架构
+- 虚拟(virtualization) :: 只能使用相同的硬件架构
+  - =完全虚拟化(full-virtualization)=: Guest不知道自己运行在虚拟化中
+      - =BT(vmware)=: 二进制翻译软件，需要模拟CPU的ring 0，Guest的内核运行在ring 1上
+      - =HVM=: 硬件辅助的虚拟化，主机使用ring -1，Guest使用ring 0
+  - =半虚拟化(para-virtualization)=: Guest知道自己运行在虚拟化中，直接调用 =hypervisor= 的 =hyper call=
+** Memory虚拟化
+- 虚拟地址空间 ::
+  - =进程=: 线性地址空间
+  - =内核=: 物理地址空间
+- MMU Virtualization :: 虚拟机的进程只需要经过一次转换即可
+  - Intel: =EPT= (Extended Page Table)
+  - AMD: =NTP= (Nested Page Table)
+- TLB virtualization :: 解决虚拟机切换所导致的TLB(Table buffer)无效
+  - =tagged TLB=
+** I/O设备虚拟化
+- I/O设备类型 ::
+  - 外存: 硬盘、光盘、U盘
+  - 网络设备: 网卡
+  - 显示设备: VGA(利用 =frame buffer= 机制虚拟)
+  - 键盘鼠标: ps/2, usb
+- I/O虚拟化的方式 ::
+  - =模拟=: 完全使用软件来模拟真实硬件
+  - =半虚拟化化=: 同CPU虚拟化
+  - =IO-through=: 主机有多块I/O设备
+    - =Intel=: VT-d，隔离DMA的中断请求，完成物理DMA到虚拟DMA的映射
+** 虚拟化的实现方式
+- Type-I :: 直接在硬件上运行一个Hypervisor来管理虚拟机
+  - =xen=, =vmware ESX/ESXi=
+- Type-II :: 需要在主机系统基础上，借助虚拟化软件vmm管理虚拟机
+  - =kvm=, =vmware workstation=, =virtualbox=
+** 虚拟技术分类
+- 模拟 :: 使用软件模拟硬件环境
+  - PearPC, Bochs, QEMU
+- 完全虚拟化 ::
+  - VMware Workstation, VMware Server, Parallels Desktop, KVM, Xen(HVM)
+- 半虚拟化 :: 内核需要支持hyper call
+  - xen, uml(user-mode linux)
+- OS级别的虚拟化 :: 虚拟用户空间
+  - OpenVZ, lxc
+  - Solaris Containers
+  - FreeBSD jails
+- 库虚拟化 :: 
+  - wine
+- 应用程序虚拟化 :: 
+  - jvm
+** 虚拟化网络
+- =bridge mode=: 主机网卡当作交换机使用，虚拟网卡有自己的mac
+- =host only=: 在主机上虚拟交换机和另一张虚拟网卡，连接虚拟机的虚拟网卡
+- =routed mode=: 在host only的基础上，打开电脑的ip地址转发
+- =nat mode=: 在host only的基础上，将主机配置为nat服务器
+- =isolation mode=: 在主机上虚拟交换机，仅连接虚拟机的虚拟网卡
+** linux的虚拟网络设备
+- =tap= 设备是一种工作在二层协议的点对点网络设备，每一个tap设备都有一个对应的linux字符设备，用户程序可以通过对字符设备的读写操作，完成与linux内核网络协议栈的数据交换工作，在虚拟化环境中经常被模拟器使用
+- =tun= 模拟了网络层设备，操作第三层数据包比如ip数据封包
+** 实现虚拟化网络(sdn)
+*** 添加桥设备
+桥设备是基于内核实现的二层数据交换设备
+#+begin_src bash
+brctl addbr br0
+brctl stp br0 off  # 关闭stp
+
+ip link set dev br0 up  # 启用该桥设备
+#+END_SRC
+- 若要将主机连接至桥设备，只需要对桥接口设置IP地址即可
+  #+BEGIN_SRC bash
+  ip addr add IP/MASK dev br0  # 设定在桥设备上的地址
+  #+END_SRC
+*** 添加veth设备
+VETH设备是一种成对出现的点对点网络设备，从一段输入的数据会从另一端改变方向输出，通常用于改变数据方向，或连接其它网络设备
+#+BEGIN_SRC yaml
+ip addr add veth0 type veth peer name veth1
+#+END_SRC
+*** 配置桥接模式
+: 配置桥接网络不能开启NetworkManager
+- 不使用工具来配置桥接网络 ::
+  1. 克隆原来的网卡设备脚本为桥设备脚本 =ifcfg-br0=
+    #+BEGIN_SRC yaml
+    DEVICE=br0
+    NM_CONTROLLED=no
+    TYPE=Bridge
+    ...
+    #+END_SRC
+  2. 将原来的网卡设备脚本作为交换机关联到br0上
+    #+BEGIN_SRC yaml
+    DEVICE=eth0
+    BOOTPROTO=none
+    NM_CONTROLLED=none
+    TYPE=Ethernet
+    BRIDGE=br0
+    IPV6INIT=no
+    #+END_SRC
+- 使用 =bridge-utils= 来配置 ::
+  #+BEGIN_SRC yaml
+  brctl show  # 显示所有桥设备
+  brctl addbr br0  # 添加一个桥设备
+
+  ip addr del IP dev eth0  # 删除eth0的地址
+
+  brctl addif br0 eth0  # 连接桥设备和被作为交换机的网卡
+  ip link set eth0 promisc on  # 开启网卡的混杂模式，以接受所有发来的包
+
+  ip addr add IP/MASK dev br0  # 将eth0原来的地址配置到桥设备上
+  route add default gw GW
+  #+END_SRC
+: 可以使用 nmgui 对网络进行管理
+* KVM
+#+BEGIN_EXAMPLE
+KVM: Kernel-based Virtual Machine，依赖于HVM (VT-x, ADM-V)
+#+END_EXAMPLE
+** 系统的运行模式
+- =来宾-内核模式=: GuestOS的内核模式，用于执行I/O类操作，或其它的特殊指令的操作，之后交给VMM负责管理运行
+- =来宾-用户模式=: GuestOS的内核模式，用于执行非I/O类操作，若架构一样直接在CPU上运行，否则需要交给VMM负责运行
+- =用户模式=: 宿主机的用户空间，代表GuestOS请求I/O类操作
+- =kvm hypervisor=: 宿主机自己的内核空间
+** KVM组件
+- =/dev/kvm=: 工作于 =hypervisor= 的字符设备，在用户空间可通过 =ioctl()= 系统调用来完成VM的管理功能，如创建VM、为VM分配内存、读写VCPU的寄存器、向VCPU注入中断、运行VCPU等等
+- =QEMU进程=: 工作于用户空间，主要用于实现模拟PC机的I/O设备，其功能如下
+  - 处理器模拟器(不同架构)
+  - 仿真I/O设备
+  - 关联模拟的设备至真实设备
+  - 调试器
+  - 与模拟器交互的用户接口
+
+** KVM特性
+- 内存管理
+  - 将分配给VM的内存交换至SWAP
+  - 支持使用Huge Page
+  - 支持使用Intel EPT或AMD RVI技术完成内存地址映射
+  - 支持KSM(Kernel Same-page Merging): 合并相同的共享库文件内存
+- 存储
+  - 本地存储
+  - 网络附加存储
+  - 存储区域网络
+  - 分布式存储，如GlustFS
+- 实时迁移: 在使用共享存储的基础上，通过内存复制的方法迁移正在运行的虚拟机
+- 支持运行Linux, Windows, OpenBSD, FreeBSD, OpenSolaris
+- 设备驱动
+  - I/O设备的完全虚拟化: 模拟硬件
+  - I/O设备的半虚拟化: 在GuestOS中安装驱动(virtio)
+** KVM局限性
+- CPU的过载能力有限
+- 虚拟机时间难以精确，依赖于时间同步机制
+- MAC地址在VM量特别大时，存在冲突的可能性
+** KVM工具
+- QEMU ::
+  - =/usr/libexec/qemu-kvm=
+  - =qemu-img=
+- libvirt :: 通用虚拟机管理，支持远程管理
+  - GUI: =virt-manager=, =virt-viewer=
+  - CLI: =virt-install= (安装工具), =virsh= (管理工具)
+- 工具组 ::
+  - Virtualization: =qemu-kvm=
+  - Virtualization Client: =python-virtinst=, =virt-manager=, =virt-viewer=
+  - Virtualization Platform: =libvirt=, =libvirt-client=
+- cirros project :: 为cloud环境测试vm提供的微缩版Linux
+
+** KVM的安装
+1. 确保CPU支持HVM
+   #+BEGIN_SRC bash
+   grep -E "(vmx|svm)" /proc/cpuinfo
+   #+END_SRC
+2. 装载模块
+   #+BEGIN_SRC bash
+   modprobe kvm
+   #+END_SRC
+3. 验证 =/dev/kvm= 是否存在即可
+
+** 半虚拟化virtio
+=virtio= 仅实现驱动的前端部分(虚拟机部分)，主机的驱动是由 =QEMU= 实现
+- virtio-balloon ::
+  - ballooning: 让VM中运行的GuestOS自动根据系统占用来调整其所占host的内存大小
+  - 手动查看GuestOS的内存用量
+    #+BEGIN_SRC bash
+    info balloon
+    balloon N
+    #+END_SRC
+- virtio-net ::
+  #+BEGIN_SRC yaml
+  # 将Host中的GSO, TSO关掉可能会提升性能
+  ethtool -K $IF gso off
+  ethtool -K $IF tso off
+  ethtool -k $IF
+  #+END_SRC
+- virtio-blk ::
+- virtio-pci ::
+- virtio-console ::
+- kvm-clock :: 半虚拟化时钟，提高虚拟机的时间精度
+  #+BEGIN_SRC yaml
+  # 修改/boot/config-2.6.32-504.el6.x86_64
+  CONFIG_PARAVIRT_GUEST=y
+  CONFIG_PARAVIRT=y
+  CONFIG_PARAVIRT_CLOCK=y
+  #+END_SRC
+  
+** QEMU
+*** qemu-kvm
+**** 命令格式
+#+BEGIN_SRC yaml
+qemu-kvm [OPTIONS] [disk_image]  # 虚拟机管理工具
+#+END_SRC
+**** 选项的分类
+- 标准选项
+- 显示选项
+- 块设备选项
+- 网络选项
+- i386平台专用选项
+- 字符设备选项
+- 蓝牙设备选项
+- Linux启动专用选项
+- 调试/专家模式选项
+
+**** 启动第一个虚拟机
+#+BEGIN_SRC bash
+qemu-kvm -m 128 -smp 2 -name test -hda /images/kvm/cirros-0.3.4-i386.disk.img  # 基于模拟载入磁盘设备
+qemu-kvm -m 128 -name test -smp 2 -drive file=/images/kvm/cirros-0.3.4-i386-disk.img,if=virtio,media=disk,cache=writeback,format=qcow2  # 使用半虚拟化的方式载入磁盘设备
+# 默认会监听一个显示器端口，可以用远程RFB协议软件进行连接，例如tigervnc
+#+END_SRC
+
+**** 标准选项
+qemu-kvm的标准选项主要涉及指定主机类型、CPU模式、NUMA等
+- =-name name=: 设定虚拟机名称
+- =-M machine=: 指定要模拟的主机类型，使用 =qemu-kvm -M ?= 获取所支持的所有类型
+- =-m megs=: 设定虚拟机的RAM大小
+- =-cpu host=: 设定CPU模型，可以使用 =qemu-kvm -cpu ?= 获取所支持的所有模型
+- =-smp N[,cores=N][,threads=N][,sockets=N][,maxcpus=N]=: 设定模拟的SMP架构中CPU的个数(最大255)、每个CPU的核心数和线程数及CPU的插槽数目、maxcpus用于指定热插入的CPU个数上限
+- =-numa opts=: 指定模拟多节点的numa设备(多CPU下每个CPU自己绑定的内存)
+- =-daemonize=: 让虚拟机工作在后台
+- =-balloon virtio=: 支持内存动态扩展和缩小
+**** 块设备选项
+qemu-kvm的块设备选项主要涉及指定软驱设备、光驱设备及硬件设备等
+- =-hda|hdb|hdc|hdd file=: 指定file为硬盘镜像
+- =-cdrom file=: 指定file为CD-ROM镜像，不能与 =-hdc= 同时使用
+- =-drive option,option=: 定义一个硬盘设备
+  - =file=/path/to/somefile=: 硬件映像文件路径
+  - =if==: 指定硬盘设备所连接的控制器类型，如ide、scsi、sd，尽量使用半虚拟化 =virtio=
+  - =index==: 设定同一种控制器类型中不同设备的索引号，即标识号
+  - =media==: 定义介质类型为硬盘( =disk= )还是光盘( =cdrom= )
+  - =snapshot={on|off}=: 指定当前硬盘设备是否支持快照功能
+  - =cache==: 定义如何使用物理机缓存来访问块数据，其可用值有 =none=, =writeback= (延迟写回), =unsafe=, =writethrough= (立即写回)
+  - =format==: 指定映像文件的格式，参考qemu-img命令
+- =-boot [order=dc][,once=d][,menu=on|off]=: 定义启动设备的引导次序，每种设备使用一个字符表示，once只在创建虚拟机时使用，可配置使用pxe安装系统
+  : 不同的架构所支持的设备及其表示字符不尽相同，在x86 PC架构上，a、b表示软驱、c表示第一块硬盘，d表示第一个光驱设备，n-p表示网络适配器；默认为硬盘设备
+**** 字符设备选项
+- =usbdevice tablet=: 解决鼠标内外不同步的情况
+**** 显示选项
+显示选项用于定义虚拟机启动后的显示接口相关类型及属性等
+- =-nographic=: 用于禁止图形接口，默认情况下，qemu使用VNC来显示VGA输出
+  : 快捷键: 
+  :   Ctrl-a, c: 在console和monitor之间切换
+  :   Ctrl-a, h: 显示帮助信息
+  :   Ctrl+Alt+1,2: 切换窗口
+- =-sdl=: 启用SDL
+- =-vnc display[,OPTIONS]=: 使用VNC协议监听在display上
+  - =display=:
+    - =host=:N : 监听在host上的5900+N的端口上
+    - =unix=:/path/to/socket_file
+    - =none=: 不显示
+  - =options=:
+    - =password=: 连接时需要验证密码；设定密码通过monitor接口使用 =change= 命令
+    - =reverse=: "反向"连接至某处于监听状态的vncview上
+- =-monitor stdin=: 表示在标准输入输出上显示monitor管理界面
+- =-vgs type=: 指定显卡类型，常见类型有cirrus、std、vmware、qxl、none
+**** 网络选项
+网络属性相关选项用于定义网络设备接口类型及其相关的各属性等信息
+- =-net nic[,OPTIONS]=: 设置虚拟机上的虚拟网卡(虚拟网卡前端)
+  - =vlan=n=: 设置该设备VLAN编号，默认值为0
+  - =name=name=: 设置名称，在monitor中显示
+  - =macaddr=mac=: 设置设备的MAC，前6位应固定为52:54:00
+  - =model=type=: 设定网卡的类型，默认为e1000，可开启半虚拟化virtio
+  - =addr=addr=: 设定网卡的IP地址
+- =-net tap[,OPTIONS]=: 连接宿主机端的TAP网络接口(虚拟网卡后端)
+  - =vlan=n=: 设置该设备VLAN编号，默认值为0
+  - =name=name=: 设置名称，在monitor中显示
+  - =fd=h=: 连接到现在已经打开着的TAP接口的文件描述符，当使用了fd=h的选项后，ifname、script、downscript、helper、vnet_hdr等选项都不可使用
+  - =ifname=name=: 设置在宿主机中添加的TAP虚拟设备的名称(如tap1、tap5等等)
+  - =script=file=: 设置宿主机在启动客户机时自动执行的网络配置脚本。如果不指定，其默认值为 =/etc/qemu-ifup= 这个脚本；如果不需要执行脚本，则设置为 =script=no=
+    #+BEGIN_SRC bash
+    # cat /etc/qemu-ifup 
+    #!/bin/bash
+    #
+    bridge=br0
+    if [ -n "$1" ]; then
+        ip link set $1 up  # $1为虚拟机网卡在主机上的名称，如tap1
+        sleep 1
+        brctl addif $bridge $1  # 添加网卡到桥设备上
+    [ $? -eq 0 ] && exit 0 || exit 1
+        else
+        echo "Error: no interface specified."
+    exit 1
+    fi
+    #+END_SRC
+  - =downscript=dfile=: 设置宿主机在客户机关闭时自动执行的网络配置脚本。如果不设置，其默认值为 =/etc/qemu-ifdown= ；若客户机关闭时宿主机不需要执行脚本，则设置为 =downscript=no=
+    #+BEGIN_SRC bash
+    # cat /etc/qemu-ifdown 
+    #!/bin/bash
+    #
+    bridge=br0
+    if [ -n "$1" ];then
+        brctl delif $bridge $1  # 删除桥设备上的该网卡，但默认操作也会删除
+        ip link set $1 down
+        exit 0
+    else
+        echo "Error: no interface specified."
+        exit 1
+    fi
+    #+END_SRC
+  - =vnet_hdr=on,vhost=on=: 用于提高半虚拟化网卡的后端性能
+- =-net user=: 在用户空间中创建网卡，无需管理员权限
+*** qemu-img
+#+BEGIN_SRC yaml
+qemu-img subcommand [options]  # 用于磁盘映像管理
+#+END_SRC
+- =create=: 创建一个新的磁盘映像文件
+  #+BEGIN_SRC bash
+  qemu-img create [-f fmt] [-o OPTIONS] filename [size]
+  qemu-img create -f qcow2 -o size=120G,preallocation=metadata /VM/images/rhel5.8/hda 
+  #+END_SRC
+  : fmt: 
+  :   raw: 不存储额外数据，不支持高级功能，可节约带宽
+  :   qcow2: 提供高级功能，支持快照、压缩和加密
+- =check=: 检查磁盘映像文件中的错误
+- =convert=: 转换磁盘映像的格式
+- =info=: 显示指定磁盘映像的信息
+- =snapshot=: 管理磁盘映像的快照
+- =commit=: 提交磁盘映像的所有改变
+- =rbase=: 基于某磁盘映像创建新的映像文件
+- =resize=: 增大或缩减磁盘映像文件的大小
+** 虚拟机迁移
+- 迁移需要共享存储映像文件
+- 在待迁入主机使用
+  #+BEGIN_SRC bash
+  qemu-kvm -vnc :N -incoming tcp:0:7777  # 打开接收端口
+  vncviewer :590N
+  #+END_SRC
+- 在源主机monitor中使用
+  #+BEGIN_SRC bash
+  migrate tcp:DEST_IP:DEST:PORT
+  #+END_SRC
+* libvirt工具
+** libvirt
+- 支持的虚拟化技术: KVM、XEN、VMWARE、LXC、QEMU
+- libvirt中的术语
+  - =node=: 指物理节点
+  - =hypervisor= 
+  - =domain=: vm instances
+** libvirt的安装和配置
+- 安装 ::
+  #+BEGIN_SRC yaml
+  yum install libvirt libvirt-client virt-install virt-manager
+  #+END_SRC
+- libvirt和libvirtd的配置文件 ::
+  - libvirt配置文件: =/etc/libvirt/libvirt.conf=
+  - 守护进程配置文件: =/etc/libvirt/libvirtd.conf=
+  - 网络配置文件: =/etc/libvirt/qemu/networks/default.xml=
+** 使用桥接模式
+#+BEGIN_SRC yaml
+virsh iface-bridge eth0 br0 --no-stp  # 使用桥接模式
+#+END_SRC
+** virt-install
+*** 一般选项
+指定虚拟机的名称、内存大小、VCPU个数及特性等
+- =--name=NAME=: 虚拟机名称，需全局唯一
+- =--ram=MEMORY=: 虚拟机内在大小，单位为MB
+- =--vcpus=VCPUS[,maxvcpus=MAX][,sockets=#][,cores=#][,threads=#]=: VCPU个数及相关配置
+- =--cpu=CPU=: CPU模式及特性
+*** 安装方法
+指定安装方法、GuestOS类型等
+- =--cdrom=CDROM=: 光盘安装介质
+- =--location=LOCATION=: 安装源URL，支持FTP、HTTP及NFS等
+- =--pxe=: 基于PXE完成安装
+- =--os-type=DISTRO_TYPE=: 操作系统类型，如linux、unix或windows等
+- =--os-variant=DISTRO_VARIANT=: 某类型操作系统的变体，如rhel5、fedora8等
+- =--extra-args=EXTRA=: 根据 =--location= 指定的方式安装GuestOS时，用于传递给内核的额外选项
+  : 指定kickstart文件的位置: --extra-args "ks=http://172.16.0.1/class.cfg"
+- =--boot cdrom,hd,network=: 指定引导次序
+*** 存储配置
+指定存储类型、位置及属性等
+- =--disk arg=value,...=: 指定存储设备及其属性
+  - =device=: 设备类型，如cdrom、disk或floppy等，默认为disk
+  - =bus=: 磁盘总线类型，其值可以为ide、scsi、usb、virtio或xen
+  - =perms=: 访问权限，如rw、ro或sh（共享的可读写），默认为rw
+  - =size=: 新建磁盘映像的大小，单位为GB
+  - =cache=: 缓存模型，其值有none、writethrouth及writeback
+  - =format=: 磁盘映像格式，如raw、qcow2、vmdk等
+  - =sparse=: 磁盘映像使用稀疏格式，即不立即分配指定大小的空间
+- =--nodisks=: 不使用本地磁盘，在LiveCD模式中常用
+*** 网络配置
+指定网络接口的网络类型及接口属性如MAC地址、驱动模式等
+- =--network opt1=val1,opt2=val2=: 将虚拟机连入宿主机的网络中
+  - =bridge=BRIDGE=: 连接至名为"BRIDEG"的桥设备
+  - =network=NAME=: 连接至名为"NAME"的网络
+  - =model=: 虚拟机网卡的设备型号，如e1000、rtl8139或virtio等
+  - =mac=: MAC地址，省略此选项时将使用随机地址，对于KVM来说，其前三段必须为52:54:00
+- =--nonetworks=: 虚拟机不使用网络功能
+*** 设备选项
+指定文本控制台、声音设备、串行接口、并行接口、显示接口等
+- =--serial pty=: 创建伪终端
+- =--serial=CHAROPTS=: 附加一个串行设备至当前虚拟机
+- =--serial dev,path=HOSTPATH=: 附加主机设备至此虚拟机
+- =--video=VIDEO=: 指定显卡设备类型，可用取值为cirrus、vga、qxl或vmvga
+*** 虚拟化选项
+- =--hvm=: 当物理机同时支持完全虚拟化和半虚拟化时，指定使用完全虚拟化
+- =--paravirt=: 指定使用半虚拟化
+- =--virt-type=: 使用的hypervisor，如kvm、qemu、xen等
+*** 其它选项
+- =--autostart=: 指定虚拟机是否在物理启动后自动启动
+- =--print-xml=: 如果虚拟机不需要安装过程(--import、--boot)，则显示生成的XML而不是创建此虚拟机；默认情况下，此选项仍会创建磁盘映像
+- =--force=: 禁止命令进入交互式模式，所有问题自动回答为yes
+- =--dry-run=: 执行创建虚拟机的整个过程，但不真正创建虚拟机、改变主机上的设备配置信息及将其创建的需求通知给libvirt
+- =--debug=: 显示debug信息
+*** virt-install使用示例
+尽管 =virt-install= 命令有着类似上述的众多选项，但实际使用中，其必须提供的选项仅包括 =--name=, =--ram=, =--disk= (或者 =--nodisks= )及安装过程相关的选项
+#+BEGIN_SRC bash
+virt-install -n "centos6" -r 512 --vcpus=2 --pxe --disk path=/images/kvm/centos6.qcow2,size=120,format=qcow2,bus=virtio,sparse=yes --network bridge=br0,model=virtio --force --graphics vnc  # 使用pxe安装系统
+
+virt-install --name cirros --ram 128 --disk /VMs/cirros-*.img --import --network bridge=br0,model=virtio --import --serial=pty --console=pty --nographics # 导入已经存在的磁盘映像文件，并在前台模拟一个终端
+#+END_SRC
+: 每个虚拟机创建后，其配置信息保存在 /etc/libvirt/qemu 目录中，文件名与虚拟机相同，格式为XML
+** virsh常用命令
+- 根据xml文件创建虚拟机
+  - =create=: 创建并启动
+  - =define=: 创建但不启动
+- 关闭domain
+  - =destroy=: 强制关机
+  - =shutdown=: 正常关机
+  - =reboot=
+- 删除domain
+  - =undefine=
+- 连接至console
+  - =console=
+- 列出domain
+  - =list=
+- 附加或拆除disk
+  - =attach-disk=
+    #+BEGIN_SRC bash
+    virsh attach-disk DOMAIN_ID /PATH/TO/*.qcow2 vda --targetbus virtio
+    #+END_SRC
+  - =detach-disk=
+    #+BEGIN_SRC bash
+    virsh detach-disk DOMAIN_ID vda
+    #+END_SRC
+- 附加或拆除网卡
+  - =attach-interface=
+    #+BEGIN_SRC bash
+    virsh attach-interface 15 bridge br0
+    #+END_SRC
+  - =detach-interface=
+    #+BEGIN_SRC bash
+    virsh detach-interface 15 bridge --mac ...
+    #+END_SRC
+- 挂起与恢复
+  - =save=
+  - =restore=
+- 暂停于 *内存* 中或继续运行
+  - =suspend=
+  - =resume=
+- 查询帮助
+  - =help=

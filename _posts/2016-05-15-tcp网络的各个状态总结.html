@@ -1,13 +1,11 @@
 ---
-title: "TCP网络的各个状态总结"
+title: "TCP网络的多种状态"
 date: 2016-05-15
 layout: post
 categories: 
-- 网络
+- 网络知识
 tags: 
-- 网络 
-- 局域网 
-- TCP
+- TCP/IP
 published: true
 comments: 
 ---
@@ -15,89 +13,89 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. 局域网</a></li>
-<li><a href="#orgheadline2">2. TCP/IP分层</a></li>
-<li><a href="#orgheadline3">3. TCP/IP的连接协议（三次握手）</a></li>
-<li><a href="#orgheadline4">4. TCP/IP的终止协议（四次挥手）</a></li>
-<li><a href="#orgheadline5">5. TCP/IP的连接状态</a></li>
+<li><a href="#orgheadline1">1. 局域网的相关术语</a></li>
+<li><a href="#orgheadline2">2. TCP特性</a></li>
+<li><a href="#orgheadline3">3. TCP/IP分层</a></li>
+<li><a href="#orgheadline4">4. TCP/IP的连接协议（三次握手）</a></li>
+<li><a href="#orgheadline5">5. TCP/IP的终止协议（四次挥手）</a></li>
+<li><a href="#orgheadline6">6. TCP/IP的连接状态</a></li>
 </ul>
 </div>
 </div>
-<p>
-简单介绍了局域网相关的概念，分析TCP/IP的连接协议、终止协议，总结了TCP/IP在连接过程中的各种状态
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> 局域网</h2>
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 局域网的相关术语</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
-<li>以太网，令牌环网</li>
-<li>CSMA/CD: 解决局域网内不同主机同时发送的冲突问题(冲突域)</li>
-<li>广播域: 交换机通过广播信号确定数据的目的地
-<ul class="org-ul">
-<li>MAC: Media Access Control
-<ul class="org-ul">
-<li>总共48bits地址, 前24bits由国际组织分配</li>
-</ul></li>
-</ul></li>
-<li>路由器: 切割广播域, 连接广播域
-<ul class="org-ul">
-<li>IP: Internet Protocol</li>
-<li>Routing protocol: 路由器判断包的转发端口, 以求最快到达</li>
-</ul></li>
-<li>ARP: 局域网内IP与MAC的转换</li>
-<li>网关: 若目的地与自己不在同一网络的时候所发送的地方</li>
-<li>套接字: 不同主机的进程的通讯接口, 包含ip和端口号</li>
+<li><code>CSMA/CD</code>: 解决局域网内不同主机同时发送的冲突问题(冲突域)</li>
+<li><code>广播域</code>: 交换机通过广播信号确定数据的目的地</li>
+<li><code>MAC(Media Access Control)</code>: 总共48bits地址, 前24bits由国际组织分配</li>
+<li><code>路由器</code>: 切割广播域, 连接广播域</li>
+<li><code>IP</code>: Internet Protocol</li>
+<li><code>Routing protocol</code>: 路由器判断包的转发端口, 以求最快到达</li>
+<li><code>ARP</code>: 局域网内IP与MAC的转换</li>
+<li><code>网关</code>: 若目的地与自己不在同一网络的时候所发送的地方</li>
+<li><code>套接字</code>: 不同主机的进程的通讯接口, 包含ip和端口号</li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline2" class="outline-2">
-<h2 id="orgheadline2"><span class="section-number-2">2</span> TCP/IP分层</h2>
+<h2 id="orgheadline2"><span class="section-number-2">2</span> TCP特性</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li>application layer</li>
-<li>transport layer: tcp, udp, sctp</li>
-<li>internet layer: ip</li>
-<li>datalink layer: mac</li>
-<li>pysical layer</li>
+<li>建立连接：三次握手</li>
+<li>将数据打包成段：校验和（CRC-32）</li>
+<li>确认、重传以及超时</li>
+<li>排序：逻辑序号</li>
+<li>流量控制：滑动窗口算法</li>
+<li>拥塞控制：慢启动和拥塞避免算法</li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline3" class="outline-2">
-<h2 id="orgheadline3"><span class="section-number-2">3</span> TCP/IP的连接协议（三次握手）</h2>
+<h2 id="orgheadline3"><span class="section-number-2">3</span> TCP/IP分层</h2>
 <div class="outline-text-2" id="text-3">
-<ol class="org-ol">
-<li>客户端发送一个带SYN标志的TCP报文到服务器</li>
-<li>服务器回应客户端一个同时带ACK和SYN标志的报文</li>
-<li>客户端最后回服务器端一个ACK报文</li>
-</ol>
+<ul class="org-ul">
+<li><code>application layer</code></li>
+<li><code>transport layer</code>: tcp, udp, sctp，提供进程间的通信，包括tcp和udp协议，端口号是0-65535</li>
+<li><code>internet layer</code>: ip，提供主机间的通信</li>
+<li><code>datalink layer</code>: mac，提供设备间的通信</li>
+<li><code>pysical layer</code></li>
+</ul>
 </div>
 </div>
 
 <div id="outline-container-orgheadline4" class="outline-2">
-<h2 id="orgheadline4"><span class="section-number-2">4</span> TCP/IP的终止协议（四次挥手）</h2>
+<h2 id="orgheadline4"><span class="section-number-2">4</span> TCP/IP的连接协议（三次握手）</h2>
 <div class="outline-text-2" id="text-4">
-<p>
-由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。收到一个FIN只意味着这一方向上没有数据流动了，一个TCP连接在收到一个FIN后仍能发送数据。
-</p>
 <ol class="org-ol">
-<li>客户端发送一个FIN报文，关闭客户端到服务器端的数据传输</li>
-<li>服务器端收到这个FIN报文后回应一个确认序号加1的ACK报文</li>
-<li>服务器端准备关闭客户端的连接，发送一个FIN报文给客户端</li>
-<li>客户端收到后回应一个ACK报文</li>
+<li>客户端发送一个带 <code>SYN</code> 标志的TCP报文到服务器</li>
+<li>服务器回应客户端一个同时带 <code>ACK</code> 和 <code>SYN</code> 标志的报文</li>
+<li>客户端最后回服务器端一个 <code>ACK</code> 报文</li>
 </ol>
 </div>
 </div>
 
 <div id="outline-container-orgheadline5" class="outline-2">
-<h2 id="orgheadline5"><span class="section-number-2">5</span> TCP/IP的连接状态</h2>
+<h2 id="orgheadline5"><span class="section-number-2">5</span> TCP/IP的终止协议（四次挥手）</h2>
 <div class="outline-text-2" id="text-5">
+<p>
+由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。收到一个FIN只意味着这一方向上没有数据流动了，一个TCP连接在收到一个FIN后仍能发送数据。
+</p>
+<ol class="org-ol">
+<li>客户端发送一个 <code>FIN</code> 报文，关闭客户端到服务器端的数据传输</li>
+<li>服务器端收到这个 <code>FIN</code> 报文后回应一个确认序号加1的 <code>ACK</code> 报文</li>
+<li>服务器端准备关闭客户端的连接，发送一个 <code>FIN</code> 报文给客户端</li>
+<li>客户端收到后回应一个 <code>ACK</code> 报文</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> TCP/IP的连接状态</h2>
+<div class="outline-text-2" id="text-6">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 

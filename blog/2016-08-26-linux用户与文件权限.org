@@ -1,0 +1,339 @@
+#+TITLE: Linux用户与文件权限
+#+DATE: 2016-05-21
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 安全
+#+JEKYLL_PUBLISHED: true
+
+
+* 资源分派的过程
+1. Authentication: 认证，表明你能进入系统
+   - token: 口令
+   - identity: 用户名和密码
+2. Authorization: 授权，表明你有权限执行某些操作
+   - 进程所能够访问的所有资源的权限取决于进程的发起者的身份
+3. Accouting: 审计，验证你操作的合理性
+* 用户(UID)
+- 管理员root: 0
+- 普通用户: 1-65535(2^16)
+  - 系统用户: 1-499/999，系统用户用于对守护进程获取资源进行权限分配
+  - 非系统用户: 500/1000+
+* 组(GID)
+- 管理员组root: 0
+- 普通组
+  - 系统组: 1-499/999
+  - 非系统组: 500/1000+
+- 用户的组的类别
+  - 用户的基本组: 组名同用户名，且仅包含一个用户，即私有组
+  - 用户的附加组(额外组)
+* 配置文件
+- /etc/passwd ::
+  用户及其属性信息
+  #+BEGIN_SRC yaml
+  name:password:UID:GID:GECOS:directory:shell
+  用户名:x:UID:GID:完整信息:主目录:默认shell
+  #+END_SRC
+- /etc/group ::
+  组及其属性信息
+  #+BEGIN_SRC yaml
+  group_name:password:GID:user_list
+  组名:x:GID:以当前组为附加组的用户列表(分隔符为逗号)
+  #+END_SRC
+- /etc/shadow ::
+  用户密码及其相关属性
+  #+BEGIN_SRC yaml
+  用户名:加密密码:最近一次更改密码的日期:密码最小使用期限:密码最大使用期限:密码警告时间段:密码禁用期:账户过期日期:保留字段
+    加密密码: 添加随机字符串后，进行sha512单向加密，初始的条件的微小改变，将会引起结果的巨大改变；若密码为 !! 则为空密码
+  #+END_SRC
+  - 用户名密码期限: 用户未修改密码时间到达 *密码警告时间段* 则会收到通知，到达 *密码最大使用期限* 会进入 *密码禁用期* ，若在这段时期没有登录的话，账号会被禁用(过期)
+- /etc/gshadow ::
+  组密码及其相关属性
+- /etc/login.defs :: 
+  定义相关的变量值，包括UID/GID范围等
+* 用户与组相关命令
+** id
+查看用户信息，同时id能够用于判断用户是否存在
+#+BEGIN_SRC yaml
+id [OPTION]... [USER]
+  -u: UID
+  -g: GID
+  -G: 显示所有组
+  -n: 配合其他选项，显示名称而不是数字
+#+END_SRC
+** su
+su(Switch User): 切换用户或以其他用户身份执行命令
+#+BEGIN_SRC bash
+su user     # 非登录式切换，即不会读取目标用户的配置文件
+su - user   # 登录式切换，会读取目标用户的配置文件，完全切换
+su [-] UserName -c 'COMMAND'  # 以其他用户的身份执行命令，不切换用户
+#+END_SRC
+- root切换至其他用户无须密码，而非root用户切换时需要密码
+** sudo
+授权之后，能够让某用户以其他用户的身份运行某些命令，同时会记录进日志中
+#+BEGIN_SRC yaml
+sudo [-u user] COMMAND 
+  -u user: 默认为root
+  -k: 重置输入用户密码
+  -l: 显示当前用户能用sudo运行的命令
+#+END_SRC
+- 配置文件: sudoers，使用 =visudo= 命令进行编辑
+  #+BEGIN_SRC yaml
+  users  hosts=(runas)  [NOPASSWD:]commands,...  # 可以使用ALL来指定所有
+    users: username、#uid、%group_name、%#gid
+    hosts: ip、hostname、netaddr
+    commands: command、directory、sudoedit
+
+  Alias_Type NAME = item1, item2, ...  # 别名可以用于上边的配置行中，也可以用在其他别名中
+    Alias_Type: User_Alias、Host_Alias、Runas_Alias、Cmnd_Alias
+    NAME: 别名名称，必须使用全大写字母
+    item: 以 ! 开头表示排除
+
+  Cmnd_Alias PASSWD_CMND = /usr/bin/passwd [a-z]*, !/usr/bin/passwd root  # 防止用户更改root密码
+  #+END_SRC
+** newgrp
+临时切换基本组
+#+BEGIN_SRC bash
+newgrp GROUP
+# 如果用户本不属于GROUP，则需要组密码
+#+END_SRC
+** 用户相关
+*** useradd
+创建用户
+#+BEGIN_SRC yaml
+useradd [OPTION]... NAME
+  -u UID: 范围是[UID_MIN, UID_MAX]
+  -g GID: 指明用户所属基本组，可为组名
+  -G GROUP1[,GROUP2,...[,GROUPN]]: 为用户指明附加组；组必须事先存在
+  -r: 创建系统用户
+
+  -m: 创建HOME目录，并复制/etc/skel内文件到这(默认)
+  -d /PATH/TO/HOME_DIR: 以指定的路径为家目录
+
+  -p PASSWORD: 为用户指定密码
+  -s SHELL: 指明用户的默认shell程序，可用列表在/etc/shells文件中
+  -c "COMMENT": 用户的注释信息(GECOS)
+#+END_SRC
+- 新建用户的默认值设定在 =/etc/default/useradd= 文件中
+  #+BEGIN_SRC bash
+  useradd -D  # 查询useradd默认值
+  useradd -D [OPTION]...  # 修改useradd默认值
+  #+END_SRC
+*** usermod
+修改用户属性和过期日期
+#+BEGIN_SRC yaml
+usermod [OPTION] NAME
+  -l login_name: 新的名字
+
+  -u UID: 新UID
+  -g GID: 新基本组
+  -G GROUP1[,GROUP2,...[,GROUPN]]: 新附加组，原来的附加组将会被覆盖
+    -a: 保留原有的附加组
+
+  -s SHELL: 新的默认SHELL
+  -c 'COMMENT': 新的注释信息
+  -d HOME: 新的家目录，原有家目录中的文件不会同时移动至新的家目录
+    -m: 移动原有家目录中的文件
+  
+  -L: lock指定用户(在加密密码前加 !)
+  -U: unlock指定用户
+  -e YYYY-MM-DD: 指明用户账号过期日期
+#+END_SRC
+*** passwd
+添加或修改密码及密码期限相关内容
+#+BEGIN_SRC yaml
+passwd  # 修改自己的密码
+passwd [OPTIONS] UserName  # 修改指定用户的密码，仅root用户可用
+  -l: 锁定指定用户
+  -u: 解锁指定用户
+
+  -n mindays: 指定最短使用期限
+  -x maxdays: 最大使用期限
+  -w warndays: 提前多少天开始警告
+  -i inactivedays: 密码禁用期
+  
+  --stdin: 从标准输入接收用户密码
+#+END_SRC
+*** chage
+修改用户日期相关内容
+#+BEGIN_SRC yaml
+chage [OPTION]... NAME
+  -d: LAST_DAY
+  -E,--expiredate: EXPIRE_DATE
+  -I,--inactive: INACTIVE
+  -m,--mindays: MIN_DAYS
+  -M,--maxdays: MAX_DAYS
+  -W,--warndays: WARN_DAYS
+#+END_SRC
+*** userdel
+删除用户
+#+BEGIN_SRC yaml
+userdel [OPTION]... NAME
+  -r: 同时删除用户家目录
+#+END_SRC
+** 组相关
+*** groupadd
+创建组
+#+BEGIN_SRC yaml
+groupadd [OPTION]... group_name
+  -g GID: 范围是[GID_MIN, GID_MAX]
+  -r: 创建系统组
+#+END_SRC
+*** groupmod
+修改组属性
+#+BEGIN_SRC yaml
+groupmod [OPTION]... group
+  -n group_name: 新名字
+  -g GID: 新的GID
+#+END_SRC
+*** gpasswd
+修改组密码和添加删除组员
+#+BEGIN_SRC yaml
+gpasswd [OPTION] GROUP
+  -a user: 将user添加至指定组中
+  -d user: 删除用户user的以当前组为组名的附加组
+  -A user1,user2,...: 设置群组管理员，群组管理员可以管理哪些帐号可以加入/移出该群组
+#+END_SRC
+*** groupdel
+删除组
+#+BEGIN_SRC yaml
+groupdel GROUP
+#+END_SRC
+** 其他
+- pwck :: 
+  检查密码文件的完整性
+- chfn ::
+  设置用户详细信息
+- finger ::
+  查看用户详细信息
+- chsh ::
+  更改用户的默认shell
+  #+BEGIN_SRC yaml
+  chsh [OPTIONS] [username]  # 默认更改自己的shell
+    -s SHELL: 指定shell
+  #+END_SRC
+* 文件权限管理
+** 三类对象
+- owner: 属主 u
+- group: 属组 g
+- other: 其他 o
+** 基本权限
+- 基本权限 ::
+  - r(4): Readable  
+  - w(2): Writable  
+  - x(1): eXcutable
+- 文件的基本权限 ::
+  - r: 可使用文件查看类工具获取其内容
+  - w: 可修改其内容
+  - x: 可以把此文件提请内核启动为一个进程
+- 目录的基本权限 ::
+  - r: 可以使用ls查看此目录中文件列表
+  - w: 可在此目录中创建文件，也可删除此目录中的文件
+  - x: 无法执行该目录下的任何命令，包括创建和删除文件
+** 特殊权限
+*** SUID(4)
+默认情况下，启动为进程之后，其进程的属主为发起者，进程的属组为发起者所属的组；而启动带SUID的程序文件时，其进程的属主为原程序文件的属主
+#+BEGIN_SRC bash
+chmod u+s FILE
+chmod u-s FILE
+#+END_SRC
+*** SGID(2)
+默认情况下，用户创建文件时，其属组为此用户所属的基本组；一旦某目录被设定了SGID，则对此目录有写权限的用户在此目录中创建的文件所属的组为此目录的属组
+#+BEGIN_SRC bash
+chmod g+s FILE
+chmod g-s FILE
+#+END_SRC
+- 经常用于团队协作，因为创建的文件后其他人不会被当作other
+- 如果对可执行文件设定SGID，则文件执行后的进程属组是文件的属组
+*** Sticky(1)
+对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件；如果对文件设定，则该文件只能由属主执行删除和移动
+#+BEGIN_SRC yaml
+chmod o+t FILE
+chmod o-t FILE
+#+END_SRC
+- =/tmp= 就有Sticky权限
+*** 权限位映射
+- SUID: user, 占据属主的执行权限位
+  - s: 属主拥有x权限
+  - S: 属主没有x权限
+- SGID: group,  占据group的执行权限位
+  - s: group拥有x权限
+  - S: group没有x权限	
+- Sticky: other, 占据ohter的执行权限位
+  - t: other拥有x权限
+  - T: other没有x权限
+** 修改文件权限: chmod
+#+BEGIN_SRC yaml
+chmod [OPTION]... MODE FILE...
+  -R: 递归修改权限
+  MODE: 
+    - 可使用数字权限，如4755(最左边一位是特殊权限，可以不写)
+    - 可修改一类用户的权限，如 u=rwx,g+w,o-rwx,a-x
+
+chmod [OPTION]... --reference=RFILE FILE...  # 参考RFILE文件的权限，将FILE的修改为同RFILE一样的权限
+#+END_SRC
+** 修改文件的属主和属组
+- chown ::
+  修改属主
+  #+BEGIN_SRC yaml
+  chown [OPTION]... [OWNER][:[GROUP]] FILE...
+  chown [OPTION]... --reference=RFILE FILE...
+    -R: 目录递归修改
+  # chown也可只改属组，即不写OWNER
+  #+END_SRC
+- chgrp :: 
+  修改属组
+  #+BEGIN_SRC yaml
+  chgrp [OPTION]... GROUP FILE...
+  chgrp [OPTION]... --reference=RFILE FILE...
+    -R: 目录递归修改
+  #+END_SRC
+** 文件遮罩码: umask
+- 创建文件时，文件的权限是 666-umask
+- 创建目录时，目录的权限是 777-umask
+#+BEGIN_SRC bash
+umask  # 查看umask
+umask num  # 设置umask，仅对当前shell有效
+#+END_SRC
+** 隐藏权限
+- 设置隐藏权限 ::
+  #+BEGIN_SRC yaml
+  chattr [+-=] [OPTIONS] 文件/目录 
+    a: 只能增加数据, 不能删除和修改
+    i: 不允许对文件/目录做任何修改
+    S: 修改时同步写入磁盘
+
+    A: 锁定atime
+    d: 该文件或目录不会被dump备份
+  #+END_SRC
+- 查询隐藏权限 ::
+  #+BEGIN_SRC yaml
+  lsattr [OPTIONS] 文件/目录
+    -a: 显示隐藏文件
+    -d: 仅显示目录
+    -R: 连同子目录也显示出来
+  #+END_SRC
+** ACL
+*** ACL的类型
+ACL(Access Control List)可以针对一个指定用户，一个文件或目录来进行权限设置
+- 针对用户: =u:[USERNAME]:rw= (省略用户名则等同于设置基本权限)
+- 针对组: =g:[GROUPNAME]:rw= (省略组名则等同于设置基本权限)
+- 设置有效权限(允许的最大权限): =m:rwx=
+- 设置目录的继承权限(目录下新建的文件和目录会继承该权限): =d:ACL参数=
+
+*** 设定ACL
+#+BEGIN_SRC yaml
+setfacl [OPTIONS] 文件/目录
+  -m ACL参数: 设定指定的ACL参数
+  -x ACL参数: 删除指定的ACL参数(删除时无需指明权限)
+
+  -R: 递归设定ACL
+
+  -b: 删除所有的ACL设定
+  -x: 删除default的ACL设定
+#+END_SRC
+
+*** 获取ACL
+#+BEGIN_SRC bash
+getfacl 文件/目录
+#+END_SRC

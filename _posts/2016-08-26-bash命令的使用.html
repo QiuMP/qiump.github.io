@@ -1,0 +1,638 @@
+---
+title: "Bash的使用与配置"
+date: 2016-05-19
+layout: post
+categories: 
+- Bash
+tags: 
+- Linux 
+- Bash
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">1. 命令</a>
+<ul>
+<li><a href="#orgheadline1">命令的种类</a></li>
+<li><a href="#orgheadline2">命令的查询</a></li>
+<li><a href="#orgheadline3">命令的搜索与缓存</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">2. 命令帮助</a>
+<ul>
+<li><a href="#orgheadline5">获得帮助</a></li>
+<li><a href="#orgheadline10">man帮助</a>
+<ul>
+<li><a href="#orgheadline6">man文档的位置</a></li>
+<li><a href="#orgheadline7">man章节</a></li>
+<li><a href="#orgheadline8">相关命令</a></li>
+<li><a href="#orgheadline9">帮助符号说明</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">cheat</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline17">3. 命令历史</a>
+<ul>
+<li><a href="#orgheadline13">历史的记录和读取</a></li>
+<li><a href="#orgheadline14">查询历史</a></li>
+<li><a href="#orgheadline15">相关环境变量</a></li>
+<li><a href="#orgheadline16">shell快捷操作</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">4. 命令或路径的补全</a></li>
+<li><a href="#orgheadline19">5. 命令的执行结果</a></li>
+<li><a href="#orgheadline20">6. 命令别名(alias)</a></li>
+<li><a href="#orgheadline21">7. glob</a></li>
+<li><a href="#orgheadline22">8. bash的快捷键</a></li>
+<li><a href="#orgheadline29">9. I/O重定向及管道</a>
+<ul>
+<li><a href="#orgheadline23">文件描述符</a></li>
+<li><a href="#orgheadline27">I/O重定向</a>
+<ul>
+<li><a href="#orgheadline24">输出重定向</a></li>
+<li><a href="#orgheadline25">输入重定向</a></li>
+<li><a href="#orgheadline26">特殊设备</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline28">管道</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline33">10. bash的配置文件</a>
+<ul>
+<li><a href="#orgheadline30">配置文件的类型</a></li>
+<li><a href="#orgheadline31">shell登录过程</a></li>
+<li><a href="#orgheadline32">载入配置文件的方式</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">1</span> 命令</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+命令是让shell程序找到键入命令所对应的可执行程序或代码，并由其分析后提交给内核分配资源将其运行起来
+</p>
+</div>
+<div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">命令的种类</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>内建命令: 由shell自带的，而且通过某命令的形式提供</li>
+<li>外部命令: 在当前系统的某文件系统路径下有对应的可执行程序文件</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">type</span> COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#21629;&#20196;&#30340;&#31181;&#31867;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">命令的查询</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+which和whereis用于查询外部命令的位置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">which COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#31532;&#19968;&#20010;&#26597;&#35810;&#32467;&#26524;</span>
+  <span style="color: #FD971F;">--skip-alias</span>: &#36339;&#36807;&#21035;&#21517;&#65292;&#24120;&#29992;&#20110;&#33050;&#26412;&#30340;&#33719;&#21462;&#31243;&#24207;&#21517;
+whereis COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#26597;&#35810;&#32467;&#26524;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">命令的搜索与缓存</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+shell程序搜寻可执行文件的路径定义在 <code>PATH</code> 环境变量中(自左向右搜寻)，同时shell搜寻到的外部命令的路径结果会缓存至内存中的kv(key-value)存储中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">hash</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#20869;&#23384;&#20013;&#30340;kv&#20648;&#23384;&#30340;&#20869;&#23481;&#21644;&#21629;&#20013;&#27425;&#25968;</span>
+<span style="color: #F92672;">hash</span> -r  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;&#22806;&#37096;&#21629;&#20196;&#30340;&#36335;&#24452;&#25913;&#21464;&#26102;&#32531;&#23384;&#20250;&#21457;&#29983;&#38169;&#35823;&#65292;&#38656;&#35201;&#28165;&#31354;&#32531;&#23384;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12"><span class="section-number-2">2</span> 命令帮助</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">获得帮助</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<dl class="org-dl">
+<dt>内建命令</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">help COMMAND
+</pre>
+</div></dd>
+<dt>外部命令</dt><dd><ul class="org-ul">
+<li><code>COMMAND --help</code></li>
+<li>使用手册(manual): <code>man COMMAND</code></li>
+<li>信息页: <code>info COMMAND</code></li>
+<li>程序自身的帮助文档(<code>/usr/share/doc/</code>): README、INSTALL、ChangeLog</li>
+<li>程序官方网站文档: Documentation</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">man帮助</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">man文档的位置</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<ul class="org-ul">
+<li>手册位置: /usr/share/man</li>
+<li><p>
+man命令的配置文件: /etc/man.yamlig
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">MANPATH /PATH/TO/SOMEWHERE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#26126;&#26032;&#30340;&#25163;&#20876;&#25991;&#20214;&#25628;&#32034;&#20301;&#32622;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">man章节</h4>
+<div class="outline-text-4" id="text-orgheadline7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">章节</th>
+<th scope="col" class="org-left">帮助种类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">man1</td>
+<td class="org-left">用户命令</td>
+</tr>
+
+<tr>
+<td class="org-left">man2</td>
+<td class="org-left">系统调用</td>
+</tr>
+
+<tr>
+<td class="org-left">man3</td>
+<td class="org-left">C库调用</td>
+</tr>
+
+<tr>
+<td class="org-left">man4</td>
+<td class="org-left">设备文件及特殊文件</td>
+</tr>
+
+<tr>
+<td class="org-left">man5</td>
+<td class="org-left">配置文件格式</td>
+</tr>
+
+<tr>
+<td class="org-left">man6</td>
+<td class="org-left">游戏</td>
+</tr>
+
+<tr>
+<td class="org-left">man7</td>
+<td class="org-left">杂项</td>
+</tr>
+
+<tr>
+<td class="org-left">man8</td>
+<td class="org-left">管理类的命令</td>
+</tr>
+</tbody>
+</table>
+<ul class="org-ul">
+<li>有些命令可能存在多个章节中</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">相关命令</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-yaml">whatis COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#21629;&#20196;&#23384;&#22312;&#20110;&#21738;&#20123;&#31456;&#33410;</span>
+mandb <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26356;&#26032;whatis&#25968;&#25454;&#24211;</span>
+man 3 COMMAND  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;COMMAND(3)&#30340;&#25163;&#20876;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>man命令其实是使用 <code>less</code> 命令来读取文件</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">帮助符号说明</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<ul class="org-ul">
+<li><code>[]</code>: 可选内容</li>
+<li><code>&lt;&gt;</code>: 必选内容</li>
+<li><code>a|b</code>: 二选一</li>
+<li><code>...</code>: 同一内容可出现多次</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">cheat</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<p>
+用于简单查询命令使用方法的工具
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-2">
+<h2 id="orgheadline17"><span class="section-number-2">3</span> 命令历史</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">历史的记录和读取</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<ul class="org-ul">
+<li>登录shell时，会读取历史文件中记录下的命令: <code>~/.bash_history</code></li>
+<li>登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">查询历史</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<div class="org-src-container">
+
+<pre class="src src-yaml">history [NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#21382;&#21490;&#20013;&#26368;&#36817;NUM&#26465;&#21629;&#20196;</span>
+  <span style="color: #FD971F;">-a</span>: &#36861;&#21152;&#26032;&#25191;&#34892;&#30340;&#21629;&#20196;&#33267;&#21382;&#21490;&#25991;&#20214;&#20013;
+  <span style="color: #FD971F;">-d OFFSET</span>: &#21024;&#38500;&#21382;&#21490;&#20013;&#25351;&#23450;&#30340;&#21629;&#20196;
+  <span style="color: #FD971F;">-c</span>: &#28165;&#31354;&#21382;&#21490;&#21629;&#20196;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">相关环境变量</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<ul class="org-ul">
+<li>HISTSIZE: 命令历史记录的条数</li>
+<li>HISTFILESIZE: 命令历史文件记录历史的条数</li>
+<li>HISTFILE: ~/.bash_history</li>
+<li>HISTCONTROL: 控制命令历史的记录方式
+<ul class="org-ul">
+<li>ignoredups(默认值): 忽略连续重复的指令</li>
+<li>ignorespace: 忽略所有以空白开头的命令</li>
+<li>ignoreboth: 相当于ignoredups,ignorespace</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">shell快捷操作</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>!#: 调用历史中第#条命令</li>
+<li>!string: 调用历史中最近一个以string开头的命令</li>
+<li>!!: 上条命令</li>
+<li>!$: 调用上一条命令的最后一个参数(用于同个文件的操作)
+<ul class="org-ul">
+<li>也可以用 <code>ESC .</code> 来代替</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18"><span class="section-number-2">4</span> 命令或路径的补全</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>直接补全: 用户给定的字符串只有一条惟一对应的命令或路径，则按TAB直接补全</li>
+<li>补全列表: 对应的命令或路径不唯一，按两次TAB会给出列表</li>
+<li><p>
+{}: 可承载一个以逗号分隔的列表，并将其展开为多个路径，可嵌套使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">touch /tmp/<span style="color: #AE81FF;">{</span>a,b<span style="color: #AE81FF;">}</span>_<span style="color: #AE81FF;">{</span>x,y<span style="color: #AE81FF;">}</span>
+touch /tmp/<span style="color: #AE81FF;">{</span>bin,sbin,usr/<span style="color: #66D9EF;">{</span>bin,sbin<span style="color: #66D9EF;">}</span><span style="color: #AE81FF;">}</span>
+
+cp /etc/named.yaml<span style="color: #AE81FF;">{</span>,.bak<span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#22797;&#21046;&#22791;&#20221;&#25991;&#20214;</span>
+</pre>
+</div></li>
+<li><p>
+{start..end}: 可以生成一个顺序列表, 但这种方式很占内存
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">touch user<span style="color: #AE81FF;">{</span><span style="color: #AE81FF;">1..3</span><span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110; touch user1 user2 user3</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">5</span> 命令的执行结果</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+bash使用特殊变量 <code>$?</code> 来保存最近一条命令的执行结果
+</p>
+<ul class="org-ul">
+<li>0: 成功</li>
+<li>1-255: 失败</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-2">
+<h2 id="orgheadline20"><span class="section-number-2">6</span> 命令别名(alias)</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">alias</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#24403;&#21069;shell&#36827;&#31243;&#25152;&#26377;&#21487;&#29992;&#30340;&#21629;&#20196;&#21035;&#21517;</span>
+<span style="color: #F92672;">alias</span> <span style="color: #FD971F;">NAME</span>=<span style="color: #E6DB74;">'VALUE'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;&#21629;&#20196;&#21035;&#21517;NAME</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">unalias [-a] name...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25764;&#38144;&#21035;&#21517;</span>
+  <span style="color: #FD971F;">-a</span>: &#25764;&#38144;&#25152;&#26377;&#21035;&#21517;
+</pre>
+</div>
+<ul class="org-ul">
+<li>如果要永久生效需要写入bash配置文件中</li>
+<li>如果要忽略别名执行原命令的话，可使用 <code>\COMMAND</code></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21"><span class="section-number-2">7</span> glob</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+glob用于在bash中实现文件名"通配"
+</p>
+<dl class="org-dl">
+<dt>通配符</dt><dd><ul class="org-ul">
+<li><code>*</code>: 任意长度的任意字符，包含空</li>
+<li><code>?</code>: 任意单个字符</li>
+<li><p>
+<code>[]</code>: 匹配指定范围内的任意单个字符
+</p>
+<pre class="example">
+由于字符顺序是按照aAbB(根据locale和LC_COLLATE变量决定的)的排列，所以[a-z]是除Z外的字母都匹配
+</pre></li>
+<li><code>[^]</code>: 匹配制定范围外的任意单个字符</li>
+</ul></dd>
+<dt>专用字符集合</dt><dd><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">[:digit:]</td>
+<td class="org-left">任意数字</td>
+</tr>
+
+<tr>
+<td class="org-left">[:lower:]</td>
+<td class="org-left">任意小写字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[:upper:]</td>
+<td class="org-left">任意大写字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[:alpha:]</td>
+<td class="org-left">任意大小写字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[:alnum:]</td>
+<td class="org-left">任意数字或字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[:space:]</td>
+<td class="org-left">任意空白字符</td>
+</tr>
+
+<tr>
+<td class="org-left">[:punct:]</td>
+<td class="org-left">标点符号</td>
+</tr>
+</tbody>
+</table></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22"><span class="section-number-2">8</span> bash的快捷键</h2>
+<div class="outline-text-2" id="text-8">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">快捷键</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Ctrl+L</td>
+<td class="org-left">清屏，相当于clear命令</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+A</td>
+<td class="org-left">跳转至命令开始处</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+E</td>
+<td class="org-left">跳转至命令结尾处</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+C</td>
+<td class="org-left">取消前台进程命令的执行</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+U</td>
+<td class="org-left">删除光标所在处至行首的所有内容</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+K</td>
+<td class="org-left">删除光标所在处至行尾的所有内容</td>
+</tr>
+
+<tr>
+<td class="org-left">Ctrl+R</td>
+<td class="org-left">输入关键字搜索命令历史，再按Ctrl+R则继续搜索上一个</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-2">
+<h2 id="orgheadline29"><span class="section-number-2">9</span> I/O重定向及管道</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">文件描述符</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<p>
+每个打开的文件都会有一个fd: file descripter(文件描述符)
+</p>
+<dl class="org-dl">
+<dt>默认存在的文件描述符</dt><dd><ul class="org-ul">
+<li>标准输入: keyborad, 0</li>
+<li>标准输出: monitor, 1</li>
+<li>标准错误输出: monitor, 2</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">I/O重定向</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+</div><div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">输出重定向</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<ul class="org-ul">
+<li><p>
+<code>&gt;</code>: 覆盖重定向标准输出
+</p>
+<pre class="example">
+禁止将内容覆盖输出至已有文件中: set -C (恢复是 set +C )
+&gt;|: 强制覆盖重定向
+</pre></li>
+<li><code>&gt;&gt;</code>: 追加重定向标准输出</li>
+<li><code>2&gt;</code>: 覆盖重定向错误输出</li>
+<li><code>2&gt;&gt;</code>: 追加重定向错误输出</li>
+<li><code>&amp;&gt;</code>: 覆盖重定向合并标准输出和错误输出
+<ul class="org-ul">
+<li>也可以使用 <code>2&gt;&amp;1</code></li>
+</ul></li>
+<li><code>&amp;&gt;&gt;</code>: 追加重定向合并标准输出和错误输出</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">输入重定向</h4>
+<div class="outline-text-4" id="text-orgheadline25">
+<ul class="org-ul">
+<li><code>&lt;file</code>: 标准输入使用file</li>
+<li><p>
+<code>&lt;&lt;EOF</code>: 读取你的输入至EOF行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">cat &gt;&gt; FILE &lt;&lt; EOF  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#24555;&#36895;&#26032;&#24314;&#25991;&#20214;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">特殊设备</h4>
+<div class="outline-text-4" id="text-orgheadline26">
+<ul class="org-ul">
+<li><code>/dev/null</code>: 丢弃数据的设备</li>
+<li><code>/dev/zero</code>: 产生0的设备</li>
+<li><code>/dev/random</code>: 仅从熵池返回随机数；随机数用尽，则会阻塞</li>
+<li><code>/dev/urandom</code>: 从熵池返回随机数；随机数用尽，会利用软件生成伪随机数</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">管道</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<p>
+使用 <code>|</code> 来连接命令，将前一个命令的标准输出当作后一个命令的输入
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline33" class="outline-2">
+<h2 id="orgheadline33"><span class="section-number-2">10</span> bash的配置文件</h2>
+<div class="outline-text-2" id="text-10">
+</div><div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">配置文件的类型</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+<dl class="org-dl">
+<dt>按生效范围划分</dt><dd><ul class="org-ul">
+<li>全局配置: <code>/etc/profile</code> , <code>/etc/profile.d/*.sh</code> , <code>/etc/bashrc</code></li>
+<li>个人配置: <code>~/.bash_profile</code> , <code>~/.bashrc</code></li>
+</ul></dd>
+<dt>按功能划分</dt><dd><ul class="org-ul">
+<li>profile类: 为交互式登录的shell提供配置，用于定义环境变量和执行脚本</li>
+<li>bashrc类: 为非交互式登录的shell提供配置，用于定义本地变量和命令别名</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">shell登录过程</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<dl class="org-dl">
+<dt>交互式登录</dt><dd><ul class="org-ul">
+<li>直接通过终端输入账号密码登录</li>
+<li>使用 <code>su - NAME</code> 切换用户</li>
+<li>读取配置文件的顺序: <code>/etc/profile</code> &gt; <code>/etc/profile.d/*.sh</code> &gt; <code>~/.bash_profile</code> &gt; <code>~/.bashrc</code> &gt; <code>/etc/bash</code></li>
+</ul></dd>
+<dt>非交互式登录</dt><dd><ul class="org-ul">
+<li>使用 <code>su NAME</code> 切换用户</li>
+<li>图形界面下打开的终端</li>
+<li>执行脚本的时候</li>
+<li>读取配置文件: <code>~/.bashrc</code> &gt; <code>/etc/bashrc</code> &gt; <code>/etc/profile.d/*.sh</code></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">载入配置文件的方式</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<ol class="org-ol">
+<li>重新启动shell进程</li>
+<li>使用 <code>source</code> 或 <code>.</code> 命令载入配置(脚本中也可用)</li>
+</ol>
+</div>
+</div>
+</div>

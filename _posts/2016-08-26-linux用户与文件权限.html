@@ -1,0 +1,700 @@
+---
+title: "Linux用户与文件权限"
+date: 2016-05-21
+layout: post
+categories: 
+- Linux管理
+tags: 
+- Linux 
+- 安全
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 资源分派的过程</a></li>
+<li><a href="#orgheadline2">2. 用户(UID)</a></li>
+<li><a href="#orgheadline3">3. 组(GID)</a></li>
+<li><a href="#orgheadline4">4. 配置文件</a></li>
+<li><a href="#orgheadline21">5. 用户与组相关命令</a>
+<ul>
+<li><a href="#orgheadline5">id</a></li>
+<li><a href="#orgheadline6">su</a></li>
+<li><a href="#orgheadline7">sudo</a></li>
+<li><a href="#orgheadline8">newgrp</a></li>
+<li><a href="#orgheadline14">用户相关</a>
+<ul>
+<li><a href="#orgheadline9">useradd</a></li>
+<li><a href="#orgheadline10">usermod</a></li>
+<li><a href="#orgheadline11">passwd</a></li>
+<li><a href="#orgheadline12">chage</a></li>
+<li><a href="#orgheadline13">userdel</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline19">组相关</a>
+<ul>
+<li><a href="#orgheadline15">groupadd</a></li>
+<li><a href="#orgheadline16">groupmod</a></li>
+<li><a href="#orgheadline17">gpasswd</a></li>
+<li><a href="#orgheadline18">groupdel</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline20">其他</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline37">6. 文件权限管理</a>
+<ul>
+<li><a href="#orgheadline22">三类对象</a></li>
+<li><a href="#orgheadline23">基本权限</a></li>
+<li><a href="#orgheadline28">特殊权限</a>
+<ul>
+<li><a href="#orgheadline24">SUID(4)</a></li>
+<li><a href="#orgheadline25">SGID(2)</a></li>
+<li><a href="#orgheadline26">Sticky(1)</a></li>
+<li><a href="#orgheadline27">权限位映射</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline29">修改文件权限: chmod</a></li>
+<li><a href="#orgheadline30">修改文件的属主和属组</a></li>
+<li><a href="#orgheadline31">文件遮罩码: umask</a></li>
+<li><a href="#orgheadline32">隐藏权限</a></li>
+<li><a href="#orgheadline36">ACL</a>
+<ul>
+<li><a href="#orgheadline33">ACL的类型</a></li>
+<li><a href="#orgheadline34">设定ACL</a></li>
+<li><a href="#orgheadline35">获取ACL</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 资源分派的过程</h2>
+<div class="outline-text-2" id="text-1">
+<ol class="org-ol">
+<li>Authentication: 认证，表明你能进入系统
+<ul class="org-ul">
+<li>token: 口令</li>
+<li>identity: 用户名和密码</li>
+</ul></li>
+<li>Authorization: 授权，表明你有权限执行某些操作
+<ul class="org-ul">
+<li>进程所能够访问的所有资源的权限取决于进程的发起者的身份</li>
+</ul></li>
+<li>Accouting: 审计，验证你操作的合理性</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 用户(UID)</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>管理员root: 0</li>
+<li>普通用户: 1-65535(2^16)
+<ul class="org-ul">
+<li>系统用户: 1-499/999，系统用户用于对守护进程获取资源进行权限分配</li>
+<li>非系统用户: 500/1000+</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 组(GID)</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>管理员组root: 0</li>
+<li>普通组
+<ul class="org-ul">
+<li>系统组: 1-499/999</li>
+<li>非系统组: 500/1000+</li>
+</ul></li>
+<li>用户的组的类别
+<ul class="org-ul">
+<li>用户的基本组: 组名同用户名，且仅包含一个用户，即私有组</li>
+<li>用户的附加组(额外组)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> 配置文件</h2>
+<div class="outline-text-2" id="text-4">
+<dl class="org-dl">
+<dt>/etc/passwd</dt><dd><p>
+  用户及其属性信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">name:password:UID:GID:GECOS:directory:shell
+&#29992;&#25143;&#21517;:x:UID:GID:&#23436;&#25972;&#20449;&#24687;:&#20027;&#30446;&#24405;:&#40664;&#35748;shell
+</pre>
+</div></dd>
+<dt>/etc/group</dt><dd><p>
+  组及其属性信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">group_name:password:GID:user_list
+&#32452;&#21517;:x:GID:&#20197;&#24403;&#21069;&#32452;&#20026;&#38468;&#21152;&#32452;&#30340;&#29992;&#25143;&#21015;&#34920;(&#20998;&#38548;&#31526;&#20026;&#36887;&#21495;)
+</pre>
+</div></dd>
+<dt>/etc/shadow</dt><dd><p>
+  用户密码及其相关属性
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">&#29992;&#25143;&#21517;:&#21152;&#23494;&#23494;&#30721;:&#26368;&#36817;&#19968;&#27425;&#26356;&#25913;&#23494;&#30721;&#30340;&#26085;&#26399;:&#23494;&#30721;&#26368;&#23567;&#20351;&#29992;&#26399;&#38480;:&#23494;&#30721;&#26368;&#22823;&#20351;&#29992;&#26399;&#38480;:&#23494;&#30721;&#35686;&#21578;&#26102;&#38388;&#27573;:&#23494;&#30721;&#31105;&#29992;&#26399;:&#36134;&#25143;&#36807;&#26399;&#26085;&#26399;:&#20445;&#30041;&#23383;&#27573;
+  <span style="color: #FD971F;">&#21152;&#23494;&#23494;&#30721;</span>: &#28155;&#21152;&#38543;&#26426;&#23383;&#31526;&#20018;&#21518;&#65292;&#36827;&#34892;sha512&#21333;&#21521;&#21152;&#23494;&#65292;&#21021;&#22987;&#30340;&#26465;&#20214;&#30340;&#24494;&#23567;&#25913;&#21464;&#65292;&#23558;&#20250;&#24341;&#36215;&#32467;&#26524;&#30340;&#24040;&#22823;&#25913;&#21464;&#65307;&#33509;&#23494;&#30721;&#20026; <span style="color: #66D9EF;">!!</span> &#21017;&#20026;&#31354;&#23494;&#30721;
+</pre>
+</div>
+<ul class="org-ul">
+<li>用户名密码期限: 用户未修改密码时间到达 <b>密码警告时间段</b> 则会收到通知，到达 <b>密码最大使用期限</b> 会进入 <b>密码禁用期</b> ，若在这段时期没有登录的话，账号会被禁用(过期)</li>
+</ul></dd>
+<dt>/etc/gshadow</dt><dd>组密码及其相关属性</dd>
+<dt>/etc/login.defs</dt><dd>定义相关的变量值，包括UID/GID范围等</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21"><span class="section-number-2">5</span> 用户与组相关命令</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">id</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+查看用户信息，同时id能够用于判断用户是否存在
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">id [OPTION]... [USER]
+  <span style="color: #FD971F;">-u</span>: UID
+  <span style="color: #FD971F;">-g</span>: GID
+  <span style="color: #FD971F;">-G</span>: &#26174;&#31034;&#25152;&#26377;&#32452;
+  <span style="color: #FD971F;">-n</span>: &#37197;&#21512;&#20854;&#20182;&#36873;&#39033;&#65292;&#26174;&#31034;&#21517;&#31216;&#32780;&#19981;&#26159;&#25968;&#23383;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">su</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+su(Switch User): 切换用户或以其他用户身份执行命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">su user     <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38750;&#30331;&#24405;&#24335;&#20999;&#25442;&#65292;&#21363;&#19981;&#20250;&#35835;&#21462;&#30446;&#26631;&#29992;&#25143;&#30340;&#37197;&#32622;&#25991;&#20214;</span>
+su - user   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30331;&#24405;&#24335;&#20999;&#25442;&#65292;&#20250;&#35835;&#21462;&#30446;&#26631;&#29992;&#25143;&#30340;&#37197;&#32622;&#25991;&#20214;&#65292;&#23436;&#20840;&#20999;&#25442;</span>
+su <span style="color: #AE81FF;">[</span>-<span style="color: #AE81FF;">]</span> UserName -c <span style="color: #E6DB74;">'COMMAND'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20197;&#20854;&#20182;&#29992;&#25143;&#30340;&#36523;&#20221;&#25191;&#34892;&#21629;&#20196;&#65292;&#19981;&#20999;&#25442;&#29992;&#25143;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>root切换至其他用户无须密码，而非root用户切换时需要密码</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">sudo</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+授权之后，能够让某用户以其他用户的身份运行某些命令，同时会记录进日志中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">sudo [-u user] COMMAND 
+  <span style="color: #FD971F;">-u user</span>: &#40664;&#35748;&#20026;root
+  <span style="color: #FD971F;">-k</span>: &#37325;&#32622;&#36755;&#20837;&#29992;&#25143;&#23494;&#30721;
+  <span style="color: #FD971F;">-l</span>: &#26174;&#31034;&#24403;&#21069;&#29992;&#25143;&#33021;&#29992;sudo&#36816;&#34892;&#30340;&#21629;&#20196;
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+配置文件: sudoers，使用 <code>visudo</code> 命令进行编辑
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">users  hosts=(runas)  [NOPASSWD:]commands,...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20351;&#29992;ALL&#26469;&#25351;&#23450;&#25152;&#26377;</span>
+  <span style="color: #FD971F;">users</span>: username&#12289;#uid&#12289;%group_name&#12289;%#gid
+  <span style="color: #FD971F;">hosts</span>: ip&#12289;hostname&#12289;netaddr
+  <span style="color: #FD971F;">commands</span>: command&#12289;directory&#12289;sudoedit
+
+Alias_Type NAME = item1, item2, ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21035;&#21517;&#21487;&#20197;&#29992;&#20110;&#19978;&#36793;&#30340;&#37197;&#32622;&#34892;&#20013;&#65292;&#20063;&#21487;&#20197;&#29992;&#22312;&#20854;&#20182;&#21035;&#21517;&#20013;</span>
+  <span style="color: #FD971F;">Alias_Type</span>: User_Alias&#12289;Host_Alias&#12289;Runas_Alias&#12289;Cmnd_Alias
+  <span style="color: #FD971F;">NAME</span>: &#21035;&#21517;&#21517;&#31216;&#65292;&#24517;&#39035;&#20351;&#29992;&#20840;&#22823;&#20889;&#23383;&#27597;
+  <span style="color: #FD971F;">item</span>: &#20197; ! &#24320;&#22836;&#34920;&#31034;&#25490;&#38500;
+
+Cmnd_Alias PASSWD_CMND = /usr/bin/passwd [a-z]*, <span style="color: #66D9EF;">!/usr/bin/passwd</span> root  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#38450;&#27490;&#29992;&#25143;&#26356;&#25913;root&#23494;&#30721;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">newgrp</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+临时切换基本组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">newgrp</span> GROUP
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#22914;&#26524;&#29992;&#25143;&#26412;&#19981;&#23646;&#20110;GROUP&#65292;&#21017;&#38656;&#35201;&#32452;&#23494;&#30721;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">用户相关</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+</div><div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">useradd</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<p>
+创建用户
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">useradd [OPTION]... NAME
+  <span style="color: #FD971F;">-u UID</span>: &#33539;&#22260;&#26159;[UID_MIN, UID_MAX]
+  <span style="color: #FD971F;">-g GID</span>: &#25351;&#26126;&#29992;&#25143;&#25152;&#23646;&#22522;&#26412;&#32452;&#65292;&#21487;&#20026;&#32452;&#21517;
+  <span style="color: #FD971F;">-G GROUP1[,GROUP2,...[,GROUPN]]</span>: &#20026;&#29992;&#25143;&#25351;&#26126;&#38468;&#21152;&#32452;&#65307;&#32452;&#24517;&#39035;&#20107;&#20808;&#23384;&#22312;
+  <span style="color: #FD971F;">-r</span>: &#21019;&#24314;&#31995;&#32479;&#29992;&#25143;
+
+  <span style="color: #FD971F;">-m</span>: &#21019;&#24314;HOME&#30446;&#24405;&#65292;&#24182;&#22797;&#21046;/etc/skel&#20869;&#25991;&#20214;&#21040;&#36825;(&#40664;&#35748;)
+  <span style="color: #FD971F;">-d /PATH/TO/HOME_DIR</span>: &#20197;&#25351;&#23450;&#30340;&#36335;&#24452;&#20026;&#23478;&#30446;&#24405;
+
+  <span style="color: #FD971F;">-p PASSWORD</span>: &#20026;&#29992;&#25143;&#25351;&#23450;&#23494;&#30721;
+  <span style="color: #FD971F;">-s SHELL</span>: &#25351;&#26126;&#29992;&#25143;&#30340;&#40664;&#35748;shell&#31243;&#24207;&#65292;&#21487;&#29992;&#21015;&#34920;&#22312;/etc/shells&#25991;&#20214;&#20013;
+  -c <span style="color: #E6DB74;">"COMMENT"</span>: &#29992;&#25143;&#30340;&#27880;&#37322;&#20449;&#24687;(GECOS)
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+新建用户的默认值设定在 <code>/etc/default/useradd</code> 文件中
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">useradd -D  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;useradd&#40664;&#35748;&#20540;</span>
+useradd -D <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;useradd&#40664;&#35748;&#20540;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">usermod</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<p>
+修改用户属性和过期日期
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">usermod [OPTION] NAME
+  <span style="color: #FD971F;">-l login_name</span>: &#26032;&#30340;&#21517;&#23383;
+
+  <span style="color: #FD971F;">-u UID</span>: &#26032;UID
+  <span style="color: #FD971F;">-g GID</span>: &#26032;&#22522;&#26412;&#32452;
+  <span style="color: #FD971F;">-G GROUP1[,GROUP2,...[,GROUPN]]</span>: &#26032;&#38468;&#21152;&#32452;&#65292;&#21407;&#26469;&#30340;&#38468;&#21152;&#32452;&#23558;&#20250;&#34987;&#35206;&#30422;
+    <span style="color: #FD971F;">-a</span>: &#20445;&#30041;&#21407;&#26377;&#30340;&#38468;&#21152;&#32452;
+
+  <span style="color: #FD971F;">-s SHELL</span>: &#26032;&#30340;&#40664;&#35748;SHELL
+  -c <span style="color: #E6DB74;">'COMMENT'</span>: &#26032;&#30340;&#27880;&#37322;&#20449;&#24687;
+  <span style="color: #FD971F;">-d HOME</span>: &#26032;&#30340;&#23478;&#30446;&#24405;&#65292;&#21407;&#26377;&#23478;&#30446;&#24405;&#20013;&#30340;&#25991;&#20214;&#19981;&#20250;&#21516;&#26102;&#31227;&#21160;&#33267;&#26032;&#30340;&#23478;&#30446;&#24405;
+    <span style="color: #FD971F;">-m</span>: &#31227;&#21160;&#21407;&#26377;&#23478;&#30446;&#24405;&#20013;&#30340;&#25991;&#20214;
+
+  <span style="color: #FD971F;">-L</span>: lock&#25351;&#23450;&#29992;&#25143;(&#22312;&#21152;&#23494;&#23494;&#30721;&#21069;&#21152; <span style="color: #66D9EF;">!)</span>
+  <span style="color: #FD971F;">-U</span>: unlock&#25351;&#23450;&#29992;&#25143;
+  <span style="color: #FD971F;">-e YYYY-MM-DD</span>: &#25351;&#26126;&#29992;&#25143;&#36134;&#21495;&#36807;&#26399;&#26085;&#26399;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">passwd</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<p>
+添加或修改密码及密码期限相关内容
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">passwd  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#33258;&#24049;&#30340;&#23494;&#30721;</span>
+passwd [OPTIONS] UserName  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20462;&#25913;&#25351;&#23450;&#29992;&#25143;&#30340;&#23494;&#30721;&#65292;&#20165;root&#29992;&#25143;&#21487;&#29992;</span>
+  <span style="color: #FD971F;">-l</span>: &#38145;&#23450;&#25351;&#23450;&#29992;&#25143;
+  <span style="color: #FD971F;">-u</span>: &#35299;&#38145;&#25351;&#23450;&#29992;&#25143;
+
+  <span style="color: #FD971F;">-n mindays</span>: &#25351;&#23450;&#26368;&#30701;&#20351;&#29992;&#26399;&#38480;
+  <span style="color: #FD971F;">-x maxdays</span>: &#26368;&#22823;&#20351;&#29992;&#26399;&#38480;
+  <span style="color: #FD971F;">-w warndays</span>: &#25552;&#21069;&#22810;&#23569;&#22825;&#24320;&#22987;&#35686;&#21578;
+  <span style="color: #FD971F;">-i inactivedays</span>: &#23494;&#30721;&#31105;&#29992;&#26399;
+
+  <span style="color: #FD971F;">--stdin</span>: &#20174;&#26631;&#20934;&#36755;&#20837;&#25509;&#25910;&#29992;&#25143;&#23494;&#30721;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">chage</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<p>
+修改用户日期相关内容
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chage [OPTION]... NAME
+  <span style="color: #FD971F;">-d</span>: LAST_DAY
+  <span style="color: #FD971F;">-E,--expiredate</span>: EXPIRE_DATE
+  <span style="color: #FD971F;">-I,--inactive</span>: INACTIVE
+  <span style="color: #FD971F;">-m,--mindays</span>: MIN_DAYS
+  <span style="color: #FD971F;">-M,--maxdays</span>: MAX_DAYS
+  <span style="color: #FD971F;">-W,--warndays</span>: WARN_DAYS
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">userdel</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<p>
+删除用户
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">userdel [OPTION]... NAME
+  <span style="color: #FD971F;">-r</span>: &#21516;&#26102;&#21024;&#38500;&#29992;&#25143;&#23478;&#30446;&#24405;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">组相关</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+</div><div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">groupadd</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<p>
+创建组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">groupadd [OPTION]... group_name
+  <span style="color: #FD971F;">-g GID</span>: &#33539;&#22260;&#26159;[GID_MIN, GID_MAX]
+  <span style="color: #FD971F;">-r</span>: &#21019;&#24314;&#31995;&#32479;&#32452;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">groupmod</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+<p>
+修改组属性
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">groupmod [OPTION]... group
+  <span style="color: #FD971F;">-n group_name</span>: &#26032;&#21517;&#23383;
+  <span style="color: #FD971F;">-g GID</span>: &#26032;&#30340;GID
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">gpasswd</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+<p>
+修改组密码和添加删除组员
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">gpasswd [OPTION] GROUP
+  <span style="color: #FD971F;">-a user</span>: &#23558;user&#28155;&#21152;&#33267;&#25351;&#23450;&#32452;&#20013;
+  <span style="color: #FD971F;">-d user</span>: &#21024;&#38500;&#29992;&#25143;user&#30340;&#20197;&#24403;&#21069;&#32452;&#20026;&#32452;&#21517;&#30340;&#38468;&#21152;&#32452;
+  <span style="color: #FD971F;">-A user1,user2,...</span>: &#35774;&#32622;&#32676;&#32452;&#31649;&#29702;&#21592;&#65292;&#32676;&#32452;&#31649;&#29702;&#21592;&#21487;&#20197;&#31649;&#29702;&#21738;&#20123;&#24080;&#21495;&#21487;&#20197;&#21152;&#20837;/&#31227;&#20986;&#35813;&#32676;&#32452;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">groupdel</h4>
+<div class="outline-text-4" id="text-orgheadline18">
+<p>
+删除组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">groupdel GROUP
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">其他</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<dl class="org-dl">
+<dt>pwck</dt><dd>检查密码文件的完整性</dd>
+<dt>chfn</dt><dd>设置用户详细信息</dd>
+<dt>finger</dt><dd>查看用户详细信息</dd>
+<dt>chsh</dt><dd><p>
+  更改用户的默认shell
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chsh [OPTIONS] [username]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#26356;&#25913;&#33258;&#24049;&#30340;shell</span>
+  <span style="color: #FD971F;">-s SHELL</span>: &#25351;&#23450;shell
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline37" class="outline-2">
+<h2 id="orgheadline37"><span class="section-number-2">6</span> 文件权限管理</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">三类对象</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<ul class="org-ul">
+<li>owner: 属主 u</li>
+<li>group: 属组 g</li>
+<li>other: 其他 o</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">基本权限</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<dl class="org-dl">
+<dt>基本权限</dt><dd><ul class="org-ul">
+<li>r(4): Readable</li>
+<li>w(2): Writable</li>
+<li>x(1): eXcutable</li>
+</ul></dd>
+<dt>文件的基本权限</dt><dd><ul class="org-ul">
+<li>r: 可使用文件查看类工具获取其内容</li>
+<li>w: 可修改其内容</li>
+<li>x: 可以把此文件提请内核启动为一个进程</li>
+</ul></dd>
+<dt>目录的基本权限</dt><dd><ul class="org-ul">
+<li>r: 可以使用ls查看此目录中文件列表</li>
+<li>w: 可在此目录中创建文件，也可删除此目录中的文件</li>
+<li>x: 无法执行该目录下的任何命令，包括创建和删除文件</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">特殊权限</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+</div><div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">SUID(4)</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<p>
+默认情况下，启动为进程之后，其进程的属主为发起者，进程的属组为发起者所属的组；而启动带SUID的程序文件时，其进程的属主为原程序文件的属主
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">chmod u+s FILE
+chmod u-s FILE
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25">SGID(2)</h4>
+<div class="outline-text-4" id="text-orgheadline25">
+<p>
+默认情况下，用户创建文件时，其属组为此用户所属的基本组；一旦某目录被设定了SGID，则对此目录有写权限的用户在此目录中创建的文件所属的组为此目录的属组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">chmod g+s FILE
+chmod g-s FILE
+</pre>
+</div>
+<ul class="org-ul">
+<li>经常用于团队协作，因为创建的文件后其他人不会被当作other</li>
+<li>如果对可执行文件设定SGID，则文件执行后的进程属组是文件的属组</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26">Sticky(1)</h4>
+<div class="outline-text-4" id="text-orgheadline26">
+<p>
+对于一个多人可写的目录，如果设置了sticky，则每个用户仅能删除自己的文件；如果对文件设定，则该文件只能由属主执行删除和移动
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chmod o+t FILE
+chmod o-t FILE
+</pre>
+</div>
+<ul class="org-ul">
+<li><code>/tmp</code> 就有Sticky权限</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-4">
+<h4 id="orgheadline27">权限位映射</h4>
+<div class="outline-text-4" id="text-orgheadline27">
+<ul class="org-ul">
+<li>SUID: user, 占据属主的执行权限位
+<ul class="org-ul">
+<li>s: 属主拥有x权限</li>
+<li>S: 属主没有x权限</li>
+</ul></li>
+<li>SGID: group,  占据group的执行权限位
+<ul class="org-ul">
+<li>s: group拥有x权限</li>
+<li>S: group没有x权限</li>
+</ul></li>
+<li>Sticky: other, 占据ohter的执行权限位
+<ul class="org-ul">
+<li>t: other拥有x权限</li>
+<li>T: other没有x权限</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">修改文件权限: chmod</h3>
+<div class="outline-text-3" id="text-orgheadline29">
+<div class="org-src-container">
+
+<pre class="src src-yaml">chmod [OPTION]... MODE FILE...
+  <span style="color: #FD971F;">-R</span>: &#36882;&#24402;&#20462;&#25913;&#26435;&#38480;
+  <span style="color: #FD971F;">MODE</span>: 
+    - &#21487;&#20351;&#29992;&#25968;&#23383;&#26435;&#38480;&#65292;&#22914;4755(&#26368;&#24038;&#36793;&#19968;&#20301;&#26159;&#29305;&#27530;&#26435;&#38480;&#65292;&#21487;&#20197;&#19981;&#20889;)
+    - &#21487;&#20462;&#25913;&#19968;&#31867;&#29992;&#25143;&#30340;&#26435;&#38480;&#65292;&#22914; u=rwx,g+w,o-rwx,a-x
+
+chmod [OPTION]... --reference=RFILE FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21442;&#32771;RFILE&#25991;&#20214;&#30340;&#26435;&#38480;&#65292;&#23558;FILE&#30340;&#20462;&#25913;&#20026;&#21516;RFILE&#19968;&#26679;&#30340;&#26435;&#38480;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">修改文件的属主和属组</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+<dl class="org-dl">
+<dt>chown</dt><dd><p>
+  修改属主
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chown [OPTION]... [OWNER][:[GROUP]] FILE...
+chown [OPTION]... --reference=RFILE FILE...
+  <span style="color: #FD971F;">-R</span>: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
+<span style="color: #75715E;"># </span><span style="color: #75715E;">chown&#20063;&#21487;&#21482;&#25913;&#23646;&#32452;&#65292;&#21363;&#19981;&#20889;OWNER</span>
+</pre>
+</div></dd>
+<dt>chgrp</dt><dd><p>
+  修改属组
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">chgrp [OPTION]... GROUP FILE...
+chgrp [OPTION]... --reference=RFILE FILE...
+  <span style="color: #FD971F;">-R</span>: &#30446;&#24405;&#36882;&#24402;&#20462;&#25913;
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">文件遮罩码: umask</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<ul class="org-ul">
+<li>创建文件时，文件的权限是 666-umask</li>
+<li>创建目录时，目录的权限是 777-umask</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">umask</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#30475;umask</span>
+<span style="color: #F92672;">umask</span> num  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;umask&#65292;&#20165;&#23545;&#24403;&#21069;shell&#26377;&#25928;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">隐藏权限</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<dl class="org-dl">
+<dt>设置隐藏权限</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">chattr [+-=] [OPTIONS] &#25991;&#20214;/&#30446;&#24405; 
+  <span style="color: #FD971F;">a</span>: &#21482;&#33021;&#22686;&#21152;&#25968;&#25454;, &#19981;&#33021;&#21024;&#38500;&#21644;&#20462;&#25913;
+  <span style="color: #FD971F;">i</span>: &#19981;&#20801;&#35768;&#23545;&#25991;&#20214;/&#30446;&#24405;&#20570;&#20219;&#20309;&#20462;&#25913;
+  <span style="color: #FD971F;">S</span>: &#20462;&#25913;&#26102;&#21516;&#27493;&#20889;&#20837;&#30913;&#30424;
+
+  <span style="color: #FD971F;">A</span>: &#38145;&#23450;atime
+  <span style="color: #FD971F;">d</span>: &#35813;&#25991;&#20214;&#25110;&#30446;&#24405;&#19981;&#20250;&#34987;dump&#22791;&#20221;
+</pre>
+</div></dd>
+<dt>查询隐藏权限</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">lsattr [OPTIONS] &#25991;&#20214;/&#30446;&#24405;
+  <span style="color: #FD971F;">-a</span>: &#26174;&#31034;&#38544;&#34255;&#25991;&#20214;
+  <span style="color: #FD971F;">-d</span>: &#20165;&#26174;&#31034;&#30446;&#24405;
+  <span style="color: #FD971F;">-R</span>: &#36830;&#21516;&#23376;&#30446;&#24405;&#20063;&#26174;&#31034;&#20986;&#26469;
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36">ACL</h3>
+<div class="outline-text-3" id="text-orgheadline36">
+</div><div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">ACL的类型</h4>
+<div class="outline-text-4" id="text-orgheadline33">
+<p>
+ACL(Access Control List)可以针对一个指定用户，一个文件或目录来进行权限设置
+</p>
+<ul class="org-ul">
+<li>针对用户: <code>u:[USERNAME]:rw</code> (省略用户名则等同于设置基本权限)</li>
+<li>针对组: <code>g:[GROUPNAME]:rw</code> (省略组名则等同于设置基本权限)</li>
+<li>设置有效权限(允许的最大权限): <code>m:rwx</code></li>
+<li>设置目录的继承权限(目录下新建的文件和目录会继承该权限): <code>d:ACL参数</code></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline34" class="outline-4">
+<h4 id="orgheadline34">设定ACL</h4>
+<div class="outline-text-4" id="text-orgheadline34">
+<div class="org-src-container">
+
+<pre class="src src-yaml">setfacl [OPTIONS] &#25991;&#20214;/&#30446;&#24405;
+  <span style="color: #FD971F;">-m ACL&#21442;&#25968;</span>: &#35774;&#23450;&#25351;&#23450;&#30340;ACL&#21442;&#25968;
+  <span style="color: #FD971F;">-x ACL&#21442;&#25968;</span>: &#21024;&#38500;&#25351;&#23450;&#30340;ACL&#21442;&#25968;(&#21024;&#38500;&#26102;&#26080;&#38656;&#25351;&#26126;&#26435;&#38480;)
+
+  <span style="color: #FD971F;">-R</span>: &#36882;&#24402;&#35774;&#23450;ACL
+
+  <span style="color: #FD971F;">-b</span>: &#21024;&#38500;&#25152;&#26377;&#30340;ACL&#35774;&#23450;
+  <span style="color: #FD971F;">-x</span>: &#21024;&#38500;default&#30340;ACL&#35774;&#23450;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline35" class="outline-4">
+<h4 id="orgheadline35">获取ACL</h4>
+<div class="outline-text-4" id="text-orgheadline35">
+<div class="org-src-container">
+
+<pre class="src src-bash">getfacl &#25991;&#20214;/&#30446;&#24405;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>

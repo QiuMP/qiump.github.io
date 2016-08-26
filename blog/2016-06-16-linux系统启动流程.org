@@ -2,66 +2,65 @@
 #+DATE: 2016-06-16
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: Linux
-#+JEKYLL_TAGS: Linux 运维 系统
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-描述了Linux系统的启动过程，以及各种相关程序的使用，例如grub的配置与命令、init的作用与控制、systemd的使用等
 
-
-
-
------
-CentOS启动流程: POST --> BootSequence(BIOS) --> BootLoader --> Kernel (ramdisk) --> rootfs --> /sbin/init或/sbin/systemd
+* CentOS启动流程
+=POST= > =BootSequence(BIOS)= > =BootLoader= > =Kernel (ramdisk)= > =rootfs= > =/sbin/init= 或 =/sbin/systemd=
 * POST: 加电自检
-- 加载CPU, 设定ROM中的固定地址
-- 通过ROM(CMOS)内的程序进行自检
-- 加载BIOS: Basic Input and Output System
-- 整个计算机的地址空间是ROM+RAM组成的
+1. 加载CPU，设定ROM中的固定地址
+2. 通过ROM(CMOS)内的程序进行自检
+3. 加载BIOS(Basic Input and Output System)
+: 整个计算机的地址空间是ROM+RAM组成的
+
 * Boot Sequence
 按次序查找各引导设备，第一个有引导程序的设备即为本次启动用到设备
-** bootloader
-- bootloader: 引导加载器
-  - windows: ntloader
-  - Linux: LILO(安卓), GRUB, GRUB2
-  - 功能: 提供一个菜单，允许用户选择要启动系统或不同的内核版本；把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核
-- MBR:
+
+* bootloader
+** bootloader的类型和功能
+bootloader是引导设备上的一个引导加载器
+- 常见的bootloader ::
+  - windows: =ntloader=
+  - Linux: =LILO= (安卓), =GRUB=, =GRUB2=
+- bootloader的功能 ::
+  - 提供一个菜单，允许用户选择要启动系统或不同的内核版本
+  - 把用户选定的内核装载到内存中的特定空间中，解压、展开，并把系统控制权移交给内核
+- MBR的组成部分 ::
   - 前446字节: bootloader
   - 64字节: 硬盘分区表(fat)
   - 2: 55AA
 ** grub legacy
-*** grub的启动阶段
-- stage1: mbr
-- stage1_5: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统
-- stage2：读取磁盘分区(/boot/grub)上的程序
+*** grub的启动过程
+- =stage1=: mbr
+- =stage1_5=: mbr之后的扇区，让stage1中的bootloader能识别stage2所在的分区上的文件系统
+- =stage2=: bootloader读取磁盘分区(/boot/grub)上的程序
   1. 提供菜单、并提供交互式接口
-     - e: 编辑模式，用于编辑菜单；
-     - c: 命令模式，交互式接口；
-  2. 加载用户选择的内核或操作系统
-     - 允许传递参数给内核
-     - 可隐藏此菜单
+     - =e=: 编辑模式，用于编辑菜单
+     - =c=: 命令模式，交互式接口
+  2. 加载用户选择的内核或操作系统，允许传递参数给内核
   3. 为菜单提供了保护机制
      - 为编辑菜单进行认证
      - 为启用内核或操作系统进行认证
 *** grub命令行
-- 设备名(hd#, #)
-  - hd#: 磁盘编号，从0开始编号
-  - #: 分区编号，从0开始编号
-  - 只能识别基本分区
-- 常用命令
-  - help: 获取命令帮助
-  - help KEYWORD: 详细帮助信息
-  - find (hd#,#)/PATH/TO/SOMEFILE：查询文件存在性
-  - root (hd#,#): 设定根设备
-  - kernel /PATH/TO/KERNEL_FILE [OPTIONS]: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
-    - 例如: =kernel /vmlinuz-VERSION-RELEASE ro root=/dev/DEVICE=
-    - init=/path/to/init: 该参数能设定开机运行的第一个程序
-  - initrd /PATH/TO/INITRAMFS_FILE: 设定为选定的内核提供额外文件的ramdisk
-  - boot: 引导启动选定的内核
+: 设备名表示法: (hd#, #)
+:   hd#: 磁盘编号，从0开始编号
+:   #: 分区编号，从0开始编号
+:   只能识别基本分区
+- =help=: 获取命令帮助
+- =help KEYWORD=: 详细帮助信息
+- =find (hd#,#)/PATH/TO/SOMEFILE=: 查询文件存在性
+- =root (hd#,#)=: 设定根设备
+- =kernel /PATH/TO/KERNEL_FILE [OPTIONS]=: 设定本次启动时用到的内核文件，额外还可以添加许多内核支持使用的cmdline参数
+  - 例如: =kernel /vmlinuz-VERSION-RELEASE ro root=/dev/DEVICE=
+  - =init=/path/to/init=: 该参数能设定开机运行的第一个程序
+- =initrd /PATH/TO/INITRAMFS_FILE=: 设定为选定的内核提供额外文件的ramdisk
+- =boot=: 引导启动选定的内核
   
 *** 配置文件
 grub配置文件是 =/boot/grub/grub.conf= ，而 =/etc/grub.conf= 是指向该文件的链接
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 default=NUM  # 设定默认启动的菜单项，菜单项(title)编号从0开始
 timeout=NUM  # 指定菜单项等待选项选择的时长
 splashimage=(hd*,*)/PATH/TO/XPM_PIC_FILE  # 指明菜单背景图片文件路径
@@ -78,64 +77,66 @@ title TITLE  # 定义菜单项“标题”, 可出现多次
 - 若配置文件出错，则会直接进入命令行操作
 
 *** 进入单用户模式
-1. 编辑grub菜单(选定要编辑的title，而后使用e命令)
-2. 在选定的kernel后附加 1, s, S或single都可以
-3. 在kernel所在行，键入b命令
+1. 编辑grub菜单(选定要编辑的title，而后使用 =e= 命令)
+2. 在选定的kernel后附加 =single=
+3. 在kernel所在行，键入 =b= 命令
 
 *** 安装grub
 - grub-install
-  #+BEGIN_SRC sh
+  #+BEGIN_SRC bash
   grub-install --root-directory=ROOT /dev/DISK
   # ROOT是boot挂载的目录
   # 建立后grub.conf需要自己创建
   #+END_SRC
 - grub命令行
-  #+BEGIN_SRC sh
+  #+BEGIN_SRC bash
   grub> root (hd*,*)
   grub> setup (hd*)
   #+END_SRC
 - 可以通过光盘的紧急救援模式来修复grub
-* kernel
-** 系统初始化
-  - 探测可识别到的所有硬件设备
-  - 加载硬件驱动程序（有可能会借助于ramdisk加载驱动）
-    - ramdisk: ramfs文件系统(防止进行缓存)
-      - initrd(CentOS 5), 用mkinitrd生成
-      - initramfs(CentOS 6), 用dracut生成
-  - 以只读方式挂载根文件系统(rootfs)
-  - 运行用户空间的第一个应用程序
-    - SysV: init(CentOS 5)
-      - 配置文件: /etc/inittab
-    - Upstart: init(CentOS 6)
-      - 配置文件: /etc/inittab, /etc/init/*.conf
-    - Systemd: systemd(CentOS 7)
-      - 配置文件: /usr/lib/systemd/system, /etc/systemd/system
-** init(CentOS 6)
-*** 运行级别
+* 系统初始化
+  1. 探测可识别到的所有硬件设备
+  2. 加载硬件驱动程序(有可能会借助于ramdisk加载驱动)
+     - =ramdisk=: ramfs文件系统(防止进行缓存)
+       - =initrd= (CentOS 5): 用mkinitrd生成
+       - =initramfs= (CentOS 6): 用dracut生成
+  3. 以只读方式挂载根文件系统(rootfs)
+  4. 运行用户空间的第一个应用程序
+     - =SysV=: init(CentOS 5)
+       - 配置文件: =/etc/inittab=
+     - =Upstart=: init(CentOS 6)
+       - 配置文件: =/etc/inittab=, =/etc/init/*.conf=
+     - =Systemd=: systemd(CentOS 7)
+       - 配置文件: =/usr/lib/systemd/system=, =/etc/systemd/system=
+* init(CentOS 6)
+** 运行级别
 为了系统的运行或维护等应用目的而设定
-| 0 | 关机                                               |
-| 1 | 单用户single模式(root, 无须登录), single, 维护模式 |
-| 2 | 多用户模式，会启动网络功能，但不会启动NFS          |
-| 3 | 多用户模式，正常模式；文本界面                     |
-| 4 | 预留级别；可同3级别                                |
-| 5 | 多用户模式，正常模式；图形界面                     |
-| 6 | 重启                                               |
+| 级别 | 含义                                                 |
+|------+------------------------------------------------------|
+|    0 | 关机                                               |
+|    1 | 单用户single模式(root, 无须登录), single, 维护模式 |
+|    2 | 多用户模式，会启动网络功能，但不会启动NFS          |
+|    3 | 多用户模式，正常模式；文本界面                     |
+|    4 | 预留级别；可同3级别                                |
+|    5 | 多用户模式，正常模式；图形界面                     |
+|    6 | 重启                                               |
 - 默认级别: 3, 5
-#+BEGIN_SRC conf
+#+BEGIN_SRC bash
 init NUM  # 切换当前级别
 runlevel  # 查看上一个级别和当前级别
 who -r  # 查看当前级别
 #+END_SRC
-*** 配置文件
-- 配置文件包含 /etc/init/*.conf 和 /etc/inittab
-- 在配置文件 =/etc/inittab= 中，每一行定义一种action以及对应的process
+** 配置文件
+配置文件包含 =/etc/init/*.conf= 和 =/etc/inittab=
+- 在配置文件 =/etc/inittab= 中，每一行定义一种 =action= 以及对应的 =process=
 - 配置文件的内容:
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   id:runlevel:action:process
     action:
-      wait: 切换至此级别运行一次
-      respawn: 此process终止，就重新启动之
-  
+      wait: 切换至此级别时运行一次
+      respawn: 若此process终止，就重新启动之
+  #+END_SRC 
+  #+BEGIN_SRC bash
   id:3:initdefault:  # 设置默认级别
   si::sysinit:/etc/rc.d/rc.sysinit  # 设定系统初始化方式
   
@@ -144,32 +145,33 @@ who -r  # 查看当前级别
   ...
   l6:6:wait:/etc/rc.d/rc 6  # 读取/etc/rc.d/rc6.d/
 
-  tty1:2345:respawn:/usr/sbin/mingetty tty1  # 启动tty终端
-  tty2:2345:respawn:/usr/sbin/mingetty tty2  # mingetty会调用login程序，登录成功会显示/etc/issue的内容
+  tty1:2345:respawn:-/usr/sbin/mingetty tty1  # 启动tty终端
+  tty2:2345:respawn:-/usr/sbin/mingetty tty2  # mingetty会调用login程序，登录成功会显示/etc/issue的内容
   ...
-  tty6:2345:respawn:/usr/sbin/mingetty tty6
+  tty6:2345:respawn:-/usr/sbin/mingetty tty6
   #+END_SRC
-- 绝对路径名的前缀"-"代表将无视该命令的错误返回值
-*** /etc/rc.d/rc.sysinit
-系统初始化脚本
+- =process= 的前缀 =-= 代表将无视该命令的错误返回值
+** /etc/rc.d/rc.sysinit
+=/etc/rc.d/rc.sysinit= 是系统初始化脚本，基本过程如下
 1. 设置主机名
 2. 设置欢迎信息
 3. 激活udev和selinux
-4. 挂载/etc/fstab文件中定义的文件系统
+4. 挂载 =/etc/fstab= 文件中定义的文件系统
 5. 检测根文件系统，并以读写方式重新挂载根文件系统
 6. 读取硬件时钟设置系统时钟
 7. 激活swap设备
-8. 根据/etc/sysctl.conf文件设置内核参数
+8. 根据 =/etc/sysctl.conf= 文件设置内核参数
 9. 激活lvm及software raid设备
 10. 加载额外设备的驱动程序
 11. 清理操作
 
-*** 服务
-- /etc/rc.d/rc{0-6}.d/
-  - K##*: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
-  - S##*: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
-  #+BEGIN_SRC sh
-  # /etc/rc.d/rc的部分执行内容
+** 开机服务管理
+=/etc/rc.d/rc= 配置文件负责管理 =/etc/rc.d/rc{0-6}.d/= 目录下的服务脚本
+- 服务脚本名称的含义
+  - =K##*=: 数字越小，越先被stop；数字越小的服务，通常为依赖到别的服务
+  - =S##*=: 数字越小，越先被start；数字越小的服务，通常为被依赖到的服务
+- =/etc/rc.d/rc= 的部分执行内容
+  #+BEGIN_SRC bash
     for srv in /etc/rc.d/rc${RUNLEVEL}.d/K*; do
         $srv stop
     done
@@ -179,35 +181,36 @@ who -r  # 查看当前级别
     done
   #+END_SRC
 
-- 正常级别下，最后启动一个服务S99local指向了/etc/rc.d/rc.local脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中
-*** chkconfig
-服务管理工具
+- 正常级别下，最后启动的服务 =S99local= 指向了 =/etc/rc.d/rc.local= 脚本；因此，不便或不需写为服务脚本且又想开机时自动运行的命令，可直接放置于/etc/rc.d/rc.local文件中
+** chkconfig
+=chkconfig= 是一个服务管理工具
 - 查询 ::
   - 查看服务在所有级别的启动关闭情况
-  #+BEGIN_SRC sh
+  #+BEGIN_SRC yaml
   chkconfig --list [NAME]  
     NAME: 查看指定服务的状态
   #+END_SRC
 - 添加 ::
-  - 将SysV的服务脚本放置于/etc/rc.d/init.d或/etc/init.d中
+  - 将SysV的服务脚本放置于 =/etc/rc.d/init.d= 或 =/etc/init.d= 中，然后添加
+    #+BEGIN_SRC bash
+    chkconfig --add NAME 
+    #+END_SRC
   - 服务的启动关闭设置取决于脚本中的chkconfig设置
-  #+BEGIN_SRC conf
-  chkconfig --add NAME 
-  # 脚本中的chkconfig设置
-  chkconfig: NNN aa bb
-    NNN: 指定在哪个级别下是S状态，没指定的为K状态
-    aa: S状态下的数字
-    bb: K状态下的数字
-  #+END_SRC
+    #+BEGIN_SRC yaml
+    chkconfig: NNN aa bb  # 服务脚本中的chkconfig设置
+      NNN: 指定在哪个级别下是S状态，没指定的为K状态
+      aa: S状态下的数字
+      bb: K状态下的数字
+    #+END_SRC
 - 修改 :: 
-  - 修改制定的连接类型
-  #+BEGIN_SRC sh
+  修改指定的服务级别启动设置
+  #+BEGIN_SRC yaml
   chkconfig [--level levels] name <on|off|reset>
     --level NNN: 指定要设置的级别(默认为2345)
   #+END_SRC
 - 删除 ::
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC bash
   chkconfig --del NAME
   #+END_SRC
-*** xinetd
-xinetd是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理
+** xinetd
+=xinetd= 是一个超级守护进程，代替服务监听端口，一旦有请求就启动服务进行处理

@@ -1,0 +1,95 @@
+#+TITLE: TODO 分布式系统
+#+DATE: 2016-08-16
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: 网络知识
+#+JEKYLL_TAGS: 分布式
+#+JEKYLL_PUBLISHED: true
+
+* 分布式系统
+分布式系统的各组件分布在网络上多个计算机，各组件彼此之间仅通过消息传递来通信并协调行动
+* 多线程编程模型
+- 互不通信的线程模型
+- 基于共享容器协同工作的模型
+- 通过事件协调的多线程模型
+* 网络编程模型
+- =BIO(Blocking IO)=: 一个进程或一个线程处理一个请求
+- =NIO(Nonblocking IO)=: 基于事件驱动(epoll)思想，采用Reactor模式
+- =AIO(Asynchronous IO)=: 基于事件驱动思想，采用Proactor模式
+* 控制器的实现模式
+- 透明代理: lvs-nat、haproxy、nginx
+- 旁路代理: lvs-dr、lvs-tun
+- 名称服务: DNS
+- 规则服务: 规定需要查询的对象，一般用于数据库的水平拆分上
+- Master/Slave机制
+* 分布式系统的难点
+- 缺乏全局时钟
+- 面对故障时的独立性
+- 处理单点故障
+- 事务处理: ACID
+* 应用的分类
+从资源占用的角度
+- CPU Bound
+- IO Bound
+* session保持
+- session sticky
+  - ip based
+  - cookie based
+- session replication
+- session server
+
+* 缓存的分类
+- 页面缓存: varnish、squid
+- 数据缓存: key-value store(memcached)
+* 数据库
+- 主从面临的问题
+  - 数据复制的问题
+  - 应用选择数据源的问题
+- 主库写操作的压力
+  - 垂直拆分：把数据库中不同的业务的数据拆分到不同的数据库服务器中
+    - 单机的ACID保证被打破：要么放弃事务，要么引入分布式事务
+    - 一些Join查询操作将变得非常困难
+    - 原来依赖于外键实现的约束将无从保证
+  - 水平拆分：把一个单独的表中的数据拆分到多个不同的数据库服务器上
+    - 单机的ACID保证被打破：要么放弃事务，要么引入分布式事务
+    - 一些Join查询操作将变得非常困难
+    - 原来依赖于外键实现的约束将无从保证
+    - 自增序列的ID号的产生会有影响
+    - 针对单张表的查询很有可能要跨库操作
+  - 使用NoSQL: 文档数据库、列式数据库
+* 分布式事务
+- 事务的要素: 事务参与者、支持事务的服务器、资源服务器、事务管理器
+- 分布式事务的模型及规范
+  - X/Open: XA(分布式事务规范)定义了三个组件
+    - AP: 应用程序，即使用DTP模型的程序
+    - RM：资源管理器，即DBMS系统
+    - TM：事务管理器，负责使用XA协调和管理管理资源，提供给AP应用程序编程接口并管理
+- 2PC: 两段式提交协议，若中途出错则回滚
+  1. 准备好所有资资源
+  2. 提交所有资源
+- CAP: 一致性、可用性、网络分区容错性
+  - 任何一种分布式系统最多只能同时满足上述三项中的两项
+  - AP: 大多分布式系统
+  - CA: 单机上的实现，如MySQL
+- ACID模型: 用来评估一个存储引擎是否支持事务标准
+- BASE模型: 分布式系统的目标
+  - BA：Basically Availibale，主服务器出错会导致不可用
+  - S：Soft state: 接受一段时间内的状态不同步，同步需要时间
+  - E：Eventually Consistent: 最终一致性
+
+* 应用的拆分
+- 根据业务特性拆分
+- 根据用户拆分
+  - 用户注册
+  - 用户登录
+  - 用户信息维护
+- 根据对底层应用的调用进行拆分
+
+* 分布式文件系统DFS
+DFS用于存储非结构化数据
+- TFS, MogileFS: 适用于海量小文件
+- HDFS, GFS：少量大文件
+
+* 消息中间件
+MOM(Message-oriented middleware): 在分布式系统中，完成消息发送和接收的基础性软件，实现异步进行消息传送，不一定会立即生效
+- RabbitMQ, ActiveMQ, ZMQ

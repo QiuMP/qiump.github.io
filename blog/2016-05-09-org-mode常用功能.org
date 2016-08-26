@@ -3,7 +3,7 @@
 #+SETUPFILE: ~/mydrive/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
 #+JEKYLL_CATEGORIES: Emacs
-#+JEKYLL_TAGS: Spacemacs Org-Mode 快捷键
+#+JEKYLL_TAGS: Org-Mode
 #+JEKYLL_PUBLISHED: true
 
 #+OPTIONS: num:1 ^:nil

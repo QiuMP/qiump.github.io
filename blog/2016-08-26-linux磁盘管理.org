@@ -1,0 +1,534 @@
+#+TITLE: Linux磁盘管理
+#+DATE: 2016-05-20
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Linux管理
+#+JEKYLL_TAGS: Linux
+#+JEKYLL_PUBLISHED: true
+
+* 设备
+** 设备文件
+设备文件是关联至一个设备驱动程序，进而能够跟与之对应硬件设备进行通信
+
+** 设备号码
+- 主设备号: major number, 标识设备类型
+- 次设备号: minor number, 标识同一类型下的不同设备
+- UUID: 设备分区号
+** 磁盘设备
+- 磁盘接口类型 ::
+  - 并行: IDE, SCSI
+  - 串口: SATA, SAS, USB
+- 磁盘设备的设备文件 ::
+  - IDE: /dev/hd*
+  - SCSI、SATA、SAS、USB: /dev/sd*
+    #+BEGIN_EXAMPLE
+    不同设备: sda, sdb, ...
+    同一设备不同分区: sda1, sda2, ...
+      逻辑分区要从5开始编号
+    #+END_EXAMPLE
+* 硬盘分区管理
+** fdisk
+fdisk对一块硬盘最多只能管理15个分区
+#+BEGIN_SRC yaml
+fdisk -l [-u] [device...]  # 查看磁盘分区信息，默认显示所有分区信息
+fdisk device  # 管理磁盘分区 
+  p: print, 显示已有分区
+  n: new, 创建
+  d: delete, 删除
+  w: write, 写入磁盘并退出
+  q: quit, 放弃更新并退出
+  m: 获取帮助
+  l: 显示分区id列表
+  t: 调整分区id
+#+END_SRC
+** TODO parted
+** 更新分区表
+通知内核重新读取分区表
+#+BEGIN_SRC bash
+partx -a /dev/DEVICE [-n M:N]  # 扫描DEVICE的分区编号从M到N的分区
+kpartx -a /dev/DEVICE
+partprobe [/dev/DEVICE] # CentOS 5
+#+END_SRC
+#+BEGIN_SRC bash
+cat /proc/partations  # 查看内核是否已经识别新的分区
+#+END_SRC
+* 文件系统管理
+** 文件系统
+*** 文件系统的类型
+| 类型           | 实现                                        |
+|----------------+---------------------------------------------|
+| Linux文件系统  | ext2、ext3、ext4、xfs、btrfs、reiserfs、jfs |
+| 交换分区       | swap                                        |
+| 光盘           | iso9660                                     |
+| Windows        | fat32、ntfs                                 |
+| Unix           | FFS、UFS、JFS2                              |
+| 网络文件系统   | NFS、CIFS                                   |
+| 集群文件系统   | GFS2、OCFS2                                 |
+| 分布式文件系统 | ceph、moosefs、mogilefs、GlusterFS、Lustre  |
+
+*** journal
+根据文件系统是否支持"journal"功能(用于提升存储出错后修复的速度)，文件系统可分为
+- 日志型文件系统: ext3、ext4、xfs、...
+- 非日志型文件系统: ext2、vfat
+
+*** Linux支持的文件系统
+Linux的虚拟文件系统VFS为不同的文件系统统一了接口，提高了文件系统的兼容性
+#+BEGIN_SRC bash
+cat /proc/filesystem  # 列出目前系统所支持的文件系统
+#+END_SRC
+** 文件系统的创建
+*** mkfs
+通用格式化分区工具
+#+BEGIN_SRC yaml
+mkfs.FS_TYPE /dev/DEVICE
+mkfs -t FS_TYPE /dev/DEVICE
+  FS_TYPE: ext4, xfs, btrfs, vfat
+  -L 'LABEL': 设定卷标
+  -f: 强制创建文件系统
+#+END_SRC
+*** mke2fs
+ext系列文件系统专用管理工具
+#+BEGIN_SRC yaml
+mke2fs [OPTIONS...] /dev/DEVICE
+  -t ext2|ext3|ext4: 文件系统类型
+  -j: 添加日志，相当于-t ext3
+  -L 'LABEL': 设定卷标
+
+  -b 1024|2048|4096: 块大小(如果小文件过多可以使用较小的块)
+  -i NUM: 为数据空间中每多少字节创建一个inode(此大小不应该小于block的大小)
+  -N NUM: 为数据空间创建多少个inode
+  -m NUM: 为管理人员预留的空间占据的百分比
+
+  -O [^]FEATURE[,...]: 启用或关闭指定特性
+#+END_SRC
+*** mkswap
+创建交换分区(分区id为82)
+#+BEGIN_SRC yaml
+mkswap [OPTIONS] device
+  -L 'LABEL': 设定卷标
+#+END_SRC
+
+** 文件系统的查询与修改
+*** blkid
+块设备属性信息查看
+#+BEGIN_SRC yaml
+blkid [OPTION...] [DEVICE]
+  -U UUID: 根据指定的UUID来查找对应的设备
+  -L LABEL: 根据指定的LABEL来查找对应的设备
+#+END_SRC
+*** e2label
+查看或设定ext系列文件系统的LABEL
+#+BEGIN_SRC yaml
+e2label DEVICE [LABEL]
+#+END_SRC
+*** tune2fs
+重新设定ext系列文件系统的可调整参数的值
+#+BEGIN_SRC yaml
+tune2fs [OPTIONS...] /dev/DEVICE
+  -l: 查看指定文件系统超级块信息(super block)
+  -j: 将ext2升级为ext3
+
+  -L 'LABEL': 修改卷标
+  -U UUID: 修改UUID号
+
+  -m NUM: 修预留给管理员的空间百分比
+
+  -O [^]FEATURE: 文件系统属性启用或禁用
+  -o [^]FLAG: 调整文件系统的默认挂载选项
+#+END_SRC
+*** dumpe2fs
+查询ext分区的布局信息和超级块信息
+** 文件系统的挂载
+*** 查询已挂载设备
+#+BEGIN_SRC bash
+cat /proc/mounts  # 查看内核追踪到的已挂载的所有设备
+mount  # 通过查看/etc/mtab文件查看系统已挂载的所有设备
+#+END_SRC
+*** 挂载
+挂载: 额外文件系统与根文件系统某现存的目录(挂载点)建立起关联关系，进而使得此目录做为其它文件访问入口的行为
+- 挂载点下的原有文件在挂载完成后会被临时隐藏
+#+BEGIN_SRC yaml
+mount [-fnrsvw] [-t vfstype] [-o options] DEVICE MOUNT_POINT
+  DEVICE: 设备文件/卷标/UUID/伪文件系统名字(proc, sysfs, devtmpfs, yamligfs)
+
+  -t vsftype: 指定要挂载的设备上的文件系统类型，默认会使用blkid自动判断
+
+  -r: readonly，只读挂载
+  -w: read and write, 读写挂载
+
+  -n: 不更新/etc/mtab，但还是会更新到/proc/mounts
+  -a: 自动挂载/etc/fstab中支持自动挂载的设备
+
+  -L 'LABEL': 以卷标指定挂载设备
+  -U 'UUID': 以UUID指定要挂载的设备
+
+  -B, --bind: 绑定目录到另一个目录上
+  
+  -o options: 挂载文件系统选项
+#+END_SRC
+- 挂载文件系统选项 ::
+  | 挂载选项            | 作用                                           |
+  |---------------------+------------------------------------------------|
+  | remount             | 重新挂载                                       |
+  | async               | 异步模式                                       |
+  | sync                | 同步模式(修改立即写人磁盘)                     |
+  | atime/noatime       | 开关目录和文件的atime的更新                    |
+  | diratime/nodiratime | 开关目录的atime的更新                          |
+  | auto/noauto         | 是否自动挂载                                   |
+  | exec/noexec         | 是否支持将文件系统上应用程序运行为进程         |
+  | dev/nodev           | 是否支持在此文件系统上使用设备文件             |
+  | suid/nosuid         | 开关suid的支持                                 |
+  | ro/rw               | 只读/读写                                      |
+  | user/nouser         | 是否允许普通用户挂载此设备(默认只能由root挂载) |
+  | acl                 | 启用此文件系统上的acl功能                      |
+  | defaults            | 相当于rw,suid,dev,exec,auto,nouser,async       |
+
+- 挂载光盘 ::
+  #+BEGIN_SRC bash
+  mount -r /dev/cdrom MOUNT_POINT  # 挂载光盘设备
+  mount -r -t iso9660 /PATH/*.iso MOUNT_POINT  # 挂载光盘文件
+  #+END_SRC
+*** 卸载
+卸载: 解除挂载关联关系的过程，但进程正在使用中的设备无法被卸载
+#+BEGIN_SRC bash
+umount DEVICE/MOUNT_POINT
+#+END_SRC
+- 检查访问文件系统的进程 ::
+  #+BEGIN_SRC bash
+  fuser -v MOUNT_POINT  # 查看正访问指定文件系统的进程
+  fuser -km MOUNT_POINT  # 终止所有正访问指定文件系统的进程
+  #+END_SRC
+
+*** 交换分区
+#+BEGIN_SRC yaml
+swapon [OPTION] [DEVICE]  # 启用交换分区
+  -a: 激活所有交换分区，不用指定DEVICE
+  -p PRIORITY: 指定交换分区的优先级
+#+END_SRC
+#+BEGIN_SRC yaml
+swapoff [OPTION] [DEVICE]  # 关闭交换分区
+#+END_SRC
+#+BEGIN_SRC yaml
+free [OPTION]  # 查询内存空间使用状态
+  -m: 以MB为单位
+# 真正的内存使用=used-buffers-cached
+#+END_SRC
+
+*** 空间占用查询
+#+BEGIN_SRC yaml
+df [OPTIONS]  # 文件系统空间占用信息
+  -l: 只显示本地文件系统分区
+  -h: human-readable
+  -i: 显示inodes的使用情况
+  -P: 以Posix兼容的格式输出，方便于文字处理工具
+#+END_SRC
+#+BEGIN_SRC yaml
+du [OPTIONS] DIR  # 查看某目录空间占用信息 
+  -h: human-readabel
+  -s: 只显示指定目录
+#+END_SRC
+: df是通过元数据来统计，会计算一些正使用但已经被删除的文件
+: du不会记录一些正使用但已经被删除的文件
+
+*** /etc/fstab
+=/etc/fstab= 是文件挂载的配置文件
+#+BEGIN_SRC yaml
+# 该文件每行定义一个要挂载的文件系统
+要挂载的设备或伪文件系统  挂载点  文件系统类型  挂载选项  备份频率  自检次序
+  要挂载的设备或伪文件系统: 
+    设备文件、LABEL(LABEL="")、UUID(UUID="")、伪文件系统名称(proc, sysfs)
+  挂载选项: 
+    defaults ...
+  备份频率: 
+    0: 不做备份
+    1: 每天备份
+    2: 每隔一天备份
+  自检次序: 
+    0: 不自检
+    NUM: 自检的优先级，一般只有rootfs才用1
+#+END_SRC
+** 文件系统检测
+*** fsck
+File System Check
+#+BEGIN_SRC yaml
+fsck.FS_TYPE [OPTIONS...] DEVICE
+fsck -t FS_TYPE [OPTIONS...] DEVICE
+  -a: 自动修复错误
+  -r: 交互式修复错误
+#+END_SRC
+*** e2fsck
+ext文件系统专用的检测修复工具
+#+BEGIN_SRC yaml
+e2fsck [OPTIONS...] DEVICE
+  -y: 自动修复错误
+  -f: 强制修复
+#+END_SRC
+* Ext2
+** block group
+Ext2区分为多个block group，每个块组都有独立的inode/block/superblock系统
+** data block
+用于放置文件数据块的地方
+- Ext2文件系统支持block大小有1KB、2KB、4KB
+- 每个block最多只能放置一个文件的数据
+- block太大会造成空间浪费，太小造成性能下降
+** inodetable
+存储文件的inode
+- inode记录的文件数据: 该文件的访问模式、所有者与组、大小、ctime/atime/mtime、flag、内容指向
+- inode大小: Ext3是128bytes，Ext4是256bytes
+- 能够创建的文件数量与inode的数量有关
+- 读取文件会先验证inode记录的权限与用户
+- inode记录一个block需要4byte
+- Ext3由12直接\1间接\1双间接\1三间接组成，因此文件大小有上限
+  - 间接是使用一个block来记录block号码
+- Ext4使用extent存储连续的数据块，因此文件大小没有上限
+** Superblock
+Superblock记录的信息: block/inode的总量、未使用的inode/block数量、block与inode的大小、文件系统挂载时间、最近写数据时间、最近fsck时间等相关信息
+- superblock一般为1024bytes( =dumpe2fs= 可查询)
+- validbit: 被挂载时这个位为0，未挂载时为1
+- superblock一般只位于第一个block group中，后续若存在则为第一个的备份
+- 当block为1KB，superblock位于block1，boot sector位于block0(第一个扇区)
+- 当block为2/4KB，superblock和boot sector都位于block0
+** File system Description
+记录每个block group的开始和结束的block号码, 以及说明每个区段的block号码(dumpe2fs可查询)
+** block bitmap
+记录使用与未使用的block号码
+** inode bitmap
+记录使用与未使用的inode号码
+* 文件系统的其他概念
+** 目录
+目录占用一个inode和至少一个block
+- inode记录目录的相关权限属性和block号码
+- block记录目录下文件名和对应的inode号码
+- 目录树读取，需要一层一层目录检验用户的权限
+** 文件的写入过程
+1. 确定是否有权限
+2. 由inode bitmap找到一个没有使用的inode，写入新文件的权限/属性
+3. 由block bitmap找到没有使用的block，写入数据后更新inode的指向
+4. 同步更新至inode/block bitmap、superblock
+** 链接文件
+*** 硬链接
+- 硬链接是指向同一个inode的多个不同目录
+- 创建文件的硬链接即为为inode创建新的引用路径，因此会增加其引用计数
+- 删除硬链接时，会减少该inode的引用计数，若引用计数为0则删除该文件
+- 不能够对目录进行(但 =.= 和 =..= 也算是目录的硬链接)
+- 不能跨分区进行
+
+*** 符号链接
+- 符号链接是利用block记录另一个文件的路径，其大小为指向的路径字符串的长度
+- 符号链接不增加或减少目标文件inode的引用计数
+- 可以对目录进行
+- 可以跨分区
+
+*** 创建链接文件
+#+BEGIN_SRC yaml
+ln [-sv] SRC DEST  # 默认创建硬链接
+  -s: 创建符号链接
+  -v: verbose
+#+END_SRC
+** 命令sync
+手动将磁盘缓存写入磁盘中
+* RAID
+: RAID: Redundant Arrays of Independent Disks
+** RAID的作用
+- 提高IO能力
+  - 磁盘并行读写
+  - 额外提供CPU、内存、电源
+- 提高耐用性
+  - 磁盘冗余实现
+** RAID的实现方式
+- 外接式磁盘阵列: 通过扩展卡提供适配能力
+- 内接式RAID: 主板集成RAID控制器
+- Software RAID: 软件模拟RAID
+** RAID级别
+- RAID-0 ::
+  - 将数据分成若干chunk，分散到每个硬盘中
+  - 读、写性能提升
+  - 可用空间: N*min(S1,S2,...)
+  - 无容错能力
+- RAID-1 ::
+  - 将数据分成若干chunk，复制到每个硬盘中
+  - 读性能提升、写性能略下降
+  - 1*min(S1,S2,...)
+  - 有冗余能力
+- RAID-4 ::
+  - 3个硬盘中1个硬盘存储校验码
+  - 有容错能力: 1块硬盘
+- RAID-5 ::
+  - 在RAID-4的基础上，轮流用硬盘存储校验码
+  - 读、写性能提升
+  - 可用空间: (N-1)*min(S1,S2,...)
+  - 有容错能力: 1块硬盘
+  - 最少使用3块硬盘
+- RAID-6 ::
+  - 轮流用两块硬盘做校验盘
+  - 读、写性能提升
+  - 可用空间: (N-2)*min(S1,S2,...)
+  - 有容错能力: 2块硬盘
+  - 最少使用4块硬盘
+- RAID-10 ::
+  - 先两两一组进行RAID-1，后用RAID-0
+  - 读、写性能提升
+  - 可用空间: N*min(S1,S2,...)/2
+  - 有容错能力: 每组镜像最多只能坏一块
+  - 最少硬盘数: 4, 4+
+- JBOD ::
+  - JBOD: Just a Bunch Of Disks
+  - 将多块硬盘的空间合并一个大的连续空间使用，即顺序使用
+** 软件实现RAID
+mdadm: 模式化工具，使用内核中的md模块(multi devices)
+#+BEGIN_SRC yaml
+mdadm [mode] <raiddevice> [options] <component-devices>
+  mode:
+    创建: -C
+    装配: -A
+    监控: -F
+    管理: -f, -r, -a
+  <raiddevice>: /dev/md[num]  # 重启可能会改变
+  <component-devices>: 任意块设备(id为fd)
+
+  -C: 创建模式
+    -n num: 使用num个块设备来创建此RAID
+    -l num: 指明要创建的RAID的级别
+    -a {yes|no}: 自动创建目标RAID设备的设备文件
+    -c CHUNK_SIZE: 指明块大小
+    -x num: 指明空闲盘的个数
+  -S: 停止md设备
+  -D: 显示RAID的详细信息
+
+  管理模式
+    -f: 标记指定磁盘为损坏
+    -a: 添加磁盘
+    -r: 移除磁盘
+#+END_SRC
+- 可以查询 =/proc/mdstat= 来查询电脑的RAID情况
+* LVM2
+** LVM
+LVM: Logical Volume Manager, 使用内核中的dm模块(device mapper)
+
+#+begin_src dot :file ../images/LVM.png :cmdline -Tpng :exports none :results silent
+  digraph lvm {
+      node [shape=box]
+      PV1 [label="PV"]
+      PV2 [label="PV"]
+      PV3 [label="PV"]
+      VG [label="VG", width=2.5]
+      LV1 [label="LV", width=1]
+      LV2 [label="LV"]
+      {PV1, PV2, PV3} -> VG -> {LV1, LV2}
+  }
+#+end_src
+
+[[../images/LVM.png]]
+
+** 设备文件
+- 实际文件: /dev/dm-*
+- 链接文件
+  - /dev/mapper/VG_NAME-LV_NAME
+  - /dev/VG_NAME/LV_NAME
+
+** pv管理工具
+pv: Physical Volume
+#+BEGIN_SRC bash
+pvs  # 简要显示系统上目前的pv信息
+pvdisplay  # 显示pv的详细信息
+
+pvcreate /dev/DEVICE  # 创建pv
+pvremove /dev/DEVICE  # 删除pv
+# 使用的磁盘设备文件id应为8e
+
+pvmove /dev/DEVICE  # 移动设备上边的数据
+#+END_SRC
+
+** vg管理命令
+vg: Volume Group
+#+BEGIN_SRC bash
+vgs
+vgdisplay
+
+vgcreate [-s PE_Size(默认4MB)] VolumeGroupName PhysicalDevicePath...  
+vgextend VolumeGroupName PhysicalDevicePath...  # 添加vg中的pv
+vgreduce VolumeGroupName PhysicalDevicePath...  # 删除vg中的pv
+# vgreduce之前要对pv先做pvmove，移动上边的数据
+vgremove VolumeGroupName  # 删除vg
+#+END_SRC
+
+** lv管理工具
+lv: Logical Volume
+#+BEGIN_SRC bash
+lvs
+lvdisplay
+
+lvcreate -L LV_Size -n NAME VolumeGroupName
+lvremove /dev/VG_NAME/LV_NAME
+#+END_SRC
+
+** 空间调整
+LVM的空间调整是通过调整PE(Physical Extent)的分配来进行调整的
+
+- 逻辑卷的扩展 ::
+  #+BEGIN_SRC bash
+  umount /dev/VG_NAME/LV_NAME
+  lvextend -L [+]SIZE /dev/VG_NAME/LV_NAME  # 修改逻辑卷的物理边界
+  resize2fs /dev/VG_NAME/LV_NAME  # 修改逻辑卷的逻辑边界
+  #+END_SRC
+
+- 逻辑卷的缩减 ::
+  #+BEGIN_SRC bash
+  umount /dev/VG_NAME/LV_NAME
+  e2fsck -f /dev/VG_NAME/LV_NAME  # 强制检测修复
+  resize2fs /dev/VG_NAME/LV_NAME SIZE  # 修改逻辑边界
+  lvreduce -L [-]SIZE /dev/VG_NAME/LV_NAME  # 修改物理边界
+  mount /dev/VG_NAME/LV_NAME
+  #+END_SRC
+
+** 快照
+快照卷仅存储创建快照卷以后逻辑卷所变化的文件，快照是特殊的逻辑卷
+- 快照卷经常用于对逻辑卷的备份的过程中
+#+BEGIN_SRC yaml
+lvcreate -L SIZE -p r -s -n snapshot_lv_name original_lv_name  # 创建快照
+  -p r: 快照卷是只读权限
+  -s: 表示创建快照
+
+lvremove snapshot_lv_name  # 删除快照
+#+END_SRC
+* btrfs文件系统
+: Btrfs: B-tree FS
+** 核心特性
+- 多物理卷支持: btrfs可由多个底层物理卷组成；支持RAID，可以联机添加、移除、修改
+- 写时复制更机制(CoW): 每次写磁盘数据时，先将更新数据写入一个新的block，当新数据写入成功之后，再更新相关的数据结构指向新block
+- 数据及元数据校验码: checksum
+- 子卷: sub_volume
+- 快照: 支持快照的快照
+- 透明压缩
+** 文件系统相关命令
+#+BEGIN_SRC yaml
+mkfs.btrfs [OPTIONS] [DEVICE...]  # 创建文件系统
+  -L 'LABEL': 设定卷标
+
+  -d <type>: 数据存放机制, 可为raid0, raid1, raid5, raid6, raid10, single
+  -m <profile>: 元数据存放机制, 可为raid0, raid1, raid5, raid6, raid10, single, dup
+
+  -O <feature>: 设定设备特性
+  -O list-all: 列出支持的所有feature
+#+END_SRC
+#+BEGIN_SRC bash
+btrfs filesystem show [DEVICE]  # 属性查看
+btrfs filesystem df [DEVICE]  # 查看空间占用情况
+btrfs filesystem resize [+/-]SIZE/max DEVICE  # 调整文件系统的大小
+
+btrfs device add/delete DEVICE PATH  # 添加和删除设备
+btrfs balance start PATH  # 平均分配设备上的数据
+
+btrfs subvolume list [PATH]  # 查询子卷
+btrfs subvolume create/delete PATH  # 在挂载的目录下创建或删除子卷或快照, 即子卷是DEVICE挂载目录下的一个目录
+btrfs subvolume snapshot sub_volume PATH  # 对子卷创建快照PATH
+mount -o subvol=logs DEVICE  # 只挂载DEVICE下名字为logs的子卷
+mount -o subvolid=NUM DEVICE  
+
+btrfs-convert [DEVICE]  # 转换ext系统的设备为btrfs
+btrfs-convert -r [DEVICE]  # 恢复btrfs的转换
+
+cp --reflink FILE1 PATH  # 对文件创建快照
+
+mount -o compress={lzo|zlib} DEVICE MOUNT_POINT  # 透明压缩机制
+#+END_SRC

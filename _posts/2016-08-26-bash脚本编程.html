@@ -1,0 +1,1100 @@
+---
+title: "Bash脚本编程"
+date: 2016-05-22
+layout: post
+categories: 
+- Bash
+tags: 
+- Linux 
+- Bash 
+- 编程语言
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 弱类型与强类型</a></li>
+<li><a href="#orgheadline2">2. Shell脚本的执行</a></li>
+<li><a href="#orgheadline3">3. 检查和调试脚本</a></li>
+<li><a href="#orgheadline4">4. shebang</a></li>
+<li><a href="#orgheadline5">5. 脚本状态码</a></li>
+<li><a href="#orgheadline6">6. 用户交互</a></li>
+<li><a href="#orgheadline7">7. 选择执行语句</a></li>
+<li><a href="#orgheadline8">8. 循环执行语句</a></li>
+<li><a href="#orgheadline9">9. 函数</a></li>
+<li><a href="#orgheadline19">10. bash变量</a>
+<ul>
+<li><a href="#orgheadline10">变量的类型与生效范围</a></li>
+<li><a href="#orgheadline15">本地与环境变量</a>
+<ul>
+<li><a href="#orgheadline11">变量的赋值</a></li>
+<li><a href="#orgheadline12">变量的引用</a></li>
+<li><a href="#orgheadline13">变量的查询</a></li>
+<li><a href="#orgheadline14">变量的删除</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline16">局部变量</a></li>
+<li><a href="#orgheadline17">只读变量</a></li>
+<li><a href="#orgheadline18">位置变量</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline24">11. bash数组</a>
+<ul>
+<li><a href="#orgheadline20">引用数组</a></li>
+<li><a href="#orgheadline21">声明数组</a></li>
+<li><a href="#orgheadline22">数组元素的赋值</a></li>
+<li><a href="#orgheadline23">读取数组的长度</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline30">12. bash字符串处理</a>
+<ul>
+<li><a href="#orgheadline25">子符串切片</a></li>
+<li><a href="#orgheadline26">基于glob取子串</a></li>
+<li><a href="#orgheadline27">查找替换(最长匹配)</a></li>
+<li><a href="#orgheadline28">大小写转换</a></li>
+<li><a href="#orgheadline29">变量赋值</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline33">13. bash中的算术计算</a>
+<ul>
+<li><a href="#orgheadline31">计算命令</a></li>
+<li><a href="#orgheadline32">运算符号</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline40">14. bash的条件测试</a>
+<ul>
+<li><a href="#orgheadline34">测试命令</a></li>
+<li><a href="#orgheadline38">测试符号</a>
+<ul>
+<li><a href="#orgheadline35">数值测试</a></li>
+<li><a href="#orgheadline36">字符串测试</a></li>
+<li><a href="#orgheadline37">文件测试</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline39">组合条件</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline41">15. bash输出的字体颜色</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 弱类型与强类型</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>强类型: 定义变量时必须指定类型、参与运算必须符合类型要求；调用未声明变量会产生错误</li>
+<li>弱类型: 无须指定类型，默认均为字符型；参与运算会自动进行隐式类型转换；变量无须事先定义可直接调用</li>
+<li>bash是一种弱类型语言，把所有要存储的数据都当作字符进行，同时不支持浮点数</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> Shell脚本的执行</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>Shell编程: 过程式、解释执行</li>
+<li>脚本文件要直接运行需要添加 <code>x</code> 权限，或直接运行解释器进行执行</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> 检查和调试脚本</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+
+<pre class="src src-yaml">bash -n SCRIPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26816;&#27979;&#33050;&#26412;&#20013;&#30340;&#35821;&#27861;&#38169;&#35823;</span>
+bash -x SCRIPT  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35843;&#35797;&#25191;&#34892;&#33050;&#26412;</span>
+  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34892;&#22836;+&#20195;&#34920;&#23618;&#25968;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> shebang</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>shebang是脚本文件第一行(<code>#!/bin/bash</code>)，用于指明执行脚本的解释器，</li>
+<li>内核通过文件前几个字节的魔数(magic number)来识别文件执行类型然后打开</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> 脚本状态码</h2>
+<div class="outline-text-2" id="text-5">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">exit</span> <span style="color: #AE81FF;">[</span>n<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#33050;&#26412;&#65292;&#36864;&#20986;&#30721;&#20026;n(&#40664;&#35748;&#20026;0)</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>如果未给脚本指定退出状态码，整个脚本的退出状态码取决于脚本中执行的最后一条命令的状态码</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> 用户交互</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+
+<pre class="src src-yaml">read [option]... [name ...] 
+  -p <span style="color: #E6DB74;">'PROMPT'</span>: &#26174;&#31034;&#20132;&#20114;&#20449;&#24687;
+  <span style="color: #FD971F;">-t TIMEOUT</span>: &#31561;&#24453;&#26102;&#38388;
+
+  <span style="color: #FD971F;">name ...</span>: read&#20250;&#23545;&#36755;&#20837;&#30340;&#23383;&#31526;&#20018;&#20197;&#31354;&#26684;&#36827;&#34892;&#20998;&#38548;&#26469;&#23545;&#20301;&#36171;&#20540;&#65292;&#21097;&#20313;&#37096;&#20998;&#20250;&#36171;&#32473;&#26368;&#21518;&#19968;&#20010;&#21442;&#25968;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> 选择执行语句</h2>
+<div class="outline-text-2" id="text-7">
+<dl class="org-dl">
+<dt>if</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">if</span> COMMAND1
+<span style="color: #F92672;">then</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#25104;&#21151;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">elif</span> COMMAND2; <span style="color: #F92672;">then</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20197;&#20889;&#22312;&#19968;&#34892;</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#22833;&#36133;&#19988;COMMAND2&#25104;&#21151;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">else</span>
+    <span style="color: #75715E;"># </span><span style="color: #75715E;">COMMAND1&#21644;COMMAND2&#37117;&#22833;&#36133;&#21518;&#25191;&#34892;&#30340;&#20195;&#30721;</span>
+<span style="color: #F92672;">fi</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">if&#32467;&#26463;&#26631;&#24535;</span>
+</pre>
+</div></dd>
+<dt>case</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">case</span> &#21464;&#37327;&#24341;&#29992;<span style="color: #F92672;"> in</span>
+glob1)  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20351;&#29992; glob &#39118;&#26684;&#36890;&#37197;&#31526;</span>
+    &#20998;&#25903;1
+    ;;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#32456;&#27490;&#31526;</span>
+glob2|glob3)  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;|&#26469;&#21305;&#37197;&#22810;&#20010;glob</span>
+    &#20998;&#25903;2
+    ;;
+...
+*<span style="color: #F8F8F2; background-color: #272822;">)</span>
+    &#40664;&#35748;&#20998;&#25903;
+    ;;
+<span style="color: #F92672;">esac</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>case语句只执行第一次成功匹配的分支</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8"><span class="section-number-2">8</span> 循环执行语句</h2>
+<div class="outline-text-2" id="text-8">
+<dl class="org-dl">
+<dt>for</dt><dd><ul class="org-ul">
+<li><p>
+列表式
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">for</span> &#21464;&#37327;&#21517;<span style="color: #F92672;"> in</span> &#21015;&#34920;; <span style="color: #F92672;">do</span>
+    &#24490;&#29615;&#20307;
+<span style="color: #F92672;">done</span>
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#20381;&#27425;&#23558;&#21015;&#34920;&#20013;&#30340;&#20803;&#32032;&#36171;&#20540;&#32473;"&#21464;&#37327;&#21517;"; &#27599;&#27425;&#36171;&#20540;&#21518;&#21363;&#25191;&#34892;&#19968;&#27425;&#24490;&#29615;&#20307;; &#30452;&#21040;&#21015;&#34920;&#20013;&#30340;&#20803;&#32032;&#32791;&#23613;&#65292;&#24490;&#29615;&#32467;&#26463;</span>
+</pre>
+</div>
+<pre class="example">
+列表生成方式
+  1. 直接给出列表
+  2. 整数列表
+    1. {start..end}
+    2. $(seq [start [step]] end) 
+  3. 返回列表的命令
+  4. 文件名通配glob, 会展开文件名列表
+  5. 变量引用, 例如$@、$*
+</pre></li>
+<li><p>
+C风格式
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">for</span> <span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">(</span>&#25511;&#21046;&#21464;&#37327;&#21021;&#22987;&#21270;;&#26465;&#20214;&#21028;&#26029;&#34920;&#36798;&#24335;;&#25511;&#21046;&#21464;&#37327;&#30340;&#20462;&#27491;&#34920;&#36798;&#24335;<span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>; <span style="color: #F92672;">do</span>
+    &#24490;&#29615;&#20307;
+<span style="color: #F92672;">done</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>控制变量初始化：仅在运行到循环代码段时执行一次</li>
+<li>控制变量的修正表达式：每轮循环结束会先进行控制变量修正运算，而后再做条件判断</li>
+</ul></li>
+</ul></dd>
+
+<dt>while</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">while</span> COMMAND; <span style="color: #F92672;">do</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;COMMAND&#20026;&#30495;&#30340;&#26102;&#20505;, &#37325;&#22797;&#25191;&#34892;&#24490;&#29615;&#20307;&#30452;&#33267;COMMAND&#20026;&#20551;</span>
+    &#24490;&#29615;&#20307;
+<span style="color: #F92672;">done</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">while </span><span style="color: #F92672;">read</span> line; <span style="color: #F92672;">do</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29305;&#27530;&#29992;&#27861;: &#36941;&#21382;&#25991;&#20214;&#30340;&#27599;&#19968;&#34892;</span>
+    &#24490;&#29615;&#20307;
+<span style="color: #F92672;">done</span> &lt; FILE
+</pre>
+</div></dd>
+
+<dt>until</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">until</span> COMMAND; <span style="color: #F92672;">do</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24403;COMMAND&#20026;&#20551;&#30340;&#26102;&#20505;, &#37325;&#22797;&#25191;&#34892;&#24490;&#29615;&#20307;&#30452;&#33267;COMMAND&#20026;&#30495;</span>
+    &#24490;&#29615;&#20307;
+<span style="color: #F92672;">done</span>
+</pre>
+</div></dd>
+<dt>循环控制语句</dt><dd><ul class="org-ul">
+<li><code>continue [N]</code>: 提前结束第N层的本轮循环，直接进入下一轮判断</li>
+<li><code>break [N]</code>: 提前结束第N层的循环
+<ul class="org-ul">
+<li>在死循环(<code>while true</code>)中使用break来控制循环</li>
+</ul></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9"><span class="section-number-2">9</span> 函数</h2>
+<div class="outline-text-2" id="text-9">
+<ul class="org-ul">
+<li>函数有两种风格的写法，同时函数只有被调用才会执行</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">function</span> <span style="color: #A6E22E;">f_name</span> <span style="color: #AE81FF;">{</span>
+    ...
+    <span style="color: #F92672;">echo</span> $<span style="color: #FD971F;">result</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#20316;&#20026;&#20989;&#25968;&#30340;&#36755;&#20986;&#20540;</span>
+    <span style="color: #F92672;">return</span> <span style="color: #AE81FF;">0</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#29992;&#20110;&#36820;&#22238;&#20989;&#25968;&#36864;&#20986;&#29366;&#24577;&#30721;&#65292;&#33509;&#30465;&#30053;&#21017;&#36820;&#22238;&#26368;&#21518;&#19968;&#20010;&#21629;&#20196;&#30340;&#32467;&#26524;&#65292;&#33539;&#22260;&#26159;0-255</span>
+<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #A6E22E;">f_name</span><span style="color: #AE81FF;">()</span> <span style="color: #AE81FF;">{</span>
+    ...
+<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>函数的返回值
+<ul class="org-ul">
+<li>函数的输出值: 通过echo或print进行输出来作为函数输出值，可以通过使用命令引用来取得</li>
+<li>函数退出状态码：通过return或最后一条命令的退出状态码，通过 <code>$?</code> 取得</li>
+</ul></li>
+<li>在函数中，可以像脚本传递参数那样使用其参数，因此不可使用外边脚本的特殊参数</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-2">
+<h2 id="orgheadline19"><span class="section-number-2">10</span> bash变量</h2>
+<div class="outline-text-2" id="text-10">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">变量的类型与生效范围</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<ul class="org-ul">
+<li>本地变量: 生效范围为当前shell进程，对当前shell之外的其它shell进程，包括当前shell的子shell进程均无效</li>
+<li>环境变量: 生效范围为当前shell进程及其子进程数</li>
+<li>局部变量: 生效范围为当前shell进程中某代码片断(通常指函数)</li>
+<li>位置变量: <code>$0</code>, <code>$1</code>, <code>$2</code>, &#x2026;来表示，用于让脚本在脚本代码中调用通过命令行传递给它的参数</li>
+<li>特殊变量: <code>$?</code>, <code>$*</code>, <code>$@</code>, <code>$#</code>, <code>$$(UID)</code>, <code>$!(PID)</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">本地与环境变量</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+</div><div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">变量的赋值</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #75715E;"># </span><span style="color: #75715E;">&#26412;&#22320;&#21464;&#37327;</span>
+<span style="color: #FD971F;">name</span>=<span style="color: #E6DB74;">"value: $val"</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30452;&#25509;&#36171;&#20540;&#23383;&#31526;&#20018;</span>
+<span style="color: #FD971F;">name</span>=<span style="color: #AE81FF; font-weight: bold;">`COMMAND`</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#24341;&#29992;</span>
+<span style="color: #FD971F;">name</span>=$<span style="color: #AE81FF;">(</span>COMMAND<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21629;&#20196;&#24341;&#29992;</span>
+<span style="color: #FD971F;">name</span>=func<span style="color: #AE81FF;">()</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24341;&#29992;&#20989;&#25968;&#36755;&#20986;</span>
+
+<span style="color: #75715E;"># </span><span style="color: #75715E;">&#29615;&#22659;&#21464;&#37327;</span>
+<span style="color: #F92672;">export</span> <span style="color: #FD971F;">name</span>=VALUE
+<span style="color: #F92672;">declare</span> -x <span style="color: #FD971F;">name</span>=VALUE
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">变量的引用</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<ul class="org-ul">
+<li>变量引用方式: <code>$name</code>, <code>${name}</code></li>
+<li>字符串中的变量引用
+<ul class="org-ul">
+<li>双引号: 弱引用，其中的变量引用会被替换为变量值</li>
+<li>单引号: 强引用，其中的变量引用不会被替换为变量值，而保持原字符串</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">变量的查询</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">set</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#23450;&#20041;&#30340;&#25152;&#26377;&#21464;&#37327;</span>
+<span style="color: #F92672;">export</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#29615;&#22659;&#21464;&#37327;</span>
+env  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#29615;&#22659;&#21464;&#37327;</span>
+printenv   <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#25152;&#26377;&#29615;&#22659;&#21464;&#37327;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-4">
+<h4 id="orgheadline14">变量的删除</h4>
+<div class="outline-text-4" id="text-orgheadline14">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">unset</span> name  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#21464;&#37327;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">局部变量</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<ul class="org-ul">
+<li>在函数中定义局部变量，函数结束的时候该变量会被销毁</li>
+<li>如果局部变量名称本地变量相同，则本地变量在函数内会被隐藏</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">function</span> <span style="color: #A6E22E;">f_name</span> <span style="color: #AE81FF;">{</span>
+    <span style="color: #F92672;">local</span> <span style="color: #FD971F;">NAME</span>=VALUE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35813;&#21464;&#37327;&#21482;&#22312;&#20989;&#25968;&#20869;&#29983;&#25928;</span>
+<span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">只读变量</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<ul class="org-ul">
+<li>只读变量不能被修改或销毁</li>
+<li>只读变量可以声明为本地变量或环境变量，也可以将已有的变量转换为只读变量</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">readonly</span> name
+<span style="color: #F92672;">declare</span> -r name
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">位置变量</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<ul class="org-ul">
+<li><p>
+在脚本代码中调用通过命令行传递给脚本的参数
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">$1, $2, &#x2026;</td>
+<td class="org-left">对应调用的第n个参数</td>
+</tr>
+
+<tr>
+<td class="org-left">$0</td>
+<td class="org-left">命令本身</td>
+</tr>
+
+<tr>
+<td class="org-left">$*</td>
+<td class="org-left">传递给脚本的所有参数(用IFS分隔符分割的一个字符串)</td>
+</tr>
+
+<tr>
+<td class="org-left">$@</td>
+<td class="org-left">传递给脚本的所有参数(每个参数都是独立的列表)</td>
+</tr>
+
+<tr>
+<td class="org-left">$#</td>
+<td class="org-left">传递给脚本的参数的个数</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">shift</span> <span style="color: #AE81FF;">[</span>n<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21442;&#25968;&#21024;&#38500;&#21069;&#38754;n&#20010;&#65292;&#20250;&#24433;&#21709;&#25152;&#26377;&#20301;&#32622;&#21464;&#37327;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">11</span> bash数组</h2>
+<div class="outline-text-2" id="text-11">
+</div><div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">引用数组</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">ARRAY_NAME</span><span style="color: #66D9EF;">[</span>INDEX<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33509;&#19979;&#26631;&#30465;&#30053;&#21017;&#24341;&#29992;&#19979;&#26631;&#20026;0&#30340;&#20803;&#32032;</span>
+<span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">ARRAY</span><span style="color: #66D9EF;">[</span>@<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">}</span> $<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">ARRAY</span><span style="color: #66D9EF;">[</span>*<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#24341;&#29992;&#25968;&#32452;&#30340;&#25152;&#26377;&#20803;&#32032;</span>
+<span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">ARRAY</span><span style="color: #66D9EF;">[</span>@<span style="color: #66D9EF;">]</span>:offset:number<span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36339;&#36807;offset&#20010;&#20803;&#32032;&#21518;&#21462;&#20986;number&#20010;&#20803;&#32032;(number&#21487;&#20197;&#30465;&#30053;)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">声明数组</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">declare</span> -a ARRAY_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26222;&#36890;&#25968;&#32452;&#65292;&#19979;&#26631;&#20174;0&#24320;&#22987;</span>
+<span style="color: #F92672;">declare</span> -A ARRAY_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20851;&#32852;&#25968;&#32452;&#65292;&#19979;&#26631;&#24341;&#21487;&#20197;&#33258;&#23450;&#20041;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">数组元素的赋值</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<ul class="org-ul">
+<li><p>
+一次只赋值一个元素
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">ARRAY_NAME</span><span style="color: #AE81FF;">[</span>INDEX<span style="color: #AE81FF;">]</span>=VALUE
+</pre>
+</div></li>
+<li><p>
+一次赋值全部元素
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">ARRAY_NAME</span>=<span style="color: #AE81FF;">(</span><span style="color: #E6DB74;">"VAL1"</span> <span style="color: #E6DB74;">"VAL2"</span> ...<span style="color: #AE81FF;">)</span>
+<span style="color: #FD971F;">files</span>=<span style="color: #AE81FF;">(</span>/var/log/*.log<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36890;&#36807;glob&#26469;&#29983;&#25104;&#25968;&#32452;</span>
+</pre>
+</div></li>
+<li><p>
+只赋值特定元素
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">ARRAY_NAME</span>=<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">0</span><span style="color: #66D9EF;">]</span>=<span style="color: #E6DB74;">"VAL1"</span> <span style="color: #66D9EF;">[</span><span style="color: #AE81FF;">3</span><span style="color: #66D9EF;">]</span>=<span style="color: #E6DB74;">"VAL2"</span> ...<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#31232;&#30095;&#26684;&#24335;&#25968;&#32452;</span>
+<span style="color: #FD971F;">ARRAY_NAME</span>=<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">[</span>abc<span style="color: #66D9EF;">]</span>=<span style="color: #E6DB74;">"VAL1"</span> <span style="color: #66D9EF;">[</span>fdc<span style="color: #66D9EF;">]</span>=<span style="color: #E6DB74;">"VAL2"</span> ...<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#20851;&#32852;&#25968;&#32452;</span>
+</pre>
+</div></li>
+<li><p>
+读取用户输入
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">read</span> -a ARRAY
+</pre>
+</div></li>
+<li><p>
+追加元素
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">ARRAY</span><span style="color: #AE81FF;">[</span>$<span style="color: #66D9EF;">{</span>#<span style="color: #FD971F;">ARRAY</span><span style="color: #A6E22E;">[</span>*<span style="color: #A6E22E;">]</span><span style="color: #66D9EF;">}</span><span style="color: #AE81FF;">]</span>=VALUE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36861;&#21152;&#33267;&#25968;&#32452;&#26411;&#23614;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">读取数组的长度</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span>#<span style="color: #FD971F;">ARRAY</span><span style="color: #66D9EF;">[</span>*<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">}</span>
+<span style="color: #F92672;">echo</span> $<span style="color: #AE81FF;">{</span>#<span style="color: #FD971F;">ARRAY</span><span style="color: #66D9EF;">[</span>@<span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">}</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline30" class="outline-2">
+<h2 id="orgheadline30"><span class="section-number-2">12</span> bash字符串处理</h2>
+<div class="outline-text-2" id="text-12">
+</div><div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">子符串切片</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">${str:offset:number}</td>
+<td class="org-left">跳过offset个字符后取出number个字符(可省略number)</td>
+</tr>
+
+<tr>
+<td class="org-left">${str: -length}</td>
+<td class="org-left">取出右侧length个字符(注意空格)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">基于glob取子串</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">${str#glob}</td>
+<td class="org-left">自左向右的删除glob的第一次最短匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">${str##glob}</td>
+<td class="org-left">自左向右的删除glob的第一次最长匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">${str%glob}</td>
+<td class="org-left">自右向左的删除glob的第一次最短匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">${str%%glob}</td>
+<td class="org-left">自右向左的删除glob的第一次最长匹配</td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">str</span>=$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">str</span>##*word<span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#23383;&#31526;&#20018;&#24320;&#22836;&#21040;&#26368;&#21518;&#19968;&#27425;word&#21305;&#37197;&#30340;&#23383;&#31526;</span>
+<span style="color: #FD971F;">str</span>=$<span style="color: #AE81FF;">{</span><span style="color: #FD971F;">str</span>%%word*<span style="color: #AE81FF;">}</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#31532;&#19968;&#27425;word&#21305;&#37197;&#21040;&#23383;&#31526;&#20018;&#26411;&#23614;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">查找替换(最长匹配)</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">${str/glob/substr}</td>
+<td class="org-left">用substr替换第一次被glob匹配到的字符串(/substr省略则为删除)</td>
+</tr>
+
+<tr>
+<td class="org-left">${str//glob/substr}</td>
+<td class="org-left">用substr替换所有能被glob匹配到的字符串(/substr省略则为删除)</td>
+</tr>
+
+<tr>
+<td class="org-left">${str/#glob/substr}</td>
+<td class="org-left">用substr替换行首被glob匹配到的字符串(/substr省略则为删除)</td>
+</tr>
+
+<tr>
+<td class="org-left">${str/%glob/substr}</td>
+<td class="org-left">用substr替换行尾被glob匹配到的字符串(/substr省略则为删除)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">大小写转换</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">${var^^}</td>
+<td class="org-left">把var中的所有小写字母转换为大写</td>
+</tr>
+
+<tr>
+<td class="org-left">${var,,}</td>
+<td class="org-left">把var中的所有大写字母转换为小写</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29">变量赋值</h3>
+<div class="outline-text-3" id="text-orgheadline29">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">${var-value}</td>
+<td class="org-left">如果var未设置，那么返回value；否则，则返回var的值</td>
+</tr>
+
+<tr>
+<td class="org-left">${var=value}</td>
+<td class="org-left">如果var未设置，那么返回value，并将value赋值给var；否则，则返回var的值</td>
+</tr>
+
+<tr>
+<td class="org-left">${var+value}</td>
+<td class="org-left">如果var已设置，则返回value</td>
+</tr>
+
+<tr>
+<td class="org-left">${var?error_info}</td>
+<td class="org-left">如果var未设置，那么输出错误error_info；否则，则返回var的值</td>
+</tr>
+</tbody>
+</table>
+<ul class="org-ul">
+<li>若在 <code>-=+?</code> 前加上冒号 <code>:</code> ，那么空变量会视为未设置，默认空变量被视为已设置</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline33" class="outline-2">
+<h2 id="orgheadline33"><span class="section-number-2">13</span> bash中的算术计算</h2>
+<div class="outline-text-2" id="text-13">
+</div><div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31">计算命令</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">declare</span> -i <span style="color: #FD971F;">name</span>=NUM  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23450;&#20041;name&#20026;&#25972;&#24418;&#25968;&#25454;, &#21017;&#21518;&#36793;&#30340;&#36171;&#20540;&#35745;&#31639;&#20013;&#30340;let&#21487;&#20197;&#30465;&#30053;</span>
+<span style="color: #F92672;">let</span> <span style="color: #FD971F;">var</span>=EXPRESSION
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">[</span>EXPRESSION<span style="color: #AE81FF;">]</span>
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">(</span><span style="color: #66D9EF;">(</span>EXPRESSION<span style="color: #66D9EF;">)</span><span style="color: #AE81FF;">)</span>
+<span style="color: #FD971F;">var</span>=$<span style="color: #AE81FF;">(</span>expr arg1 arg2 arg3<span style="color: #AE81FF;">)</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26576;&#20123;&#31526;&#21495;&#38656;&#35201;&#36827;&#34892;&#36716;&#20041;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>bash有内建的随机数生成器: $RANDOM</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32">运算符号</h3>
+<div class="outline-text-3" id="text-orgheadline32">
+<ul class="org-ul">
+<li>基本运算符号: <code>+</code> , <code>-</code> , <code>*</code> , <code>/</code> , <code>%</code> , <code>**</code></li>
+<li>增强型赋值: <code>+=</code> , <code>-=</code> , <code>*=</code> , <code>/=</code> , <code>%=</code></li>
+<li>自增与自减: <code>var++</code> , <code>var--</code></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline40" class="outline-2">
+<h2 id="orgheadline40"><span class="section-number-2">14</span> bash的条件测试</h2>
+<div class="outline-text-2" id="text-14">
+</div><div id="outline-container-orgheadline34" class="outline-3">
+<h3 id="orgheadline34">测试命令</h3>
+<div class="outline-text-3" id="text-orgheadline34">
+<p>
+用于测试表达式的结果
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">test EXPRESSION
+<span style="color: #AE81FF;">[</span> EXPRESSION <span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">EXPRESSION&#21069;&#21518;&#24517;&#39035;&#26377;&#31354;&#30333;&#23383;&#31526;</span>
+<span style="color: #AE81FF;">[</span><span style="color: #66D9EF;">[</span> EXPRESSION <span style="color: #66D9EF;">]</span><span style="color: #AE81FF;">]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">测试符号</h3>
+<div class="outline-text-3" id="text-orgheadline38">
+</div><div id="outline-container-orgheadline35" class="outline-4">
+<h4 id="orgheadline35">数值测试</h4>
+<div class="outline-text-4" id="text-orgheadline35">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-gt</td>
+<td class="org-left">greater than</td>
+</tr>
+
+<tr>
+<td class="org-left">-ge</td>
+<td class="org-left">greater equal</td>
+</tr>
+
+<tr>
+<td class="org-left">-eq</td>
+<td class="org-left">equal</td>
+</tr>
+
+<tr>
+<td class="org-left">-ne</td>
+<td class="org-left">not equal</td>
+</tr>
+
+<tr>
+<td class="org-left">-lt</td>
+<td class="org-left">less than</td>
+</tr>
+
+<tr>
+<td class="org-left">-le</td>
+<td class="org-left">less equal</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline36" class="outline-4">
+<h4 id="orgheadline36">字符串测试</h4>
+<div class="outline-text-4" id="text-orgheadline36">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">==</td>
+<td class="org-left">等于</td>
+</tr>
+
+<tr>
+<td class="org-left">&gt;</td>
+<td class="org-left">大于</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;</td>
+<td class="org-left">小于</td>
+</tr>
+
+<tr>
+<td class="org-left">!=</td>
+<td class="org-left">不等于</td>
+</tr>
+
+<tr>
+<td class="org-left">=~</td>
+<td class="org-left">左侧字符串是否能够被右侧的PATTERN(不需要用引号)部分匹配，用于双括号中</td>
+</tr>
+
+<tr>
+<td class="org-left">-z "STRING"</td>
+<td class="org-left">测试字符串是否为空，空则为真，不空则为假</td>
+</tr>
+
+<tr>
+<td class="org-left">-n "STRING"</td>
+<td class="org-left">测试字符串是否不空，不空则为真，空则为假</td>
+</tr>
+</tbody>
+</table>
+<ul class="org-ul">
+<li>注意: 用于字符串比较时的用到的操作数都应该使用引号</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline37" class="outline-4">
+<h4 id="orgheadline37">文件测试</h4>
+<div class="outline-text-4" id="text-orgheadline37">
+<ul class="org-ul">
+<li><p>
+存在性测试
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-e FILE</td>
+<td class="org-left">文件存在性测试，存在为真，否则为假</td>
+</tr>
+
+<tr>
+<td class="org-left">-b FILE</td>
+<td class="org-left">是否存在且为块设备文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-c FILE</td>
+<td class="org-left">是否存在且为字符设备文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-d FILE</td>
+<td class="org-left">是否存在且为目录文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-f FILE</td>
+<td class="org-left">是否存在且为普通文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-p FILE</td>
+<td class="org-left">是否存在且为命名管道文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-L FILE</td>
+<td class="org-left">是否存在且为符号链接文件</td>
+</tr>
+
+<tr>
+<td class="org-left">-S FILE</td>
+<td class="org-left">是否存在且为套接字文件</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+文件权限测试(不适用于root)
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-r FILE</td>
+<td class="org-left">是否存在且可读</td>
+</tr>
+
+<tr>
+<td class="org-left">-w FILE</td>
+<td class="org-left">是否存在且可写</td>
+</tr>
+
+<tr>
+<td class="org-left">-x FILE</td>
+<td class="org-left">是否存在且可执行</td>
+</tr>
+
+<tr>
+<td class="org-left">-O FILE</td>
+<td class="org-left">当前有效用户是否为文件属主</td>
+</tr>
+
+<tr>
+<td class="org-left">-G FILE</td>
+<td class="org-left">当前有效用户是否为文件属组</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+文件特殊权限测试
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-g FILE</td>
+<td class="org-left">是否存在且拥有sgid权限</td>
+</tr>
+
+<tr>
+<td class="org-left">-u FILE</td>
+<td class="org-left">是否存在且拥有suid权限</td>
+</tr>
+
+<tr>
+<td class="org-left">-k FILE</td>
+<td class="org-left">是否存在且拥有sticky权限</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+文件其他测试
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-s FILE</td>
+<td class="org-left">是否存且非空</td>
+</tr>
+
+<tr>
+<td class="org-left">-t fd</td>
+<td class="org-left">文件描述符fd是否已经打开且与某终端相关</td>
+</tr>
+
+<tr>
+<td class="org-left">-N FILE</td>
+<td class="org-left">文件自动上一次被读取之后是否被修改过</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+双目测试
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">FILE1 -ef FILE2</td>
+<td class="org-left">FILE1与FILE2是否指向同一个设备上的相同inode</td>
+</tr>
+
+<tr>
+<td class="org-left">FILE1 -nt FILE2</td>
+<td class="org-left">FILE1是否新于FILE2</td>
+</tr>
+
+<tr>
+<td class="org-left">FILE1 -ot FILE2</td>
+<td class="org-left">FILE1是否旧于FILE2</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">组合条件</h3>
+<div class="outline-text-3" id="text-orgheadline39">
+<dl class="org-dl">
+<dt>命令组合</dt><dd><ul class="org-ul">
+<li><code>COMMAND &amp;&amp; COMMAND</code>: 第一个命令结果为false的话，则不会运行下一个</li>
+<li><code>COMMAND || COMMAND</code>: 第一个命令结果为true的话，则不会运行下一个</li>
+<li><code>! COMMAND</code>: 将后边所接的命令结果取反</li>
+</ul></dd>
+<dt>条件组合</dt><dd><ul class="org-ul">
+<li><code>EXPRESSION -a EXPRESSION</code>: 与</li>
+<li><code>EXPRESSION -o EXPRESSION</code>: 或</li>
+<li><code>! \(EXPRESSION\)</code>: 非</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline41" class="outline-2">
+<h2 id="orgheadline41"><span class="section-number-2">15</span> bash输出的字体颜色</h2>
+<div class="outline-text-2" id="text-15">
+<dl class="org-dl">
+<dt>字体颜色</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[30m &#40657;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[31m &#32418;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[32m &#32511;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[33m &#40644;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[34m &#34013;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[35m &#32043;&#33394;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[36m &#22825;&#34013;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[37m &#30333;&#33394;&#23383; \033[0m"</span>
+</pre>
+</div></dd>
+<dt>字体背景色</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[40;37m &#40657;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[41;37m &#32418;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[42;37m &#32511;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[43;37m &#40644;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[44;37m &#34013;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[45;37m &#32043;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[46;37m &#22825;&#34013;&#24213;&#30333;&#23383; \033[0m"</span> 
+<span style="color: #F92672;">echo</span> -e <span style="color: #E6DB74;">"\033[47;30m &#30333;&#24213;&#40657;&#23383; \033[0m"</span>
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>

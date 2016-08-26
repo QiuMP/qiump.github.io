@@ -1,0 +1,761 @@
+---
+title: "Docker"
+date: 2016-08-13
+layout: post
+categories: 
+- 虚拟化
+tags: 
+- Linux 
+- 虚拟化
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. NameSpace</a></li>
+<li><a href="#orgheadline4">2. CGroup</a>
+<ul>
+<li><a href="#orgheadline2">功能</a></li>
+<li><a href="#orgheadline3">CGroups子系统</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">3. 文件系统分层</a>
+<ul>
+<li><a href="#orgheadline5">AUFS</a></li>
+<li><a href="#orgheadline6">Device mapper</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline24">4. Docker</a>
+<ul>
+<li><a href="#orgheadline8">Docker功能</a></li>
+<li><a href="#orgheadline9">Docker组件</a></li>
+<li><a href="#orgheadline14">Docker架构</a>
+<ul>
+<li><a href="#orgheadline10">镜像</a></li>
+<li><a href="#orgheadline11">容器</a></li>
+<li><a href="#orgheadline12">Registry</a></li>
+<li><a href="#orgheadline13">Data Volume</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline19">容器的网络模型</a>
+<ul>
+<li><a href="#orgheadline15">Closed container</a></li>
+<li><a href="#orgheadline16">Bridged container</a></li>
+<li><a href="#orgheadline17">Joined container</a></li>
+<li><a href="#orgheadline18">Open container</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline20">容器的资源限制</a></li>
+<li><a href="#orgheadline21">Docker监控命令</a></li>
+<li><a href="#orgheadline22">容器的导入和导出</a></li>
+<li><a href="#orgheadline23">镜像的保存及装载</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline28">5. Dockerfile</a>
+<ul>
+<li><a href="#orgheadline25">相关术语</a></li>
+<li><a href="#orgheadline26">指令</a></li>
+<li><a href="#orgheadline27">构建镜像</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> NameSpace</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+<code>NameSpace</code> 是在内核级别实现环境隔离的方法
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">NameSpace</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">PID NameSpace</td>
+<td class="org-left">PID隔离</td>
+</tr>
+
+<tr>
+<td class="org-left">Network NameSpace</td>
+<td class="org-left">网络设备、网络栈、端口等网络资源隔离</td>
+</tr>
+
+<tr>
+<td class="org-left">User NameSpace</td>
+<td class="org-left">用户和用户组资源隔离</td>
+</tr>
+
+<tr>
+<td class="org-left">IPC NameSpace</td>
+<td class="org-left">信号量、消息队列和共享内存的隔离</td>
+</tr>
+
+<tr>
+<td class="org-left">UTS NameSpace</td>
+<td class="org-left">主机名和域名的隔离</td>
+</tr>
+
+<tr>
+<td class="org-left">Mount NameSpace</td>
+<td class="org-left">挂载点(文件系统)隔离</td>
+</tr>
+</tbody>
+</table>
+<pre class="example">
+API: clone(), setns(), unshare()
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">2</span> CGroup</h2>
+<div class="outline-text-2" id="text-2">
+<pre class="example">
+Linux Control Group: 内核级别上，限制和控制一个进程组群的资源
+</pre>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">功能</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<ul class="org-ul">
+<li><code>Resource limitation</code>: 资源限制</li>
+<li><code>Prioritization</code>: 优先级控制</li>
+<li><code>Accounting</code>: 审计和统计，主要为计费</li>
+<li><code>Control</code>: 挂起进程，恢复进程</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">CGroups子系统</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+子系统的设定挂载于 <code>/sys/fs/cgroug</code> 中
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">名称</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">blkio</td>
+<td class="org-left">设定块设备的IO限制</td>
+</tr>
+
+<tr>
+<td class="org-left">cpu</td>
+<td class="org-left">设定CPU的限制</td>
+</tr>
+
+<tr>
+<td class="org-left">cpuacct</td>
+<td class="org-left">报告cgroup中CPU资源使用率</td>
+</tr>
+
+<tr>
+<td class="org-left">memory</td>
+<td class="org-left">设定内存的使用限制</td>
+</tr>
+
+<tr>
+<td class="org-left">cpuset</td>
+<td class="org-left">分配CPU数量和内存数量</td>
+</tr>
+
+<tr>
+<td class="org-left">devices</td>
+<td class="org-left">控制对设备的访问</td>
+</tr>
+
+<tr>
+<td class="org-left">freezer</td>
+<td class="org-left">挂起或恢复cgroup中的任务</td>
+</tr>
+
+<tr>
+<td class="org-left">net_cls</td>
+<td class="org-left">使用classid来标记网络数据包，实现基于tc命令的流量控制</td>
+</tr>
+
+<tr>
+<td class="org-left">perf_event</td>
+<td class="org-left">使用后使cgroup中的任务可以进行统一的性能测试</td>
+</tr>
+
+<tr>
+<td class="org-left">hugetlb</td>
+<td class="org-left">对HugeTLB(大内存页)系统进行限制</td>
+</tr>
+</tbody>
+</table>
+<dl class="org-dl">
+<dt>相关术语</dt><dd><ul class="org-ul">
+<li><code>task</code>: 进程或线程</li>
+<li><code>cgroup</code>: 一个独立的资源控制单位，可以包含一个或多个子系统</li>
+<li><code>subsystem</code>: 子系统</li>
+<li><code>hierarchy</code>: 层级</li>
+</ul></dd>
+<dt>查询挂载的子系统设定</dt><dd><div class="org-src-container">
+
+<pre class="src src-bash">mount 
+lssubsys -m
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">3</span> 文件系统分层</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">AUFS</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+<code>UnionFS</code>: 把不同的物理位置的目录按顺序叠加显示到同一个目录中，对其修改只在最上层的文件夹中生效，CentOS没有整合
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">mount -t aufs -o <span style="color: #FD971F;">dirs</span>=/PATH:/PATH none /PATH
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">Device mapper</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+<code>Device mapper</code> 用于在内核中支持逻辑卷管理的通用设备映射机制，类似于lvm的快照机制
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24"><span class="section-number-2">4</span> Docker</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">Docker功能</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<ul class="org-ul">
+<li>隔离应用</li>
+<li>维护镜像</li>
+<li>创建易于分发的应用</li>
+<li>快速扩展</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">Docker组件</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<ul class="org-ul">
+<li><code>docker client</code>: docker的客户端工具，Docker是C/S架构的</li>
+<li><code>docker deamon</code>: Docker守护进程，用户可通过docker client与其交互</li>
+<li><code>docker container</code>: docker的运行实例，容器是一个隔离环境</li>
+<li><code>docker link</code>: 网络</li>
+<li><code>docker volume</code>: 卷</li>
+<li><code>image</code>
+<ul class="org-ul">
+<li>镜像文件是只读的，一个镜像可以运行多个container</li>
+<li>镜像文件可以通过Dockerfile文件创建，也可以从docker hub/registry下载</li>
+</ul></li>
+<li><code>repository</code>
+<ul class="org-ul">
+<li>公共仓库: Docker hub/registry</li>
+<li>私有仓库: Docker registry</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">Docker架构</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+</div><div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">镜像</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<p>
+镜像包含了启动Docker容器所需要的文件系统层级及其内容，基于 <code>UnionFS</code> 采用分层结构实现，最底部两层是 <code>bootfs</code> 、 <code>rootfs</code> 
+</p>
+<dl class="org-dl">
+<dt>registry</dt><dd>保存docker镜像及镜像层次结构和元数据的服务器
+<ul class="org-ul">
+<li><code>repository</code>: 由具有某个功能的镜像的所有相关版本构成的集合</li>
+<li><code>index</code>: 管理用户的账号、访问权限、镜像及镜像标签等等相关的索引</li>
+</ul></dd>
+<dt>graph</dt><dd>负责管理本地所有镜像层级，以及记录其与各容器的连接关系到 <code>graphDB</code> 中，位置在 <code>/var/lib/docker/graph</code></dd>
+<dt>相关的命令</dt><dd><ul class="org-ul">
+<li><code>images</code>: 列出本地所有镜像文件</li>
+<li><code>search</code>: 搜索可用的镜像文件</li>
+<li><p>
+<code>tag</code>: 给一个镜像文件打一个新的标签
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">docker tag IMAGE_ID <span style="color: #AE81FF;">[</span>REGISRY_HOST:PORT/<span style="color: #AE81FF;">]</span>NAME<span style="color: #AE81FF;">[</span>:TAG<span style="color: #AE81FF;">]</span>
+</pre>
+</div></li>
+<li><code>pull</code>: 从registry下载镜像文件</li>
+<li><code>push</code>: 上传镜像文件到registry</li>
+<li><code>login/logout</code>: 登录/注销</li>
+<li><code>build</code>: 根据Dockerfile创建镜像文件</li>
+<li><code>commit</code>: 根据容器修改创建镜像文件</li>
+<li><code>rmi</code>: 删除本地镜像文件</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">容器</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<p>
+容器是独立运行的一个或一组应用，以及它们运行的环境
+</p>
+<dl class="org-dl">
+<dt>容器运行的步骤</dt><dd><ol class="org-ol">
+<li>检查本地是否存在指定的镜像，不存在则从registry下载</li>
+<li>利用镜像启动容器</li>
+<li>分配一个文件系统，并且在只读的镜像层之外挂载一个可读写层</li>
+<li>从宿主机配置的网桥接口桥接一个虚拟接口给此容器</li>
+<li>从地址池中分配一个地址给容器</li>
+<li>执行用户指定的应用程序</li>
+<li>程序执行完成后，容器即终止</li>
+</ol></dd>
+<dt>相关的命令</dt><dd><ul class="org-ul">
+<li><p>
+<code>run</code>: 运行一个容器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">docker run [OPTIONS] IMAGES [COMMAND]
+  --name=<span style="color: #E6DB74;">"NAME"</span>: &#35774;&#23450;&#23481;&#22120;&#21517;&#31216;
+
+  <span style="color: #FD971F;">-i</span>: &#24320;&#21551;&#20132;&#20114;&#24335;&#27169;&#24335;&#65292;&#21363;&#24320;&#21551;STDIN
+  <span style="color: #FD971F;">-t</span>: &#20998;&#37197;&#19968;&#20266;&#32456;&#31471;
+  <span style="color: #FD971F;">-d</span>: &#21518;&#21488;&#36816;&#34892;&#23481;&#22120;&#65292;&#24120;&#19982;-f&#37197;&#21512;&#20351;&#29992;&#21551;&#21160;&#26381;&#21153;
+  <span style="color: #FD971F;">-f</span>: &#21069;&#21488;&#36816;&#34892;&#23481;&#22120;&#20013;&#30340;&#36827;&#31243;
+
+  <span style="color: #FD971F;">--rm</span>: &#23481;&#22120;&#20851;&#38381;&#26102;&#20250;&#33258;&#21160;&#21024;&#38500;&#23481;&#22120;&#21644;&#21367;(&#24403;&#35813;&#21367;&#27809;&#26377;&#23481;&#22120;&#20351;&#29992;&#26102;)
+
+  <span style="color: #FD971F;">--link</span>: &#23450;&#20041;&#23481;&#22120;&#38388;&#30340;&#20381;&#36182;&#20851;&#31995;&#65292;&#21551;&#21160;&#35813;&#23481;&#22120;&#21069;&#38656;&#35201;&#20808;&#21551;&#21160;&#25152;&#20381;&#36182;&#30340;&#23481;&#22120;
+
+  <span style="color: #FD971F;">--net default</span>: &#35774;&#32622;&#32593;&#32476;&#27169;&#24335;&#65292;&#40664;&#35748;&#26159;&#26725;&#25509;&#21040;docker0&#19978;
+  <span style="color: #FD971F;">-h HOSTNAME</span>: &#35774;&#23450;&#23481;&#22120;&#30340;&#20027;&#26426;&#21517;
+  <span style="color: #FD971F;">--dns DNS_IP</span>: &#35774;&#23450;DNS
+  --add-host <span style="color: #E6DB74;">"HOSTNAME:IP"</span>: &#28155;&#21152;&#23481;&#22120;&#20013;&#30340;hosts&#35760;&#24405;
+
+  <span style="color: #FD971F;">-p [&#20027;&#26426;IP:][&#20027;&#26426;&#31471;&#21475;&#21495;:]&#23481;&#22120;&#31471;&#21475;&#21495;</span>: &#23558;&#23481;&#22120;&#31471;&#21475;&#21495;&#26144;&#23556;&#21040;&#20027;&#26426;IP&#30340;&#31471;&#21475;&#21495;&#19978;&#65292;&#40664;&#35748;&#20026;&#25152;&#26377;IP&#30340;&#38543;&#26426;&#31471;&#21475;&#65292;&#20854;&#23454;&#23601;&#26159;&#28155;&#21152;iptables&#35268;&#21017;
+  <span style="color: #FD971F;">-P</span>: &#26144;&#23556;&#25152;&#26377;--expose&#23450;&#20041;&#25110;Dockerfile&#30340;EXPOSE&#23450;&#20041;&#30340;&#31471;&#21475;&#21040;&#38543;&#26426;&#31471;&#21475;
+</pre>
+</div></li>
+<li><code>start</code>: 启动一个停止的容器</li>
+<li><code>restart</code>: 重启容器</li>
+<li><code>stop</code>: 发送SIGTERM信号到一个容器</li>
+<li><code>kill</code>: 发送SIGKILL信号到一个容器</li>
+<li><code>attach</code>: 附加至一个运行中的容器中，即试该容器成为前台</li>
+<li><code>log</code>: 获取一个容器的日志，即其输出的信息</li>
+</ul></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">Registry</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<dl class="org-dl">
+<dt>公共Registry</dt><dd><code>Docker Hub</code></dd>
+<dt>私有Registry</dt><dd><ul class="org-ul">
+<li>建立私有Registry
+<ol class="org-ol">
+<li>安装 <code>docker-registry</code></li>
+<li><p>
+配置 <code>/etc/docker-registry.yml</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #FD971F;">sqlalchemy_index_database</span>: ...:sqlite:////tmp/docker-registry.db  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#37197;&#32622;&#38236;&#20687;&#32034;&#24341;&#25968;&#25454;&#24211;&#30340;&#23384;&#20648;&#20301;&#32622;&#65292;&#38656;&#35201;&#26377;&#20889;&#26435;&#38480;</span>
+</pre>
+</div></li>
+<li>启动docker-registry服务</li>
+<li>可以使用nginx反代，使用ssl基于basic做用户认证</li>
+</ol></li>
+<li>配置Docker客户端
+<ol class="org-ol">
+<li><p>
+配置 <code>/etc/sysconfig/docker</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash"><span style="color: #FD971F;">ADD_REGISTRY</span>=<span style="color: #E6DB74;">'--add-registry 172.16.100.68:5000'</span> 
+<span style="color: #FD971F;">INSECURE_REGISTRY</span>=<span style="color: #E6DB74;">'--insecure-registry 172.16.100.68:5000'</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#20351;&#29992;SSL</span>
+</pre>
+</div></li>
+<li><p>
+push镜像
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">docker tag IMAGE_ID REGISRY_HOST:PORT/NAME<span style="color: #AE81FF;">[</span>:TAG<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25171;&#26631;&#31614;</span>
+docker push REGISRY_HOST:PORT/NAME<span style="color: #AE81FF;">[</span>:TAG<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19978;&#20256;</span>
+</pre>
+</div></li>
+<li><p>
+pull镜像
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">docker pull REGISRY_HOST:PORT/NAME<span style="color: #AE81FF;">[</span>:TAG<span style="color: #AE81FF;">]</span>
+</pre>
+</div></li>
+</ol></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13">Data Volume</h4>
+<div class="outline-text-4" id="text-orgheadline13">
+<p>
+数据卷是供一个或多个容器使用的文件或目录
+</p>
+<dl class="org-dl">
+<dt>数据卷特性</dt><dd><ul class="org-ul">
+<li>可以共享于多个容器之间</li>
+<li>对数据卷的修改会立即生效</li>
+<li>对数据卷的更新与镜像无关</li>
+<li>数据卷会一直存在</li>
+</ul></dd>
+<dt>使用数据卷的方式</dt><dd><ul class="org-ul">
+<li><code>-v [主机路径:]容器路径</code>: 将容器路径映射为主机路径，默认主机路径为 <code>/var/lib/docker/volumes</code> 下的随机名文件夹</li>
+<li>在 <code>Dockerfile</code> 中使用 <code>VOLUME</code> 指令定义</li>
+<li><code>--volumes-from</code>容器名=: 授权一个容器访问另一个容器的Volume</li>
+</ul></dd>
+<dt>相关命令使用</dt><dd><ul class="org-ul">
+<li><p>
+删除卷
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">docker rm -v CONTAINER_NAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21024;&#38500;&#23481;&#22120;&#30340;&#21516;&#26102;&#21024;&#38500;&#20854;&#21367;</span>
+</pre>
+</div></li>
+<li><p>
+备份
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">docker run --rm --volumes-from &#23481;&#22120;&#21517; -v $<span style="color: #AE81FF;">(</span><span style="color: #F92672;">pwd</span><span style="color: #AE81FF;">)</span>:/backup busybox:latest tar cvf /backup/data.tar /data  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#23481;&#22120;&#30340;&#21367;/data&#22791;&#20221;&#21040;&#24403;&#21069;&#30446;&#24405;&#30340;data.tar&#25991;&#20214;</span>
+</pre>
+</div></li>
+</ul></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">容器的网络模型</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+</div><div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">Closed container</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<ul class="org-ul">
+<li>创建选项: <code>--net none</code></li>
+<li>仅有一个网络接口: <code>loopback</code></li>
+<li>不参与网络通信，仅适用于无须网络通信的应用场景，例如备份、程序调试等</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">Bridged container</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+<ul class="org-ul">
+<li>创建选项: <code>--net bridge</code></li>
+<li>容器有两个网络接口:  <code>loopback</code>, <code>以太网接口</code> (桥接到主机的桥上，默认为docker0)</li>
+<li>如果想要改变默认的桥，则需要在运行docker服务时，使用 <code>-b</code> 选项指明要使用的桥</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17">Joined container</h4>
+<div class="outline-text-4" id="text-orgheadline17">
+<ul class="org-ul">
+<li>创建选项: <code>--net container:容器名</code></li>
+<li>共享网络名称空间，共用一个网络接口，用于监控和管理其他容器的网络</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-4">
+<h4 id="orgheadline18">Open container</h4>
+<div class="outline-text-4" id="text-orgheadline18">
+<ul class="org-ul">
+<li>创建选项: <code>--net host</code></li>
+<li>容器使用Host的网络名称空间</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">容器的资源限制</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<p>
+使用run命令的选项来限制资源
+</p>
+<ul class="org-ul">
+<li><code>-m</code>: 限制内存</li>
+<li><code>--cpuset-cpus</code>: 指定运行在哪些cpu上</li>
+<li><code>--shm-size</code>: 限制共享内存，即 <code>/dev/shm</code></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">Docker监控命令</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<ul class="org-ul">
+<li><p>
+<code>ps</code>: 查询容器的相关信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">docker ps  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#27491;&#22312;&#36816;&#34892;&#30340;&#23481;&#22120;</span>
+docker ps -a  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25152;&#26377;&#23481;&#22120;</span>
+</pre>
+</div></li>
+<li><code>images</code>: 查看当前主机的镜像信息</li>
+<li><code>stats</code>: 查询容器状态的统计信息，实时监控容器的运行状态</li>
+<li><code>inspect</code>: 查看镜像或容器的底层详细信息</li>
+<li><code>top</code>: 查看正在运行的指定容器中的进程运行状态</li>
+<li><code>port</code>: 查看当前的端口映射</li>
+</ul>
+<pre class="example">
+其他用于监控容器的镜像: google/cadvisor
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22">容器的导入和导出</h3>
+<div class="outline-text-3" id="text-orgheadline22">
+<div class="org-src-container">
+
+<pre class="src src-yaml">docker export  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#23481;&#22120;&#30340;&#25991;&#20214;&#31995;&#32479;&#23548;&#20986;&#20026;&#19968;&#20010;tar&#25991;&#20214;</span>
+docker import  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#19968;&#20010;tar&#25991;&#20214;&#20013;&#25171;&#21253;&#20026;&#38236;&#20687;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23">镜像的保存及装载</h3>
+<div class="outline-text-3" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-bash">docker save -o /PATH/TO/SOMEFILE.TAR NAME<span style="color: #AE81FF;">[</span>:TAG<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23558;&#19968;&#20010;&#38236;&#20687;&#20445;&#23384;&#20026;&#19968;&#20010;tar&#25991;&#20214;</span>
+docker load -i /PATH/FROM/SOMEFILE.TAR
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-2">
+<h2 id="orgheadline28"><span class="section-number-2">5</span> Dockerfile</h2>
+<div class="outline-text-2" id="text-5">
+<pre class="example">
+Dockerfile是由一系列用于根据基础镜像构建新的镜像文件的专用指令序列组成文件，用于构建新的镜像
+</pre>
+</div>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">相关术语</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+<ul class="org-ul">
+<li>指令: 选定基础镜像、安装必要的程序、复制配置文件和数据文件、自动运行的服务以及要暴露的端口等，指令一般使用 <b>大写</b></li>
+<li>换行: 使用 <code>\</code> 来将一条命令分成两行</li>
+<li>注释: 以 <code>#</code> 开头的行，必须单独位于一行中</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26">指令</h3>
+<div class="outline-text-3" id="text-orgheadline26">
+<dl class="org-dl">
+<dt>FROM指令</dt><dd><p>
+必须是第一个非注释行，用于指定所用到的基础镜像
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">FROM image[:tag][@digest]
+  <span style="color: #FD971F;">image</span>: &#25351;&#23450;&#38236;&#20687;&#25991;&#20214;
+  <span style="color: #FD971F;">tag</span>: &#25351;&#23450;&#26631;&#31614;
+  <span style="color: #FD971F;">digest</span>: &#23545;&#27604;&#26657;&#39564;&#30721;
+</pre>
+</div></dd>
+<dt>MAINTAINER指令</dt><dd><p>
+用于提供信息的指令，如作者信息，一般放在FROM之后
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">MAINTAINER QiuMP <a href="mailto:qiumupo%40qq.com">&lt;qiumupo@qq.com&gt;</a>
+</pre>
+</div></dd>
+<dt>COPY指令</dt><dd><p>
+用于从主机复制文件至正在创建的镜像文件中，其UID和GID均为0
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">COPY src... dest  
+COPY [<span style="color: #E6DB74;">"src"</span>,...,<span style="color: #E6DB74;">"dest"</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36335;&#24452;&#20013;&#26377;&#31354;&#26684;</span>
+  <span style="color: #FD971F;">src</span>: &#35201;&#22797;&#21046;&#30340;&#28304;&#25991;&#20214;&#25110;&#30446;&#24405;&#65292;&#21487;&#20197;&#20351;&#29992;&#36890;&#37197;&#31526;&#65292;&#21482;&#33021;&#25351;&#23450;&#19982;build&#21516;&#30446;&#24405;&#30340;&#25991;&#20214;
+  <span style="color: #FD971F;">dest</span>: &#38236;&#20687;&#25991;&#20214;&#31995;&#32479;&#30340;&#32477;&#23545;&#36335;&#24452;&#65292;&#25110;&#30456;&#23545;&#20110;WORKDIR&#30340;&#30456;&#23545;&#36335;&#24452;&#65292;&#33509;&#26159;&#30446;&#24405;&#21017;&#38656;&#35201;&#20197;/&#32467;&#23614;
+</pre>
+</div></dd>
+<dt>ADD指令</dt><dd><p>
+类似于COPY指令，额外还支持展开本地TAR文件，以及URL路径(下载后文件权限为600)
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ADD SRC... DEST  
+ADD [<span style="color: #E6DB74;">"SRC"</span>,...,<span style="color: #E6DB74;">"DEST"</span>]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#36335;&#24452;&#20013;&#26377;&#31354;&#26684;&#26102;&#20351;&#29992;&#35813;&#26684;&#24335;</span>
+</pre>
+</div></dd>
+<dt>ENV指令</dt><dd><p>
+定义环境变量，Dockerfile调用格式为 <code>$variable_name</code> 或 <code>${variable_name}</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ENV KEY=<span style="color: #E6DB74;">"VALUE"</span> ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#23450;&#20041;&#22810;&#20010;&#21464;&#37327;</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>ENV定义的环境变量在镜像运行的整个过程中一直存在，可以使用 <code>inspect</code> 命令查看</li>
+<li>可以在 <code>docker run</code> 启动此镜像时,使用 <code>--env</code> 选项来修改指定变量的值</li>
+</ul></dd>
+<dt>USER指令</dt><dd><p>
+指定运行镜像时或运行Dockerfile文件中的任何RUN/CMD/ENTRYPOINT指令指定的程序时的用户名或UID
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">USER uid<span style="color: #AE81FF;">[</span>:gid<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">uid&#29992;&#25143;&#24517;&#39035;&#23384;&#22312;</span>
+USER username<span style="color: #AE81FF;">[</span>:groupname<span style="color: #AE81FF;">]</span>
+</pre>
+</div></dd>
+<dt>WORKDIR指令</dt><dd><p>
+用于为Dockerfile中所有的 <code>RUN/CMD/ENTRYPOINT/COPY/ADD</code> 指令指定工作目录
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">WORKDIR /var/log
+WORKDIR $VAR
+</pre>
+</div>
+<pre class="example">
+WORDIR可出现多次，也可使用相对路径，此时表示相对于前一个WORKDIR指令指定的路径
+</pre></dd>
+<dt>VOLUME指令</dt><dd><p>
+在容器中创建一个挂载点目录映射到主机路径，默认主机路径为 <code>/var/lib/docker/volumes</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">VOLUME mount_point
+VOLUME [<span style="color: #E6DB74;">"mount_point"</span>,...]
+</pre>
+</div>
+<pre class="example">
+如果mount_point路径下事先有文件存在，容器会在卷挂载完成后将此前的文件复制到新挂载的卷中
+</pre></dd>
+<dt>RUN指令</dt><dd><p>
+用于指定 <code>docker build</code> 过程中要运行的命令,而不是docker run此dockerfile构建成的镜像时运行的命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">RUN command  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#19968;&#20010;shell&#26469;&#36816;&#34892;&#27492;&#21629;&#20196;</span>
+RUN [<span style="color: #E6DB74;">"execute"</span>,<span style="color: #E6DB74;">"param1"</span>,<span style="color: #E6DB74;">"param2"</span>,...]
+RUN [<span style="color: #E6DB74;">"/bin/bash"</span>,<span style="color: #E6DB74;">"-c"</span>,...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110; RUN command</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml">RUN yum install ... &amp;&amp; yum clean all
+</pre>
+</div></dd>
+<dt>CMD指令</dt><dd><p>
+指定在 <code>docker run</code> 时运行的默认命令或参数，会被docker run的命令行参数所覆盖
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">CMD command  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#19968;&#20010;shell&#26469;&#36816;&#34892;&#27492;&#21629;&#20196;</span>
+CMD [<span style="color: #E6DB74;">"execute"</span>,<span style="color: #E6DB74;">"param1"</span>,<span style="color: #E6DB74;">"param2"</span>,...]
+CMD [<span style="color: #E6DB74;">"param1"</span>,<span style="color: #E6DB74;">"param2"</span>,...]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20026;ENTRYPOINT&#25552;&#20379;&#40664;&#35748;&#21442;&#25968;</span>
+</pre>
+</div>
+<pre class="example">
+如果dockerfile中存在多个CMD指令，仅最后一个生效
+</pre></dd>
+<dt>ENTRYPOINT指令</dt><dd><p>
+类似于CMD指令，但不会被docker run的命令行参数所覆盖，这些命令行参数会作为参数送给 <code>ENTRYPOINT</code> 指令指定的程序
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ENTRYPOINT command  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21551;&#21160;&#19968;&#20010;shell&#26469;&#36816;&#34892;&#27492;&#21629;&#20196;</span>
+ENTRYPOINT [<span style="color: #E6DB74;">"execute"</span>,<span style="color: #E6DB74;">"param1"</span>,<span style="color: #E6DB74;">"param2"</span>,...]
+</pre>
+</div>
+<pre class="example">
+docker run的选项 --entrypoint 可以覆盖该指令
+</pre></dd>
+<dt>EXPOSE指令</dt><dd><p>
+用于为容器指定要暴露的端口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">EXPOSE port
+EXPOSE port/protocol  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25351;&#23450;tcp&#25110;udp</span>
+</pre>
+</div></dd>
+<dt>ONBUILD指令</dt><dd><p>
+当前dockerfile构建出的镜像被用作基础镜像去构建其它镜像时，ONBUILD指令指定的操作才会被执行
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ONBUILD ADD my.cnf /etc/mysql/my.cnf
+</pre>
+</div>
+<pre class="example">
+ONBUILD不能自我嵌套，且不能使用FROM和MAINTAINER指令
+</pre></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">构建镜像</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+<div class="org-src-container">
+
+<pre class="src src-bash">docker build -f PATH/Dockerfile -t NAME:tag PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">PATH&#25351;&#23450;&#23384;&#22312;Dockerfile&#30340;&#25991;&#20214;&#22841;&#65292;Dockerfile&#40664;&#35748;&#20026;&#35813;&#25991;&#20214;&#22841;&#19979;&#30340;Dockerfile&#25991;&#20214;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>

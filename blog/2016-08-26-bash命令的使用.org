@@ -1,0 +1,213 @@
+#+TITLE: Bash的使用与配置
+#+DATE: 2016-05-19
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Bash
+#+JEKYLL_TAGS: Linux Bash
+#+JEKYLL_PUBLISHED: true
+
+* 命令
+命令是让shell程序找到键入命令所对应的可执行程序或代码，并由其分析后提交给内核分配资源将其运行起来
+** 命令的种类
+- 内建命令: 由shell自带的，而且通过某命令的形式提供
+- 外部命令: 在当前系统的某文件系统路径下有对应的可执行程序文件
+#+BEGIN_SRC bash
+type COMMAND  # 查询命令的种类
+#+END_SRC
+** 命令的查询
+which和whereis用于查询外部命令的位置
+#+BEGIN_SRC yaml
+which COMMAND  # 显示第一个查询结果
+  --skip-alias: 跳过别名，常用于脚本的获取程序名
+whereis COMMAND  # 显示所有查询结果
+#+END_SRC
+** 命令的搜索与缓存
+shell程序搜寻可执行文件的路径定义在 =PATH= 环境变量中(自左向右搜寻)，同时shell搜寻到的外部命令的路径结果会缓存至内存中的kv(key-value)存储中
+#+BEGIN_SRC bash
+hash  # 查询内存中的kv储存的内容和命中次数
+hash -r  # 当外部命令的路径改变时缓存会发生错误，需要清空缓存
+#+END_SRC
+* 命令帮助
+** 获得帮助
+- 内建命令 ::
+  #+BEGIN_SRC bash
+  help COMMAND
+  #+END_SRC
+- 外部命令 ::
+  - =COMMAND --help=
+  - 使用手册(manual): =man COMMAND=
+  - 信息页: =info COMMAND=
+  - 程序自身的帮助文档(=/usr/share/doc/=): README、INSTALL、ChangeLog
+  - 程序官方网站文档: Documentation
+
+** man帮助
+*** man文档的位置
+- 手册位置: /usr/share/man
+- man命令的配置文件: /etc/man.yamlig
+  #+BEGIN_SRC yaml
+  MANPATH /PATH/TO/SOMEWHERE  # 指明新的手册文件搜索位置
+  #+END_SRC
+*** man章节
+| 章节 | 帮助种类           |
+|------+--------------------|
+| man1 | 用户命令           |
+| man2 | 系统调用           |
+| man3 | C库调用            |
+| man4 | 设备文件及特殊文件 |
+| man5 | 配置文件格式       |
+| man6 | 游戏               |
+| man7 | 杂项               |
+| man8 | 管理类的命令       |
+- 有些命令可能存在多个章节中
+*** 相关命令
+#+BEGIN_SRC yaml
+whatis COMMAND  # 查询命令存在于哪些章节
+mandb # 更新whatis数据库
+man 3 COMMAND  # 查询COMMAND(3)的手册
+#+END_SRC
+- man命令其实是使用 =less= 命令来读取文件
+*** 帮助符号说明
+- =[]=: 可选内容
+- =<>=: 必选内容
+- =a|b=: 二选一
+- =...=: 同一内容可出现多次
+
+** cheat
+用于简单查询命令使用方法的工具
+* 命令历史
+** 历史的记录和读取
+- 登录shell时，会读取历史文件中记录下的命令: =~/.bash_history=
+- 登录shell后新执行的命令只会记录在缓存中，当用户退出时才会追加至命令历史文件中
+** 查询历史
+#+BEGIN_SRC yaml
+history [NUM]  # 显示历史中最近NUM条命令
+  -a: 追加新执行的命令至历史文件中
+  -d OFFSET: 删除历史中指定的命令
+  -c: 清空历史命令
+#+END_SRC
+** 相关环境变量
+- HISTSIZE: 命令历史记录的条数
+- HISTFILESIZE: 命令历史文件记录历史的条数
+- HISTFILE: ~/.bash_history
+- HISTCONTROL: 控制命令历史的记录方式
+  - ignoredups(默认值): 忽略连续重复的指令
+  - ignorespace: 忽略所有以空白开头的命令
+  - ignoreboth: 相当于ignoredups,ignorespace
+
+** shell快捷操作
+- !#: 调用历史中第#条命令
+- !string: 调用历史中最近一个以string开头的命令
+- !!: 上条命令
+- !$: 调用上一条命令的最后一个参数(用于同个文件的操作)
+  - 也可以用 =ESC .= 来代替
+* 命令或路径的补全
+- 直接补全: 用户给定的字符串只有一条惟一对应的命令或路径，则按TAB直接补全
+- 补全列表: 对应的命令或路径不唯一，按两次TAB会给出列表
+- {}: 可承载一个以逗号分隔的列表，并将其展开为多个路径，可嵌套使用
+  #+BEGIN_SRC bash
+  touch /tmp/{a,b}_{x,y}
+  touch /tmp/{bin,sbin,usr/{bin,sbin}}
+
+  cp /etc/named.yaml{,.bak}  # 复制备份文件
+  #+END_SRC
+- {start..end}: 可以生成一个顺序列表, 但这种方式很占内存
+  #+BEGIN_SRC bash
+  touch user{1..3}  # 相当于 touch user1 user2 user3
+  #+END_SRC
+  
+* 命令的执行结果
+bash使用特殊变量 =$?= 来保存最近一条命令的执行结果
+- 0: 成功
+- 1-255: 失败
+* 命令别名(alias)
+#+BEGIN_SRC bash
+alias  # 显示当前shell进程所有可用的命令别名
+alias NAME='VALUE'  # 定义命令别名NAME
+#+END_SRC
+#+BEGIN_SRC yaml
+unalias [-a] name...  # 撤销别名
+  -a: 撤销所有别名
+#+END_SRC
+- 如果要永久生效需要写入bash配置文件中
+- 如果要忽略别名执行原命令的话，可使用 =\COMMAND=
+
+* glob
+glob用于在bash中实现文件名"通配"
+- 通配符 ::
+  - =*=: 任意长度的任意字符，包含空
+  - =?=: 任意单个字符
+  - =[]=: 匹配指定范围内的任意单个字符
+    : 由于字符顺序是按照aAbB(根据locale和LC_COLLATE变量决定的)的排列，所以[a-z]是除Z外的字母都匹配
+  - =[^]=: 匹配制定范围外的任意单个字符
+- 专用字符集合 ::
+  | [:digit:] | 任意数字       |
+  | [:lower:] | 任意小写字母   |
+  | [:upper:] | 任意大写字母   |
+  | [:alpha:] | 任意大小写字母 |
+  | [:alnum:] | 任意数字或字母 |
+  | [:space:] | 任意空白字符   |
+  | [:punct:] | 标点符号       |
+
+* bash的快捷键
+| 快捷键 | 作用                                               |
+|--------+----------------------------------------------------|
+| Ctrl+L | 清屏，相当于clear命令                              |
+| Ctrl+A | 跳转至命令开始处                                   |
+| Ctrl+E | 跳转至命令结尾处                                   |
+| Ctrl+C | 取消前台进程命令的执行                             |
+| Ctrl+U | 删除光标所在处至行首的所有内容                     |
+| Ctrl+K | 删除光标所在处至行尾的所有内容                     |
+| Ctrl+R | 输入关键字搜索命令历史，再按Ctrl+R则继续搜索上一个 |
+* I/O重定向及管道
+** 文件描述符
+每个打开的文件都会有一个fd: file descripter(文件描述符)
+- 默认存在的文件描述符 ::
+  - 标准输入: keyborad, 0
+  - 标准输出: monitor, 1
+  - 标准错误输出: monitor, 2
+** I/O重定向
+*** 输出重定向
+  - =>=: 覆盖重定向标准输出
+    : 禁止将内容覆盖输出至已有文件中: set -C (恢复是 set +C )
+    : >|: 强制覆盖重定向
+  - =>>=: 追加重定向标准输出
+  - =2>=: 覆盖重定向错误输出
+  - =2>>=: 追加重定向错误输出
+  - =&>=: 覆盖重定向合并标准输出和错误输出
+    - 也可以使用 =2>&1=
+  - =&>>=: 追加重定向合并标准输出和错误输出
+*** 输入重定向
+  - =<file=: 标准输入使用file
+  - =<<EOF=: 读取你的输入至EOF行
+    #+BEGIN_SRC bash
+    cat >> FILE << EOF  # 用于快速新建文件
+    #+END_SRC
+*** 特殊设备
+- =/dev/null=: 丢弃数据的设备
+- =/dev/zero=: 产生0的设备
+- =/dev/random=: 仅从熵池返回随机数；随机数用尽，则会阻塞
+- =/dev/urandom=: 从熵池返回随机数；随机数用尽，会利用软件生成伪随机数
+** 管道
+使用 =|= 来连接命令，将前一个命令的标准输出当作后一个命令的输入
+
+* bash的配置文件
+** 配置文件的类型
+- 按生效范围划分 ::
+  - 全局配置: =/etc/profile= , =/etc/profile.d/*.sh= , =/etc/bashrc=
+  - 个人配置: =~/.bash_profile= , =~/.bashrc=
+- 按功能划分 ::
+  - profile类: 为交互式登录的shell提供配置，用于定义环境变量和执行脚本
+  - bashrc类: 为非交互式登录的shell提供配置，用于定义本地变量和命令别名
+** shell登录过程
+- 交互式登录 ::
+  - 直接通过终端输入账号密码登录
+  - 使用 =su - NAME= 切换用户
+  - 读取配置文件的顺序: =/etc/profile= > =/etc/profile.d/*.sh= > =~/.bash_profile= > =~/.bashrc= > =/etc/bash=
+- 非交互式登录 ::
+  - 使用 =su NAME= 切换用户
+  - 图形界面下打开的终端
+  - 执行脚本的时候
+  - 读取配置文件: =~/.bashrc= > =/etc/bashrc= > =/etc/profile.d/*.sh=
+** 载入配置文件的方式
+1. 重新启动shell进程
+2. 使用 =source= 或 =.= 命令载入配置(脚本中也可用)

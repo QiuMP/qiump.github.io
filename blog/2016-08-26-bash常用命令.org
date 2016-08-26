@@ -1,0 +1,162 @@
+#+TITLE: Bash常用命令
+#+DATE: 2016-05-23
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Bash
+#+JEKYLL_TAGS: Linux Bash
+#+JEKYLL_PUBLISHED: true
+
+
+* echo
+用于回显命令
+#+BEGIN_SRC yaml
+echo [OPTIONS] "$VAR_NAME"
+  -n: 禁止自动添加换行符号
+  -e: 允许使用转义符
+#+END_SRC
+#+BEGIN_SRC bash
+cat << EOF  # 使用cat来简化输出多行
+yesfdsfdf
+fdfsdfssfer
+EOF   # 定义的结束符
+#+END_SRC
+
+* watch
+重复运行某命令并输出结果
+#+BEGIN_SRC yaml
+watch 'COMMAND'
+  -n num: 刷新间隔
+#+END_SRC
+
+  
+* 日期与时间
+** 日历
+#+BEGIN_SRC bash
+cal  # 查询日历
+#+END_SRC
+** 系统时间
+#+BEGIN_SRC yaml
+date [OPTION]... [+FORMAT]  # 显示时间
+  FORMAT: 
+    %F\ %T: 日期 时间
+    %Y%m%d%H%M%S: YYMMDDhhmmss
+    
+date [MMDDhhmm[[CC]YY][.ss]]  # 设置时间
+  CCYY: 是四位年份
+#+END_SRC
+** 硬件时间
+硬件时间是主板BIOS记录的时间，而系统时间是根据与该时间的差值计算出来的
+#+BEGIN_SRC bash
+hwclock [-sw]  # 显示硬件时间
+  -s 相当于 --hctosys 
+  -w 相当于 --systohc
+#+END_SRC
+
+* 系统管理
+** 系统资源控制limit
+*** 配置文件
+配置文件: =/etc/security/limits.conf=, =/etc/security/limits.d/*=
+- 语法格式 ::
+  #+BEGIN_SRC yaml
+  domain  type  item  value
+    domain: username、@group、*(所有用户)
+
+    type: 限制方式
+      soft: 软限制，用户可修改，不能超过硬限制
+      hard: 硬限制，用户不可超过
+      -: 二者同时限定
+
+    item: 限制资源的类型
+      nofile: 所能够同时打开的最大文件数量
+      nproc: 所能够同时运行的最大进程数量
+      msqqueue: 使用的POSIX消息队列能够占用的最大内存空间
+      sigpending: 所能够使用的最大信号数量
+  #+END_SRC
+*** ulimit
+ulimit是一个内建命令，用于查询或设置当前的资源限制
+  #+BEGIN_SRC yaml
+  ulimit [OPTIONS] [NUM] 
+    -n: 文件数量
+    -u: 进程数量
+    
+    -H: 设置硬限制(默认为软限制)
+    -SH: 同时设置软限制和硬限制
+  #+END_SRC
+** 关机和重启
+- =reboot=, =halt=, =poweroff= 都会通过调用shutdown来使用
+  #+BEGIN_SRC yaml
+  shutdown [OPTION]... TIME [MESSAGE]
+    -r: reboot
+    -h: halt
+    -c: cancel
+    TIME: now: 立刻
+          +m: 相对时间
+          hh:mm: 绝对时间
+  #+END_SRC
+** 用户登录信息
+- =whoami=: 显示当前登录有效用户
+- =who=: 系统当前所有的登录会话
+- =w=: 系统当前所有的登录会话及所做的操作
+- =last=: 显示所有用户成功的登录历史
+- =lastb=: 显示所有用户失败的登录历史
+- =lastlog=: 显示每个用户的最后一次登录时间
+** uname
+用于打印系统信息
+#+BEGIN_SRC yaml
+uname [OPTION]...
+  -n: 显示主机名称
+  -r: 显示VERSION-RELEASE
+#+END_SRC
+* 管道命令
+** tee
+将标准输入输出到标准输出和文件
+#+BEGIN_SRC bash
+tee [OPTION]... [FILE]...  # 文件前不需要加重定向
+#+END_SRC
+** xargs
+将标准输入变成为命令的参数
+#+BEGIN_SRC yaml
+$xargs [OPTIONS] 命令 
+  -0: 将特殊字符还原成一般字符，如\,`,空格等
+  -e'字符串': 遇到字符串则停止
+  -p: 每次执行命令的参数时, 都会询问用户
+  -n: 每次命令要使用多少个参数
+
+  命令: 若命令为空, 则默认为echo
+#+END_SRC
+
+* 网络命令
+** 协议查看或分析工具
+tcpdump, tshark, wireshark
+
+** curl
+:    curl是基于URL语法在命令行方式下工作的文件传输工具，它支持FTP、FTPS、HTTP、HTTPS、GOPHER、TELNET、DICT、FILE及LDAP等协议。curl支持HTTPS认证，并且支持HTTP的POST、PUT等方法，FTP上传，kerberos认证，HTTP上传，代理服务器，cookies，用户名/密码认证，下载文件断点续传，上载文件断点续传、http代理服务器管道（proxy tunneling），甚至它还支持IPv6，socks5代理服务器，通过http代理服务器上传文件到FTP服务器等等，功能十分强大。
+#+BEGIN_SRC yaml
+curl [OPTIONS] [URL...]
+  -A/--user-agent STRING: 设置用户代理发送给服务器
+  -e/--referer URL: 模拟来源网址
+  -H/--header LINE: 自定义首部信息传递给服务器
+  -I/--head: 只显示响应报文首部信息(HEAD报文)
+  --compressed:  要求返回是压缩的格式
+  --limit-rate RATE: 设置传输速度
+
+  --cacert FILE: CA证书(SSL)
+  --tcp-nodelay: 使用TCP_NODELAY选项，TCP延迟能够合并多个请求进行处理，但会有延迟时间
+
+  --basic: 使用HTTP基本认证(basic认证)
+  -u/--user USER[:PASSWORD]: 设置服务器的用户和密码
+
+  -0/--http1.0: 使用HTTP 1.0	
+#+END_SRC
+** wget
+非交互式网络下载器
+#+BEGIN_SRC yaml
+wget [option]... [URL]...
+  -q: 静默模式
+  -c: 使用断点续传
+  -i FILE: 从文件中获取多个URL地址
+  -O PATH: 保存位置
+  --limit-rates=: 指定传输速率
+#+END_SRC
+** TODO axel
+支持断点续传和多线程下载

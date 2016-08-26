@@ -1,0 +1,192 @@
+---
+title: "Linux压缩与归档"
+date: 2016-05-18
+layout: post
+categories: 
+- Linux管理
+tags: 
+- Linux
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. 常见的压缩工具</a></li>
+<li><a href="#orgheadline2">2. 常见的归档工具</a></li>
+<li><a href="#orgheadline3">3. gzip/gunzip</a></li>
+<li><a href="#orgheadline4">4. bzip2/bunzip2</a></li>
+<li><a href="#orgheadline5">5. xz/unxz</a></li>
+<li><a href="#orgheadline6">6. zip/unzip</a></li>
+<li><a href="#orgheadline7">7. tar</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> 常见的压缩工具</h2>
+<div class="outline-text-2" id="text-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">压缩工具</th>
+<th scope="col" class="org-left">后缀名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">compress/uncompress</td>
+<td class="org-left">.z</td>
+</tr>
+
+<tr>
+<td class="org-left">gzip/gunzip</td>
+<td class="org-left">.gz</td>
+</tr>
+
+<tr>
+<td class="org-left">bzip2/bunzip2</td>
+<td class="org-left">.bz2</td>
+</tr>
+
+<tr>
+<td class="org-left">xz/unxz</td>
+<td class="org-left">.xz</td>
+</tr>
+
+<tr>
+<td class="org-left">zip/unzip</td>
+<td class="org-left">.zip</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> 常见的归档工具</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+tar, cpio, zip
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3"><span class="section-number-2">3</span> gzip/gunzip</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+
+<pre class="src src-yaml">gzip [OPTION]... FILE ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#40664;&#35748;&#21387;&#32553;&#21518;&#20250;&#21024;&#38500;&#21407;&#25991;&#20214;</span>
+  <span style="color: #FD971F;">-d</span>: &#35299;&#21387;&#32553;&#65292;&#30456;&#24403;&#20110;gunzip
+  <span style="color: #FD971F;">-c</span>: &#23558;&#32467;&#26524;&#36755;&#20986;&#33267;&#26631;&#20934;&#36755;&#20986;, &#21487;&#29992;&#20110;&#37325;&#23450;&#21521;
+  <span style="color: #FD971F;">-NUM</span>: &#25351;&#23450;&#21387;&#32553;&#27604;(&#40664;&#35748;&#26159;6)
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">zcat FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#26174;&#24335;&#23637;&#24320;&#30340;&#21069;&#25552;&#19979;&#26597;&#30475;&#25991;&#26412;&#25991;&#20214;&#20869;&#23481;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">4</span> bzip2/bunzip2</h2>
+<div class="outline-text-2" id="text-4">
+<div class="org-src-container">
+
+<pre class="src src-yaml">bzip2 [OPTION]... FILE ...
+  <span style="color: #FD971F;">-k</span>: keep, &#20445;&#30041;&#21407;&#25991;&#20214;
+  <span style="color: #FD971F;">-d</span>: &#35299;&#21387;&#32553;, &#30456;&#24403;&#20110;bunzip2
+  <span style="color: #FD971F;">-NUM</span>: &#21387;&#32553;&#27604;(&#40664;&#35748;&#20026;6)
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">bzcat FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#26174;&#24335;&#23637;&#24320;&#30340;&#21069;&#25552;&#19979;&#26597;&#30475;&#25991;&#26412;&#25991;&#20214;&#20869;&#23481;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5"><span class="section-number-2">5</span> xz/unxz</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+xz的压缩比高
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">xz [OPTION]... FILE ...
+  <span style="color: #FD971F;">-k</span>: keep, &#20445;&#30041;&#21407;&#25991;&#20214;
+  <span style="color: #FD971F;">-d</span>: &#35299;&#21387;&#32553;, &#30456;&#24403;&#20110;unxz
+  <span style="color: #FD971F;">-NUM</span>: &#21387;&#32553;&#27604;(&#40664;&#35748;&#20026;6)
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">xzcat FILE  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#26174;&#24335;&#23637;&#24320;&#30340;&#21069;&#25552;&#19979;&#26597;&#30475;&#25991;&#26412;&#25991;&#20214;&#20869;&#23481;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">6</span> zip/unzip</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+同时支持压缩和打包
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">zip [OPTION]... FILENAME DIRECTORY/*  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21387;&#32553;&#30446;&#24405;</span>
+  <span style="color: #FD971F;">-d</span>: &#29992;&#20110;&#21024;&#38500;&#37324;&#36793;&#30340;&#25991;&#20214;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">unzip FILENAME  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35299;&#21387;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">7</span> tar</h2>
+<div class="outline-text-2" id="text-7">
+<div class="org-src-container">
+
+<pre class="src src-yaml">tar [OPTION]... FILE
+<span style="color: #FD971F;">-c</span>: &#21019;&#24314;&#24402;&#26723;&#25991;&#20214;  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#19981;&#20250;&#21024;&#38500;&#21407;&#25991;&#20214;</span>
+<span style="color: #FD971F;">-t</span>: &#26597;&#30475;&#24402;&#26723;&#25991;&#20214;&#21015;&#34920;
+<span style="color: #FD971F;">-x</span>: &#23637;&#24320;&#24402;&#26723;&#25991;&#20214;
+
+<span style="color: #FD971F;">-f FILENAME</span>: &#25351;&#23450;&#24402;&#26723;&#25991;&#20214;
+<span style="color: #FD971F;">-C PATH</span>: &#25351;&#23450;&#23637;&#24320;&#30446;&#24405;(&#40664;&#35748;&#20026;&#24403;&#21069;&#30446;&#24405;)
+
+<span style="color: #FD971F;">-z</span>: gzip
+<span style="color: #FD971F;">-j</span>: bzip2
+<span style="color: #FD971F;">-J</span>: xz  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#21644;&#23637;&#24320;&#26102;&#21487;&#20197;&#30465;&#30053;</span>
+</pre>
+</div>
+<p>
+常用命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">tar -czf /PATH/FILE.tar.gz FILE...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21019;&#24314;&#24402;&#26723;&#25991;&#20214;</span>
+tar -tf /PATH/FILE.tar.bz2  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#24402;&#26723;&#25991;&#20214;&#21015;&#34920;</span>
+tar -xf /PATH/FILE.tar.xz -C /PATH  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#23637;&#24320;&#24402;&#26723;&#25991;&#20214;</span>
+</pre>
+</div>
+</div>
+</div>

@@ -1,0 +1,374 @@
+#+TITLE: Bash脚本编程
+#+DATE: 2016-05-22
+#+SETUPFILE: ~/myblog/setupfile.org
+#+JEKYLL_LAYOUT: post
+#+JEKYLL_CATEGORIES: Bash
+#+JEKYLL_TAGS: Linux Bash 编程语言
+#+JEKYLL_PUBLISHED: true
+
+
+* 弱类型与强类型
+- 强类型: 定义变量时必须指定类型、参与运算必须符合类型要求；调用未声明变量会产生错误
+- 弱类型: 无须指定类型，默认均为字符型；参与运算会自动进行隐式类型转换；变量无须事先定义可直接调用
+- bash是一种弱类型语言，把所有要存储的数据都当作字符进行，同时不支持浮点数
+* Shell脚本的执行
+- Shell编程: 过程式、解释执行
+- 脚本文件要直接运行需要添加 =x= 权限，或直接运行解释器进行执行
+* 检查和调试脚本
+#+BEGIN_SRC yaml
+bash -n SCRIPT  # 检测脚本中的语法错误
+bash -x SCRIPT  # 调试执行脚本
+  # 行头+代表层数
+#+END_SRC
+
+* shebang
+- shebang是脚本文件第一行(=#!/bin/bash=)，用于指明执行脚本的解释器，
+- 内核通过文件前几个字节的魔数(magic number)来识别文件执行类型然后打开
+* 脚本状态码
+#+BEGIN_SRC bash
+exit [n]  # 终止脚本，退出码为n(默认为0)
+#+END_SRC
+- 如果未给脚本指定退出状态码，整个脚本的退出状态码取决于脚本中执行的最后一条命令的状态码
+* 用户交互
+#+BEGIN_SRC yaml
+read [option]... [name ...] 
+  -p 'PROMPT': 显示交互信息
+  -t TIMEOUT: 等待时间
+
+  name ...: read会对输入的字符串以空格进行分隔来对位赋值，剩余部分会赋给最后一个参数
+#+END_SRC
+* 选择执行语句
+- if ::
+  #+BEGIN_SRC bash
+  if COMMAND1
+  then
+      # COMMAND1成功后执行的代码
+  elif COMMAND2; then  # 可以写在一行
+      # COMMAND1失败且COMMAND2成功后执行的代码
+  else
+      # COMMAND1和COMMAND2都失败后执行的代码
+  fi  # if结束标志
+  #+END_SRC
+- case ::
+  #+BEGIN_SRC bash
+  case 变量引用 in
+  glob1)  # 可使用 glob 风格通配符
+      分支1
+      ;;  # 终止符
+  glob2|glob3)  # 使用|来匹配多个glob
+      分支2
+      ;;
+  ...
+  *)
+      默认分支
+      ;;
+  esac
+  #+END_SRC
+  - case语句只执行第一次成功匹配的分支
+* 循环执行语句
+- for ::
+  - 列表式
+    #+BEGIN_SRC bash
+    for 变量名 in 列表; do
+        循环体
+    done
+    # 依次将列表中的元素赋值给"变量名"; 每次赋值后即执行一次循环体; 直到列表中的元素耗尽，循环结束
+    #+END_SRC
+    #+BEGIN_EXAMPLE
+    列表生成方式
+      1. 直接给出列表
+      2. 整数列表
+        1. {start..end}
+        2. $(seq [start [step]] end) 
+      3. 返回列表的命令
+      4. 文件名通配glob, 会展开文件名列表
+      5. 变量引用, 例如$@、$*
+    #+END_EXAMPLE
+  - C风格式
+    #+BEGIN_SRC bash
+    for ((控制变量初始化;条件判断表达式;控制变量的修正表达式)); do
+        循环体
+    done
+    #+END_SRC
+    - 控制变量初始化：仅在运行到循环代码段时执行一次
+    - 控制变量的修正表达式：每轮循环结束会先进行控制变量修正运算，而后再做条件判断
+
+- while ::
+  #+BEGIN_SRC bash
+  while COMMAND; do  # 当COMMAND为真的时候, 重复执行循环体直至COMMAND为假
+      循环体
+  done
+  #+END_SRC
+  #+BEGIN_SRC bash
+  while read line; do  # 特殊用法: 遍历文件的每一行
+      循环体
+  done < FILE
+  #+END_SRC
+
+- until :: 
+  #+BEGIN_SRC bash
+  until COMMAND; do  # 当COMMAND为假的时候, 重复执行循环体直至COMMAND为真
+      循环体
+  done
+  #+END_SRC
+- 循环控制语句 ::
+  - =continue [N]=: 提前结束第N层的本轮循环，直接进入下一轮判断
+  - =break [N]=: 提前结束第N层的循环
+    - 在死循环(=while true=)中使用break来控制循环
+* 函数
+- 函数有两种风格的写法，同时函数只有被调用才会执行
+#+BEGIN_SRC bash
+function f_name {
+    ...
+    echo $result  # 用于作为函数的输出值
+    return 0  # 用于返回函数退出状态码，若省略则返回最后一个命令的结果，范围是0-255
+}
+#+END_SRC
+#+BEGIN_SRC bash
+f_name() {
+    ...
+}
+#+END_SRC
+- 函数的返回值
+  - 函数的输出值: 通过echo或print进行输出来作为函数输出值，可以通过使用命令引用来取得
+  - 函数退出状态码：通过return或最后一条命令的退出状态码，通过 =$?= 取得
+- 在函数中，可以像脚本传递参数那样使用其参数，因此不可使用外边脚本的特殊参数
+
+* bash变量
+** 变量的类型与生效范围
+- 本地变量: 生效范围为当前shell进程，对当前shell之外的其它shell进程，包括当前shell的子shell进程均无效
+- 环境变量: 生效范围为当前shell进程及其子进程数
+- 局部变量: 生效范围为当前shell进程中某代码片断(通常指函数)
+- 位置变量: =$0=, =$1=, =$2=, ...来表示，用于让脚本在脚本代码中调用通过命令行传递给它的参数
+- 特殊变量: =$?=, =$*=, =$@=, =$#=, =$$(UID)=, =$!(PID)=
+** 本地与环境变量
+*** 变量的赋值
+#+BEGIN_SRC bash
+# 本地变量
+name="value: $val"  # 直接赋值字符串
+name=`COMMAND`  # 命令引用
+name=$(COMMAND)  # 命令引用
+name=func()  # 引用函数输出
+
+# 环境变量
+export name=VALUE
+declare -x name=VALUE
+#+END_SRC
+
+*** 变量的引用
+- 变量引用方式: =$name=, =${name}=
+- 字符串中的变量引用
+  - 双引号: 弱引用，其中的变量引用会被替换为变量值
+  - 单引号: 强引用，其中的变量引用不会被替换为变量值，而保持原字符串
+
+*** 变量的查询
+#+BEGIN_SRC bash
+set  # 显示定义的所有变量
+export  # 显示所有环境变量
+env  # 显示所有环境变量
+printenv   # 显示所有环境变量
+#+END_SRC
+
+*** 变量的删除
+#+BEGIN_SRC bash
+unset name  # 删除变量
+#+END_SRC
+  
+** 局部变量
+- 在函数中定义局部变量，函数结束的时候该变量会被销毁
+- 如果局部变量名称本地变量相同，则本地变量在函数内会被隐藏
+#+BEGIN_SRC bash
+function f_name {
+    local NAME=VALUE  # 该变量只在函数内生效
+}
+#+END_SRC
+** 只读变量
+- 只读变量不能被修改或销毁
+- 只读变量可以声明为本地变量或环境变量，也可以将已有的变量转换为只读变量
+#+BEGIN_SRC bash
+readonly name
+declare -r name
+#+END_SRC
+
+** 位置变量
+- 在脚本代码中调用通过命令行传递给脚本的参数
+  | $1, $2, ... | 对应调用的第n个参数                               |
+  | $0          | 命令本身                                          |
+  | $*          | 传递给脚本的所有参数(用IFS分隔符分割的一个字符串) |
+  | $@          | 传递给脚本的所有参数(每个参数都是独立的列表)      |
+  | $#          | 传递给脚本的参数的个数                            |
+
+#+BEGIN_SRC bash
+shift [n]  # 参数删除前面n个，会影响所有位置变量
+#+END_SRC
+* bash数组
+** 引用数组
+#+BEGIN_SRC bash
+echo ${ARRAY_NAME[INDEX]}  # 若下标省略则引用下标为0的元素
+echo ${ARRAY[@]} ${ARRAY[*]}  # 引用数组的所有元素
+echo ${ARRAY[@]:offset:number}  # 跳过offset个元素后取出number个元素(number可以省略)
+#+END_SRC
+** 声明数组
+#+BEGIN_SRC bash
+declare -a ARRAY_NAME  # 普通数组，下标从0开始
+declare -A ARRAY_NAME  # 关联数组，下标引可以自定义
+#+END_SRC
+** 数组元素的赋值
+- 一次只赋值一个元素
+  #+BEGIN_SRC bash
+  ARRAY_NAME[INDEX]=VALUE
+  #+END_SRC
+- 一次赋值全部元素
+  #+BEGIN_SRC bash
+  ARRAY_NAME=("VAL1" "VAL2" ...)
+  files=(/var/log/*.log)  # 通过glob来生成数组
+  #+END_SRC
+- 只赋值特定元素
+  #+BEGIN_SRC bash
+  ARRAY_NAME=([0]="VAL1" [3]="VAL2" ...)  # 创建稀疏格式数组
+  ARRAY_NAME=([abc]="VAL1" [fdc]="VAL2" ...)  # 创建关联数组
+  #+END_SRC
+- 读取用户输入
+  #+BEGIN_SRC bash
+  read -a ARRAY
+  #+END_SRC
+- 追加元素
+  #+BEGIN_SRC bash
+  ARRAY[${#ARRAY[*]}]=VALUE  # 追加至数组末尾
+  #+END_SRC
+** 读取数组的长度
+#+BEGIN_SRC bash
+echo ${#ARRAY[*]}
+echo ${#ARRAY[@]}
+#+END_SRC
+
+* bash字符串处理
+** 子符串切片
+| ${str:offset:number} | 跳过offset个字符后取出number个字符(可省略number) |
+| ${str: -length}      | 取出右侧length个字符(注意空格)                   |
+** 基于glob取子串
+| ${str#glob}  | 自左向右的删除glob的第一次最短匹配 |
+| ${str##glob} | 自左向右的删除glob的第一次最长匹配 |
+| ${str%glob}  | 自右向左的删除glob的第一次最短匹配 |
+| ${str%%glob} | 自右向左的删除glob的第一次最长匹配 |
+
+
+#+BEGIN_SRC bash
+str=${str##*word}  # 删除字符串开头到最后一次word匹配的字符
+str=${str%%word*}  # 删除第一次word匹配到字符串末尾
+#+END_SRC
+** 查找替换(最长匹配)
+| ${str/glob/substr}  | 用substr替换第一次被glob匹配到的字符串(/substr省略则为删除) |
+| ${str//glob/substr} | 用substr替换所有能被glob匹配到的字符串(/substr省略则为删除) |
+| ${str/#glob/substr} | 用substr替换行首被glob匹配到的字符串(/substr省略则为删除)   |
+| ${str/%glob/substr} | 用substr替换行尾被glob匹配到的字符串(/substr省略则为删除)   |
+** 大小写转换
+| ${var^^} | 把var中的所有小写字母转换为大写 |
+| ${var,,} | 把var中的所有大写字母转换为小写 |
+** 变量赋值
+| ${var-value}      | 如果var未设置，那么返回value；否则，则返回var的值                     |
+| ${var=value}      | 如果var未设置，那么返回value，并将value赋值给var；否则，则返回var的值 |
+| ${var+value}      | 如果var已设置，则返回value                                            |
+| ${var?error_info} | 如果var未设置，那么输出错误error_info；否则，则返回var的值            |
+- 若在 =-=+?= 前加上冒号 =:= ，那么空变量会视为未设置，默认空变量被视为已设置
+
+* bash中的算术计算
+** 计算命令
+#+BEGIN_SRC bash
+declare -i name=NUM  # 定义name为整形数据, 则后边的赋值计算中的let可以省略
+let var=EXPRESSION
+var=$[EXPRESSION]
+var=$((EXPRESSION))
+var=$(expr arg1 arg2 arg3)  # 某些符号需要进行转义
+#+END_SRC
+- bash有内建的随机数生成器: $RANDOM
+** 运算符号
+- 基本运算符号: =+= , =-= , =*= , =/= , =%= , =**=
+- 增强型赋值: =+== , =-== , =*== , =/== , =%==
+- 自增与自减: =var++= , =var--=
+* bash的条件测试
+** 测试命令
+用于测试表达式的结果
+#+BEGIN_SRC bash
+test EXPRESSION
+[ EXPRESSION ]  # EXPRESSION前后必须有空白字符
+[[ EXPRESSION ]]
+#+END_SRC
+** 测试符号
+*** 数值测试
+| -gt | greater than  |
+| -ge | greater equal |
+| -eq | equal         |
+| -ne | not equal     |
+| -lt | less than     |
+| -le | less equal    |
+*** 字符串测试 
+| ==          | 等于                                                                  |
+| >           | 大于                                                                  |
+| <           | 小于                                                                  |
+| !=          | 不等于                                                                |
+| =~          | 左侧字符串是否能够被右侧的PATTERN(不需要用引号)部分匹配，用于双括号中 |
+| -z "STRING" | 测试字符串是否为空，空则为真，不空则为假                              |
+| -n "STRING" | 测试字符串是否不空，不空则为真，空则为假                              |
+- 注意: 用于字符串比较时的用到的操作数都应该使用引号
+*** 文件测试
+- 存在性测试
+  | -e FILE | 文件存在性测试，存在为真，否则为假 |
+  | -b FILE | 是否存在且为块设备文件             |
+  | -c FILE | 是否存在且为字符设备文件           |
+  | -d FILE | 是否存在且为目录文件               |
+  | -f FILE | 是否存在且为普通文件               |
+  | -p FILE | 是否存在且为命名管道文件           |
+  | -L FILE | 是否存在且为符号链接文件           |
+  | -S FILE | 是否存在且为套接字文件             |
+- 文件权限测试(不适用于root)
+  | -r FILE | 是否存在且可读             |
+  | -w FILE | 是否存在且可写             |
+  | -x FILE | 是否存在且可执行           |
+  | -O FILE | 当前有效用户是否为文件属主 |
+  | -G FILE | 当前有效用户是否为文件属组 |
+- 文件特殊权限测试
+  | -g FILE | 是否存在且拥有sgid权限   |
+  | -u FILE | 是否存在且拥有suid权限   |
+  | -k FILE | 是否存在且拥有sticky权限 |
+- 文件其他测试
+  | -s FILE | 是否存且非空                           |
+  | -t fd   | 文件描述符fd是否已经打开且与某终端相关 |
+  | -N FILE | 文件自动上一次被读取之后是否被修改过   |
+- 双目测试
+  | FILE1 -ef FILE2 | FILE1与FILE2是否指向同一个设备上的相同inode |
+  | FILE1 -nt FILE2 | FILE1是否新于FILE2                          |
+  | FILE1 -ot FILE2 | FILE1是否旧于FILE2                          |
+** 组合条件
+- 命令组合 ::
+  - =COMMAND && COMMAND=: 第一个命令结果为false的话，则不会运行下一个
+  - =COMMAND || COMMAND=: 第一个命令结果为true的话，则不会运行下一个
+  - =! COMMAND=: 将后边所接的命令结果取反
+- 条件组合 ::
+  - =EXPRESSION -a EXPRESSION=: 与
+  - =EXPRESSION -o EXPRESSION=: 或
+  - =! \(EXPRESSION\)=: 非
+
+* bash输出的字体颜色
+- 字体颜色 ::
+  #+BEGIN_SRC bash
+  echo -e "\033[30m 黑色字 \033[0m" 
+  echo -e "\033[31m 红色字 \033[0m" 
+  echo -e "\033[32m 绿色字 \033[0m" 
+  echo -e "\033[33m 黄色字 \033[0m" 
+  echo -e "\033[34m 蓝色字 \033[0m" 
+  echo -e "\033[35m 紫色字 \033[0m" 
+  echo -e "\033[36m 天蓝字 \033[0m" 
+  echo -e "\033[37m 白色字 \033[0m"
+  #+END_SRC
+- 字体背景色 ::
+  #+BEGIN_SRC bash
+  echo -e "\033[40;37m 黑底白字 \033[0m" 
+  echo -e "\033[41;37m 红底白字 \033[0m" 
+  echo -e "\033[42;37m 绿底白字 \033[0m" 
+  echo -e "\033[43;37m 黄底白字 \033[0m" 
+  echo -e "\033[44;37m 蓝底白字 \033[0m" 
+  echo -e "\033[45;37m 紫底白字 \033[0m" 
+  echo -e "\033[46;37m 天蓝底白字 \033[0m" 
+  echo -e "\033[47;30m 白底黑字 \033[0m"
+  #+END_SRC

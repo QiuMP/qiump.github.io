@@ -1,0 +1,174 @@
+---
+title: "TODO OpenStack"
+date: 2016-08-10
+layout: post
+categories: 
+- 虚拟化
+tags: 
+- Linux 
+- 虚拟化
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">1. OpenStack</a>
+<ul>
+<li><a href="#orgheadline1">云计算服务</a></li>
+<li><a href="#orgheadline2">组件</a></li>
+<li><a href="#orgheadline3">多结点构架</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">1</span> OpenStack</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>一般使用一个网域用于控制节点来控制服务器，另一个网域用于服务器间的通讯和与外部的通讯</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">云计算服务</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>按照用途分类
+<ul class="org-ul">
+<li>私有云</li>
+<li>公有云</li>
+<li>混合云</li>
+</ul></li>
+<li>按照功能分类
+<ul class="org-ul">
+<li>IaaS: Infrastructure as a Service，需要配置应用、环境、安全、数据库
+<ul class="org-ul">
+<li>使用OpenStack、CloudStack</li>
+</ul></li>
+<li>PaaS: Platform as a Service，只需要部署应用
+<ul class="org-ul">
+<li>使用Docker、Openshift</li>
+</ul></li>
+<li>Saas: Software as a Service，直接调用即可</li>
+<li>DBaaS: 提供数据库服务</li>
+<li>FWaaS: 防火墙服务</li>
+<li>NCaaS: 网络连接服务</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">组件</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">组件名</th>
+<th scope="col" class="org-left">代码名</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Compute</td>
+<td class="org-left">Nova</td>
+<td class="org-left">管理VM的整个生命周期，主要职责包括启动、调度VMs</td>
+</tr>
+
+<tr>
+<td class="org-left">Networking</td>
+<td class="org-left">Netron</td>
+<td class="org-left">为Openstack提供NCaaS的功能；插件化设计，支持众多流行的网络管理插件</td>
+</tr>
+
+<tr>
+<td class="org-left">Object Storage</td>
+<td class="org-left">swift</td>
+<td class="org-left">分布式存储，基于RESTful的API实现非结构化数据对象的存储及检索</td>
+</tr>
+
+<tr>
+<td class="org-left">Block Storage</td>
+<td class="org-left">Cinder</td>
+<td class="org-left">为VMs提供持久的块存储能力</td>
+</tr>
+
+<tr>
+<td class="org-left">Identity</td>
+<td class="org-left">Keystone</td>
+<td class="org-left">为Openstack中的所有服务提供了认证、授权以及端点编录目录</td>
+</tr>
+
+<tr>
+<td class="org-left">Image</td>
+<td class="org-left">Glance</td>
+<td class="org-left">用于存储和检索swift中的磁盘映像文件</td>
+</tr>
+
+<tr>
+<td class="org-left">Dashboard</td>
+<td class="org-left">Horizon</td>
+<td class="org-left">WebGUI</td>
+</tr>
+
+<tr>
+<td class="org-left">Telemetry</td>
+<td class="org-left">Ceilometer</td>
+<td class="org-left">用于实现监控和计量服务的实现</td>
+</tr>
+
+<tr>
+<td class="org-left">Orachestration</td>
+<td class="org-left">Heat</td>
+<td class="org-left">用于多组件联动，基于模板进行管理</td>
+</tr>
+
+<tr>
+<td class="org-left">Database</td>
+<td class="org-left">Trove</td>
+<td class="org-left">提供DBaaS服务的实现</td>
+</tr>
+
+<tr>
+<td class="org-left">Data processing</td>
+<td class="org-left">sahara</td>
+<td class="org-left">用于在OpenStack中实现Hadoop的管理</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">多结点构架</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+两结点构架
+</p>
+<ul class="org-ul">
+<li>Controller Node: 管理接口</li>
+<li>Compute Node: 管理接口，外网接口</li>
+</ul>
+<p>
+三结点构架
+</p>
+<ul class="org-ul">
+<li>Controller Node: 管理接口</li>
+<li>Network Node: 管理接口，隧道接口</li>
+<li>Compute Node: 管理接口，隧道接口，外网接口</li>
+</ul>
+</div>
+</div>
+</div>

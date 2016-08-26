@@ -3,10 +3,9 @@ title: "Linux日志"
 date: 2016-07-14
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
-- Linux 
-- 运维
+- Linux
 published: true
 comments: 
 ---
@@ -29,32 +28,25 @@ comments:
 <ul>
 <li><a href="#orgheadline6">程序环境</a></li>
 <li><a href="#orgheadline7">日志的格式</a></li>
-<li><a href="#orgheadline10">配置文件</a>
+<li><a href="#orgheadline10">rsyslog.conf</a>
 <ul>
 <li><a href="#orgheadline8">读取模块</a></li>
 <li><a href="#orgheadline9">RULES</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline11">连接mysql服务器</a></li>
+<li><a href="#orgheadline11">使用mysql服务器保存日志</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<p>
-简单讲述了Linux的日志，以及rsyslog的相关配置
-</p>
 
-
-
-
-<hr  />
 <div id="outline-container-orgheadline5" class="outline-2">
 <h2 id="orgheadline5"><span class="section-number-2">1</span> 日志</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>日志: 时间+事件</li>
-</ul>
+<p>
+日志 = 时间 + 事件
+</p>
 </div>
 <div id="outline-container-orgheadline1" class="outline-3">
 <h3 id="orgheadline1">系统日志服务</h3>
@@ -63,8 +55,8 @@ comments:
 系统日志服务: 提供给其他应用记录日志的功能
 </p>
 <ul class="org-ul">
-<li>syslog(CentOS5): syslogd(用户日志)、klogd(内核日志)</li>
-<li>rsyslog(CentOS6): syslogd(用户日志)、klogd(内核日志)
+<li><code>syslog</code> (CentOS5): <code>syslogd</code> (用户日志)、 <code>klogd</code> (内核日志)</li>
+<li><code>rsyslog</code> (CentOS6): syslogd(用户日志)、klogd(内核日志)
 <ul class="org-ul">
 <li>基于多线程</li>
 <li>支持UDP、TCP、SSL、TLS、RELP远程传输</li>
@@ -72,7 +64,7 @@ comments:
 <li>强大的过滤器，可实现过滤日志信息中任何部分</li>
 <li>自定义输出格式</li>
 </ul></li>
-<li>ELK: Elasticsearch(日志搜索)、Logstash(日志收集)、Kibana(前端日志展示)</li>
+<li>ELK: <code>Elasticsearch</code> (日志搜索)、 <code>Logstash</code> (日志收集)、 <code>Kibana</code> (前端日志展示)</li>
 </ul>
 </div>
 </div>
@@ -83,39 +75,105 @@ comments:
 <h4 id="orgheadline2">facility</h4>
 <div class="outline-text-4" id="text-orgheadline2">
 <p>
-facility: 从功能或程序上对日志进行分类
+从功能或程序上对日志进行分类
 </p>
-<ul class="org-ul">
-<li>auth: 认证相关</li>
-<li>authpriv: 认证和授权相关</li>
-<li>cron: cron/at程序日志</li>
-<li>daemon: 守护进程的日志</li>
-<li>kern: 内核日志</li>
-<li>lpr: 打印系统日志</li>
-<li>mail: 邮件系统日志</li>
-<li>news: 新闻组相关</li>
-<li>security: 安全相关</li>
-<li>user: 与用户相关</li>
-<li>uucp: Unix to Unix copy</li>
-<li>local0-local7: 用户自定义</li>
-<li>syslog</li>
-</ul>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">facility</th>
+<th scope="col" class="org-left">类别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">auth</td>
+<td class="org-left">认证相关</td>
+</tr>
+
+<tr>
+<td class="org-left">authpriv</td>
+<td class="org-left">认证和授权相关</td>
+</tr>
+
+<tr>
+<td class="org-left">cron</td>
+<td class="org-left">cron/at程序日志</td>
+</tr>
+
+<tr>
+<td class="org-left">daemon</td>
+<td class="org-left">守护进程的日志</td>
+</tr>
+
+<tr>
+<td class="org-left">kern</td>
+<td class="org-left">内核日志</td>
+</tr>
+
+<tr>
+<td class="org-left">lpr</td>
+<td class="org-left">打印系统日志</td>
+</tr>
+
+<tr>
+<td class="org-left">mail</td>
+<td class="org-left">邮件系统日志</td>
+</tr>
+
+<tr>
+<td class="org-left">news</td>
+<td class="org-left">新闻组相关</td>
+</tr>
+
+<tr>
+<td class="org-left">security</td>
+<td class="org-left">安全相关</td>
+</tr>
+
+<tr>
+<td class="org-left">user</td>
+<td class="org-left">与用户相关</td>
+</tr>
+
+<tr>
+<td class="org-left">uucp</td>
+<td class="org-left">Unix to Unix copy</td>
+</tr>
+
+<tr>
+<td class="org-left">local0-local7</td>
+<td class="org-left">用户自定义</td>
+</tr>
+
+<tr>
+<td class="org-left">syslog</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="outline-container-orgheadline3" class="outline-4">
 <h4 id="orgheadline3">priority</h4>
 <div class="outline-text-4" id="text-orgheadline3">
 <p>
-priority: 日志的重要性级别
+<code>priority</code>: 日志的重要性级别
 </p>
 <ul class="org-ul">
-<li>级别类型: debug, info, notice, warn(warning), err(error), crit(critical), alert, emerg(panic)</li>
+<li>级别类型: <code>debug</code>, <code>info</code>, <code>notice</code>, <code>warn(warning)</code>, <code>err(error)</code>, <code>crit(critical)</code>, <code>alert</code>, <code>emerg(panic)</code></li>
 <li>表示方式
 <ul class="org-ul">
-<li>*: 所有级别</li>
-<li>none: 没有级别</li>
-<li>priority: 此级别及更高级别的日志信息</li>
-<li>=priority：此级别</li>
+<li><code>*</code>: 所有级别</li>
+<li><code>none</code>: 没有级别</li>
+<li><code>priority</code>: 此级别及更高级别的日志信息</li>
+<li><code>=priority</code>: 此级别</li>
 </ul></li>
 </ul>
 </div>
@@ -130,9 +188,9 @@ priority: 日志的重要性级别
 <h3 id="orgheadline6">程序环境</h3>
 <div class="outline-text-3" id="text-orgheadline6">
 <ul class="org-ul">
-<li>主程序：rsyslogd</li>
-<li>配置文件：/etc/rsyslog.conf</li>
-<li>服务脚本：/etc/rc.d/init.d/rsyslog</li>
+<li>主程序: <code>rsyslogd</code></li>
+<li>配置文件: <code>/etc/rsyslog.conf</code></li>
+<li>服务脚本: <code>/etc/rc.d/init.d/rsyslog</code></li>
 </ul>
 </div>
 </div>
@@ -145,84 +203,75 @@ priority: 日志的重要性级别
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh">&#20107;&#20214;&#20135;&#29983;&#30340;&#26085;&#26399;&#26102;&#38388;        &#20027;&#26426;    &#36827;&#31243;<span style="color: #AE81FF;">(</span>pid<span style="color: #AE81FF;">)</span>: &#20107;&#20214;&#20869;&#23481;
+<pre class="src src-bash">&#20107;&#20214;&#20135;&#29983;&#30340;&#26085;&#26399;&#26102;&#38388;        &#20027;&#26426;    &#36827;&#31243;<span style="color: #AE81FF;">(</span>pid<span style="color: #AE81FF;">)</span>: &#20107;&#20214;&#20869;&#23481;
 </pre>
 </div></li>
 <li>二进制格式
 <ul class="org-ul">
-<li><p>
-/var/log/wtmp: 当前系统上成功登录的日志
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">last
-</pre>
-</div></li>
-<li><p>
-/var/log/btmp：当前系统上失败的登录尝试
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">lastb
-</pre>
-</div></li>
-<li>lastlog命令: 显示当前系统每一个用户最近一次的登录时间</li>
+<li><code>/var/log/wtmp</code>: 当前系统上成功登录的日志，使用 <code>last</code> 命令进行读取</li>
+<li><code>/var/log/btmp</code>: 当前系统上失败的登录尝试，使用 <code>lastb</code> 命令进行读取</li>
+<li><code>lastlog</code>: 显示当前系统每一个用户最近一次的登录时间</li>
 </ul></li>
 </ul>
 </div>
 </div>
 <div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">配置文件</h3>
+<h3 id="orgheadline10">rsyslog.conf</h3>
 <div class="outline-text-3" id="text-orgheadline10">
 </div><div id="outline-container-orgheadline8" class="outline-4">
 <h4 id="orgheadline8">读取模块</h4>
 <div class="outline-text-4" id="text-orgheadline8">
 <div class="org-src-container">
 
-<pre class="src src-conf">$ModLoad imuxsock
-$ModLoad imklog
+<pre class="src src-bash">$<span style="color: #FD971F;">ModLoad</span> imuxsock
+$<span style="color: #FD971F;">ModLoad</span> imklog
 
-$ModLoad imudp
-$UDPServerRun 514  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;(&#40664;&#35748;UDP)</span>
-$ModLoad imtcp
-$InputTCPServerRun 514  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;</span>
+$<span style="color: #FD971F;">ModLoad</span> imudp  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;UDP&#27169;&#22359;</span>
+$<span style="color: #FD971F;">UDPServerRun</span> <span style="color: #AE81FF;">514</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;(&#40664;&#35748;UDP)</span>
+$<span style="color: #FD971F;">ModLoad</span> imtcp  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;TCP&#27169;&#22359;</span>
+$<span style="color: #FD971F;">InputTCPServerRun</span> <span style="color: #AE81FF;">514</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30417;&#21548;&#31471;&#21475;</span>
 </pre>
 </div>
-<ul class="org-ul">
-<li>模块名以i开头的是输入处理，以o开头的是输出处理</li>
-</ul>
+<pre class="example">
+模块名以i开头的是输入处理模块，以o开头的是输出处理模块
+</pre>
 </div>
 </div>
 <div id="outline-container-orgheadline9" class="outline-4">
 <h4 id="orgheadline9">RULES</h4>
 <div class="outline-text-4" id="text-orgheadline9">
-<div class="org-src-container">
+<dl class="org-dl">
+<dt>语法</dt><dd><div class="org-src-container">
 
-<pre class="src src-conf">facility.priority  target
-  target:
-    &#25991;&#20214;&#36335;&#24452;: &#35760;&#24405;&#20110;&#25351;&#23450;&#30340;&#26085;&#24535;&#25991;&#20214;&#20013;&#65292;&#36890;&#24120;&#24212;&#35813;&#22312;/var/log&#30446;&#24405;&#19979;&#65292;&#25991;&#20214;&#36335;&#24452;&#21069;&#30340;<span style="color: #E6DB74;">"-"</span>&#34920;&#31034;&#24322;&#27493;&#20889;&#20837;
-    &#29992;&#25143;: &#23558;&#26085;&#24535;&#36890;&#30693;&#32473;&#25351;&#23450;&#29992;&#25143;
-        *: &#25152;&#26377;&#29992;&#25143;
-    &#26085;&#24535;&#26381;&#21153;&#22120;
-      @host: &#29992;UDP&#36830;&#25509;host(&#40664;&#35748;514&#31471;&#21475;)
-      @@host: &#29992;TCP&#36830;&#25509;host(&#40664;&#35748;514&#31471;&#21475;)
-    &#31649;&#36947;: |COMMAND
+<pre class="src src-yaml">facility.priority  TARGET
+  <span style="color: #FD971F;">/PATH</span>: &#35760;&#24405;&#20110;&#25351;&#23450;&#30340;&#26085;&#24535;&#25991;&#20214;&#20013;&#65292;&#36890;&#24120;&#24212;&#35813;&#22312;/var/log&#30446;&#24405;&#19979;&#65292;&#25991;&#20214;&#36335;&#24452;&#21069;&#30340;<span style="color: #E6DB74;">"-"</span>&#34920;&#31034;&#24322;&#27493;&#20889;&#20837;
 
+  <span style="color: #FD971F;">USER</span>: &#23558;&#26085;&#24535;&#36890;&#30693;&#32473;&#25351;&#23450;&#29992;&#25143;
+  <span style="color: #FD971F;">*</span>: &#25152;&#26377;&#29992;&#25143;
 
-*.info;mail.none;authpriv.none;cron.none  /var/log/messages  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;facility&#20294;&#25490;&#38500;mail,authpriv,cron</span>
-uucp,news.crit  /var/log/spooler  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#30456;&#24403;&#20110;uucp.crit;news.crit</span>
+  <span style="color: #FD971F;">@host</span>: &#29992;UDP&#36830;&#25509;&#26085;&#24535;&#26381;&#21153;&#22120;host(&#40664;&#35748;514&#31471;&#21475;)
+  <span style="color: #FD971F;">@@host</span>: &#29992;TCP&#36830;&#25509;&#26085;&#24535;&#26381;&#21153;&#22120;host(&#40664;&#35748;514&#31471;&#21475;)
+
+  <span style="color: #FD971F;">|COMMAND</span>: &#31649;&#36947;&#21457;&#36865;&#32473;COMMAND
+</pre>
+</div></dd>
+<dt>系统预设的相关日志</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">*.info;mail.none;authpriv.none;cron.none  /var/log/messages  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25152;&#26377;facility&#20294;&#25490;&#38500;mail,authpriv,cron</span>
+uucp,news.crit  /var/log/spooler  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21487;&#20351;&#29992;&#36887;&#21495;&#65292;&#30456;&#24403;&#20110;uucp.crit;news.crit</span>
 authpriv.*  /var/log/secure
-mail.*  -/var/log/maillog  <span style="color: #75715E;"># </span><span style="color: #75715E;">- &#20195;&#34920;&#24322;&#27493;&#20889;&#20837;</span>
+mail.*  -/var/log/maillog  <span style="color: #75715E;"># </span><span style="color: #75715E;">- &#20195;&#34920;&#24322;&#27493;&#20889;&#20837;&#65292;&#29992;&#20110;&#19981;&#37325;&#35201;&#30340;&#26085;&#24535;</span>
 cron.*  /var/log/cron
 *.emerg  *  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#34920;&#31034;&#36890;&#30693;&#32473;&#25152;&#26377;&#30331;&#24405;&#30340;&#29992;&#25143;</span>
 local7.*  /var/log/boot.log
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 </div>
 <div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">连接mysql服务器</h3>
+<h3 id="orgheadline11">使用mysql服务器保存日志</h3>
 <div class="outline-text-3" id="text-orgheadline11">
 <ol class="org-ol">
 <li>准备好MySQL服务器，创建用户，授权对Syslog数据库的全部访问权限</li>
@@ -232,7 +281,7 @@ local7.*  /var/log/boot.log
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">mysql -uUSERNAME -hHOST -pPASSWORD &lt; /usr/share/doc/rsyslog-mysql-VERSION/createDB.sql
+<pre class="src src-yaml">mysql -uUSERNAME -hHOST -pPASSWORD &lt; /usr/share/doc/rsyslog-mysql-VERSION/createDB.sql
 </pre>
 </div></li>
 <li><p>
@@ -240,29 +289,29 @@ local7.*  /var/log/boot.log
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf"><span style="color: #75715E;">#### </span><span style="color: #75715E;">MODULES ####</span>
-$ModLoad ommysql
+<pre class="src src-bash"><span style="color: #75715E;">#### </span><span style="color: #75715E;">MODULES ####</span>
+$<span style="color: #FD971F;">ModLoad</span> ommysql
 
 <span style="color: #75715E;">#### </span><span style="color: #75715E;">RULES ####</span>
-facility.priority    :ommysql:DBHOST,DB,DBUSER,USERPASS
+facility.priority    :ommysql:DBHOST,DB,DBUSER,USERPASS  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;&#27169;&#22359;&#30340;&#20301;&#32622;</span>
 </pre>
 </div></li>
 <li>重启rsyslog服务</li>
-<li>安装loganalyzer
+<li>安装 <code>loganalyzer</code>
 <ol class="org-ol">
-<li>配置webserver, 支持php</li>
+<li>配置webserver与php</li>
 <li><p>
 安装loganalyzer
 </p>
 <div class="org-src-container">
 
-<pre class="src src-conf">cp -r loganalyzer-3.6.5/src /var/www/html/loganalyzer
+<pre class="src src-bash">cp -r loganalyzer-3.6.5/src /var/www/html/loganalyzer
 cp loganalyzer-3.6.5/contrib/*.sh /var/www/html/loganalyzer
-cd /var/www/html/loganalyzer
+<span style="color: #F92672;">cd</span> /var/www/html/loganalyzer
 chmod +x *.sh
 ./configure.sh
 ./secure.sh
-chmod 666 config.php
+chmod <span style="color: #AE81FF;">666</span> config.php
 </pre>
 </div></li>
 </ol></li>

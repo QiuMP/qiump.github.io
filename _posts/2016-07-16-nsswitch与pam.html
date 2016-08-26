@@ -3,10 +3,9 @@ title: "nsswitch与pam"
 date: 2016-07-16
 layout: post
 categories: 
-- Linux
+- Linux管理
 tags: 
 - Linux 
-- 运维 
 - 安全
 published: true
 comments: 
@@ -15,207 +14,146 @@ comments:
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgheadline1">1. nsswitch</a></li>
-<li><a href="#orgheadline2">2. pam</a></li>
-<li><a href="#orgheadline3">3. 系统资源控制limit</a></li>
+<li><a href="#orgheadline4">1. nsswitch</a>
+<ul>
+<li><a href="#orgheadline1">nsswitch</a></li>
+<li><a href="#orgheadline2">配置文件</a></li>
+<li><a href="#orgheadline3">getent</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">2. pam</a>
+<ul>
+<li><a href="#orgheadline5">pam</a></li>
+<li><a href="#orgheadline6">配置文件</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
-<p>
-介绍了名称解析库nsswitch、认证库pam的使用和配置，同时还记录Linux的资源控制limit的使用和配置
-</p>
 
-
-
-
-<hr  />
-<div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1"><span class="section-number-2">1</span> nsswitch</h2>
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4"><span class="section-number-2">1</span> nsswitch</h2>
 <div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">nsswitch</h3>
+<div class="outline-text-3" id="text-orgheadline1">
 <p>
-nsswitch: network service switch，是一个名称解析通用框架
+<code>nsswitch</code>: network service switch，是一个名称解析通用框架
 </p>
 <ul class="org-ul">
-<li>名称解析的类型: files(etc目录下对应名称的文件)、MySQL、NIS、LDAP、DNS</li>
-<li>库文件: /usr/lib64/libnss*、/lib64/libnss*</li>
-<li><p>
-配置文件: /etc/nsswitch.conf
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">database: store1 store2 ...
-
-<span style="color: #FD971F;">database: store1 [STATUS</span>=ACTION] store2 ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33258;&#23450;&#20041;&#34892;&#20026;</span>
-  STATUS: success | notfound | unavail(&#26381;&#21153;&#19981;&#21487;&#29992;) | tryagain(&#20020;&#26102;&#20986;&#38169;)
-  ACTION: return | continue
-
-host: files nis
-</pre>
-</div></li>
-<li><p>
-名称解析命令: getent
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">getent database [entry]
-
-getent passwd root  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27491;&#21521;&#35299;&#26512;</span>
-getent services 22  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21453;&#21521;&#35299;&#26512;</span>
-</pre>
-</div></li>
+<li>库文件: <code>/usr/lib64/libnss*</code>, <code>/lib64/libnss*</code></li>
+<li>名称解析的类型: <code>files</code> (etc目录下对应名称的文件), <code>MySQL</code> , <code>NIS</code> , <code>LDAP</code> , <code>DNS</code> &#x2026;</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline2" class="outline-2">
-<h2 id="orgheadline2"><span class="section-number-2">2</span> pam</h2>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+配置文件: <code>/etc/nsswitch.conf</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #FD971F;">database</span>: store1 store2 ...
+
+<span style="color: #FD971F;">database</span>: store1 [STATUS=ACTION] store2 ...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#33258;&#23450;&#20041;&#34892;&#20026;</span>
+  <span style="color: #FD971F;">STATUS</span>: success | notfound | unavail(&#26381;&#21153;&#19981;&#21487;&#29992;) | tryagain(&#20020;&#26102;&#20986;&#38169;)
+  <span style="color: #FD971F;">ACTION</span>: return | continue
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-yaml"><span style="color: #FD971F;">hosts</span>: files dns myhostname  <span style="color: #75715E;"># </span><span style="color: #75715E;">hosts&#30340;&#35299;&#26512;&#36807;&#31243;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">getent</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+名称解析命令: <code>getent</code> 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">getent database <span style="color: #AE81FF;">[</span>entry<span style="color: #AE81FF;">]</span>
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">getent passwd root  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27491;&#21521;&#35299;&#26512;</span>
+getent services <span style="color: #AE81FF;">22</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#21453;&#21521;&#35299;&#26512;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7"><span class="section-number-2">2</span> pam</h2>
 <div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">pam</h3>
+<div class="outline-text-3" id="text-orgheadline5">
 <p>
-pam: pluggable authentication module，是一个认证通用框架
+<code>pam</code>: pluggable authentication module，是一个认证通用框架
 </p>
 <ul class="org-ul">
-<li>认证的类型: files、MySQL、LDAP、NIS</li>
-<li>模块文件: /lib64/security/*</li>
-<li>配置文件: /etc/pam.d/*(每个应用单独一个配置文件)、/etc/pam.conf
-<ul class="org-ul">
-<li><p>
-配置文件每一行定义一种检查规则
-</p>
-<div class="org-src-container">
-
-<pre class="src src-c">type  <span style="color: #66D9EF;">control</span>  <span style="color: #FD971F;">module</span>-path module-arguments
-</pre>
-</div></li>
-<li><p>
-type: 检查功能类别
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">auth</td>
-<td class="org-left">账号的认证和授权</td>
-</tr>
-
-<tr>
-<td class="org-left">account</td>
-<td class="org-left">与账号管理相关的非认证功能</td>
-</tr>
-
-<tr>
-<td class="org-left">password</td>
-<td class="org-left">用户修改密码时密码检查规则</td>
-</tr>
-
-<tr>
-<td class="org-left">session</td>
-<td class="org-left">用户获取到服务之前或完成之后要进行的一些附加性操作</td>
-</tr>
-</tbody>
-</table></li>
-<li>control: 同一种功能的多个检查之间如何进行组合
-<ul class="org-ul">
-<li><p>
-简单机制
-</p>
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">required</td>
-<td class="org-left">成功则继续，失败则结果为错误，但继续执行验证</td>
-</tr>
-
-<tr>
-<td class="org-left">requisite</td>
-<td class="org-left">成功则继续，失败则结果为错误，验证立即终止</td>
-</tr>
-
-<tr>
-<td class="org-left">sufficient</td>
-<td class="org-left">成功则通过，失败则继续</td>
-</tr>
-
-<tr>
-<td class="org-left">optional</td>
-<td class="org-left">结果只作为参考</td>
-</tr>
-
-<tr>
-<td class="org-left">include</td>
-<td class="org-left">包含指定配置文件中同一个功能的规则</td>
-</tr>
-</tbody>
-</table></li>
-<li>复杂机制: [status1=action1,status2=action2,&#x2026;]
-<ul class="org-ul">
-<li>status: 返回的状态</li>
-<li>action: 
-<ul class="org-ul">
-<li>ok, done: 状态设置为通过，ok会继续执行验证，done则终止验证</li>
-<li>bad, die: 状态设置为不通过，bad会继续执行验证，die则终止验证</li>
-<li>ignore</li>
-<li>reset: 清除状态</li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li>module-path: /lib64/security目录下的模块引用时可使用相对路径</li>
-</ul></li>
-<li>模块
-<ul class="org-ul">
-<li>pam_limits.so: 模块通过读取配置文件完成用户对系统资源的使用控制</li>
-</ul></li>
+<li>库文件: <code>/lib64/security/*</code></li>
+<li>认证的类型: <code>files</code>, <code>MySQL</code>, <code>LDAP</code>, <code>NIS</code></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline3" class="outline-2">
-<h2 id="orgheadline3"><span class="section-number-2">3</span> 系统资源控制limit</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">配置文件</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+配置文件: <code>/etc/pam.d/*</code> (每个应用单独一个配置文件), <code>/etc/pam.conf</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">type  control  module-path module-arguments  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#27599;&#19968;&#34892;&#23450;&#20041;&#19968;&#31181;&#26816;&#26597;&#35268;&#21017;</span>
+</pre>
+</div>
+<dl class="org-dl">
+<dt>type</dt><dd>检查功能类别
 <ul class="org-ul">
-<li><p>
-配置文件: /etc/security/limits.conf、/etc/security/limits.d/*
+<li><code>auth</code>: 账号的认证和授权</li>
+<li><code>account</code>: 与账号管理相关的非认证功能</li>
+<li><code>password</code>: 用户修改密码时密码检查规则</li>
+<li><code>session</code>: 用户获取到服务之前或完成之后要进行的一些附加性操作</li>
+</ul></dd>
+<dt>control</dt><dd>同一种功能的多个检查之间如何进行组合
+<dl class="org-dl">
+<dt>简单机制</dt><dd><ul class="org-ul">
+<li><code>required</code>: 成功则继续，失败则结果为错误，但继续执行验证</li>
+<li><code>requisite</code>: 成功则继续，失败则结果为错误，验证立即终止</li>
+<li><code>sufficient</code>: 成功则通过，失败则继续</li>
+<li><code>optional</code>: 结果只作为参考</li>
+<li><code>include</code>: 包含指定配置文件中同一个功能的规则</li>
+</ul></dd>
+<dt>复杂机制</dt><dd><code>[status1=action1,status2=action2,...]</code>
+<ul class="org-ul">
+<li><code>status</code>: 模块返回的状态</li>
+<li><code>action</code>: 
+<ul class="org-ul">
+<li><code>ok</code>, <code>done</code>: 状态设置为通过，ok会继续执行验证，done则终止验证</li>
+<li><code>bad</code>, <code>die</code>: 状态设置为不通过，bad会继续执行验证，die则终止验证</li>
+<li><code>ignore</code></li>
+<li><code>reset</code>: 清除状态</li>
+</ul></li>
+</ul></dd>
+</dl></dd>
+<dt>module-path</dt><dd><p>
+定义调用的模块或包含的配置文件， <code>/lib64/security</code> 目录下的模块引用时可使用相对路径
 </p>
-<div class="org-src-container">
-
-<pre class="src src-conf">domain  type  item  value
-  domain: username&#12289;@group&#12289;*(&#25152;&#26377;&#29992;&#25143;)
-
-  type: &#38480;&#21046;&#26041;&#24335;
-    soft: &#36719;&#38480;&#21046;&#65292;&#29992;&#25143;&#21487;&#20462;&#25913;&#65292;&#19981;&#33021;&#36229;&#36807;&#30828;&#38480;&#21046;
-    hard: &#30828;&#38480;&#21046;&#65292;&#29992;&#25143;&#19981;&#21487;&#36229;&#36807;
-    -: &#20108;&#32773;&#21516;&#26102;&#38480;&#23450;
-
-  item: &#38480;&#21046;&#36164;&#28304;&#30340;&#31867;&#22411;
-    nofile: &#25152;&#33021;&#22815;&#21516;&#26102;&#25171;&#24320;&#30340;&#26368;&#22823;&#25991;&#20214;&#25968;&#37327;
-    nproc: &#25152;&#33021;&#22815;&#21516;&#26102;&#36816;&#34892;&#30340;&#26368;&#22823;&#36827;&#31243;&#25968;&#37327;
-    msqqueue: &#20351;&#29992;&#30340;POSIX&#28040;&#24687;&#38431;&#21015;&#33021;&#22815;&#21344;&#29992;&#30340;&#26368;&#22823;&#20869;&#23384;&#31354;&#38388;
-    sigpending: &#25152;&#33021;&#22815;&#20351;&#29992;&#30340;&#26368;&#22823;&#20449;&#21495;&#25968;&#37327;
-</pre>
-</div></li>
-<li><p>
-使用内建命令ulimit
-</p>
-<div class="org-src-container">
-
-<pre class="src src-conf">ulimit [OPTIONS] [NUM]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#25110;&#35774;&#32622;&#36164;&#28304;&#38480;&#21046;</span>
-  -n: &#25991;&#20214;&#25968;&#37327;
-  -u: &#36827;&#31243;&#25968;&#37327;
-
-  -H: &#35774;&#32622;&#30828;&#38480;&#21046;(&#40664;&#35748;&#20026;&#36719;&#38480;&#21046;)
-  -SH: &#21516;&#26102;&#35774;&#32622;&#36719;&#38480;&#21046;&#21644;&#30828;&#38480;&#21046;
-</pre>
-</div></li>
-</ul>
+<pre class="example">
+常用模块: 
+  pam_limits.so: 模块通过读取配置文件完成用户对系统资源的使用控制
+  pam_securetty.so: 检查/etc/securetty文件来确定root用户所能登录的终端
+  pam_nologin.so: 若/etc/nologin存在，则一般用户无法登录系统
+  pam_unix.so: 用于验证阶段的认证功能
+</pre></dd>
+</dl>
+</div>
 </div>
 </div>

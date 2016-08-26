@@ -2,25 +2,21 @@
 #+DATE: 2016-07-05
 #+SETUPFILE: ~/myblog/setupfile.org
 #+JEKYLL_LAYOUT: post
-#+JEKYLL_CATEGORIES: 网络
-#+JEKYLL_TAGS: Linux 运维 网络
+#+JEKYLL_CATEGORIES: 服务器
+#+JEKYLL_TAGS: Linux 
 #+JEKYLL_PUBLISHED: true
 
-介绍了httpd的功能和特性，记录了httpd的配置和使用，以及http-2.2与http-2.4在使用和配置上的区别，最后介绍了相关的命令行工具和压力测试工具，最后简单介绍了LAMP的配置和工作过程，以及php的编译
 
-
-
-
------
+* apache
 #+BEGIN_EXAMPLE
 httpd开发者创建了apache
 a patchy server = apache
 ASF: apache software foundation
 #+END_EXAMPLE
 * httpd的特性
-- 高度模块化: core + modules
-- DSO: Dynamic Shared Object，支持动态装卸载，由mod_so模块负责
-- MPM: Multi-Processing Modules
+- =高度模块化=: core + modules
+- =DSO=: Dynamic Shared Object，支持动态装卸载，由 =mod_so= 模块负责
+- =MPM=: Multi-Processing Modules
   - prefork: 多进程模型 ::
        一个主进程负责生成多个子进程，每个子进程处理一个用户请求；即便没有用户请求，也会预先生成多个空闲进程，随时等待请求到达；最大不会超过1024个
   - worker: 多线程模型 ::
@@ -28,59 +24,54 @@ ASF: apache software foundation
   - event: 事件驱动模型(httpd-2.4) :: 
        一个主进程生成多个子进程，每个进程响应多个请求
 * httpd的功能
-- 虚拟主机: IP、Port、FQDN
-- CGI: Common Gateway Interface，通用网关接口
-- 反向代理
-- 负载均衡
-- 路径别名
-- 用户认证机制: basic、digest
+- 虚拟主机: =IP=, =Port=, =FQDN=
+- =CGI=: Common Gateway Interface，通用网关接口
+- =反向代理=
+- =负载均衡=
+- =路径别名=
+- 用户认证机制: =basic=, =digest=
 - 支持第三方模块
 * httpd-2.2
 ** 程序环境
 - 配置文件 ::
-     #+BEGIN_VERSE
-     /etc/httpd/conf/httpd.conf
-     /etc/httpd/conf.d/*.conf
-     #+END_VERSE
+  - =/etc/httpd/conf/httpd.conf=
+  - =/etc/httpd/conf.d/*.conf=
 - 服务脚本 :: 
-     #+BEGIN_VERSE
-     /etc/rc.d/init.d/httpd
-     配置文件: /etc/sysconfig/httpd
-     #+END_VERSE
+  - =/etc/rc.d/init.d/httpd=
+  - 配置文件: =/etc/sysconfig/httpd=
 - 主程序文件 :: 
-     #+BEGIN_VERSE
-     /usr/sbin/httpd: 使用prefork模型
-     /usr/sbin/httpd.event
-     /usr/sbin/httpd.worker
-     #+END_VERSE
+  - =/usr/sbin/httpd=: 默认使用prefork模型
+  - =/usr/sbin/httpd.event=
+  - =/usr/sbin/httpd.worker=
 - 日志文件 :: 
-     #+BEGIN_VERSE
-     /var/log/httpd/access_log: 访问日志
-     /var/log/httpd/error_log: 错误日志
-     #+END_VERSE
-- 站点文档目录 :: 
-     /var/www/html
+  - =/var/log/httpd/access_log=: 访问日志
+  - =/var/log/httpd/error_log=: 错误日志
+- 站点默认文档目录 :: 
+     =/var/www/html=
 - 模块文件路径 ::
-     /usr/lib64/httpd/modules
+     =/usr/lib64/httpd/modules=
 ** 配置文件
 *** 配置文件组成
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 ### Section 1: Global Environment
+...
 ### Section 2: 'Main' server configuration
+...
 ### Section 3: Virtual Hosts
+...
 #+END_SRC
 - 配置格式 ::
-     #+BEGIN_SRC conf
-     directive value 
-       directive: 不区分大小写
-       value: 路径取决于文件系统
-     #+END_SRC
+  #+BEGIN_SRC yaml
+  directive value 
+    directive: 不区分大小写
+    value: 路径取决于文件系统
+  #+END_SRC
 *** 测试配置文件语法
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 httpd -t
 #+END_SRC
 *** 修改监听的IP和端口
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 Listen [IP:]PORT  
 #+END_SRC
 - 省略ip表示监听本机所有IP
@@ -88,7 +79,7 @@ Listen [IP:]PORT
 - 修改端口需要重启服务
 *** 持久连接
 Persistent Connection: 连接建立后，每个资源获取完成后不会断开连接，而是继续等待其它的请求完成
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 KeepAlive {On|Off}  # 开关持久连接
 MaxKeepAliveRequests 100  # 持久连接请求数量限制，默认为100个
 KeepAliveTimeout 15  # 持久连接时间限制，默认单位为秒，http2.4支持毫秒级别
@@ -97,13 +88,13 @@ KeepAliveTimeout 15  # 持久连接时间限制，默认单位为秒，http2.4�
 *** MPM
 - httpd-2.2不支持同时编译多个模块，所以只能编译时选定一个
 - rpm安装的包提供三个二进制程序文件，分别用于实现对不同MPM机制的支持
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   ps aux | grep httpd  # 确认使用rpm包安装的httpd使用的MPM机制
   #+END_SRC
   - 默认使用prefork，修改 =/etc/sysconfig/httpd= 来更换httpd程序
 
 - prefork的配置
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   <IfModule prefork.c>
   StartServers       8  # 启动进程数
   MinSpareServers    5  # 最小空闲进程数
@@ -114,7 +105,7 @@ KeepAliveTimeout 15  # 持久连接时间限制，默认单位为秒，http2.4�
   </IfModule>
   #+END_SRC
 - worker的配置
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   <IfModule worker.c>
   StartServers         4
   MaxClients         300  # 最大线程数
@@ -126,17 +117,17 @@ KeepAliveTimeout 15  # 持久连接时间限制，默认单位为秒，http2.4�
   #+END_SRC
 *** DSO
 - 查询模块 ::
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      httpd -l  # 查看静态编译的模块
      httpd -M  # 查看静态编译和动态装载的模块
      #+END_SRC
 - 加载模块 ::
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      LoadModule <mod_name> <mod_path>
      #+END_SRC
   - 模块路径可以使用相对地址(相对于ServerRoot(/etc/httpd)而言)
 *** 定义文档页面路径
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 DocumentRoot "/var/www/html"
 #+END_SRC
 - DocumentRoot指向的路径为URL路径的起始位置
@@ -163,7 +154,7 @@ DocumentRoot "/var/www/html"
 2. AllowOverride
    - 允许使用目录中的.htaccess进行访问控制，一般不启用
 3. 基于来源地址进行控制
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    Order allow,deny  # 默认禁止访问
    Order deny,allow  # 默认允许访问
 
@@ -181,7 +172,7 @@ DocumentRoot "/var/www/html"
   - 存储方式: 文本文件、SQL数据库、ldap、nis
 ***** 认证过程
 1. 定义安全域
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    <Directory "PATH">
        Options None
        AllowOverride None
@@ -193,7 +184,7 @@ DocumentRoot "/var/www/html"
    </Directory>
    #+END_SRC
 2. 创建账号和密码存储文件
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    htpasswd [options] /PATH/TO/.htpasswd username
      -c: 创建passwordfile，仅应该在添加第一个用户时使用
      -m: md5加密用户密码
@@ -202,7 +193,7 @@ DocumentRoot "/var/www/html"
    #+END_SRC
 3. 基于组进行认证
    - 安全域
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      <Directory "PATH">
          Options None
          AllowOverride None
@@ -214,23 +205,23 @@ DocumentRoot "/var/www/html"
      </Directory>
      #+END_SRC
    - 组文件 =.htgroup=
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      GRP_NAME: user1 user2 user3 ...
      GRP_NAME: user1 user2 user3 ...
      #+END_SRC
 *** 定义默认主页面
 访问目录时的默认页面
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 DirecotryIndex index.html index.html.var  # 自左而右扫描
 #+END_SRC
 *** 日志设定
 - 错误日志 ::
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      ErrorLog logs/error_log  # 相对于ServerRoot而言，而ServerRoot中的logs文件夹为/var/log的链接
      LogLevel {debug|info|notice|warn|error|crit|alert|emerg}  # 设置日志级别，一般为warn
      #+END_SRC
 - 访问日志 :: 
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      CustomLog logs/access_log 日志格式名
      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined  # 定义格式
        %h: 客户端IP地址
@@ -246,11 +237,11 @@ DirecotryIndex index.html index.html.var  # 自左而右扫描
   - 详情: http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
 *** 路径别名
 将指定URL映射到另一个路径
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 Alias /URL/ "/PATH/TO/"
 #+END_SRC
 *** 设定默认字符集
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 AddDefaultCharset UTF-8
 #+END_SRC
 *** 虚拟主机
@@ -260,7 +251,7 @@ AddDefaultCharset UTF-8
   - 基于hostname(常用): 为每个虚拟主机准备至少一个专用hostname
   - 上述方式可以混合使用，优先使用第一个匹配
 - 虚拟主机不能和中心主机(DocumentRoot)同时使用
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 NameVirtualHost IP:HOST  # httpd2.2使用基于hostname虚拟主机需要开启
 <VirtualHost "IP:PORT">  # 可以使用*
 	SeverName hostname
@@ -273,7 +264,7 @@ NameVirtualHost IP:HOST  # httpd2.2使用基于hostname虚拟主机需要开启
 </VirtualHost>
 #+END_SRC
 *** 内置的status页面
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 <Location /server-status>
     SetHandler server-status
     Order deny,allow
@@ -284,16 +275,16 @@ ExtendedStatus On  # status显示更详细的信息
 #+END_SRC
 *** 配置https
 1. 安装ssl模块
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    yum -y install mod_ssl
    #+END_SRC
 2. 启用ssl模块
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    LoadModule ssl_module modules/mod_ssl.so
    #+END_SRC
 
 3. 编辑配置文件 =/etc/httpd/conf.d/ssl.conf=
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    DocumentRoot
    ServerName
    SSLCertificateFile  
@@ -305,7 +296,7 @@ ExtendedStatus On  # status显示更详细的信息
    #+END_SRC
 *** mod_deflate
 mod_deflate模块用于压缩页面以优化传输速度，默认模块是启用的但未设置
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 SetOutputFilter DEFLATE
 
 # mod_deflate configuration
@@ -328,7 +319,7 @@ BrowserMatch ^Mozilla/4\.0[678] no-gzip
 BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
 #+END_SRC
 *** 配置php模块
-#+BEGIN_SRC conf
+#+BEGIN_SRC yaml
 LoadModule php5_module modules/libphp5.so
 
 AddType application/x-httpd-php  .php
@@ -382,7 +373,7 @@ DirectoryIndex  index.php  index.html
    make && make install
    #+END_SRC
 5. 修改httpd的主配置文件
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    PidFile  "/var/run/httpd.pid"  # 设置pid的文件路径
    #+END_SRC
 6. 使用apachectl启动服务或配置服务脚本
@@ -404,7 +395,7 @@ DirectoryIndex  index.php  index.html
   - Require host HOSTNAME
   - Require not host HOSTNAME
 - 设定特定主机或IP需要定义在 =RequireAll= 内
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   <RequireAll>
       Require all granted
       Require not ip 10.252.46.165
@@ -412,7 +403,7 @@ DirectoryIndex  index.php  index.html
   #+END_SRC
 *** 配置php-fpm
 - 主配置文件
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   LoadModule proxy_module modules/mod_proxy.so
   LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
 
@@ -422,14 +413,14 @@ DirectoryIndex  index.php  index.html
   DirectoryIndex  index.php  index.html
   #+END_SRC
 - 配置相应的虚拟主机
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   ProxyRequests Off
   ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/PATH/TO/DOCUMENT_ROOT/$1
   #+END_SRC
 * http压力测试工具
 - 普通测试
   - ab: apache benchmark，压力测试工具
-    #+BEGIN_SRC conf 
+    #+BEGIN_SRC yaml 
     ab [OPTIONS] URL
       -n: 总的请求数
       -c: 模拟的并发数
@@ -480,7 +471,7 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 ** php
 - 配置文件: /etc/php.ini, /etc/php.d/*.ini
   - 配置文件在PHP启动时被读取: 对于服务器模块版本的PHP，仅在web服务器启动时读取一次；对于CGI和CLI 版本，每次调用都会读取
-  #+BEGIN_SRC conf
+  #+BEGIN_SRC yaml
   [Foo] ;Secion Header
   directive = value
   mysql.allow_persistent = on  ;连接mysql是否使用持久模式
@@ -490,13 +481,13 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 
 *** php的编译
 1. 解决依赖关系
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    yum -y groupinstall "Desktop Platform Development" 
    yum -y install bzip2-devel libmcrypt-devel libxml2-devel
    #+END_SRC
 2. 编译安装php
    - 需要使用fpm或着连接特定数据库时需要启用相关的驱动模块
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    tar xf php-5.4.26.tar.bz2
    cd php-5.4.26
    ./configure --prefix=/usr/local/php --with-mysql=/usr/local/mysql --with-openssl --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml  --enable-sockets --enable-fpm --with-apxs2=/usr/local/apache/bin/apxs --with-mcrypt  --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-bz2  --enable-maintainer-zts
@@ -504,11 +495,11 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
    make && make install
    #+END_SRC
 3. 复制配置文件
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    cp php.ini-production /etc/php.ini
    #+END_SRC
 4. 配置php-fpm
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    cp sapi/fpm/init.d.php-fpm  /etc/rc.d/init.d/php-fpm
    chmod +x /etc/rc.d/init.d/php-fpm
    chkconfig --add php-fpm
@@ -517,7 +508,7 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
    cp /usr/local/php5/etc/php-fpm.conf.default /etc/php-fpm.conf 
    #+END_SRC
    - 配置php-fpm.ini
-     #+BEGIN_SRC conf
+     #+BEGIN_SRC yaml
      pm.max_children = 50
      pm.start_servers = 5
      pm.min_spare_servers = 2
@@ -527,7 +518,7 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
 
 *** Xcache的编译
 1. 编译安装
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    tar xf xcache-3.0.3.tar.gz
    cd xcache-3.0.3
    /usr/local/php/bin/phpize
@@ -536,12 +527,12 @@ CGI: Common Gateway Interface，相当于一个简化版的http，用于Web服�
    #+END_SRC
    - 记录安装完成的提示结果
 2. 整合php和Xcache
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    mkdir /etc/php.d
    cp xcache.ini /etc/php.d
    #+END_SRC
 3. 编辑配置文件
-   #+BEGIN_SRC conf
+   #+BEGIN_SRC yaml
    # 编辑xcache.ini，值使用第一步的提示结果
    zend_extension = /usr/local/php/lib/php/extensions/no-debug-zts-20100525/xcache.so
    #+END_SRC

@@ -1,0 +1,348 @@
+---
+title: "Bash常用命令"
+date: 2016-05-23
+layout: post
+categories: 
+- Bash
+tags: 
+- Linux 
+- Bash
+published: true
+comments: 
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">1. echo</a></li>
+<li><a href="#orgheadline2">2. watch</a></li>
+<li><a href="#orgheadline6">3. 日期与时间</a>
+<ul>
+<li><a href="#orgheadline3">日历</a></li>
+<li><a href="#orgheadline4">系统时间</a></li>
+<li><a href="#orgheadline5">硬件时间</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline13">4. 系统管理</a>
+<ul>
+<li><a href="#orgheadline9">系统资源控制limit</a>
+<ul>
+<li><a href="#orgheadline7">配置文件</a></li>
+<li><a href="#orgheadline8">ulimit</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline10">关机和重启</a></li>
+<li><a href="#orgheadline11">用户登录信息</a></li>
+<li><a href="#orgheadline12">uname</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline16">5. 管道命令</a>
+<ul>
+<li><a href="#orgheadline14">tee</a></li>
+<li><a href="#orgheadline15">xargs</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline21">6. 网络命令</a>
+<ul>
+<li><a href="#orgheadline17">协议查看或分析工具</a></li>
+<li><a href="#orgheadline18">curl</a></li>
+<li><a href="#orgheadline19">wget</a></li>
+<li><a href="#orgheadline20"><span class="todo TODO">TODO</span> axel</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1"><span class="section-number-2">1</span> echo</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+用于回显命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">echo [OPTIONS] <span style="color: #E6DB74;">"$VAR_NAME"</span>
+  <span style="color: #FD971F;">-n</span>: &#31105;&#27490;&#33258;&#21160;&#28155;&#21152;&#25442;&#34892;&#31526;&#21495;
+  <span style="color: #FD971F;">-e</span>: &#20801;&#35768;&#20351;&#29992;&#36716;&#20041;&#31526;
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-bash">cat &lt;&lt; EOF  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#20351;&#29992;cat&#26469;&#31616;&#21270;&#36755;&#20986;&#22810;&#34892;</span>
+<span style="color: #E6DB74; font-weight: bold;">yesfdsfdf</span>
+<span style="color: #E6DB74; font-weight: bold;">fdfsdfssfer</span>
+<span style="color: #E6DB74; font-weight: bold;">EOF   # &#23450;&#20041;&#30340;&#32467;&#26463;&#31526;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2"><span class="section-number-2">2</span> watch</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+重复运行某命令并输出结果
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">watch <span style="color: #E6DB74;">'COMMAND'</span>
+  <span style="color: #FD971F;">-n num</span>: &#21047;&#26032;&#38388;&#38548;
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6"><span class="section-number-2">3</span> 日期与时间</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">日历</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-bash">cal  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26597;&#35810;&#26085;&#21382;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">系统时间</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-yaml">date [OPTION]... [+FORMAT]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#26102;&#38388;</span>
+  <span style="color: #FD971F;">FORMAT</span>: 
+    <span style="color: #FD971F;">%F\ %T</span>: &#26085;&#26399; &#26102;&#38388;
+    <span style="color: #FD971F;">%Y%m%d%H%M%S</span>: YYMMDDhhmmss
+
+date [MMDDhhmm[[CC]YY][.ss]]  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#35774;&#32622;&#26102;&#38388;</span>
+  <span style="color: #FD971F;">CCYY</span>: &#26159;&#22235;&#20301;&#24180;&#20221;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">硬件时间</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+硬件时间是主板BIOS记录的时间，而系统时间是根据与该时间的差值计算出来的
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">hwclock <span style="color: #AE81FF;">[</span>-sw<span style="color: #AE81FF;">]</span>  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#26174;&#31034;&#30828;&#20214;&#26102;&#38388;</span>
+  -s &#30456;&#24403;&#20110; --hctosys 
+  -w &#30456;&#24403;&#20110; --systohc
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13"><span class="section-number-2">4</span> 系统管理</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">系统资源控制limit</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+</div><div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">配置文件</h4>
+<div class="outline-text-4" id="text-orgheadline7">
+<p>
+配置文件: <code>/etc/security/limits.conf</code>, <code>/etc/security/limits.d/*</code>
+</p>
+<dl class="org-dl">
+<dt>语法格式</dt><dd><div class="org-src-container">
+
+<pre class="src src-yaml">domain  type  item  value
+  <span style="color: #FD971F;">domain</span>: username&#12289;@group&#12289;*(&#25152;&#26377;&#29992;&#25143;)
+
+  <span style="color: #FD971F;">type</span>: &#38480;&#21046;&#26041;&#24335;
+    <span style="color: #FD971F;">soft</span>: &#36719;&#38480;&#21046;&#65292;&#29992;&#25143;&#21487;&#20462;&#25913;&#65292;&#19981;&#33021;&#36229;&#36807;&#30828;&#38480;&#21046;
+    <span style="color: #FD971F;">hard</span>: &#30828;&#38480;&#21046;&#65292;&#29992;&#25143;&#19981;&#21487;&#36229;&#36807;
+    -: &#20108;&#32773;&#21516;&#26102;&#38480;&#23450;
+
+  <span style="color: #FD971F;">item</span>: &#38480;&#21046;&#36164;&#28304;&#30340;&#31867;&#22411;
+    <span style="color: #FD971F;">nofile</span>: &#25152;&#33021;&#22815;&#21516;&#26102;&#25171;&#24320;&#30340;&#26368;&#22823;&#25991;&#20214;&#25968;&#37327;
+    <span style="color: #FD971F;">nproc</span>: &#25152;&#33021;&#22815;&#21516;&#26102;&#36816;&#34892;&#30340;&#26368;&#22823;&#36827;&#31243;&#25968;&#37327;
+    <span style="color: #FD971F;">msqqueue</span>: &#20351;&#29992;&#30340;POSIX&#28040;&#24687;&#38431;&#21015;&#33021;&#22815;&#21344;&#29992;&#30340;&#26368;&#22823;&#20869;&#23384;&#31354;&#38388;
+    <span style="color: #FD971F;">sigpending</span>: &#25152;&#33021;&#22815;&#20351;&#29992;&#30340;&#26368;&#22823;&#20449;&#21495;&#25968;&#37327;
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">ulimit</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<p>
+ulimit是一个内建命令，用于查询或设置当前的资源限制
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">ulimit [OPTIONS] [NUM] 
+  <span style="color: #FD971F;">-n</span>: &#25991;&#20214;&#25968;&#37327;
+  <span style="color: #FD971F;">-u</span>: &#36827;&#31243;&#25968;&#37327;
+
+  <span style="color: #FD971F;">-H</span>: &#35774;&#32622;&#30828;&#38480;&#21046;(&#40664;&#35748;&#20026;&#36719;&#38480;&#21046;)
+  <span style="color: #FD971F;">-SH</span>: &#21516;&#26102;&#35774;&#32622;&#36719;&#38480;&#21046;&#21644;&#30828;&#38480;&#21046;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">关机和重启</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<ul class="org-ul">
+<li><p>
+<code>reboot</code>, <code>halt</code>, <code>poweroff</code> 都会通过调用shutdown来使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">shutdown [OPTION]... TIME [MESSAGE]
+  <span style="color: #FD971F;">-r</span>: reboot
+  <span style="color: #FD971F;">-h</span>: halt
+  <span style="color: #FD971F;">-c</span>: cancel
+  <span style="color: #FD971F;">TIME</span>: now: &#31435;&#21051;
+        <span style="color: #FD971F;">+m</span>: &#30456;&#23545;&#26102;&#38388;
+        <span style="color: #FD971F;">hh:mm</span>: &#32477;&#23545;&#26102;&#38388;
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">用户登录信息</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<ul class="org-ul">
+<li><code>whoami</code>: 显示当前登录有效用户</li>
+<li><code>who</code>: 系统当前所有的登录会话</li>
+<li><code>w</code>: 系统当前所有的登录会话及所做的操作</li>
+<li><code>last</code>: 显示所有用户成功的登录历史</li>
+<li><code>lastb</code>: 显示所有用户失败的登录历史</li>
+<li><code>lastlog</code>: 显示每个用户的最后一次登录时间</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">uname</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+用于打印系统信息
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">uname [OPTION]...
+  <span style="color: #FD971F;">-n</span>: &#26174;&#31034;&#20027;&#26426;&#21517;&#31216;
+  <span style="color: #FD971F;">-r</span>: &#26174;&#31034;VERSION-RELEASE
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline16" class="outline-2">
+<h2 id="orgheadline16"><span class="section-number-2">5</span> 管道命令</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">tee</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+将标准输入输出到标准输出和文件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-bash">tee <span style="color: #AE81FF;">[</span>OPTION<span style="color: #AE81FF;">]</span>... <span style="color: #AE81FF;">[</span>FILE<span style="color: #AE81FF;">]</span>...  <span style="color: #75715E;"># </span><span style="color: #75715E;">&#25991;&#20214;&#21069;&#19981;&#38656;&#35201;&#21152;&#37325;&#23450;&#21521;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">xargs</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<p>
+将标准输入变成为命令的参数
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">$xargs [OPTIONS] &#21629;&#20196; 
+  <span style="color: #FD971F;">-0</span>: &#23558;&#29305;&#27530;&#23383;&#31526;&#36824;&#21407;&#25104;&#19968;&#33324;&#23383;&#31526;&#65292;&#22914;\,`,&#31354;&#26684;&#31561;
+  -e<span style="color: #E6DB74;">'&#23383;&#31526;&#20018;'</span>: &#36935;&#21040;&#23383;&#31526;&#20018;&#21017;&#20572;&#27490;
+  <span style="color: #FD971F;">-p</span>: &#27599;&#27425;&#25191;&#34892;&#21629;&#20196;&#30340;&#21442;&#25968;&#26102;, &#37117;&#20250;&#35810;&#38382;&#29992;&#25143;
+  <span style="color: #FD971F;">-n</span>: &#27599;&#27425;&#21629;&#20196;&#35201;&#20351;&#29992;&#22810;&#23569;&#20010;&#21442;&#25968;
+
+  <span style="color: #FD971F;">&#21629;&#20196;</span>: &#33509;&#21629;&#20196;&#20026;&#31354;, &#21017;&#40664;&#35748;&#20026;echo
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21"><span class="section-number-2">6</span> 网络命令</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">协议查看或分析工具</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+tcpdump, tshark, wireshark
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">curl</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<pre class="example">
+curl是基于URL语法在命令行方式下工作的文件传输工具，它支持FTP、FTPS、HTTP、HTTPS、GOPHER、TELNET、DICT、FILE及LDAP等协议。curl支持HTTPS认证，并且支持HTTP的POST、PUT等方法，FTP上传，kerberos认证，HTTP上传，代理服务器，cookies，用户名/密码认证，下载文件断点续传，上载文件断点续传、http代理服务器管道（proxy tunneling），甚至它还支持IPv6，socks5代理服务器，通过http代理服务器上传文件到FTP服务器等等，功能十分强大。
+</pre>
+<div class="org-src-container">
+
+<pre class="src src-yaml">curl [OPTIONS] [URL...]
+  <span style="color: #FD971F;">-A/--user-agent STRING</span>: &#35774;&#32622;&#29992;&#25143;&#20195;&#29702;&#21457;&#36865;&#32473;&#26381;&#21153;&#22120;
+  <span style="color: #FD971F;">-e/--referer URL</span>: &#27169;&#25311;&#26469;&#28304;&#32593;&#22336;
+  <span style="color: #FD971F;">-H/--header LINE</span>: &#33258;&#23450;&#20041;&#39318;&#37096;&#20449;&#24687;&#20256;&#36882;&#32473;&#26381;&#21153;&#22120;
+  <span style="color: #FD971F;">-I/--head</span>: &#21482;&#26174;&#31034;&#21709;&#24212;&#25253;&#25991;&#39318;&#37096;&#20449;&#24687;(HEAD&#25253;&#25991;)
+  <span style="color: #FD971F;">--compressed</span>:  &#35201;&#27714;&#36820;&#22238;&#26159;&#21387;&#32553;&#30340;&#26684;&#24335;
+  <span style="color: #FD971F;">--limit-rate RATE</span>: &#35774;&#32622;&#20256;&#36755;&#36895;&#24230;
+
+  <span style="color: #FD971F;">--cacert FILE</span>: CA&#35777;&#20070;(SSL)
+  <span style="color: #FD971F;">--tcp-nodelay</span>: &#20351;&#29992;TCP_NODELAY&#36873;&#39033;&#65292;TCP&#24310;&#36831;&#33021;&#22815;&#21512;&#24182;&#22810;&#20010;&#35831;&#27714;&#36827;&#34892;&#22788;&#29702;&#65292;&#20294;&#20250;&#26377;&#24310;&#36831;&#26102;&#38388;
+
+  <span style="color: #FD971F;">--basic</span>: &#20351;&#29992;HTTP&#22522;&#26412;&#35748;&#35777;(basic&#35748;&#35777;)
+  <span style="color: #FD971F;">-u/--user USER[:PASSWORD]</span>: &#35774;&#32622;&#26381;&#21153;&#22120;&#30340;&#29992;&#25143;&#21644;&#23494;&#30721;
+
+  <span style="color: #FD971F;">-0/--http1.0</span>: &#20351;&#29992;HTTP 1.0
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">wget</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<p>
+非交互式网络下载器
+</p>
+<div class="org-src-container">
+
+<pre class="src src-yaml">wget [option]... [URL]...
+  <span style="color: #FD971F;">-q</span>: &#38745;&#40664;&#27169;&#24335;
+  <span style="color: #FD971F;">-c</span>: &#20351;&#29992;&#26029;&#28857;&#32493;&#20256;
+  <span style="color: #FD971F;">-i FILE</span>: &#20174;&#25991;&#20214;&#20013;&#33719;&#21462;&#22810;&#20010;URL&#22320;&#22336;
+  <span style="color: #FD971F;">-O PATH</span>: &#20445;&#23384;&#20301;&#32622;
+  <span style="color: #FD971F;">--limit-rates=</span>: &#25351;&#23450;&#20256;&#36755;&#36895;&#29575;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20"><span class="todo TODO">TODO</span> axel</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<p>
+支持断点续传和多线程下载
+</p>
+</div>
+</div>
+</div>
